@@ -1,12 +1,12 @@
 meta {
-  name: Logout
+  name: Get Profile
   type: http
-  seq: 5
+  seq: 2
 }
 
-post {
-  url: {{base_url}}/auth/logout
-  body: json
+get {
+  url: {{base_url}}/auth/profile
+  body: none
   auth: bearer
 }
 
