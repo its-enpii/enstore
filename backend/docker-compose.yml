@@ -1,0 +1,73 @@
+services:
+  # PHP-FPM Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: enstore-api
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - enstore
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: enstore-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - enstore
+    depends_on:
+      - app
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: enstore-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: enstore
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: enstore_db_password
+      MYSQL_USER: enstore_db_user
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - enstore
+
+  # phpMyAdmin Service (Optional)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: enstore-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+    networks:
+      - enstore
+    depends_on:
+      - db
+
+# Docker Networks
+networks:
+  enstore:
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local
