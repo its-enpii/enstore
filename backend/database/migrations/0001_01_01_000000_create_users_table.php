@@ -12,17 +12,51 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+
+            // Basic Info
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->unique()->index();
+            $table->string('phone', 20)->unique();
+            $table->string('password')->nullable()->comment('NULL untuk guest yang belum set password');
+
+            // Role & Type
+            $table->enum('role', ['admin', 'customer'])->default('customer');
+            $table->enum('customer_type', ['retail', 'reseller'])->default('retail');
+            $table->boolean('is_guest')->default(false)->comment('TRUE = guest user, FALSE = registered member');
+
+            // Status
+            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('pin')->nullable();
-            $table->enum('role', ['customer', 'admin'])->default('customer');
+            $table->timestamp('phone_verified_at')->nullable();
+
+            // Profile
+            $table->string('avatar')->nullable();
+
+            // Referral System (Optional)
+            $table->string('referral_code', 20)->unique()->nullable();
+            $table->foreignId('referred_by')->nullable()->constrained('users')->nullOnDelete();
+
+            // Tracking
+            $table->timestamp('last_login_at')->nullable();
+            $table->string('last_login_ip', 45)->nullable();
+
+            // Laravel Auth
             $table->rememberToken();
-            $table->enum('status', ['active', 'suspended', 'banned'])->default('active');
+
+            // Timestamps
             $table->timestamps();
+            $table->softDeletes();
+
+            // Indexes
+            $table->index('email');
+            $table->index('phone');
+            $table->index('role');
+            $table->index('customer_type');
+            $table->index('is_guest');
+            $table->index('status');
+            $table->index('referral_code');
+            $table->index(['email', 'is_guest'], 'email_guest');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
