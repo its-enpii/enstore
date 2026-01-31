@@ -209,10 +209,17 @@ class AuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         try {
+            \Log::info('Forgot password attempt for: ' . $request->email);
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                \Log::warning('User not found: ' . $request->email);
+            }
+
             $status = Password::sendResetLink(
                 $request->only('email')
             );
 
+            \Log::info('Password reset status: ' . $status);
             if ($status === Password::RESET_LINK_SENT) {
                 return response()->json([
                     'success' => true,
@@ -222,9 +229,13 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengirim link reset password',
-            ], 500);
+                'message' => __($status),
+                'status_code' => $status,
+            ], 400);
         } catch (\Exception $e) {
+            \Log::error('Forgot password error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Forgot password gagal',

@@ -1,0 +1,24 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/auth/refresh-token
+  body: none
+  auth: bearer
+}
+
+headers {
+  : 
+}
+
+auth:bearer {
+  token: 2|Dnpp6dO4I2wL06s4DShyKEyZ5ynl0I9kHLK3knsl103d9a54
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

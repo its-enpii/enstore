@@ -1,0 +1,27 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/auth/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Enpii",
+    "email": "enpiiofficial@gmail.com",
+    "phone": "085842712135",
+    "password": "enpii118",
+    "password_confirmation": "enpii118",
+    "customer_type": "reseller"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
