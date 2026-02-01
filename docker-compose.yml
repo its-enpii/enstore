@@ -1,0 +1,197 @@
+services:
+  # ==================== BACKEND SERVICES ====================
+  
+  # PHP-FPM Service (Laravel Backend)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: enstore-backend
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=enstore
+      - DB_USERNAME=enstore_db_user
+      - DB_PASSWORD=enstore_db_password
+    networks:
+      - enstore
+    depends_on:
+      - db
+
+  # Nginx for Backend API
+  backend-nginx:
+    image: nginx:alpine
+    container_name: enstore-backend-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./backend/docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - enstore
+    depends_on:
+      - backend
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: enstore-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: enstore
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: enstore_db_password
+      MYSQL_USER: enstore_db_user
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - enstore
+    command: --default-authentication-plugin=mysql_native_password
+
+  # phpMyAdmin (Optional - Database Management)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: enstore-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+    networks:
+      - enstore
+    depends_on:
+      - db
+
+  # ==================== FRONTEND SERVICES ====================
+  # Note: Frontend is disabled by default. To enable, run:
+  # docker-compose --profile frontend up -d
+
+  # Next.js Frontend (DISABLED - Not Ready Yet)
+  frontend:
+    profiles:
+      - frontend  # Only runs when --profile frontend is specified
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: enstore-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    networks:
+      - enstore
+    depends_on:
+      - backend
+    command: npm run dev
+
+  # ==================== FLUTTER WEB ====================
+  # Note: Flutter is disabled by default. To enable, run:
+  # docker-compose --profile flutter up -d
+  
+  # Flutter Web Service (DISABLED - Not Ready Yet)
+  # Uncomment when ready and add 'profiles: [flutter]'
+  # flutter-web:
+  #   profiles:
+  #     - flutter  # Only runs when --profile flutter is specified
+  #   build:
+  #     context: ./flutter
+  #     dockerfile: Dockerfile.web
+  #   container_name: enstore-flutter-web
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5000:80"
+  #   networks:
+  #     - enstore
+
+  # ==================== ADDITIONAL SERVICES ====================
+
+  # Redis (Optional - for caching & queues)
+  redis:
+    image: redis:alpine
+    container_name: enstore-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - enstore
+    volumes:
+      - redisdata:/data
+
+  # Queue Worker (Laravel Queue)
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: enstore-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=enstore
+      - DB_USERNAME=enstore_db_user
+      - DB_PASSWORD=enstore_db_password
+    networks:
+      - enstore
+    depends_on:
+      - db
+      - redis
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+
+  # Scheduler (Laravel Scheduler)
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: enstore-scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=enstore
+      - DB_USERNAME=enstore_db_user
+      - DB_PASSWORD=enstore_db_password
+    networks:
+      - enstore
+    depends_on:
+      - db
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run --verbose --no-interaction &
+        sleep 60
+      done"
+
+# ==================== NETWORKS ====================
+networks:
+  enstore:
+    driver: bridge
+
+# ==================== VOLUMES ====================
+volumes:
+  dbdata:
+    driver: local
+  redisdata:
+    driver: local
