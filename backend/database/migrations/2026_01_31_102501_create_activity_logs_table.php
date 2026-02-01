@@ -20,8 +20,8 @@ return new class extends Migration
             // Action
             $table->string('action', 100)->comment('created, updated, deleted, login, dll');
 
-            // Model
-            $table->string('model', 100)->nullable()->comment('User, Product, Transaction, dll');
+            // Model (polymorphic relationship)
+            $table->string('model_type', 255)->nullable()->comment('App\\Models\\User, App\\Models\\Product, dll');
             $table->unsignedBigInteger('model_id')->nullable();
 
             // Description
@@ -32,15 +32,15 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
 
             // Additional Data
-            $table->json('properties')->nullable()->comment('Old values, new values, dll');
+            $table->json('meta_data')->nullable()->comment('Additional data, log_type, request, response, dll');
 
             // Timestamp
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             // Indexes
             $table->index('user_id');
             $table->index('action');
-            $table->index(['model', 'model_id'], 'model_index');
+            $table->index(['model_type', 'model_id'], 'model_index');
             $table->index('created_at');
         });
     }

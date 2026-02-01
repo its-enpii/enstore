@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\DigiflazzService;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Support\Str;
@@ -89,7 +88,6 @@ class SyncDigiflazzProducts extends Command
                     ['slug' => Str::slug($categoryName)],
                     [
                         'name' => $categoryName,
-                        'type' => $this->mapCategoryType($categoryName),
                         'is_active' => true,
                     ]
                 );
@@ -113,7 +111,6 @@ class SyncDigiflazzProducts extends Command
                         'category_id' => $category->id,
                         'name' => $product['product_name'],
                         'brand' => $product['brand'],
-                        'type' => $this->mapProductType($product['category']),
                         'base_price' => $basePrice,
                         'retail_price' => $retailPrice,
                         'reseller_price' => $resellerPrice,

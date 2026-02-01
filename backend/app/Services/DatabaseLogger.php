@@ -12,7 +12,7 @@ class DatabaseLogger
    * 
    * @param string $type
    * @param string $action
-   * @param string $description
+   * @param string|null $description
    * @param array $data
    * @param string|null $model
    * @param int|null $modelId
@@ -21,19 +21,18 @@ class DatabaseLogger
   public function log(
     string $type,
     string $action,
-    string $description,
+    ?string $description = null,
     array $data = [],
     ?string $model = null,
     ?int $modelId = null
   ): ActivityLog {
     return ActivityLog::create([
       'user_id' => Auth::id(),
-      // 'type' => $type, // ActivityLog model doesn't have type
       'action' => $action,
       'description' => $description,
       'model_type' => $model,
       'model_id' => $modelId,
-      'meta_data' => array_merge(['log_type' => $type], $data), // Map to meta_data
+      'meta_data' => array_merge(['log_type' => $type], $data),
       'ip_address' => request()->ip(),
       'user_agent' => request()->userAgent(),
     ]);

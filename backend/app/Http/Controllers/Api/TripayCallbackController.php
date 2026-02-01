@@ -36,8 +36,6 @@ class TripayCallbackController extends Controller
       // Get callback data
       $callbackData = $request->all();
 
-      Log::info('Tripay Callback Received', $callbackData);
-
       // Validate signature
       $callbackSignature = $request->header('X-Callback-Signature');
 
@@ -99,15 +97,8 @@ class TripayCallbackController extends Controller
         'processed_at' => now(),
       ]);
 
-      // Process payment based on status
       $tripayStatus = $callbackData['status'] ?? 'UNPAID';
       $paymentStatus = $this->tripayService->parsePaymentStatus($tripayStatus);
-
-      Log::info('Tripay Callback Processing', [
-        'transaction_code' => $merchantRef,
-        'tripay_status' => $tripayStatus,
-        'payment_status' => $paymentStatus,
-      ]);
 
       // Handle payment status
       DB::beginTransaction();
@@ -120,11 +111,6 @@ class TripayCallbackController extends Controller
         }
 
         DB::commit();
-
-        Log::info('Tripay Callback Processed Successfully', [
-          'transaction_code' => $merchantRef,
-          'status' => $paymentStatus,
-        ]);
 
         return response()->json([
           'success' => true,
@@ -172,11 +158,6 @@ class TripayCallbackController extends Controller
       'paid_at' => now(),
     ]);
 
-    Log::info('Payment Success', [
-      'transaction_code' => $transaction->transaction_code,
-      'amount' => $transaction->total_price,
-    ]);
-
     // If transaction type is topup, add balance
     if ($transaction->transaction_type === 'topup') {
       $this->processTopup($transaction);
@@ -221,11 +202,6 @@ class TripayCallbackController extends Controller
       'status' => 'failed',
       'failed_at' => now(),
       $status === 'expired' ? 'expired_at' : 'failed_at' => now(),
-    ]);
-
-    Log::info('Payment Failed/Expired', [
-      'transaction_code' => $transaction->transaction_code,
-      'status' => $status,
     ]);
 
     // Create notification
@@ -284,12 +260,6 @@ class TripayCallbackController extends Controller
       'status' => 'success',
       'completed_at' => now(),
     ]);
-
-    Log::info('Topup Processed', [
-      'user_id' => $user->id,
-      'amount' => $topupAmount,
-      'balance_after' => $balanceAfter,
-    ]);
   }
 
   /**
@@ -307,10 +277,5 @@ class TripayCallbackController extends Controller
 
     // Dispatch job to process Digiflazz order
     ProcessDigiflazzOrder::dispatch($transaction);
-
-    Log::info('Purchase Order Dispatched', [
-      'transaction_code' => $transaction->transaction_code,
-      'product_code' => $transaction->product_code,
-    ]);
   }
 }

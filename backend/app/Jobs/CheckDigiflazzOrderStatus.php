@@ -33,18 +33,9 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Checking Digiflazz Order Status', [
-            'transaction_code' => $this->transaction->transaction_code,
-            'attempt' => $this->attempts(),
-        ]);
-
         try {
             // Skip if transaction is already completed or failed
             if (in_array($this->transaction->status, ['success', 'failed', 'cancelled'])) {
-                Log::info('Transaction already finalized, skipping status check', [
-                    'transaction_code' => $this->transaction->transaction_code,
-                    'status' => $this->transaction->status,
-                ]);
                 return;
             }
 
@@ -140,11 +131,6 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
                 ],
             ]);
         }
-
-        Log::info('Digiflazz Order Status: Success', [
-            'transaction_code' => $this->transaction->transaction_code,
-            'serial_number' => $data['sn'] ?? null,
-        ]);
     }
 
     /**
@@ -169,11 +155,6 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
         // If not max retries, schedule another check in 3 minutes
         if ($this->attempts() < $this->tries) {
             $this->release(180);
-
-            Log::info('Digiflazz Order Still Pending, will check again', [
-                'transaction_code' => $this->transaction->transaction_code,
-                'attempt' => $this->attempts(),
-            ]);
         } else {
             // Max retries reached, mark as failed
             $this->handleFailed([
@@ -257,11 +238,6 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
                 'balance_before' => $balance->amount - $this->transaction->total_amount,
                 'balance_after' => $balance->amount,
                 'description' => 'Refund for failed transaction: ' . $this->transaction->transaction_code,
-            ]);
-
-            Log::info('Balance refunded', [
-                'user_id' => $user->id,
-                'amount' => $this->transaction->total_amount,
             ]);
         } catch (\Exception $e) {
             Log::error('Refund Balance Error: ' . $e->getMessage());

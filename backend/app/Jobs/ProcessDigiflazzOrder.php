@@ -10,7 +10,6 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
 use App\Models\BalanceMutation;
-use App\Services\DigiflazzService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -36,11 +35,6 @@ class ProcessDigiflazzOrder implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Processing Digiflazz Order', [
-            'transaction_code' => $this->transaction->transaction_code,
-            'attempt' => $this->attempts(),
-        ]);
-
         try {
             // Update status to processing
             $this->transaction->update(['status' => 'processing']);
@@ -139,11 +133,6 @@ class ProcessDigiflazzOrder implements ShouldQueue
             }
 
             DB::commit();
-
-            Log::info('Digiflazz Order Success', [
-                'transaction_code' => $this->transaction->transaction_code,
-                'serial_number' => $data['sn'] ?? null,
-            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Handle Success Error: ' . $e->getMessage());
@@ -168,10 +157,6 @@ class ProcessDigiflazzOrder implements ShouldQueue
         // Dispatch job to check status in 2 minutes
         CheckDigiflazzOrderStatus::dispatch($this->transaction)
             ->delay(now()->addMinutes(2));
-
-        Log::info('Digiflazz Order Pending', [
-            'transaction_code' => $this->transaction->transaction_code,
-        ]);
     }
 
     /**
