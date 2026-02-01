@@ -4,34 +4,31 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Product;
+use App\Models\ProductItem;
 use App\Models\ProductCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class SyncDigiflazzProducts extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'digiflazz:sync-products 
                             {--force : Force sync without cache}
                             {--category= : Sync specific category only}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Sync products from Digiflazz API to database';
+    protected $description = 'Sync products from Digiflazz API to database (hierarchical structure)';
 
-    /**
-     * Execute the console command.
-     */
+    private $stats = [
+        'products_created' => 0,
+        'products_updated' => 0,
+        'items_created' => 0,
+        'items_updated' => 0,
+        'items_skipped' => 0,
+        'categories_created' => 0,
+    ];
+
     public function handle()
     {
-        $this->info('🚀 Starting product sync from Digiflazz...');
+        $this->info('🚀 Starting hierarchical product sync from Digiflazz...');
         $this->newLine();
 
         try {
@@ -40,225 +37,408 @@ class SyncDigiflazzProducts extends Command
             // Get price list from Digiflazz
             $this->info('📡 Fetching price list from Digiflazz API...');
             $useCache = !$this->option('force');
-            $products = $digiflazzService->getPriceList($useCache);
+            $items = $digiflazzService->getPriceList($useCache);
 
-            $this->info('✅ Total products fetched: ' . count($products));
+            $this->info('✅ Total items fetched: ' . count($items));
             $this->newLine();
 
             // Filter by category if specified
             if ($categoryFilter = $this->option('category')) {
-                $products = array_filter($products, function ($product) use ($categoryFilter) {
-                    return strtolower($product['category']) === strtolower($categoryFilter);
+                $items = array_filter($items, function ($item) use ($categoryFilter) {
+                    return stripos($item['category'] ?? '', $categoryFilter) !== false;
                 });
-                $this->info('🔍 Filtered to category: ' . $categoryFilter);
-                $this->info('Products to sync: ' . count($products));
-                $this->newLine();
+                $this->info('🔍 Filtered to ' . count($items) . ' items for category: ' . $categoryFilter);
             }
 
-            if (empty($products)) {
-                $this->warn('⚠️  No products to sync.');
-                return 0;
-            }
+            // Group items by brand to create parent products
+            $this->info('📦 Grouping items by brand...');
+            $groupedItems = $this->groupItemsByBrand($items);
+            $this->info('✅ Found ' . count($groupedItems) . ' unique products');
+            $this->newLine();
 
-            $progressBar = $this->output->createProgressBar(count($products));
-            $progressBar->setFormat('verbose');
+            // Sync products and items
+            $this->info('⚙️  Syncing products and items...');
+            $progressBar = $this->output->createProgressBar(count($groupedItems));
             $progressBar->start();
 
-            $stats = [
-                'synced' => 0,
-                'updated' => 0,
-                'created' => 0,
-                'skipped' => 0,
-                'categories' => 0,
-            ];
-
-            DB::beginTransaction();
-
-            foreach ($products as $product) {
-                // Skip if product inactive
-                if (!$product['buyer_product_status'] || !$product['seller_product_status']) {
-                    $stats['skipped']++;
-                    $progressBar->advance();
-                    continue;
-                }
-
-                // Get or create category
-                $categoryName = $product['category'];
-                $category = ProductCategory::firstOrCreate(
-                    ['slug' => Str::slug($categoryName)],
-                    [
-                        'name' => $categoryName,
-                        'is_active' => true,
-                    ]
-                );
-
-                if ($category->wasRecentlyCreated) {
-                    $stats['categories']++;
-                }
-
-                // Calculate prices with markup
-                $basePrice = $product['price'];
-                $retailMarkup = $this->getMarkup('retail', $categoryName);
-                $resellerMarkup = $this->getMarkup('reseller', $categoryName);
-
-                $retailPrice = $basePrice + $retailMarkup;
-                $resellerPrice = $basePrice + $resellerMarkup;
-
-                // Update or create product
-                $productModel = Product::updateOrCreate(
-                    ['digiflazz_code' => $product['buyer_sku_code']],
-                    [
-                        'category_id' => $category->id,
-                        'name' => $product['product_name'],
-                        'brand' => $product['brand'],
-                        'type' => $this->mapProductType($categoryName),
-                        'payment_type' => $this->detectPaymentType($product),
-                        'base_price' => $basePrice,
-                        'retail_price' => $retailPrice,
-                        'reseller_price' => $resellerPrice,
-                        'retail_profit' => $retailPrice - $basePrice,
-                        'reseller_profit' => $resellerPrice - $basePrice,
-                        'stock_status' => $product['seller_product_status'] ? 'available' : 'empty',
-                        'is_active' => true,
-                        'description' => $product['desc'] ?? null,
-                        'last_synced_at' => now(),
-                    ]
-                );
-
-                if ($productModel->wasRecentlyCreated) {
-                    $stats['created']++;
-                } else {
-                    $stats['updated']++;
-                }
-
-                $stats['synced']++;
+            foreach ($groupedItems as $brand => $brandItems) {
+                $this->syncProduct($brand, $brandItems);
                 $progressBar->advance();
             }
-
-            DB::commit();
 
             $progressBar->finish();
             $this->newLine(2);
 
-            // Display results
-            $this->info('✅ Sync completed successfully!');
-            $this->newLine();
-
-            $this->table(
-                ['Metric', 'Count'],
-                [
-                    ['Total Synced', $stats['synced']],
-                    ['Created', $stats['created']],
-                    ['Updated', $stats['updated']],
-                    ['Skipped (Inactive)', $stats['skipped']],
-                    ['Categories Created', $stats['categories']],
-                ]
-            );
+            // Display summary
+            $this->displaySummary();
 
             $this->newLine();
             $this->info('🎉 Product sync finished!');
 
-            return 0;
+            return Command::SUCCESS;
         } catch (\Exception $e) {
-            DB::rollBack();
-
-            $this->newLine();
-            $this->error('❌ Sync failed: ' . $e->getMessage());
-            $this->error('Stack trace: ' . $e->getTraceAsString());
-
-            return 1;
+            $this->error('❌ Error syncing products: ' . $e->getMessage());
+            $this->error($e->getTraceAsString());
+            return Command::FAILURE;
         }
     }
 
     /**
-     * Map category name to type
+     * Group items by brand to create parent products
      */
-    private function mapCategoryType($category)
+    private function groupItemsByBrand(array $items): array
     {
-        $mapping = [
-            'Games' => 'game',
-            'Pulsa' => 'pulsa',
-            'Paket Data' => 'data',
-            'PLN' => 'pln',
-            'E-Money' => 'emoney',
-            'Voucher' => 'voucher',
+        $grouped = [];
+
+        foreach ($items as $item) {
+            $brand = $item['brand'] ?? 'Unknown';
+
+            if (!isset($grouped[$brand])) {
+                $grouped[$brand] = [];
+            }
+
+            $grouped[$brand][] = $item;
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * Sync a product and its items
+     */
+    private function syncProduct(string $brand, array $items): void
+    {
+        // Get first item to extract common data
+        $firstItem = $items[0];
+
+        // Get or create category
+        $category = $this->getOrCreateCategory($firstItem['category'] ?? 'Uncategorized');
+
+        // Detect product type and payment type
+        $type = $this->detectType($firstItem);
+        $paymentType = $this->detectPaymentType($firstItem);
+
+        // Generate product name from brand
+        $productName = $this->generateProductName($brand);
+        $slug = Str::slug($productName);
+
+        // Create or update parent product
+        $product = Product::updateOrCreate(
+            ['slug' => $slug],
+            [
+                'category_id' => $category->id,
+                'name' => $productName,
+                'brand' => $brand,
+                'type' => $type,
+                'payment_type' => $paymentType,
+                'is_active' => true,
+                'is_featured' => false,
+                'sort_order' => 0,
+            ]
+        );
+
+        if ($product->wasRecentlyCreated) {
+            $this->stats['products_created']++;
+        } else {
+            $this->stats['products_updated']++;
+        }
+
+        // Sync all items for this product
+        foreach ($items as $itemData) {
+            $this->syncProductItem($product, $itemData);
+        }
+    }
+
+    /**
+     * Sync a product item (variant)
+     */
+    private function syncProductItem(Product $product, array $data): void
+    {
+        // Skip inactive products
+        if (isset($data['seller_product_status']) && !$data['seller_product_status']) {
+            $this->stats['items_skipped']++;
+            return;
+        }
+
+        // Extract item name (remove brand prefix)
+        $itemName = $this->extractItemName($data['product_name'], $product->brand);
+
+        $productItem = ProductItem::updateOrCreate(
+            ['digiflazz_code' => $data['buyer_sku_code']],
+            [
+                'product_id' => $product->id,
+                'name' => $itemName,
+                'description' => $data['desc'] ?? null,
+
+                'base_price' => $data['price'] ?? 0,
+                'retail_price' => $this->calculateRetailPrice($data['price'] ?? 0),
+                'reseller_price' => $this->calculateResellerPrice($data['price'] ?? 0),
+                'admin_fee' => $data['admin'] ?? 0,
+                'retail_profit' => $this->calculateRetailProfit($data['price'] ?? 0),
+                'reseller_profit' => $this->calculateResellerProfit($data['price'] ?? 0),
+
+                'stock_status' => $this->mapStockStatus($data),
+                'is_active' => $data['seller_product_status'] ?? true,
+
+                'server_options' => null,
+                'input_fields' => $this->generateInputFields($product->type),
+
+                'last_synced_at' => now(),
+            ]
+        );
+
+        if ($productItem->wasRecentlyCreated) {
+            $this->stats['items_created']++;
+        } else {
+            $this->stats['items_updated']++;
+        }
+    }
+
+    /**
+     * Get or create category
+     */
+    private function getOrCreateCategory(string $categoryName): ProductCategory
+    {
+        $category = ProductCategory::firstOrCreate(
+            ['slug' => Str::slug($categoryName)],
+            [
+                'name' => $categoryName,
+                'description' => 'Auto-created from Digiflazz sync',
+                'is_active' => true,
+            ]
+        );
+
+        if ($category->wasRecentlyCreated) {
+            $this->stats['categories_created']++;
+        }
+
+        return $category;
+    }
+
+    /**
+     * Generate product name from brand
+     */
+    private function generateProductName(string $brand): string
+    {
+        // Remove common suffixes
+        $name = preg_replace('/\s+(GAME|GAMES|VOUCHER|PULSA|DATA|PAKET)$/i', '', $brand);
+
+        // Special cases for better naming
+        $specialCases = [
+            'FREE FIRE' => 'Free Fire',
+            'MOBILE LEGENDS' => 'Mobile Legends',
+            'PUBG' => 'PUBG Mobile',
+            'VALORANT' => 'Valorant',
+            'GENSHIN IMPACT' => 'Genshin Impact',
+            'AXIS' => 'Axis',
+            'TELKOMSEL' => 'Telkomsel',
+            'INDOSAT' => 'Indosat',
+            'XL' => 'XL Axiata',
+            'TRI' => 'Tri',
+            'SMARTFREN' => 'Smartfren',
+            'DANA' => 'DANA',
+            'OVO' => 'OVO',
+            'GOPAY' => 'GoPay',
+            'SHOPEEPAY' => 'ShopeePay',
+            'PLN' => 'PLN',
         ];
 
-        return $mapping[$category] ?? 'other';
+        foreach ($specialCases as $key => $value) {
+            if (stripos($brand, $key) !== false) {
+                return $value;
+            }
+        }
+
+        return ucwords(strtolower($name));
+    }
+
+    /**
+     * Extract item name (remove brand prefix)
+     */
+    private function extractItemName(string $fullName, string $brand): string
+    {
+        // Remove brand from product name
+        $name = str_ireplace($brand, '', $fullName);
+        $name = trim($name);
+
+        // Remove leading dash or space
+        $name = ltrim($name, '- ');
+
+        return $name ?: $fullName;
+    }
+
+    /**
+     * Detect product type
+     */
+    private function detectType(array $data): string
+    {
+        $category = strtolower($data['category'] ?? '');
+        $productName = strtolower($data['product_name'] ?? '');
+
+        if (stripos($category, 'game') !== false || stripos($productName, 'diamond') !== false || stripos($productName, 'uc') !== false) {
+            return 'game';
+        }
+
+        if (stripos($category, 'pulsa') !== false) {
+            return 'pulsa';
+        }
+
+        if (stripos($category, 'data') !== false || stripos($category, 'paket') !== false) {
+            return 'data';
+        }
+
+        if (stripos($category, 'pln') !== false || stripos($productName, 'token') !== false) {
+            return 'pln';
+        }
+
+        if (stripos($category, 'voucher') !== false) {
+            return 'voucher';
+        }
+
+        if (stripos($category, 'e-money') !== false || stripos($category, 'emoney') !== false) {
+            return 'emoney';
+        }
+
+        return 'other';
     }
 
     /**
      * Detect payment type (prepaid/postpaid)
      */
-    private function detectPaymentType($product)
+    private function detectPaymentType(array $data): string
     {
-        $category = strtolower($product['category']);
-        $productName = strtolower($product['product_name']);
-        $type = strtolower($product['type'] ?? '');
+        $type = strtolower($data['type'] ?? '');
+        $category = strtolower($data['category'] ?? '');
+        $productName = strtolower($data['product_name'] ?? '');
 
-        // Check if explicitly marked as pascabayar
-        if (str_contains($type, 'pasca') || str_contains($productName, 'pascabayar')) {
+        // Check type field
+        if (stripos($type, 'pasca') !== false) {
             return 'postpaid';
         }
 
-        // Category-based detection
+        // Check category
         $postpaidCategories = [
             'pln pascabayar',
             'pdam',
             'telkom',
-            'speedy',
             'indihome',
             'tv kabel',
-            'internet',
-            'multifinance',
             'bpjs',
+            'multifinance',
         ];
 
         foreach ($postpaidCategories as $postpaidCat) {
-            if (str_contains($category, $postpaidCat) || str_contains($productName, $postpaidCat)) {
+            if (stripos($category, $postpaidCat) !== false) {
                 return 'postpaid';
             }
         }
 
-        // Default to prepaid
+        // Check product name
+        if (stripos($productName, 'pascabayar') !== false || stripos($productName, 'pasca bayar') !== false) {
+            return 'postpaid';
+        }
+
         return 'prepaid';
     }
 
     /**
-     * Map category to product type
+     * Calculate retail price (base + margin)
      */
-    private function mapProductType($category)
+    private function calculateRetailPrice(float $basePrice): float
     {
-        return $this->mapCategoryType($category);
+        return $basePrice + 2000; // Rp 2.000 margin
     }
 
     /**
-     * Get markup based on customer type and category
+     * Calculate reseller price (base + smaller margin)
      */
-    private function getMarkup($customerType, $category)
+    private function calculateResellerPrice(float $basePrice): float
     {
-        // Markup configuration (in Rupiah)
-        $markupConfig = [
-            'retail' => [
-                'Games' => 3000,
-                'Pulsa' => 2000,
-                'Paket Data' => 2500,
-                'PLN' => 2000,
-                'E-Money' => 2500,
-                'Voucher' => 3000,
-                'default' => 2500,
-            ],
-            'reseller' => [
-                'Games' => 1500,
-                'Pulsa' => 1000,
-                'Paket Data' => 1200,
-                'PLN' => 1000,
-                'E-Money' => 1200,
-                'Voucher' => 1500,
-                'default' => 1200,
-            ],
-        ];
+        return $basePrice + 1000; // Rp 1.000 margin
+    }
 
-        return $markupConfig[$customerType][$category] ?? $markupConfig[$customerType]['default'];
+    /**
+     * Calculate retail profit
+     */
+    private function calculateRetailProfit(float $basePrice): float
+    {
+        return 2000;
+    }
+
+    /**
+     * Calculate reseller profit
+     */
+    private function calculateResellerProfit(float $basePrice): float
+    {
+        return 1000;
+    }
+
+    /**
+     * Map stock status from Digiflazz
+     */
+    private function mapStockStatus(array $data): string
+    {
+        $buyerProductStatus = $data['buyer_product_status'] ?? true;
+        $sellerProductStatus = $data['seller_product_status'] ?? true;
+
+        if (!$buyerProductStatus || !$sellerProductStatus) {
+            return 'empty';
+        }
+
+        return 'available';
+    }
+
+    /**
+     * Generate input fields based on product type
+     */
+    private function generateInputFields(string $type): array
+    {
+        switch ($type) {
+            case 'game':
+                return [
+                    ['name' => 'user_id', 'label' => 'User ID', 'type' => 'text', 'required' => true],
+                    ['name' => 'zone_id', 'label' => 'Zone ID', 'type' => 'text', 'required' => true],
+                ];
+
+            case 'pulsa':
+            case 'data':
+            case 'emoney':
+                return [
+                    ['name' => 'phone', 'label' => 'Nomor HP', 'type' => 'tel', 'required' => true],
+                ];
+
+            case 'pln':
+                return [
+                    ['name' => 'meter_no', 'label' => 'Nomor Meter / ID Pelanggan', 'type' => 'text', 'required' => true],
+                ];
+
+            case 'voucher':
+                return [
+                    ['name' => 'email', 'label' => 'Email (Optional)', 'type' => 'email', 'required' => false],
+                ];
+
+            default:
+                return [
+                    ['name' => 'customer_no', 'label' => 'Nomor Pelanggan', 'type' => 'text', 'required' => true],
+                ];
+        }
+    }
+
+    /**
+     * Display sync summary
+     */
+    private function displaySummary(): void
+    {
+        $this->table(
+            ['Metric', 'Count'],
+            [
+                ['Products Created', $this->stats['products_created']],
+                ['Products Updated', $this->stats['products_updated']],
+                ['Items Created', $this->stats['items_created']],
+                ['Items Updated', $this->stats['items_updated']],
+                ['Items Skipped (Inactive)', $this->stats['items_skipped']],
+                ['Categories Created', $this->stats['categories_created']],
+            ]
+        );
     }
 }

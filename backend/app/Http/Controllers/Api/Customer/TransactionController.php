@@ -42,12 +42,12 @@ class TransactionController extends Controller
 
     try {
       $user = auth()->user();
-      $product = $this->productService->getProductById($request->product_id);
+      $productItem = $this->productService->getProductItemById($request->product_item_id);
 
       // Create transaction
       $transaction = $this->transactionService->createPurchaseTransaction(
         $user,
-        $product,
+        $productItem,
         $request->customer_data,
         $request->payment_method
       );
@@ -62,8 +62,8 @@ class TransactionController extends Controller
         'customer_phone' => $user->phone,
         'order_items' => [
           [
-            'sku' => $product->digiflazz_code,
-            'name' => $product->name,
+            'sku' => $productItem->digiflazz_code,
+            'name' => $productItem->product->name . ' - ' . $productItem->name,
             'price' => $transaction->product_price,
             'quantity' => 1,
           ],
@@ -127,12 +127,12 @@ class TransactionController extends Controller
   {
     try {
       $user = auth()->user();
-      $product = $this->productService->getProductById($request->product_id);
+      $productItem = $this->productService->getProductItemById($request->product_item_id);
 
       // Create transaction
       $transaction = $this->transactionService->createBalancePurchaseTransaction(
         $user,
-        $product,
+        $productItem,
         $request->customer_data
       );
 
@@ -284,7 +284,7 @@ class TransactionController extends Controller
       $user = auth()->user();
 
       $transaction = $user->transactions()
-        ->with(['product', 'payment', 'logs'])
+        ->with(['productItem.product', 'payment', 'logs'])
         ->where('transaction_code', $transactionCode)
         ->firstOrFail();
 

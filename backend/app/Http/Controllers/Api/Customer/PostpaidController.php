@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
+use App\Models\ProductItem;
 use App\Services\DigiflazzService;
 use App\Services\TransactionService;
 use App\Services\TripayService;
@@ -29,14 +29,11 @@ class PostpaidController extends Controller
 
     /**
      * Inquiry tagihan (Step 1)
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function inquiry(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required|exists:products,id',
+            'product_item_id' => 'required|exists:product_items,id',
             'customer_no' => 'required|string|max:50',
         ]);
 
@@ -49,10 +46,10 @@ class PostpaidController extends Controller
         }
 
         try {
-            $product = Product::findOrFail($request->product_id);
+            $productItem = ProductItem::with('product')->findOrFail($request->product_item_id);
 
             // Check if product is postpaid
-            if ($product->payment_type !== 'postpaid') {
+            if ($productItem->product->payment_type !== 'postpaid') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Produk ini bukan produk pascabayar',
@@ -64,7 +61,7 @@ class PostpaidController extends Controller
 
             // Call Digiflazz inquiry
             $result = $this->digiflazzService->inquiryPostpaid(
-                $product->digiflazz_code,
+                $productItem->digiflazz_code,
                 $request->customer_no,
                 $inquiryRef
             );
@@ -80,9 +77,9 @@ class PostpaidController extends Controller
 
             // Save inquiry to cache for 30 minutes
             $inquiryData = [
-                'product_id' => $product->id,
-                'product_name' => $product->name,
-                'digiflazz_code' => $product->digiflazz_code,
+                'product_item_id' => $productItem->id,
+                'product_name' => $productItem->product->name . ' - ' . $productItem->name,
+                'digiflazz_code' => $productItem->digiflazz_code,
                 'customer_no' => $request->customer_no,
                 'customer_name' => $data['customer_name'] ?? '',
                 'period' => $data['period'] ?? '',
@@ -98,7 +95,7 @@ class PostpaidController extends Controller
                 'message' => 'Berhasil cek tagihan',
                 'data' => [
                     'inquiry_ref' => $inquiryRef,
-                    'product_name' => $product->name,
+                    'product_name' => $productItem->product->name . ' - ' . $productItem->name,
                     'customer_no' => $request->customer_no,
                     'customer_name' => $data['customer_name'] ?? '',
                     'period' => $data['period'] ?? '',
@@ -117,9 +114,6 @@ class PostpaidController extends Controller
 
     /**
      * Pay tagihan (Step 2)
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function pay(Request $request)
     {
@@ -150,7 +144,7 @@ class PostpaidController extends Controller
             // Create postpaid transaction
             $transaction = $this->transactionService->createPostpaidTransaction([
                 'user_id' => auth()->id(),
-                'product_id' => $inquiryData['product_id'],
+                'product_item_id' => $inquiryData['product_item_id'],
                 'customer_data' => [
                     'customer_no' => $inquiryData['customer_no'],
                 ],
@@ -161,11 +155,13 @@ class PostpaidController extends Controller
                     'nominal' => $inquiryData['nominal'],
                     'admin' => $inquiryData['admin'],
                 ],
+                'customer_type' => auth()->user()->customer_type ?? 'retail',
                 'total_price' => $inquiryData['total'],
             ]);
 
             // Create payment via Tripay
-            $payment = $this->tripayService->createTransaction([
+            // Note: Service call might be createPayment or createTransaction depending on TripayService implementation
+            $tripayData = [
                 'method' => $request->payment_method,
                 'merchant_ref' => $transaction->transaction_code,
                 'amount' => $transaction->total_price,
@@ -177,7 +173,12 @@ class PostpaidController extends Controller
                     'price' => $inquiryData['total'],
                     'quantity' => 1,
                 ]],
-            ]);
+            ];
+
+            // Some services use createPayment, some createTransaction
+            $paymentResponse = method_exists($this->tripayService, 'createPayment')
+                ? $this->tripayService->createPayment($tripayData)
+                : $this->tripayService->createTransaction($tripayData);
 
             // Clear cache
             Cache::forget($request->inquiry_ref);
@@ -187,7 +188,7 @@ class PostpaidController extends Controller
                 'message' => 'Transaksi berhasil dibuat',
                 'data' => [
                     'transaction_code' => $transaction->transaction_code,
-                    'payment' => $payment,
+                    'payment' => $paymentResponse,
                 ],
             ]);
         } catch (\Exception $e) {

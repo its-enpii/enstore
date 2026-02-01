@@ -1,59 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛒 EnStore - Pro Gaming Store Engine
+> Modern, High-Performance Game Top-up & PPOB Marketplace Backend.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php)
+![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis)
 
-## About Laravel
+## 📋 Features
+- **Hierarchical Product System**: Manage Games and Variants (Items) with ease.
+- **Automated Sync**: Real-time product & price synchronization with Digiflazz.
+- **Guest Checkout**: Allow users to buy without creating an account.
+- **Multiple Payment Gateways**: Integrated with Tripay (QRIS, E-Wallet, VA, Retail Outlets).
+- **Balance System**: Internal wallet for registered members & resellers.
+- **Role-Based Pricing**: Differentiated pricing for Retail and Reseller levels.
+- **Real-time Notifications**: Notify users about transaction status changes.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Quick Start
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Requirements
+- Docker & Docker Compose
+- PHP 8.1+ (for local development)
+- Composer
 
-## Learning Laravel
+### 2. Installation
+```bash
+# Clone the repository
+git clone https://github.com/enpiistudio/enstore.git
+cd enstore/backend
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+# Copy environment file
+cp .env.example .env
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Start Docker environment
+docker-compose up -d
 
-## Laravel Sponsors
+# Install dependencies & run migrations
+docker-compose exec backend composer install
+docker-compose exec backend php artisan migrate:fresh --seed
+docker-compose exec backend php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 3. Synchronize Products
+```bash
+docker-compose exec backend php artisan digiflazz:sync-products
+```
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📖 API Documentation
+Detailed documentation for all modules can be found in the `docs/` directory:
 
-## Contributing
+- 🔐 [Authentication API](docs/AUTH_API_DOCUMENTATION.md)
+- 👤 [Customer & Public API](docs/CUSTOMER_API_ENDPOINTS.md)
+- 🛠️ [Admin Dashboard API](docs/ADMIN_API_ENDPOINTS.md)
+- 💎 [Model Relationships](docs/MODEL_RELATIONSHIPS.md)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🔧 Core Integrations
+guides for external services:
+- [Digiflazz Guide](docs/DIGIFLAZZ_GUIDE.md) - Product provider setup.
+- [Tripay Integration](docs/TRIPAY_INTEGRATION.md) - Payment gateway setup.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🏛️ Project Structure
+```text
+backend/
+├── app/
+│   ├── Http/Controllers/Api/  # Unified API Controllers
+│   ├── Services/              # Core Business Logic (Tripay, Digiflazz, Transaction)
+│   ├── Models/                # Database Entities
+│   └── Jobs/                  # Background Processing
+├── database/                  # Migrations & Seeders
+├── docs/                      # 📚 Project Documentation
+└── routes/api.php             # API Route Definitions
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+*Created with ❤️ by Enpii Studio*

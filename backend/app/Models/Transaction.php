@@ -12,7 +12,7 @@ class Transaction extends Model
     protected $fillable = [
         'transaction_code',
         'user_id',
-        'product_id',
+        'product_item_id',
         'customer_type',
         'payment_method_type',
         'transaction_type',
@@ -67,11 +67,26 @@ class Transaction extends Model
     }
 
     /**
-     * Get the product associated with the transaction
+     * Get the product item associated with the transaction
+     */
+    public function productItem()
+    {
+        return $this->belongsTo(ProductItem::class);
+    }
+
+    /**
+     * Get the parent product (via product item)
      */
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasOneThrough(
+            Product::class,
+            ProductItem::class,
+            'id', // Foreign key on product_items table
+            'id', // Foreign key on products table
+            'product_item_id', // Local key on transactions table
+            'product_id' // Local key on product_items table
+        );
     }
 
     /**

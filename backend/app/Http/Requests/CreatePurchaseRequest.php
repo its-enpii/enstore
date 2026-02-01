@@ -24,7 +24,7 @@ class CreatePurchaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => 'required|exists:products,id',
+            'product_item_id' => 'required|exists:product_items,id',
             'payment_method' => 'required|string|in:QRIS,BRIVA,BCAVA,BNIVA,MANDIRIVA,PERMATAVA,CIMBVA,BSIVA,OVO,DANA,SHOPEEPAY,LINKAJA',
             'customer_data' => 'required|array',
             'customer_data.user_id' => 'sometimes|string|max:255',
@@ -42,8 +42,8 @@ class CreatePurchaseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'product_id.required' => 'Product is required',
-            'product_id.exists' => 'Product not found',
+            'product_item_id.required' => 'Product item is required',
+            'product_item_id.exists' => 'Product item not found',
             'payment_method.required' => 'Payment method is required',
             'payment_method.in' => 'Invalid payment method',
             'customer_data.required' => 'Customer data is required',

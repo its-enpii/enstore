@@ -92,19 +92,20 @@ class ReportController extends Controller
       $endDate = $request->end_date;
 
       $products = DB::table('transactions')
-        ->join('products', 'transactions.product_id', '=', 'products.id')
+        ->join('product_items', 'transactions.product_item_id', '=', 'product_items.id')
+        ->join('products', 'product_items.product_id', '=', 'products.id')
         ->whereBetween('transactions.created_at', [$startDate, $endDate])
         ->where('transactions.status', 'success')
         ->selectRaw('
-                    products.id,
-                    products.name,
-                    products.digiflazz_code,
+                    product_items.id,
+                    CONCAT(products.name, " - ", product_items.name) as name,
+                    product_items.digiflazz_code,
                     COUNT(*) as total_sales,
                     SUM(transactions.total_price) as total_revenue,
                     SUM(transactions.admin_fee) as total_profit,
                     AVG(transactions.total_price) as average_price
                 ')
-        ->groupBy('products.id', 'products.name', 'products.digiflazz_code')
+        ->groupBy('product_items.id', 'products.name', 'product_items.name', 'product_items.digiflazz_code')
         ->orderByDesc('total_sales')
         ->get();
 

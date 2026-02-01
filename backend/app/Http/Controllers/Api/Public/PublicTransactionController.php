@@ -31,30 +31,26 @@ class PublicTransactionController extends Controller
 
   /**
    * Create purchase transaction (guest)
-   * 
-   * @param CreatePurchaseRequest $request
-   * @return \Illuminate\Http\JsonResponse
    */
   public function createPurchase(CreatePurchaseRequest $request)
   {
     DB::beginTransaction();
 
     try {
-      $product = $this->productService->getProductById($request->product_id);
+      $productItem = $this->productService->getProductItemById($request->product_item_id);
 
       // Create transaction (user is null)
       $transaction = $this->transactionService->createPurchaseTransaction(
         null, // Explicitly null for guest
-        $product,
+        $productItem,
         $request->customer_data,
         $request->payment_method
       );
 
-      // Create payment via Tripay
       // For guest, use customer data from request or general info
       $customerName = $request->input('customer_name', 'Guest Customer');
       $customerEmail = $request->input('customer_email', 'guest@example.com');
-      $customerPhone = $request->input('customer_phone', '080000000000'); // Default or from input
+      $customerPhone = $request->input('customer_phone', '080000000000');
 
       $tripayData = [
         'method' => $request->payment_method,
@@ -65,8 +61,8 @@ class PublicTransactionController extends Controller
         'customer_phone' => $customerPhone,
         'order_items' => [
           [
-            'sku' => $product->digiflazz_code,
-            'name' => $product->name,
+            'sku' => $productItem->digiflazz_code,
+            'name' => $productItem->product->name . ' - ' . $productItem->name,
             'price' => $transaction->product_price,
             'quantity' => 1,
           ],
@@ -121,15 +117,12 @@ class PublicTransactionController extends Controller
 
   /**
    * Check transaction status
-   * 
-   * @param string $transactionCode
-   * @return \Illuminate\Http\JsonResponse
    */
   public function checkStatus(string $transactionCode)
   {
     try {
       // Find transaction by code (public info, basic details only)
-      $transaction = Transaction::with(['product', 'payment'])
+      $transaction = Transaction::with(['productItem.product', 'payment'])
         ->where('transaction_code', $transactionCode)
         ->firstOrFail();
 
@@ -161,8 +154,6 @@ class PublicTransactionController extends Controller
 
   /**
    * Get payment channels
-   * 
-   * @return \Illuminate\Http\JsonResponse
    */
   public function paymentChannels()
   {

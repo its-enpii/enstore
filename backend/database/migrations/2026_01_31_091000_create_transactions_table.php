@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->string('transaction_code')->unique();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreignId('product_id')->nullable()->comment('Null untuk topup saldo')->constrained('products')->nullOnDelete();
+            $table->foreignId('product_item_id')->nullable()->comment('Null untuk topup saldo')->constrained('product_items')->nullOnDelete();
 
             $table->enum('customer_type', ['retail', 'reseller'])->default('retail');
             $table->enum('payment_method_type', ['gateway', 'balance'])->default('gateway')->comment('gateway=Tripay, balance=potong saldo');
@@ -55,7 +55,7 @@ return new class extends Migration
 
             $table->index('transaction_code');
             $table->index('user_id');
-            $table->index('product_id');
+            $table->index('product_item_id');
             $table->index('customer_type');
             $table->index('payment_method_type');
             $table->index('transaction_type');

@@ -24,7 +24,7 @@ class BalancePurchaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => 'required|exists:products,id',
+            'product_item_id' => 'required|exists:product_items,id',
             'customer_data' => 'required|array',
             'customer_data.user_id' => 'sometimes|string|max:255',
             'customer_data.zone_id' => 'sometimes|string|max:255',
@@ -41,8 +41,8 @@ class BalancePurchaseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'product_id.required' => 'Product is required',
-            'product_id.exists' => 'Product not found',
+            'product_item_id.required' => 'Product item is required',
+            'product_item_id.exists' => 'Product item not found',
             'customer_data.required' => 'Customer data is required',
             'customer_data.array' => 'Customer data must be an array',
         ];

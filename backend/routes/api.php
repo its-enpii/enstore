@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [App\Http\Controllers\Api\Admin\ProductController::class, 'store']);
             Route::put('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'update']);
             Route::delete('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'destroy']);
+            Route::put('/items/{itemId}', [App\Http\Controllers\Api\Admin\ProductController::class, 'updateItem']);
             Route::post('/bulk-update-prices', [App\Http\Controllers\Api\Admin\ProductController::class, 'bulkUpdatePrices']);
             Route::post('/sync-digiflazz', [App\Http\Controllers\Api\Admin\ProductController::class, 'syncFromDigiflazz']);
         });
@@ -114,7 +115,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('products')->group(function () {
             Route::get('/', [App\Http\Controllers\Api\Customer\ProductController::class, 'index']);
             Route::get('/categories', [App\Http\Controllers\Api\Customer\ProductController::class, 'categories']);
-            Route::get('/{id}', [App\Http\Controllers\Api\Customer\ProductController::class, 'show']);
+            Route::get('/{id}', [App\Http\Controllers\Api\Customer\ProductController::class, 'show'])->whereNumber('id');
+            Route::get('/slug/{slug}', [App\Http\Controllers\Api\Customer\ProductController::class, 'showBySlug']);
         });
 
         // Transactions

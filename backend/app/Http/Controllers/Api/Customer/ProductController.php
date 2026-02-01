@@ -16,16 +16,14 @@ class ProductController extends Controller
   }
 
   /**
-   * Get product list with filters
-   * 
-   * @param Request $request
-   * @return \Illuminate\Http\JsonResponse
+   * Get product list with hierarchical items
    */
   public function index(Request $request)
   {
     try {
       $filters = [
         'category_slug' => $request->get('category'),
+        'type' => $request->get('type'),
         'featured' => $request->get('featured'),
         'search' => $request->get('search'),
         'sort_by' => $request->get('sort_by', 'sort_order'),
@@ -38,39 +36,31 @@ class ProductController extends Controller
 
       $products = $this->productService->getActiveProducts($filters);
 
-      // Add price for customer type
-      $products = $products->map(function ($product) use ($customerType) {
-        $product->price = $product->getPriceForCustomerType($customerType);
-        $product->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
-        return $product;
+      // Hide sensitive fields from items and add price based on customer type
+      $products->each(function ($product) use ($customerType) {
+        $product->items->each(function ($item) use ($customerType) {
+          $item->price = $item->getPriceForCustomer($customerType);
+          $item->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+        });
+
+        // Add price range metadata for the parent product
+        $range = $product->getPriceRange($customerType);
+        $product->price_range = $range;
       });
 
-      // Filter by price range
-      if ($request->has('min_price')) {
-        $products = $products->filter(function ($product) use ($request) {
-          return $product->price >= $request->min_price;
-        });
-      }
-
-      if ($request->has('max_price')) {
-        $products = $products->filter(function ($product) use ($request) {
-          return $product->price <= $request->max_price;
-        });
-      }
-
-      // Paginate manually
+      // Handle manual pagination since getActiveProducts returns a collection
       $perPage = $request->get('per_page', 20);
       $page = $request->get('page', 1);
       $total = $products->count();
-      $products = $products->forPage($page, $perPage)->values();
+      $paginatedProducts = $products->forPage($page, $perPage)->values();
 
       return response()->json([
         'success' => true,
         'data' => [
-          'products' => $products,
+          'products' => $paginatedProducts,
           'pagination' => [
-            'current_page' => $page,
-            'per_page' => $perPage,
+            'current_page' => (int) $page,
+            'per_page' => (int) $perPage,
             'total' => $total,
             'last_page' => ceil($total / $perPage),
           ],
@@ -85,30 +75,50 @@ class ProductController extends Controller
   }
 
   /**
-   * Get product detail
-   * 
-   * @param int $id
-   * @return \Illuminate\Http\JsonResponse
+   * Get product detail with items
    */
   public function show($id)
   {
     try {
       $product = $this->productService->getProductById($id);
 
-      // Check availability
-      $availability = $this->productService->checkAvailability($product);
-
       // Get user's customer type for pricing
       $user = auth()->user();
       $customerType = $user ? $user->customer_type : 'retail';
 
-      // Add price and availability
-      $product->price = $product->getPriceForCustomerType($customerType);
-      $product->available = $availability['available'];
-      $product->availability_message = $availability['reason'];
+      // Add price and hide sensitive fields for each item
+      $product->items->each(function ($item) use ($customerType) {
+        $item->price = $item->getPriceForCustomer($customerType);
+        $item->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+      });
 
-      // Hide sensitive fields
-      $product->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+      return response()->json([
+        'success' => true,
+        'data' => $product,
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Product not found',
+      ], 404);
+    }
+  }
+
+  /**
+   * Get product detail by slug
+   */
+  public function showBySlug($slug)
+  {
+    try {
+      $product = $this->productService->getProductBySlug($slug);
+
+      $user = auth()->user();
+      $customerType = $user ? $user->customer_type : 'retail';
+
+      $product->items->each(function ($item) use ($customerType) {
+        $item->price = $item->getPriceForCustomer($customerType);
+        $item->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+      });
 
       return response()->json([
         'success' => true,
@@ -124,13 +134,11 @@ class ProductController extends Controller
 
   /**
    * Get product categories
-   * 
-   * @return \Illuminate\Http\JsonResponse
    */
   public function categories()
   {
     try {
-      $categories = $this->productService->getCategoriesWithProductCount();
+      $categories = $this->productService->getCategories();
 
       return response()->json([
         'success' => true,

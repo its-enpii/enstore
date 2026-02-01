@@ -445,7 +445,7 @@ Authorization: Bearer {token}
   "data": [
     {
       "id": 1,
-      "name": "Mobile Legends 86 Diamond",
+      "name": "Mobile Legends - 86 Diamond",
       "digiflazz_code": "ML86",
       "total_sales": 50,
       "total_revenue": 1250000,

@@ -25,7 +25,7 @@ class TransactionController extends Controller
   public function index(Request $request)
   {
     try {
-      $query = Transaction::with(['user', 'product', 'payment']);
+      $query = Transaction::with(['user', 'productItem.product', 'payment']);
 
       // Filter by type
       if ($request->has('type')) {
@@ -94,7 +94,7 @@ class TransactionController extends Controller
   public function show($id)
   {
     try {
-      $transaction = Transaction::with(['user', 'product', 'payment', 'logs'])
+      $transaction = Transaction::with(['user', 'productItem.product', 'payment', 'logs'])
         ->findOrFail($id);
 
       return response()->json([

@@ -171,11 +171,12 @@ class DashboardController extends Controller
 
     // Top products
     $topProducts = DB::table('transactions')
-      ->join('products', 'transactions.product_id', '=', 'products.id')
+      ->join('product_items', 'transactions.product_item_id', '=', 'product_items.id')
+      ->join('products', 'product_items.product_id', '=', 'products.id')
       ->whereBetween('transactions.created_at', [$startDate, $endDate])
       ->where('transactions.status', 'success')
-      ->selectRaw('products.name, COUNT(*) as sales, SUM(transactions.total_price) as revenue')
-      ->groupBy('products.id', 'products.name')
+      ->selectRaw('CONCAT(products.name, " - ", product_items.name) as name, COUNT(*) as sales, SUM(transactions.total_price) as revenue')
+      ->groupBy('products.id', 'products.name', 'product_items.id', 'product_items.name')
       ->orderByDesc('sales')
       ->limit(10)
       ->get();

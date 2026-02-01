@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductItem;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,15 +19,12 @@ class ProductController extends Controller
     }
 
     /**
-     * Get all products with filters
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Get all parent products with filters
      */
     public function index(Request $request)
     {
         try {
-            $query = Product::with('category');
+            $query = Product::with(['category', 'items']);
 
             // Filter by category
             if ($request->has('category_id')) {
@@ -38,11 +36,11 @@ class ProductController extends Controller
                 $query->where('is_active', $request->is_active);
             }
 
-            // Search
+            // Search by name or brand
             if ($request->has('search')) {
                 $query->where(function ($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('digiflazz_code', 'like', '%' . $request->search . '%');
+                        ->orWhere('brand', 'like', '%' . $request->search . '%');
                 });
             }
 
@@ -68,15 +66,14 @@ class ProductController extends Controller
     }
 
     /**
-     * Get single product
-     * 
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * Get single parent product with its items
      */
     public function show($id)
     {
         try {
-            $product = Product::with('category')->findOrFail($id);
+            $product = Product::with(['category', 'items' => function ($q) {
+                $q->orderBy('sort_order', 'asc');
+            }])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -91,27 +88,21 @@ class ProductController extends Controller
     }
 
     /**
-     * Create new product
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Create new parent product
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|exists:product_categories,id',
             'name' => 'required|string|max:255',
-            'digiflazz_code' => 'required|string|unique:products,digiflazz_code',
+            'slug' => 'required|string|unique:products,slug',
+            'brand' => 'required|string|max:100',
+            'type' => 'required|string|in:game,pulsa,data,pln,pascabayar,other',
+            'payment_type' => 'required|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
-            'base_price' => 'required|numeric|min:0',
-            'retail_price' => 'required|numeric|min:0',
-            'retail_profit' => 'required|numeric|min:0',
-            'reseller_price' => 'required|numeric|min:0',
-            'reseller_profit' => 'required|numeric|min:0',
-            'stock' => 'nullable|integer|min:0',
+            'image_url' => 'nullable|string',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'is_available' => 'boolean',
             'sort_order' => 'integer|min:0',
         ]);
 
@@ -126,8 +117,9 @@ class ProductController extends Controller
         try {
             $product = Product::create($validator->validated());
 
-            // Clear cache
-            $this->productService->clearCache();
+            if (method_exists($this->productService, 'clearCache')) {
+                $this->productService->clearCache();
+            }
 
             return response()->json([
                 'success' => true,
@@ -143,28 +135,21 @@ class ProductController extends Controller
     }
 
     /**
-     * Update product
-     * 
-     * @param Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * Update parent product
      */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'category_id' => 'sometimes|exists:product_categories,id',
             'name' => 'sometimes|string|max:255',
-            'digiflazz_code' => 'sometimes|string|unique:products,digiflazz_code,' . $id,
+            'slug' => 'sometimes|string|unique:products,slug,' . $id,
+            'brand' => 'sometimes|string|max:100',
+            'type' => 'sometimes|string|in:game,pulsa,data,pln,pascabayar,other',
+            'payment_type' => 'sometimes|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
-            'base_price' => 'sometimes|numeric|min:0',
-            'retail_price' => 'sometimes|numeric|min:0',
-            'retail_profit' => 'sometimes|numeric|min:0',
-            'reseller_price' => 'sometimes|numeric|min:0',
-            'reseller_profit' => 'sometimes|numeric|min:0',
-            'stock' => 'nullable|integer|min:0',
+            'image_url' => 'nullable|string',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'is_available' => 'boolean',
             'sort_order' => 'integer|min:0',
         ]);
 
@@ -180,8 +165,9 @@ class ProductController extends Controller
             $product = Product::findOrFail($id);
             $product->update($validator->validated());
 
-            // Clear cache
-            $this->productService->clearCache();
+            if (method_exists($this->productService, 'clearCache')) {
+                $this->productService->clearCache();
+            }
 
             return response()->json([
                 'success' => true,
@@ -197,47 +183,59 @@ class ProductController extends Controller
     }
 
     /**
-     * Delete product
-     * 
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * Update product item (variant)
      */
-    public function destroy($id)
+    public function updateItem(Request $request, $itemId)
     {
-        try {
-            $product = Product::findOrFail($id);
-            $product->delete();
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'base_price' => 'sometimes|numeric|min:0',
+            'retail_price' => 'sometimes|numeric|min:0',
+            'retail_profit' => 'sometimes|numeric|min:0',
+            'reseller_price' => 'sometimes|numeric|min:0',
+            'reseller_profit' => 'sometimes|numeric|min:0',
+            'is_active' => 'boolean',
+            'stock_status' => 'sometimes|string|in:available,out_of_stock,under_maintenance',
+            'sort_order' => 'integer|min:0',
+        ]);
 
-            // Clear cache
-            $this->productService->clearCache();
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $item = ProductItem::findOrFail($itemId);
+            $item->update($validator->validated());
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product deleted successfully',
+                'message' => 'Product item updated successfully',
+                'data' => $item,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete product: ' . $e->getMessage(),
+                'message' => 'Failed to update product item: ' . $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Bulk update prices
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Bulk update prices for product items
      */
     public function bulkUpdatePrices(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'products' => 'required|array',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.retail_price' => 'sometimes|numeric|min:0',
-            'products.*.retail_profit' => 'sometimes|numeric|min:0',
-            'products.*.reseller_price' => 'sometimes|numeric|min:0',
-            'products.*.reseller_profit' => 'sometimes|numeric|min:0',
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:product_items,id',
+            'items.*.retail_price' => 'sometimes|numeric|min:0',
+            'items.*.retail_profit' => 'sometimes|numeric|min:0',
+            'items.*.reseller_price' => 'sometimes|numeric|min:0',
+            'items.*.reseller_profit' => 'sometimes|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -251,45 +249,44 @@ class ProductController extends Controller
         try {
             $updated = 0;
 
-            foreach ($request->products as $productData) {
-                $product = Product::find($productData['id']);
-                if ($product) {
-                    $product->update(array_filter($productData, function ($key) {
-                        return in_array($key, ['retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
-                    }, ARRAY_FILTER_USE_KEY));
+            foreach ($request->items as $itemData) {
+                $item = ProductItem::find($itemData['id']);
+                if ($item) {
+                    $item->update(array_intersect_key($itemData, array_flip([
+                        'retail_price',
+                        'retail_profit',
+                        'reseller_price',
+                        'reseller_profit'
+                    ])));
                     $updated++;
                 }
             }
 
-            // Clear cache
-            $this->productService->clearCache();
-
             return response()->json([
                 'success' => true,
-                'message' => "{$updated} products updated successfully",
+                'message' => "{$updated} product items updated successfully",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update products: ' . $e->getMessage(),
+                'message' => 'Failed to update product items: ' . $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Sync products from Digiflazz
-     * 
-     * @return \Illuminate\Http\JsonResponse
      */
     public function syncFromDigiflazz()
     {
         try {
-            // This would call Digiflazz API to sync products
-            // For now, return success message
+            \Illuminate\Support\Facades\Artisan::call('digiflazz:sync-products');
+            $output = \Illuminate\Support\Facades\Artisan::output();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product sync initiated. This may take a few minutes.',
+                'message' => 'Product sync completed successfully.',
+                'output' => $output
             ]);
         } catch (\Exception $e) {
             return response()->json([

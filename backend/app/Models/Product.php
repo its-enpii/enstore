@@ -3,77 +3,82 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'category_id',
-        'digiflazz_code',
         'name',
-        'description',
-        'image',
+        'slug',
         'brand',
         'type',
         'payment_type',
-        'base_price',
-        'retail_price',
-        'reseller_price',
-        'admin_fee',
-        'retail_profit',
-        'reseller_profit',
-        'stock_status',
+        'description',
+        'image',
         'is_active',
         'is_featured',
-        'server_options',
-        'input_fields',
-        'total_sold',
-        'rating',
         'sort_order',
-        'last_synced_at',
     ];
 
     protected $casts = [
-        'base_price' => 'decimal:2',
-        'retail_price' => 'decimal:2',
-        'reseller_price' => 'decimal:2',
-        'admin_fee' => 'decimal:2',
-        'retail_profit' => 'decimal:2',
-        'reseller_profit' => 'decimal:2',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
-        'server_options' => 'array',
-        'input_fields' => 'array',
-        'total_sold' => 'integer',
-        'rating' => 'decimal:2',
         'sort_order' => 'integer',
-        'last_synced_at' => 'datetime',
     ];
 
-    // ==================== RELATIONSHIPS ====================
-
     /**
-     * Get the category that owns the product
+     * Boot the model
      */
-    public function category()
+    protected static function boot()
     {
-        return $this->belongsTo(ProductCategory::class, 'category_id');
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->name);
+            }
+        });
     }
 
     /**
-     * Get all transactions for this product
+     * Get the category
      */
-    public function transactions()
+    public function category(): BelongsTo
     {
-        return $this->hasMany(Transaction::class);
+        return $this->belongsTo(ProductCategory::class);
     }
 
-    // ==================== SCOPES ====================
+    /**
+     * Get all product items (variants)
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(ProductItem::class);
+    }
 
     /**
-     * Scope a query to only include active products
+     * Get active items only
+     */
+    public function activeItems(): HasMany
+    {
+        return $this->items()->where('is_active', true);
+    }
+
+    /**
+     * Get available items only
+     */
+    public function availableItems(): HasMany
+    {
+        return $this->items()
+            ->where('is_active', true)
+            ->where('stock_status', 'available');
+    }
+
+    /**
+     * Scope: Active products
      */
     public function scopeActive($query)
     {
@@ -81,7 +86,7 @@ class Product extends Model
     }
 
     /**
-     * Scope a query to only include featured products
+     * Scope: Featured products
      */
     public function scopeFeatured($query)
     {
@@ -89,15 +94,31 @@ class Product extends Model
     }
 
     /**
-     * Scope a query to only include available products
+     * Scope: By type
      */
-    public function scopeAvailable($query)
+    public function scopeType($query, string $type)
     {
-        return $query->where('stock_status', 'available');
+        return $query->where('type', $type);
     }
 
     /**
-     * Scope a query to only include prepaid products
+     * Scope: By payment type
+     */
+    public function scopePaymentType($query, string $paymentType)
+    {
+        return $query->where('payment_type', $paymentType);
+    }
+
+    /**
+     * Scope: Games only
+     */
+    public function scopeGame($query)
+    {
+        return $query->where('type', 'game');
+    }
+
+    /**
+     * Scope: Prepaid only
      */
     public function scopePrepaid($query)
     {
@@ -105,28 +126,61 @@ class Product extends Model
     }
 
     /**
-     * Scope a query to only include postpaid products
+     * Scope: Postpaid only
      */
     public function scopePostpaid($query)
     {
         return $query->where('payment_type', 'postpaid');
     }
 
-    // ==================== ACCESSORS ====================
-
     /**
-     * Get the price for a specific customer type
+     * Get cheapest item price
      */
-    public function getPriceForCustomerType($customerType)
+    public function getCheapestPrice(string $customerType = 'retail'): ?float
     {
-        return $customerType === 'reseller' ? $this->reseller_price : $this->retail_price;
+        $priceColumn = $customerType === 'reseller' ? 'reseller_price' : 'retail_price';
+
+        return $this->availableItems()
+            ->min($priceColumn);
     }
 
     /**
-     * Get the profit for a specific customer type
+     * Get price range
      */
-    public function getProfitForCustomerType($customerType)
+    public function getPriceRange(string $customerType = 'retail'): array
     {
-        return $customerType === 'reseller' ? $this->reseller_profit : $this->retail_profit;
+        $priceColumn = $customerType === 'reseller' ? 'reseller_price' : 'retail_price';
+
+        $min = $this->availableItems()->min($priceColumn);
+        $max = $this->availableItems()->max($priceColumn);
+
+        return [
+            'min' => $min,
+            'max' => $max,
+        ];
+    }
+
+    /**
+     * Check if product has available items
+     */
+    public function hasAvailableItems(): bool
+    {
+        return $this->availableItems()->exists();
+    }
+
+    /**
+     * Get total items count
+     */
+    public function getTotalItemsCount(): int
+    {
+        return $this->items()->count();
+    }
+
+    /**
+     * Get active items count
+     */
+    public function getActiveItemsCount(): int
+    {
+        return $this->activeItems()->count();
     }
 }

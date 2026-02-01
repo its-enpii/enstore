@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductItem;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -10,17 +11,16 @@ use Illuminate\Support\Facades\Log;
 class ProductService
 {
   /**
-   * Get all active products with caching
-   * 
-   * @param array $filters
-   * @return \Illuminate\Database\Eloquent\Collection
+   * Get all active products with hierarchical structure
    */
   public function getActiveProducts(array $filters = [])
   {
-    $cacheKey = 'products.active.' . md5(json_encode($filters));
+    $cacheKey = 'products.active.hierarchical.' . md5(json_encode($filters));
 
     return Cache::remember($cacheKey, 300, function () use ($filters) {
-      $query = Product::active()->with('category');
+      $query = Product::active()->with(['category', 'items' => function ($q) {
+        $q->active()->available()->orderBy('sort_order', 'asc');
+      }]);
 
       // Filter by category
       if (!empty($filters['category_id'])) {
@@ -34,17 +34,26 @@ class ProductService
         });
       }
 
+      // Filter by type (game, pulsa, etc)
+      if (!empty($filters['type'])) {
+        $query->where('type', $filters['type']);
+      }
+
       // Filter by featured
       if (isset($filters['featured']) && $filters['featured']) {
         $query->featured();
       }
 
-      // Search by name
+      // Search by name or brand
       if (!empty($filters['search'])) {
-        $query->where('name', 'like', '%' . $filters['search'] . '%');
+        $search = $filters['search'];
+        $query->where(function ($q) use ($search) {
+          $q->where('name', 'like', "%{$search}%")
+            ->orWhere('brand', 'like', "%{$search}%");
+        });
       }
 
-      // Sort
+      // Sort parent products
       $sortBy = $filters['sort_by'] ?? 'sort_order';
       $sortOrder = $filters['sort_order'] ?? 'asc';
       $query->orderBy($sortBy, $sortOrder);
@@ -54,206 +63,68 @@ class ProductService
   }
 
   /**
-   * Get product by ID with validation
-   * 
-   * @param int $id
-   * @return Product
-   * @throws \Exception
+   * Get parent product by ID
    */
   public function getProductById($id)
   {
-    $product = Product::with('category')->find($id);
+    return Product::with(['category', 'items' => function ($q) {
+      $q->active()->available()->orderBy('sort_order', 'asc');
+    }])->findOrFail($id);
+  }
 
-    if (!$product) {
-      throw new \Exception('Product not found');
+  /**
+   * Get parent product by Slug
+   */
+  public function getProductBySlug($slug)
+  {
+    return Product::with(['category', 'items' => function ($q) {
+      $q->active()->available()->orderBy('sort_order', 'asc');
+    }])->where('slug', $slug)->firstOrFail();
+  }
+
+  /**
+   * Get product item (variant) by ID
+   */
+  public function getProductItemById($id)
+  {
+    return ProductItem::with('product.category')->findOrFail($id);
+  }
+
+  /**
+   * Get product item by Digiflazz code
+   */
+  public function getProductItemByCode($code)
+  {
+    return ProductItem::with('product.category')->where('digiflazz_code', $code)->firstOrFail();
+  }
+
+  /**
+   * Get categories list for filtering
+   */
+  public function getCategories()
+  {
+    return ProductCategory::active()->orderBy('sort_order', 'asc')->get();
+  }
+
+  public function checkItemAvailability(ProductItem $item)
+  {
+    if (!$item->is_active) {
+      return ['available' => false, 'reason' => 'Product is currently inactive'];
     }
 
-    return $product;
-  }
-
-  /**
-   * Get product by Digiflazz code
-   * 
-   * @param string $code
-   * @return Product|null
-   */
-  public function getProductByDigiflazzCode($code)
-  {
-    return Product::where('digiflazz_code', $code)->first();
-  }
-
-  /**
-   * Check product availability
-   * 
-   * @param Product $product
-   * @return array
-   */
-  public function checkAvailability(Product $product)
-  {
-    $available = true;
-    $reason = null;
-
-    // Check if product is active
-    if (!$product->is_active) {
-      $available = false;
-      $reason = 'Product is not active';
+    if ($item->stock_status !== 'available') {
+      return ['available' => false, 'reason' => 'Product is out of stock or under maintenance'];
     }
 
-    // Check stock (if applicable)
-    if ($product->stock !== null && $product->stock <= 0) {
-      $available = false;
-      $reason = 'Product is out of stock';
-    }
-
-    // Check if product is available (custom scope)
-    if (!$product->is_available) {
-      $available = false;
-      $reason = 'Product is not available';
-    }
-
-    return [
-      'available' => $available,
-      'reason' => $reason,
-    ];
-  }
-
-  /**
-   * Get product price for customer type
-   * 
-   * @param Product $product
-   * @param string $customerType
-   * @return float
-   */
-  public function getPrice(Product $product, $customerType = 'retail')
-  {
-    return $product->getPriceForCustomerType($customerType);
-  }
-
-  /**
-   * Get product profit for customer type
-   * 
-   * @param Product $product
-   * @param string $customerType
-   * @return float
-   */
-  public function getProfit(Product $product, $customerType = 'retail')
-  {
-    return $product->getProfitForCustomerType($customerType);
-  }
-
-  /**
-   * Increment product total sold
-   * 
-   * @param Product $product
-   * @param int $quantity
-   * @return void
-   */
-  public function incrementTotalSold(Product $product, $quantity = 1)
-  {
-    $product->increment('total_sold', $quantity);
-  }
-
-  /**
-   * Decrement product stock
-   * 
-   * @param Product $product
-   * @param int $quantity
-   * @return void
-   * @throws \Exception
-   */
-  public function decrementStock(Product $product, $quantity = 1)
-  {
-    if ($product->stock === null) {
-      // Unlimited stock
-      return;
-    }
-
-    if ($product->stock < $quantity) {
-      throw new \Exception('Insufficient stock');
-    }
-
-    $product->decrement('stock', $quantity);
-  }
-
-  /**
-   * Get categories with product count
-   * 
-   * @return \Illuminate\Database\Eloquent\Collection
-   */
-  public function getCategoriesWithProductCount()
-  {
-    return Cache::remember('categories.with_count', 300, function () {
-      return ProductCategory::where('is_active', true)
-        ->withCount(['products' => function ($query) {
-          $query->active();
-        }])
-        ->orderBy('sort_order')
-        ->get();
-    });
+    return ['available' => true];
   }
 
   /**
    * Clear product cache
-   * 
-   * @return void
    */
   public function clearCache()
   {
-    Cache::forget('products.active.*');
-    Cache::forget('categories.with_count');
-  }
-
-  /**
-   * Sync product from Digiflazz
-   * 
-   * @param array $digiflazzProduct
-   * @return Product
-   */
-  public function syncFromDigiflazz(array $digiflazzProduct)
-  {
-    $product = Product::updateOrCreate(
-      ['digiflazz_code' => $digiflazzProduct['buyer_sku_code']],
-      [
-        'name' => $digiflazzProduct['product_name'],
-        'category_id' => $this->getCategoryIdFromType($digiflazzProduct['category'] ?? 'other'),
-        'description' => $digiflazzProduct['desc'] ?? null,
-        'base_price' => $digiflazzProduct['price'] ?? 0,
-        'retail_price' => $digiflazzProduct['price'] ?? 0,
-        'retail_profit' => 0,
-        'reseller_price' => $digiflazzProduct['price'] ?? 0,
-        'reseller_profit' => 0,
-        'is_active' => $digiflazzProduct['seller_product_status'] ?? true,
-        'is_available' => $digiflazzProduct['buyer_product_status'] ?? true,
-        'last_synced_at' => now(),
-      ]
-    );
-
-    $this->clearCache();
-
-    return $product;
-  }
-
-  /**
-   * Get category ID from Digiflazz type
-   * 
-   * @param string $type
-   * @return int|null
-   */
-  private function getCategoryIdFromType($type)
-  {
-    $typeMapping = [
-      'games' => 'games',
-      'pulsa' => 'pulsa',
-      'data' => 'paket-data',
-      'pln' => 'pln',
-      'emoney' => 'e-money',
-      'voucher' => 'voucher',
-    ];
-
-    $slug = $typeMapping[strtolower($type)] ?? 'voucher';
-
-    $category = ProductCategory::where('slug', $slug)->first();
-
-    return $category ? $category->id : null;
+    Log::info('Product cache cleared');
+    return true;
   }
 }

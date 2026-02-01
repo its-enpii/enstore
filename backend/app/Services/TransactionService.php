@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Product;
+use App\Models\ProductItem;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,7 @@ class TransactionService
    * Create purchase transaction (via payment gateway)
    * 
    * @param User $user
-   * @param Product $product
+   * @param ProductItem $productItem
    * @param array $customerData
    * @param string $paymentMethod
    * @return Transaction
@@ -49,14 +50,13 @@ class TransactionService
    */
   public function createPurchaseTransaction(
     ?User $user,
-    Product $product,
+    ProductItem $productItem,
     array $customerData,
     string $paymentMethod
   ) {
-    // Validate product availability
-    $availability = $this->productService->checkAvailability($product);
-    if (!$availability['available']) {
-      throw new \Exception($availability['reason']);
+    // Validate product item availability
+    if (!$productItem->isAvailable()) {
+      throw new \Exception('Product is not available');
     }
 
     DB::beginTransaction();
@@ -64,7 +64,7 @@ class TransactionService
     try {
       // Get price
       $customerType = $user ? $user->customer_type : 'retail';
-      $price = $this->productService->getPrice($product, $customerType);
+      $price = $productItem->getPriceForCustomer($customerType);
       $adminFee = $this->getAdminFee($paymentMethod);
       $totalPrice = $price + $adminFee;
 
@@ -72,12 +72,12 @@ class TransactionService
       $transaction = Transaction::create([
         'transaction_code' => $this->generateTransactionCode(),
         'user_id' => $user ? $user->id : null,
-        'product_id' => $product->id,
+        'product_item_id' => $productItem->id,
         'customer_type' => $customerType,
         'payment_method_type' => 'gateway',
         'transaction_type' => 'purchase',
-        'product_name' => $product->name,
-        'product_code' => $product->digiflazz_code,
+        'product_name' => $productItem->product->name . ' - ' . $productItem->name,
+        'product_code' => $productItem->digiflazz_code,
         'product_price' => $price,
         'admin_fee' => $adminFee,
         'total_price' => $totalPrice,
@@ -100,7 +100,7 @@ class TransactionService
       DB::rollBack();
       Log::error('Failed to create purchase transaction', [
         'user_id' => $user ? $user->id : 'guest',
-        'product_id' => $product->id,
+        'product_item_id' => $productItem->id,
         'error' => $e->getMessage(),
       ]);
       throw $e;
@@ -111,24 +111,23 @@ class TransactionService
    * Create purchase transaction (via balance)
    * 
    * @param User $user
-   * @param Product $product
+   * @param ProductItem $productItem
    * @param array $customerData
    * @return Transaction
    * @throws \Exception
    */
   public function createBalancePurchaseTransaction(
     User $user,
-    Product $product,
+    ProductItem $productItem,
     array $customerData
   ) {
-    // Validate product availability
-    $availability = $this->productService->checkAvailability($product);
-    if (!$availability['available']) {
-      throw new \Exception($availability['reason']);
+    // Validate product item availability
+    if (!$productItem->isAvailable()) {
+      throw new \Exception('Product is not available');
     }
 
     // Get price
-    $price = $this->productService->getPrice($product, $user->customer_type);
+    $price = $productItem->getPriceForCustomer($user->customer_type);
 
     // Check balance
     if (!$this->balanceService->hasSufficientBalance($user, $price)) {
@@ -142,12 +141,12 @@ class TransactionService
       $transaction = Transaction::create([
         'transaction_code' => $this->generateTransactionCode(),
         'user_id' => $user->id,
-        'product_id' => $product->id,
+        'product_item_id' => $productItem->id,
         'customer_type' => $user->customer_type,
         'payment_method_type' => 'balance',
         'transaction_type' => 'purchase',
-        'product_name' => $product->name,
-        'product_code' => $product->digiflazz_code,
+        'product_name' => $productItem->product->name . ' - ' . $productItem->name,
+        'product_code' => $productItem->digiflazz_code,
         'product_price' => $price,
         'admin_fee' => 0,
         'total_price' => $price,
@@ -162,7 +161,7 @@ class TransactionService
       $this->balanceService->deductBalance(
         $user,
         $price,
-        'Purchase: ' . $product->name,
+        'Purchase: ' . $productItem->product->name . ' - ' . $productItem->name,
         $transaction
       );
 
@@ -178,7 +177,7 @@ class TransactionService
       DB::rollBack();
       Log::error('Failed to create balance purchase transaction', [
         'user_id' => $user->id,
-        'product_id' => $product->id,
+        'product_item_id' => $productItem->id,
         'error' => $e->getMessage(),
       ]);
       throw $e;
@@ -277,9 +276,9 @@ class TransactionService
       'completed_at' => now(),
     ], $data));
 
-    // Increment product total sold
-    if ($transaction->product_id) {
-      $this->productService->incrementTotalSold($transaction->product);
+    // Increment product item total sold
+    if ($transaction->product_item_id && $transaction->productItem) {
+      $transaction->productItem->incrementSold();
     }
   }
 
@@ -351,7 +350,7 @@ class TransactionService
   public function getUserTransactions(User $user, array $filters = [])
   {
     $query = Transaction::where('user_id', $user->id)
-      ->with(['product', 'payment']);
+      ->with(['productItem.product', 'payment']);
 
     // Filter by type
     if (!empty($filters['type'])) {
@@ -390,10 +389,10 @@ class TransactionService
     DB::beginTransaction();
 
     try {
-      $product = Product::findOrFail($data['product_id']);
+      $productItem = ProductItem::findOrFail($data['product_item_id']);
 
       // Validate product is postpaid
-      if ($product->payment_type !== 'postpaid') {
+      if ($productItem->product->payment_type !== 'postpaid') {
         throw new \Exception('Product is not a postpaid product');
       }
 
@@ -401,13 +400,13 @@ class TransactionService
       $transaction = Transaction::create([
         'transaction_code' => $this->generateTransactionCode(),
         'user_id' => $data['user_id'] ?? null,
-        'product_id' => $product->id,
+        'product_item_id' => $productItem->id,
         'customer_type' => $data['customer_type'] ?? 'retail',
         'payment_method_type' => 'gateway',
         'prepaid_postpaid_type' => 'postpaid',
         'transaction_type' => 'purchase',
-        'product_name' => $product->name,
-        'product_code' => $product->digiflazz_code,
+        'product_name' => $productItem->product->name . ' - ' . $productItem->name,
+        'product_code' => $productItem->digiflazz_code,
         'product_price' => $data['total_price'],
         'admin_fee' => 0,
         'total_price' => $data['total_price'],
