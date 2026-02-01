@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TripayCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Webhook routes (no authentication required)
+Route::prefix('webhooks')->group(function () {
+    Route::post('/tripay', [TripayCallbackController::class, 'handle']);
+});
 
 // Public routes
 Route::prefix('auth')->group(function () {

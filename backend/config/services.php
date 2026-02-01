@@ -41,4 +41,11 @@ return [
         'base_url' => env('DIGIFLAZZ_BASE_URL', 'https://api.digiflazz.com/v1'),
     ],
 
+    'tripay' => [
+        'api_key' => env('TRIPAY_API_KEY'),
+        'private_key' => env('TRIPAY_PRIVATE_KEY'),
+        'merchant_code' => env('TRIPAY_MERCHANT_CODE'),
+        'mode' => env('TRIPAY_MODE', 'sandbox'), // sandbox or production
+    ],
+
 ];
