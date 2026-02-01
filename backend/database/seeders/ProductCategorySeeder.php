@@ -17,7 +17,6 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'Games',
                 'slug' => 'games',
-                'type' => 'game',
                 'icon' => '🎮',
                 'description' => 'Voucher game populer seperti Mobile Legends, Free Fire, PUBG, dan lainnya',
                 'is_active' => true,
@@ -26,7 +25,6 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'Pulsa',
                 'slug' => 'pulsa',
-                'type' => 'pulsa',
                 'icon' => '📱',
                 'description' => 'Pulsa semua operator (Telkomsel, Indosat, XL, Tri, Smartfren)',
                 'is_active' => true,
@@ -35,7 +33,6 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'Paket Data',
                 'slug' => 'paket-data',
-                'type' => 'data',
                 'icon' => '📶',
                 'description' => 'Paket internet semua operator',
                 'is_active' => true,
@@ -44,7 +41,6 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'PLN',
                 'slug' => 'pln',
-                'type' => 'pln',
                 'icon' => '⚡',
                 'description' => 'Token listrik PLN',
                 'is_active' => true,
@@ -53,7 +49,6 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'E-Money',
                 'slug' => 'e-money',
-                'type' => 'emoney',
                 'icon' => '💰',
                 'description' => 'Top up GoPay, OVO, DANA, ShopeePay, dan lainnya',
                 'is_active' => true,
@@ -62,7 +57,6 @@ class ProductCategorySeeder extends Seeder
             [
                 'name' => 'Voucher',
                 'slug' => 'voucher',
-                'type' => 'voucher',
                 'icon' => '🎫',
                 'description' => 'Voucher digital lainnya',
                 'is_active' => true,
