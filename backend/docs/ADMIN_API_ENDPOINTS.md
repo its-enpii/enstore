@@ -27,7 +27,49 @@ Berhasil mengimplementasikan semua Admin API Endpoints untuk manajemen lengkap a
 ✅ Digiflazz sync  
 ✅ Cache clearing  
 
-**Example Request - Update Product:**
+**Example Request - List Products:**
+```bash
+GET /api/admin/products?search=Legends&category_id=1
+Authorization: Bearer {token}
+```
+
+**Example Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "Mobile Legends",
+        "brand": "MOBILE LEGENDS",
+        "category": { "id": 1, "name": "Games" },
+        "is_active": true,
+        "items": [
+          {
+            "id": 101,
+            "name": "86 Diamond",
+            "retail_price": 25000,
+            "reseller_price": 24000,
+            "stock_status": "available"
+          },
+          {
+            "id": 102,
+            "name": "172 Diamond",
+            "retail_price": 48000,
+            "reseller_price": 46000,
+            "stock_status": "available"
+          }
+        ]
+      }
+    ],
+    "total": 15,
+    "per_page": 20
+  }
+}
+```
+
+**Example Request - Update Parent Product:**
 ```bash
 PUT /api/admin/products/1
 Authorization: Bearer {token}
@@ -50,18 +92,36 @@ POST /api/admin/products/bulk-update-prices
 Authorization: Bearer {token}
 
 {
-  "products": [
+  "items": [
     {
-      "id": 1,
+      "id": 101,
       "retail_price": 25000,
       "retail_profit": 2000
     },
     {
-      "id": 2,
+      "id": 102,
       "reseller_price": 50000,
       "reseller_profit": 3000
     }
   ]
+}
+```
+
+---
+
+### ✅ 1.2 Update Product Item Only
+**Endpoint:** `PUT /api/admin/products/items/{itemId}`
+
+Digunakan untuk mengubah data spesifik satu varian (item) tanpa mempengaruhi parent atau item lainnya.
+
+**Request Body:**
+```json
+{
+  "name": "5 Diamonds",
+  "retail_price": 1500,
+  "reseller_price": 1200,
+  "stock_status": "available",
+  "is_active": true
 }
 ```
 
@@ -464,6 +524,30 @@ Authorization: Bearer {token}
 
 **Response:** CSV file download
 
+
+---
+
+### ✅ 7. Activity Logs
+**Controller:** `app/Http/Controllers/Api/Admin/ActivityLogController.php`
+
+**Endpoints:**
+- `GET /api/admin/activity-logs` - List all logs
+- `GET /api/admin/activity-logs/statistics` - Get activity stats
+- `GET /api/admin/activity-logs/{id}` - Get single log
+- `POST /api/admin/activity-logs/clean` - Clean old logs
+
+**Features:**
+✅ Filter by user, action, subject  
+✅ Date range filtering  
+✅ Log statistics  
+✅ Auto-clean old logs  
+
+**Example Request:**
+```bash
+GET /api/admin/activity-logs?action=login&start_date=2026-02-01
+Authorization: Bearer {token}
+```
+
 ---
 
 ## Files Created/Modified
@@ -492,6 +576,7 @@ PUT    /api/admin/products/{id}
 DELETE /api/admin/products/{id}
 POST   /api/admin/products/bulk-update-prices
 POST   /api/admin/products/sync-digiflazz
+PUT    /api/admin/products/items/{itemId}
 ```
 
 ### Transactions (4 endpoints)
@@ -539,7 +624,15 @@ GET    /api/admin/reports/payment-methods
 GET    /api/admin/reports/export/transactions
 ```
 
-**Total: 32 Admin Endpoints** 🎉
+### Activity Logs (4 endpoints)
+```
+GET    /api/admin/activity-logs
+GET    /api/admin/activity-logs/statistics
+GET    /api/admin/activity-logs/{id}
+POST   /api/admin/activity-logs/clean
+```
+
+**Total: 37 Admin Endpoints** 🎉
 
 ---
 

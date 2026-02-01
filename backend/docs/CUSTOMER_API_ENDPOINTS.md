@@ -10,7 +10,7 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 **Request Body:**
 ```json
 {
-  "product_id": 1,
+  "product_item_id": 16,
   "payment_method": "QRIS",
   "customer_data": {
     "zone_id": "1234",
@@ -109,17 +109,24 @@ Authorization: Bearer {token}
     "products": [
       {
         "id": 1,
-        "name": "Mobile Legends 86 Diamond",
+        "name": "Mobile Legends",
+        "brand": "MOBILE LEGENDS",
         "category": {
           "id": 1,
           "name": "Games",
           "slug": "games"
         },
-        "description": "Top up Mobile Legends 86 Diamond",
-        "price": 25000,
+        "description": "Top up Mobile Legends",
         "is_featured": true,
-        "total_sold": 500,
-        "image_url": "https://..."
+        "image_url": "https://...",
+        "items": [
+          {
+            "id": 101,
+            "name": "86 Diamond",
+            "price": 25000,
+            "is_active": true
+          }
+        ]
       }
     ],
     "pagination": {
@@ -155,21 +162,31 @@ Authorization: Bearer {token}
   "success": true,
   "data": {
     "id": 1,
-    "name": "Mobile Legends 86 Diamond",
+    "name": "Mobile Legends",
+    "brand": "MOBILE LEGENDS",
     "category": {
       "id": 1,
       "name": "Games",
       "slug": "games"
     },
-    "description": "Top up Mobile Legends 86 Diamond instantly",
-    "price": 25000,
-    "stock": 999,
+    "description": "Top up Mobile Legends instantly",
     "is_featured": true,
     "is_active": true,
-    "available": true,
-    "availability_message": null,
-    "total_sold": 500,
     "image_url": "https://...",
+    "items": [
+          {
+            "id": 101,
+            "name": "86 Diamond",
+            "price": 25000,
+            "stock_status": "available"
+          },
+          {
+            "id": 102,
+            "name": "172 Diamond",
+            "price": 48000,
+            "stock_status": "available"
+          }
+    ],
     "instructions": "Enter your User ID and Zone ID"
   }
 }
@@ -207,7 +224,7 @@ Authorization: Bearer {token}
 **Request Body:**
 ```json
 {
-  "product_id": 1,
+  "product_item_id": 16,
   "payment_method": "QRIS",
   "customer_data": {
     "user_id": "123456789",
@@ -252,7 +269,7 @@ Authorization: Bearer {token}
 **Request Body:**
 ```json
 {
-  "product_id": 1,
+  "product_item_id": 16,
   "customer_data": {
     "user_id": "123456789",
     "zone_id": "1234"

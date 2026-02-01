@@ -50,14 +50,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Products Management
         Route::prefix('products')->group(function () {
-            Route::get('/', [App\Http\Controllers\Api\Admin\ProductController::class, 'index']);
-            Route::get('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'show']);
-            Route::post('/', [App\Http\Controllers\Api\Admin\ProductController::class, 'store']);
-            Route::put('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'update']);
-            Route::delete('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'destroy']);
-            Route::put('/items/{itemId}', [App\Http\Controllers\Api\Admin\ProductController::class, 'updateItem']);
             Route::post('/bulk-update-prices', [App\Http\Controllers\Api\Admin\ProductController::class, 'bulkUpdatePrices']);
             Route::post('/sync-digiflazz', [App\Http\Controllers\Api\Admin\ProductController::class, 'syncFromDigiflazz']);
+            Route::put('/items/{itemId}', [App\Http\Controllers\Api\Admin\ProductController::class, 'updateItem']);
+
+            Route::get('/', [App\Http\Controllers\Api\Admin\ProductController::class, 'index']);
+            Route::post('/', [App\Http\Controllers\Api\Admin\ProductController::class, 'store']);
+            Route::get('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'show']);
+            Route::put('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'update']);
+            Route::delete('/{id}', [App\Http\Controllers\Api\Admin\ProductController::class, 'destroy']);
         });
 
         // Transactions Management
