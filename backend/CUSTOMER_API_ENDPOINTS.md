@@ -1,11 +1,76 @@
-# Task 1.8: Customer API Endpoints - COMPLETED ✅
+# Customer & Public API Endpoints ✅
 
-## Summary
-Berhasil mengimplementasikan semua Customer API Endpoints untuk customer-facing features termasuk Product Browsing, Order Creation, Transaction Management, Balance Check, dan Profile Management.
+## 🚀 Guest Checkout (Public)
 
-## Completed Tasks (8/8 - 100%)
+Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (Walk-in Customer).
 
-### ✅ 1. Get Product List (with Filters)
+### 1. Purchase Product (Guest)
+**Endpoint:** `POST /api/transactions/purchase`
+
+**Request Body:**
+```json
+{
+  "product_id": 1,
+  "payment_method": "QRIS",
+  "customer_data": {
+    "zone_id": "1234",
+    "user_id": "123456789"
+  },
+  "customer_name": "Anto Walkin",
+  "customer_email": "anto@gmail.com",
+  "customer_phone": "08123456789"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Transaction created successfully",
+  "data": {
+    "transaction": {
+      "transaction_code": "TRX-20260201-GUEST1",
+      "total_price": 25000,
+      "status": "pending",
+      "payment_status": "pending"
+    },
+    "payment": {
+      "payment_method": "QRIS",
+      "payment_url": "https://tripay.co.id/checkout/...",
+      "qr_code_url": "https://..."
+    }
+  }
+}
+```
+
+### 2. Check Transaction Status
+**Endpoint:** `GET /api/transactions/status/{transactionCode}`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "transaction_code": "TRX-20260201-GUEST1",
+    "status": "success",
+    "payment_status": "paid",
+    "product_name": "Mobile Legends 86 Diamond",
+    "payment": {
+      "payment_method": "QRIS",
+      "paid_at": "2026-02-01T10:05:00Z"
+    }
+  }
+}
+```
+
+### 3. Get Payment Channels
+**Endpoint:** `GET /api/transactions/payment-channels`
+
+---
+
+## 👤 Registered Customer API
+
+### 1. Get Product List (with Filters)
 **Controller:** `app/Http/Controllers/Api/Customer/ProductController.php`
 
 **Endpoint:** `GET /api/customer/products`
@@ -69,7 +134,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 2. Get Product Detail
+### 2. Get Product Detail
 **Endpoint:** `GET /api/customer/products/{id}`
 
 **Features:**
@@ -134,7 +199,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 3. Create Order/Transaction
+### 3. Create Order/Transaction
 
 #### 3.1 Purchase via Payment Gateway
 **Endpoint:** `POST /api/customer/transactions/purchase`
@@ -213,7 +278,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 4. Get Transaction History
+### 4. Get Transaction History
 **Endpoint:** `GET /api/customer/transactions`
 
 **Query Parameters:**
@@ -270,7 +335,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 5. Get Transaction Detail
+### 5. Get Transaction Detail
 **Endpoint:** `GET /api/customer/transactions/{transactionCode}`
 
 **Features:**
@@ -339,7 +404,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 6. Check Balance
+### 6. Check Balance
 **Endpoint:** `GET /api/customer/balance`
 
 **Features:**
@@ -403,7 +468,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 7. Profile Management
+### 7. Profile Management
 
 #### 7.1 Get Profile
 **Endpoint:** `GET /api/customer/profile`
@@ -497,7 +562,7 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 8. Top Up Balance (via Tripay)
+### 8. Top Up Balance (via Tripay)
 **Endpoint:** `POST /api/customer/transactions/topup`
 
 **Request Body:**
@@ -590,186 +655,34 @@ Authorization: Bearer {token}
 3. ✅ `app/Http/Controllers/Api/Customer/BalanceController.php` - Balance check
 4. ✅ `app/Http/Controllers/Api/Customer/ProfileController.php` - Profile management
 
+### Public Controller
+5. ✅ `app/Http/Controllers/Api/Public/PublicTransactionController.php` - Guest checkout
+
 ### Routes
-5. ✅ `routes/api.php` - Customer routes added
+6. ✅ `routes/api.php` - Customer & Public routes added
 
 ---
 
 ## API Routes Summary
 
-### Products (3 endpoints)
+### Public / Guest (3 endpoints)
 ```
-GET    /api/customer/products
-GET    /api/customer/products/categories
-GET    /api/customer/products/{id}
-```
-
-### Transactions (6 endpoints)
-```
-GET    /api/customer/transactions
-GET    /api/customer/transactions/payment-channels
-GET    /api/customer/transactions/{transactionCode}
-POST   /api/customer/transactions/purchase
-POST   /api/customer/transactions/purchase-balance
-POST   /api/customer/transactions/topup
+POST   /api/transactions/purchase                # Guest purchase
+GET    /api/transactions/status/{code}           # Check status
+GET    /api/transactions/payment-channels        # List channels
 ```
 
-### Balance (2 endpoints)
+### Registered Customer (15 endpoints)
 ```
-GET    /api/customer/balance
-GET    /api/customer/balance/mutations
-```
-
-### Profile (4 endpoints)
-```
-GET    /api/customer/profile
-PUT    /api/customer/profile
-POST   /api/customer/profile/change-password
-DELETE /api/customer/profile
-```
-
-**Total: 15 Customer Endpoints** 🎉
-
----
-
-## Authentication & Authorization
-
-All customer endpoints require:
-1. ✅ Authentication via `auth:sanctum` middleware
-2. ✅ Customer role via `role:customer` middleware
-
-**Example Request Header:**
-```
-Authorization: Bearer {your_access_token}
-Content-Type: application/json
+GET    /api/customer/products                    # List products
+GET    /api/customer/products/categories         # Categories
+GET    /api/customer/products/{id}               # Product detail
+GET    /api/customer/transactions                # History
+GET    /api/customer/transactions/{code}         # Detail
+POST   /api/customer/transactions/purchase       # Member purchase
+POST   /api/customer/transactions/topup          # Topup
+GET    /api/customer/balance                     # Balance
+...
 ```
 
----
-
-## Error Handling
-
-**Validation Error (422):**
-```json
-{
-  "success": false,
-  "message": "Validation failed",
-  "errors": {
-    "product_id": ["The product id field is required."]
-  }
-}
-```
-
-**Insufficient Balance (400):**
-```json
-{
-  "success": false,
-  "message": "Insufficient balance"
-}
-```
-
-**Product Unavailable (400):**
-```json
-{
-  "success": false,
-  "message": "Product is out of stock"
-}
-```
-
-**Not Found (404):**
-```json
-{
-  "success": false,
-  "message": "Transaction not found"
-}
-```
-
----
-
-## Payment Flow
-
-```
-1. Customer browses products
-   ↓
-2. Select product & payment method
-   ↓
-3. Create transaction (purchase/topup)
-   ↓
-4. Get payment details (VA/QR/URL)
-   ↓
-5. Customer pays via payment channel
-   ↓
-6. Tripay sends callback
-   ↓
-7. System processes payment
-   ↓
-8. Update transaction status
-   ↓
-9. For Purchase: Dispatch Digiflazz order
-   For Topup: Add balance
-   ↓
-10. Send notification
-```
-
----
-
-## Testing Examples
-
-### Test Get Products
-```bash
-curl -X GET "http://localhost:8000/api/customer/products?category=games" \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-### Test Create Purchase
-```bash
-curl -X POST "http://localhost:8000/api/customer/transactions/purchase" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "product_id": 1,
-    "payment_method": "QRIS",
-    "customer_data": {
-      "user_id": "123456789",
-      "zone_id": "1234"
-    }
-  }'
-```
-
-### Test Topup
-```bash
-curl -X POST "http://localhost:8000/api/customer/transactions/topup" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "amount": 50000,
-    "payment_method": "BRIVA"
-  }'
-```
-
-### Test Check Balance
-```bash
-curl -X GET "http://localhost:8000/api/customer/balance" \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
----
-
-## Status
-
-**✅ READY FOR PRODUCTION**
-
-- All 8 tasks completed (100%)
-- 15 customer endpoints created
-- Full product browsing
-- Order creation (gateway & balance)
-- Topup via Tripay
-- Balance management
-- Profile management
-- Complete documentation
-
----
-
-**Developed by:** Antigravity AI Assistant  
-**Date:** 2026-02-01  
-**Quality:** ⭐⭐⭐⭐⭐  
-**Status:** 100% Complete
+**Total: 18 Customer Facing Endpoints** 🎉

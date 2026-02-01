@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
 
             $table->string('transaction_code')->unique();
-            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreignId('product_id')->nullable()->comment('Null untuk topup saldo')->constrained('products')->nullOnDelete();
 
             $table->enum('customer_type', ['retail', 'reseller'])->default('retail');

@@ -48,7 +48,7 @@ class TransactionService
    * @throws \Exception
    */
   public function createPurchaseTransaction(
-    User $user,
+    ?User $user,
     Product $product,
     array $customerData,
     string $paymentMethod
@@ -63,16 +63,17 @@ class TransactionService
 
     try {
       // Get price
-      $price = $this->productService->getPrice($product, $user->customer_type);
+      $customerType = $user ? $user->customer_type : 'retail';
+      $price = $this->productService->getPrice($product, $customerType);
       $adminFee = $this->getAdminFee($paymentMethod);
       $totalPrice = $price + $adminFee;
 
       // Create transaction
       $transaction = Transaction::create([
         'transaction_code' => $this->generateTransactionCode(),
-        'user_id' => $user->id,
+        'user_id' => $user ? $user->id : null,
         'product_id' => $product->id,
-        'customer_type' => $user->customer_type,
+        'customer_type' => $customerType,
         'payment_type' => 'gateway',
         'transaction_type' => 'purchase',
         'product_name' => $product->name,
@@ -96,7 +97,7 @@ class TransactionService
 
       Log::info('Purchase transaction created', [
         'transaction_code' => $transaction->transaction_code,
-        'user_id' => $user->id,
+        'user_id' => $user ? $user->id : 'guest',
         'product_id' => $product->id,
         'total_price' => $totalPrice,
       ]);
@@ -105,7 +106,7 @@ class TransactionService
     } catch (\Exception $e) {
       DB::rollBack();
       Log::error('Failed to create purchase transaction', [
-        'user_id' => $user->id,
+        'user_id' => $user ? $user->id : 'guest',
         'product_id' => $product->id,
         'error' => $e->getMessage(),
       ]);
