@@ -11,6 +11,7 @@ class DigiflazzService
   private $username;
   private $apiKey;
   private $baseUrl;
+  private $testing;
 
   private $logger;
 
@@ -20,6 +21,7 @@ class DigiflazzService
     $this->username = config('services.digiflazz.username');
     $this->apiKey = config('services.digiflazz.api_key');
     $this->baseUrl = config('services.digiflazz.base_url', 'https://api.digiflazz.com/v1');
+    $this->testing = config('services.digiflazz.testing', true);
   }
 
   /**
@@ -165,7 +167,7 @@ class DigiflazzService
    * @return array
    * @throws \Exception
    */
-  public function createTransaction($buyerSkuCode, $customerNo, $refId)
+  public function createTransaction($buyerSkuCode, $customerNo, $refId, $options = [])
   {
     try {
       $payload = [
@@ -174,7 +176,21 @@ class DigiflazzService
         'customer_no' => $customerNo,
         'ref_id' => $refId,
         'sign' => $this->generateSign($refId),
+        'testing' => $this->testing,
       ];
+
+      // Optional parameters
+      if (isset($options['max_price'])) {
+        $payload['max_price'] = (int) $options['max_price'];
+      }
+
+      if (isset($options['cb_url'])) {
+        $payload['cb_url'] = $options['cb_url'];
+      }
+
+      if (isset($options['allow_dot'])) {
+        $payload['allow_dot'] = (bool) $options['allow_dot'];
+      }
 
 
 
@@ -219,6 +235,136 @@ class DigiflazzService
   }
 
   /**
+   * Inquiry pascabayar (cek tagihan)
+   * For: PLN Pascabayar, PDAM, Telkom, TV Kabel, dll
+   * 
+   * @param string $buyerSkuCode - Product SKU (pln, pdam, telkom, dll)
+   * @param string $customerNo - Customer ID / Meter Number
+   * @param string $refId - Unique reference ID (inquiry_code)
+   * @return array
+   * @throws \Exception
+   */
+  public function inquiryPostpaid($buyerSkuCode, $customerNo, $refId, $options = [])
+  {
+    try {
+      $payload = [
+        'commands' => 'inq-pasca',
+        'username' => $this->username,
+        'buyer_sku_code' => $buyerSkuCode,
+        'customer_no' => $customerNo,
+        'ref_id' => $refId,
+        'sign' => $this->generateSign($refId),
+      ];
+
+      // Optional parameters
+      if (isset($options['max_price'])) {
+        $payload['max_price'] = (int) $options['max_price'];
+      }
+
+      if (isset($options['allow_dot'])) {
+        $payload['allow_dot'] = (bool) $options['allow_dot'];
+      }
+
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Inquiry Postpaid Request',
+        $payload,
+        [],
+        true
+      );
+
+      $response = Http::timeout(60)->post($this->baseUrl . '/transaction', $payload);
+      $result = $response->json();
+
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Inquiry Postpaid Response',
+        [],
+        $result ?? [],
+        isset($result['data']) && ($result['data']['rc'] ?? '') === '00'
+      );
+
+      if (isset($result['data'])) {
+        return [
+          'success' => true,
+          'data' => $result['data'],
+        ];
+      }
+
+      throw new \Exception('Failed to inquiry postpaid: ' . json_encode($result));
+    } catch (\Exception $e) {
+      Log::error('Digiflazz Inquiry Postpaid Error', [
+        'error' => $e->getMessage(),
+        'ref_id' => $refId,
+      ]);
+      throw $e;
+    }
+  }
+
+  /**
+   * Pay pascabayar (bayar tagihan)
+   * For: PLN Pascabayar, PDAM, Telkom, TV Kabel, dll
+   * 
+   * @param string $buyerSkuCode - Product SKU (pln, pdam, telkom, dll)
+   * @param string $customerNo - Customer ID / Meter Number
+   * @param string $refId - Unique reference ID (transaction_code)
+   * @return array
+   * @throws \Exception
+   */
+  public function payPostpaid($buyerSkuCode, $customerNo, $refId, $options = [])
+  {
+    try {
+      $payload = [
+        'commands' => 'pay-pasca',
+        'username' => $this->username,
+        'buyer_sku_code' => $buyerSkuCode,
+        'customer_no' => $customerNo,
+        'ref_id' => $refId,
+        'sign' => $this->generateSign($refId),
+      ];
+
+      // Optional: testing only (sesuai dokumentasi Digiflazz)
+      if (isset($options['testing'])) {
+        $payload['testing'] = (bool) $options['testing'];
+      }
+
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Pay Postpaid Request',
+        $payload,
+        [],
+        true
+      );
+
+      $response = Http::timeout(60)->post($this->baseUrl . '/transaction', $payload);
+      $result = $response->json();
+
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Pay Postpaid Response',
+        [],
+        $result ?? [],
+        isset($result['data']) && ($result['data']['rc'] ?? '') === '00'
+      );
+
+      if (isset($result['data'])) {
+        return [
+          'success' => true,
+          'data' => $result['data'],
+        ];
+      }
+
+      throw new \Exception('Failed to pay postpaid: ' . json_encode($result));
+    } catch (\Exception $e) {
+      Log::error('Digiflazz Pay Postpaid Error', [
+        'error' => $e->getMessage(),
+        'ref_id' => $refId,
+      ]);
+      throw $e;
+    }
+  }
+
+  /**
    * Check transaction status
    * (Same as create transaction, but with existing ref_id)
    * 
@@ -251,29 +397,41 @@ class DigiflazzService
    */
   public function formatCustomerNumber($customerData, $productType)
   {
-    // For games (Mobile Legends, Free Fire, dll)
-    if (in_array($productType, ['game', 'games'])) {
-      // Format: user_id atau user_id-zone_id
-      if (isset($customerData['zone_id']) && !empty($customerData['zone_id'])) {
-        return $customerData['user_id'] . '-' . $customerData['zone_id'];
-      }
-      return $customerData['user_id'];
-    }
+    switch ($productType) {
+      case 'game':
+      case 'games':
+        // Format: {user_id}{zone_id} (NO SEPARATOR!)
+        // Example: Mobile Legends user_id=123456789, zone_id=1234 => 1234567891234
+        $userId = $customerData['user_id'] ?? '';
+        $zoneId = $customerData['zone_id'] ?? '';
+        return $userId . $zoneId;
 
-    // For pulsa/data
-    if (in_array($productType, ['pulsa', 'data'])) {
-      // Format: 081234567890
-      return $customerData['phone'] ?? $customerData['customer_no'];
-    }
+      case 'pulsa':
+      case 'data':
+      case 'ewallet':
+        // Format: {phone}
+        return $customerData['phone'] ?? $customerData['customer_no'] ?? '';
 
-    // For PLN
-    if ($productType === 'pln') {
-      // Format: meter number
-      return $customerData['meter_no'] ?? $customerData['customer_no'];
-    }
+      case 'pln':
+        // Format: {meter_number}
+        return $customerData['meter_no'] ?? $customerData['meter_number'] ?? $customerData['customer_no'] ?? '';
 
-    // Default
-    return $customerData['customer_no'] ?? '';
+      case 'voucher':
+        // Format: {email} or empty
+        return $customerData['email'] ?? '';
+
+      case 'pascabayar':
+        // Format: {customer_id}
+        return $customerData['customer_id'] ?? $customerData['customer_no'] ?? '';
+
+      default:
+        // Default: try any available identifier
+        return $customerData['user_id']
+          ?? $customerData['phone']
+          ?? $customerData['customer_id']
+          ?? $customerData['customer_no']
+          ?? '';
+    }
   }
 
   /**

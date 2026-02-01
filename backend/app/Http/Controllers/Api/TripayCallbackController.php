@@ -275,7 +275,13 @@ class TripayCallbackController extends Controller
       'processed_at' => now(),
     ]);
 
-    // Dispatch job to process Digiflazz order
-    ProcessDigiflazzOrder::dispatch($transaction);
+    // Dispatch appropriate job based on payment type
+    if ($transaction->prepaid_postpaid_type === 'postpaid') {
+      // Dispatch postpaid payment job
+      \App\Jobs\ProcessPostpaidPayment::dispatch($transaction);
+    } else {
+      // Dispatch prepaid order job (default)
+      ProcessDigiflazzOrder::dispatch($transaction);
+    }
   }
 }

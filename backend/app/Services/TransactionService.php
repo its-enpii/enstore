@@ -74,7 +74,7 @@ class TransactionService
         'user_id' => $user ? $user->id : null,
         'product_id' => $product->id,
         'customer_type' => $customerType,
-        'payment_type' => 'gateway',
+        'payment_method_type' => 'gateway',
         'transaction_type' => 'purchase',
         'product_name' => $product->name,
         'product_code' => $product->digiflazz_code,
@@ -144,7 +144,7 @@ class TransactionService
         'user_id' => $user->id,
         'product_id' => $product->id,
         'customer_type' => $user->customer_type,
-        'payment_type' => 'balance',
+        'payment_method_type' => 'balance',
         'transaction_type' => 'purchase',
         'product_name' => $product->name,
         'product_code' => $product->digiflazz_code,
@@ -215,7 +215,7 @@ class TransactionService
         'user_id' => $user->id,
         'product_id' => null,
         'customer_type' => $user->customer_type,
-        'payment_type' => 'gateway',
+        'payment_method_type' => 'gateway',
         'transaction_type' => 'topup',
         'product_name' => 'Top Up Saldo',
         'product_code' => 'TOPUP',
@@ -376,5 +376,63 @@ class TransactionService
     $query->orderBy('created_at', 'desc');
 
     return $query->paginate($filters['per_page'] ?? 20);
+  }
+
+  /**
+   * Create postpaid transaction (PPOB)
+   * 
+   * @param array $data
+   * @return Transaction
+   * @throws \Exception
+   */
+  public function createPostpaidTransaction(array $data)
+  {
+    DB::beginTransaction();
+
+    try {
+      $product = Product::findOrFail($data['product_id']);
+
+      // Validate product is postpaid
+      if ($product->payment_type !== 'postpaid') {
+        throw new \Exception('Product is not a postpaid product');
+      }
+
+      // Create transaction
+      $transaction = Transaction::create([
+        'transaction_code' => $this->generateTransactionCode(),
+        'user_id' => $data['user_id'] ?? null,
+        'product_id' => $product->id,
+        'customer_type' => $data['customer_type'] ?? 'retail',
+        'payment_method_type' => 'gateway',
+        'prepaid_postpaid_type' => 'postpaid',
+        'transaction_type' => 'purchase',
+        'product_name' => $product->name,
+        'product_code' => $product->digiflazz_code,
+        'product_price' => $data['total_price'],
+        'admin_fee' => 0,
+        'total_price' => $data['total_price'],
+        'customer_data' => $data['customer_data'],
+        'inquiry_ref' => $data['inquiry_ref'],
+        'bill_data' => $data['bill_data'],
+        'payment_method' => 'gateway',
+        'status' => 'pending',
+        'payment_status' => 'pending',
+        'expired_at' => now()->addHours(2),
+      ]);
+
+      // Log transaction creation
+      $this->addLog($transaction, 'created', 'Postpaid transaction created', [
+        'inquiry_ref' => $data['inquiry_ref'],
+        'bill_data' => $data['bill_data'],
+      ]);
+
+      DB::commit();
+
+      return $transaction;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('Create Postpaid Transaction Error: ' . $e->getMessage());
+      throw $e;
+    }
   }
 }

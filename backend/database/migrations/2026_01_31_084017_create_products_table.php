@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->string('brand')->comment('Mobile Legends, Free Fire, dll.');
+            $table->string('type', 50)->default('other')->comment('game, pulsa, data, pln, voucher, dll');
+            $table->enum('payment_type', ['prepaid', 'postpaid'])->default('prepaid')->comment('Prepaid atau Postpaid');
 
             $table->decimal('base_price', 15, 2)->comment('Harga modal dari Digiflazz');
             $table->decimal('retail_price', 15, 2)->comment('Harga untuk retail/guest customer');
@@ -46,6 +48,8 @@ return new class extends Migration
 
             $table->index('category_id');
             $table->index('digiflazz_code');
+            $table->index('type');
+            $table->index('payment_type');
             $table->index('stock_status');
             $table->index('is_active');
             $table->index('is_featured');

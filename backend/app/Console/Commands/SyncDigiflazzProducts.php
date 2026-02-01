@@ -111,6 +111,8 @@ class SyncDigiflazzProducts extends Command
                         'category_id' => $category->id,
                         'name' => $product['product_name'],
                         'brand' => $product['brand'],
+                        'type' => $this->mapProductType($categoryName),
+                        'payment_type' => $this->detectPaymentType($product),
                         'base_price' => $basePrice,
                         'retail_price' => $retailPrice,
                         'reseller_price' => $resellerPrice,
@@ -183,6 +185,43 @@ class SyncDigiflazzProducts extends Command
         ];
 
         return $mapping[$category] ?? 'other';
+    }
+
+    /**
+     * Detect payment type (prepaid/postpaid)
+     */
+    private function detectPaymentType($product)
+    {
+        $category = strtolower($product['category']);
+        $productName = strtolower($product['product_name']);
+        $type = strtolower($product['type'] ?? '');
+
+        // Check if explicitly marked as pascabayar
+        if (str_contains($type, 'pasca') || str_contains($productName, 'pascabayar')) {
+            return 'postpaid';
+        }
+
+        // Category-based detection
+        $postpaidCategories = [
+            'pln pascabayar',
+            'pdam',
+            'telkom',
+            'speedy',
+            'indihome',
+            'tv kabel',
+            'internet',
+            'multifinance',
+            'bpjs',
+        ];
+
+        foreach ($postpaidCategories as $postpaidCat) {
+            if (str_contains($category, $postpaidCat) || str_contains($productName, $postpaidCat)) {
+                return 'postpaid';
+            }
+        }
+
+        // Default to prepaid
+        return 'prepaid';
     }
 
     /**

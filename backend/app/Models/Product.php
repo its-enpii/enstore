@@ -17,6 +17,7 @@ class Product extends Model
         'image',
         'brand',
         'type',
+        'payment_type',
         'base_price',
         'retail_price',
         'reseller_price',
@@ -93,6 +94,22 @@ class Product extends Model
     public function scopeAvailable($query)
     {
         return $query->where('stock_status', 'available');
+    }
+
+    /**
+     * Scope a query to only include prepaid products
+     */
+    public function scopePrepaid($query)
+    {
+        return $query->where('payment_type', 'prepaid');
+    }
+
+    /**
+     * Scope a query to only include postpaid products
+     */
+    public function scopePostpaid($query)
+    {
+        return $query->where('payment_type', 'postpaid');
     }
 
     // ==================== ACCESSORS ====================

@@ -133,6 +133,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/mutations', [App\Http\Controllers\Api\Customer\BalanceController::class, 'mutations']);
         });
 
+        // Postpaid (PPOB)
+        Route::prefix('postpaid')->group(function () {
+            Route::post('/inquiry', [App\Http\Controllers\Api\Customer\PostpaidController::class, 'inquiry']);
+            Route::post('/pay', [App\Http\Controllers\Api\Customer\PostpaidController::class, 'pay']);
+        });
+
         // Profile
         Route::prefix('profile')->group(function () {
             Route::get('/', [App\Http\Controllers\Api\Customer\ProfileController::class, 'show']);

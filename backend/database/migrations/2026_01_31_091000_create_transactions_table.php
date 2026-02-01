@@ -19,8 +19,11 @@ return new class extends Migration
             $table->foreignId('product_id')->nullable()->comment('Null untuk topup saldo')->constrained('products')->nullOnDelete();
 
             $table->enum('customer_type', ['retail', 'reseller'])->default('retail');
-            $table->enum('payment_type', ['gateway', 'balance'])->default('gateway')->comment('gateway=Tripay, balance=potong saldo');
+            $table->enum('payment_method_type', ['gateway', 'balance'])->default('gateway')->comment('gateway=Tripay, balance=potong saldo');
             $table->enum('transaction_type', ['purchase', 'topup'])->default('purchase')->comment('purchase=beli produk, topup=isi saldo');
+            $table->enum('prepaid_postpaid_type', ['prepaid', 'postpaid'])->default('prepaid')->comment('Prepaid atau Postpaid (PPOB)');
+            $table->string('inquiry_ref', 100)->nullable()->comment('Reference dari inquiry (untuk postpaid)');
+            $table->json('bill_data')->nullable()->comment('Data tagihan (customer_name, period, nominal, admin)');
 
             $table->string('product_name')->nullable();
             $table->string('product_code')->nullable()->comment('Digiflazz SKU');
@@ -54,8 +57,10 @@ return new class extends Migration
             $table->index('user_id');
             $table->index('product_id');
             $table->index('customer_type');
-            $table->index('payment_type');
+            $table->index('payment_method_type');
             $table->index('transaction_type');
+            $table->index('prepaid_postpaid_type');
+            $table->index('inquiry_ref');
             $table->index('payment_status');
             $table->index('status');
             $table->index('paid_at');

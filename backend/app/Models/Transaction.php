@@ -14,8 +14,11 @@ class Transaction extends Model
         'user_id',
         'product_id',
         'customer_type',
-        'payment_type',
+        'payment_method_type',
         'transaction_type',
+        'prepaid_postpaid_type',
+        'inquiry_ref',
+        'bill_data',
         'product_name',
         'product_code',
         'product_price',
@@ -44,6 +47,7 @@ class Transaction extends Model
         'admin_fee' => 'decimal:2',
         'total_price' => 'decimal:2',
         'customer_data' => 'array',
+        'bill_data' => 'array',
         'paid_at' => 'datetime',
         'processed_at' => 'datetime',
         'completed_at' => 'datetime',
@@ -134,6 +138,22 @@ class Transaction extends Model
     public function scopeTopup($query)
     {
         return $query->where('transaction_type', 'topup');
+    }
+
+    /**
+     * Scope a query to only include prepaid transactions
+     */
+    public function scopePrepaid($query)
+    {
+        return $query->where('prepaid_postpaid_type', 'prepaid');
+    }
+
+    /**
+     * Scope a query to only include postpaid transactions
+     */
+    public function scopePostpaid($query)
+    {
+        return $query->where('prepaid_postpaid_type', 'postpaid');
     }
 
     // ==================== ACCESSORS ====================

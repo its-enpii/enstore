@@ -179,7 +179,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             $this->createLog('processing', 'failed', 'Order failed: ' . $message, $data);
 
             // Refund if payment via balance
-            if ($this->transaction->payment_type === 'balance') {
+            if ($this->transaction->payment_method_type === 'balance') {
                 $this->refundBalance();
             }
 

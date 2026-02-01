@@ -188,7 +188,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
         ]);
 
         // Refund if payment via balance
-        if ($this->transaction->payment_type === 'balance') {
+        if ($this->transaction->payment_method_type === 'balance') {
             $this->refundBalance();
         }
 
