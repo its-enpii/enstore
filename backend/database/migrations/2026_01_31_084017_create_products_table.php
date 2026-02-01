@@ -40,7 +40,7 @@ return new class extends Migration
             $table->decimal('rating', 3, 2)->default(0);
             $table->integer('sort_order')->default(0);
 
-            $table->timestamp('last_sync_at')->nullable()->comment('Last sync dengan Digiflazz');
+            $table->timestamp('last_synced_at')->nullable()->comment('Last sync dengan Digiflazz');
 
             $table->timestamps();
 

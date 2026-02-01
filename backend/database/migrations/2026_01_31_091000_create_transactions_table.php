@@ -39,6 +39,7 @@ return new class extends Migration
             $table->string('digiflazz_serial_number')->nullable();
             $table->text('digiflazz_message')->nullable();
             $table->string('digiflazz_status')->nullable();
+            $table->string('digiflazz_rc')->nullable()->comment('Response code from Digiflazz');
 
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('processed_at')->nullable();

@@ -224,9 +224,6 @@ CREATE TABLE products (
     image VARCHAR(255) NULL,
     brand VARCHAR(100) NULL COMMENT 'Mobile Legends, Free Fire, dll',
     
-    -- Type
-    type ENUM('game', 'pulsa', 'data', 'pln', 'emoney', 'voucher', 'streaming', 'other') NOT NULL,
-    
     -- Pricing
     base_price DECIMAL(15, 2) NOT NULL COMMENT 'Harga modal dari Digiflazz',
     retail_price DECIMAL(15, 2) NOT NULL COMMENT 'Harga untuk retail/guest customer',
@@ -265,7 +262,6 @@ CREATE TABLE products (
     -- Indexes
     INDEX idx_category_id (category_id),
     INDEX idx_digiflazz_code (digiflazz_code),
-    INDEX idx_type (type),
     INDEX idx_stock_status (stock_status),
     INDEX idx_is_active (is_active),
     INDEX idx_is_featured (is_featured),
