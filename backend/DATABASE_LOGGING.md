@@ -113,6 +113,53 @@ $logger->logApi('request', [
 ]);
 ```
 
+#### 7. **logExternalApi()** - External API logging (NEW ✨)
+```php
+$logger->logExternalApi(
+    'Tripay',                    // Provider name
+    'Create Transaction',        // Action
+    ['amount' => 100000],        // Request data
+    ['reference' => 'T123'],     // Response data
+    true                         // Success status
+);
+```
+
+**Features:**
+- ✅ Structured logging for 3rd party API calls
+- ✅ Request/Response payload tracking
+- ✅ Success/failure status
+- ✅ Provider identification
+- ✅ Stored in `activity_logs` table with type `external_api`
+
+**Use Cases:**
+- Payment gateway calls (Tripay)
+- Product provider calls (Digiflazz)
+- Any external API integration
+
+**Example (Tripay):**
+```php
+// In TripayService
+$this->logger->logExternalApi(
+    'Tripay',
+    'Get Payment Channels',
+    [],
+    $response ?? [],
+    isset($response['success']) && $response['success']
+);
+```
+
+**Example (Digiflazz):**
+```php
+// In DigiflazzService
+$this->logger->logExternalApi(
+    'Digiflazz',
+    'Create Transaction Request',
+    $payload,
+    [],
+    true
+);
+```
+
 ---
 
 ## 📝 Usage Examples
