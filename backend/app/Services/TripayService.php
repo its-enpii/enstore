@@ -13,8 +13,11 @@ class TripayService
   private $baseUrl;
   private $mode;
 
-  public function __construct()
+  private $logger;
+
+  public function __construct(DatabaseLogger $logger)
   {
+    $this->logger = $logger;
     $this->apiKey = config('services.tripay.api_key');
     $this->privateKey = config('services.tripay.private_key');
     $this->merchantCode = config('services.tripay.merchant_code');
@@ -54,7 +57,15 @@ class TripayService
   public function getPaymentChannels()
   {
     try {
-      Log::info('Tripay Get Payment Channels Request');
+
+
+      $this->logger->logExternalApi(
+        'Tripay',
+        'Get Payment Channels',
+        [],
+        [],
+        true
+      );
 
       $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . $this->apiKey,
@@ -62,10 +73,13 @@ class TripayService
 
       $result = $response->json();
 
-      Log::info('Tripay Get Payment Channels Response', [
-        'success' => $result['success'] ?? false,
-        'total_channels' => count($result['data'] ?? []),
-      ]);
+      $this->logger->logExternalApi(
+        'Tripay',
+        'Get Payment Channels Response',
+        [],
+        $result ?? [],
+        isset($result['success']) && $result['success']
+      );
 
       if (isset($result['success']) && $result['success']) {
         return [
@@ -109,11 +123,15 @@ class TripayService
         'signature' => $signature,
       ];
 
-      Log::info('Tripay Create Transaction Request', [
-        'merchant_ref' => $merchantRef,
-        'amount' => $amount,
-        'method' => $params['method'],
-      ]);
+
+
+      $this->logger->logExternalApi(
+        'Tripay',
+        'Create Transaction Request',
+        $payload,
+        [],
+        true
+      );
 
       $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . $this->apiKey,
@@ -121,10 +139,13 @@ class TripayService
 
       $result = $response->json();
 
-      Log::info('Tripay Create Transaction Response', [
-        'success' => $result['success'] ?? false,
-        'reference' => $result['data']['reference'] ?? null,
-      ]);
+      $this->logger->logExternalApi(
+        'Tripay',
+        'Create Transaction Response',
+        [],
+        $result ?? [],
+        isset($result['success']) && $result['success']
+      );
 
       if (isset($result['success']) && $result['success']) {
         return $result['data']; // Return data directly like in mapping file
@@ -163,7 +184,15 @@ class TripayService
   public function getTransactionDetail($reference)
   {
     try {
-      Log::info('Tripay Get Transaction Detail Request', ['reference' => $reference]);
+
+
+      $this->logger->logExternalApi(
+        'Tripay',
+        'Get Transaction Detail Request',
+        ['reference' => $reference],
+        [],
+        true
+      );
 
       $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . $this->apiKey,
@@ -173,10 +202,13 @@ class TripayService
 
       $result = $response->json();
 
-      Log::info('Tripay Get Transaction Detail Response', [
-        'success' => $result['success'] ?? false,
-        'status' => $result['data']['status'] ?? null,
-      ]);
+      $this->logger->logExternalApi(
+        'Tripay',
+        'Get Transaction Detail Response',
+        [],
+        $result ?? [],
+        isset($result['success']) && $result['success']
+      );
 
       if (isset($result['success']) && $result['success']) {
         return [
@@ -206,11 +238,13 @@ class TripayService
   {
     $generatedSignature = $this->generateCallbackSignature($this->privateKey, $callbackData);
 
-    Log::info('Tripay Validate Callback Signature', [
-      'received' => $callbackSignature,
-      'generated' => $generatedSignature,
-      'valid' => $callbackSignature === $generatedSignature,
-    ]);
+    $this->logger->logExternalApi(
+      'Tripay',
+      'Validate Callback Signature',
+      ['received' => $callbackSignature, 'generated' => $generatedSignature],
+      [],
+      $callbackSignature === $generatedSignature
+    );
 
     return $callbackSignature === $generatedSignature;
   }
@@ -232,11 +266,7 @@ class TripayService
       $this->privateKey
     );
 
-    Log::info('Tripay Validate Callback Signature (from data)', [
-      'received' => $callbackSignature,
-      'generated' => $generatedSignature,
-      'valid' => $callbackSignature === $generatedSignature,
-    ]);
+
 
     return $callbackSignature === $generatedSignature;
   }
@@ -270,7 +300,7 @@ class TripayService
   public function getPaymentInstructions($code)
   {
     try {
-      Log::info('Tripay Get Payment Instructions Request', ['code' => $code]);
+
 
       $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . $this->apiKey,

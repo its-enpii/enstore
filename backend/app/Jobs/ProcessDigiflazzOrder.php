@@ -48,7 +48,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             $this->createLog('pending', 'processing', 'Order is being processed to Digiflazz');
 
             // Get Digiflazz service
-            $digiflazzService = new DigiflazzService();
+            $digiflazzService = app(\App\Services\DigiflazzService::class);
 
             // Format customer number based on product type
             $customerNo = $this->formatCustomerNumber();
@@ -270,7 +270,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
         $customerData = $this->transaction->customer_data;
         $productType = $this->transaction->product->type ?? 'other';
 
-        $digiflazzService = new DigiflazzService();
+        $digiflazzService = app(\App\Services\DigiflazzService::class);
         return $digiflazzService->formatCustomerNumber($customerData, $productType);
     }
 

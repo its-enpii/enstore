@@ -151,13 +151,6 @@ class ProductService
   public function incrementTotalSold(Product $product, $quantity = 1)
   {
     $product->increment('total_sold', $quantity);
-
-    Log::info('Product total sold incremented', [
-      'product_id' => $product->id,
-      'product_name' => $product->name,
-      'quantity' => $quantity,
-      'new_total' => $product->fresh()->total_sold,
-    ]);
   }
 
   /**
@@ -180,13 +173,6 @@ class ProductService
     }
 
     $product->decrement('stock', $quantity);
-
-    Log::info('Product stock decremented', [
-      'product_id' => $product->id,
-      'product_name' => $product->name,
-      'quantity' => $quantity,
-      'remaining_stock' => $product->fresh()->stock,
-    ]);
   }
 
   /**
@@ -215,8 +201,6 @@ class ProductService
   {
     Cache::forget('products.active.*');
     Cache::forget('categories.with_count');
-
-    Log::info('Product cache cleared');
   }
 
   /**

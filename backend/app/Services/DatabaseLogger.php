@@ -28,12 +28,12 @@ class DatabaseLogger
   ): ActivityLog {
     return ActivityLog::create([
       'user_id' => Auth::id(),
-      'type' => $type,
+      // 'type' => $type, // ActivityLog model doesn't have type
       'action' => $action,
       'description' => $description,
       'model_type' => $model,
       'model_id' => $modelId,
-      'data' => $data,
+      'meta_data' => array_merge(['log_type' => $type], $data), // Map to meta_data
       'ip_address' => request()->ip(),
       'user_agent' => request()->userAgent(),
     ]);
@@ -128,6 +128,36 @@ class DatabaseLogger
         'status_code' => $data['status_code'] ?? null,
         'duration' => $data['duration'] ?? null,
       ], $data)
+    );
+  }
+
+  /**
+   * Log external API request/response
+   * 
+   * @param string $provider
+   * @param string $action
+   * @param array $request
+   * @param array $response
+   * @param bool $isSuccess
+   * @return ActivityLog
+   */
+  public function logExternalApi(
+    string $provider,
+    string $action,
+    array $request = [],
+    array $response = [],
+    bool $isSuccess = true
+  ): ActivityLog {
+    return $this->log(
+      type: 'external_api',
+      action: $action,
+      description: "External API {$provider} {$action}",
+      data: [
+        'provider' => $provider,
+        'request' => $request,
+        'response' => $response,
+        'success' => $isSuccess,
+      ]
     );
   }
 

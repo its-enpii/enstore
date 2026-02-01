@@ -12,8 +12,11 @@ class DigiflazzService
   private $apiKey;
   private $baseUrl;
 
-  public function __construct()
+  private $logger;
+
+  public function __construct(DatabaseLogger $logger)
   {
+    $this->logger = $logger;
     $this->username = config('services.digiflazz.username');
     $this->apiKey = config('services.digiflazz.api_key');
     $this->baseUrl = config('services.digiflazz.base_url', 'https://api.digiflazz.com/v1');
@@ -46,14 +49,30 @@ class DigiflazzService
         'sign' => $this->generateSign('depo'),
       ];
 
-      Log::info('Digiflazz Check Balance Request', $payload);
+
+
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Check Balance Request',
+        $payload,
+        [],
+        true
+      );
 
       $response = Http::timeout(30)
         ->post($this->baseUrl . '/cek-saldo', $payload);
 
       $result = $response->json();
 
-      Log::info('Digiflazz Check Balance Response', $result ?? []);
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Check Balance Response',
+        [],
+        $result ?? [],
+        isset($result['data']['status']) && $result['data']['status'] === 'sukses'
+      );
+
+
 
       if (isset($result['data']['status']) && $result['data']['status'] === 'sukses') {
         return [
@@ -108,7 +127,13 @@ class DigiflazzService
       'sign' => $this->generateSign('pricelist'),
     ];
 
-    Log::info('Digiflazz Get Price List Request');
+    $this->logger->logExternalApi(
+      'Digiflazz',
+      'Get Price List Request',
+      $payload,
+      [],
+      true
+    );
 
     $response = Http::timeout(60)
       ->post($this->baseUrl . '/price-list', $payload);
@@ -116,9 +141,14 @@ class DigiflazzService
     $result = $response->json();
 
     if (isset($result['data']) && is_array($result['data'])) {
-      Log::info('Digiflazz Price List Retrieved', [
-        'total_products' => count($result['data']),
-      ]);
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Price List Retrieved',
+        [],
+        ['total_products' => count($result['data'])],
+        true
+      );
+
 
       return $result['data'];
     }
@@ -146,14 +176,30 @@ class DigiflazzService
         'sign' => $this->generateSign($refId),
       ];
 
-      Log::info('Digiflazz Create Transaction Request', $payload);
+
+
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Create Transaction Request',
+        $payload,
+        [],
+        true
+      );
 
       $response = Http::timeout(60)
         ->post($this->baseUrl . '/transaction', $payload);
 
       $result = $response->json();
 
-      Log::info('Digiflazz Create Transaction Response', $result ?? []);
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Create Transaction Response',
+        [],
+        $result ?? [],
+        isset($result['data'])
+      );
+
+
 
       if (isset($result['data'])) {
         return [

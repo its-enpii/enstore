@@ -36,7 +36,7 @@ class SyncDigiflazzProducts extends Command
         $this->newLine();
 
         try {
-            $digiflazzService = new DigiflazzService();
+            $digiflazzService = app(\App\Services\DigiflazzService::class);
 
             // Get price list from Digiflazz
             $this->info('📡 Fetching price list from Digiflazz API...');

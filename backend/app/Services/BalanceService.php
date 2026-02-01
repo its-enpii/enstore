@@ -27,11 +27,6 @@ class BalanceService
         'amount' => 0,
         'hold_amount' => 0,
       ]);
-
-      Log::info('Balance created for user', [
-        'user_id' => $user->id,
-        'balance_id' => $balance->id,
-      ]);
     }
 
     return $balance;
@@ -104,13 +99,7 @@ class BalanceService
 
       DB::commit();
 
-      Log::info('Balance added', [
-        'user_id' => $user->id,
-        'amount' => $amount,
-        'balance_before' => $balanceBefore,
-        'balance_after' => $balanceAfter,
-        'description' => $description,
-      ]);
+
 
       return $mutation;
     } catch (\Exception $e) {
@@ -170,13 +159,7 @@ class BalanceService
 
       DB::commit();
 
-      Log::info('Balance deducted', [
-        'user_id' => $user->id,
-        'amount' => $amount,
-        'balance_before' => $balanceBefore,
-        'balance_after' => $balanceAfter,
-        'description' => $description,
-      ]);
+
 
       return $mutation;
     } catch (\Exception $e) {
@@ -211,12 +194,6 @@ class BalanceService
     $balance = $this->getOrCreateBalance($user);
 
     $balance->increment('hold_amount', $amount);
-
-    Log::info('Balance held', [
-      'user_id' => $user->id,
-      'amount' => $amount,
-      'hold_amount' => $balance->fresh()->hold_amount,
-    ]);
   }
 
   /**
@@ -235,12 +212,6 @@ class BalanceService
     $balance = $this->getOrCreateBalance($user);
 
     $balance->decrement('hold_amount', $amount);
-
-    Log::info('Balance hold released', [
-      'user_id' => $user->id,
-      'amount' => $amount,
-      'hold_amount' => $balance->fresh()->hold_amount,
-    ]);
   }
 
   /**
@@ -290,12 +261,7 @@ class BalanceService
 
       DB::commit();
 
-      Log::info('Balance deducted from hold', [
-        'user_id' => $user->id,
-        'amount' => $amount,
-        'balance_before' => $balanceBefore,
-        'balance_after' => $balanceAfter,
-      ]);
+
 
       return $mutation;
     } catch (\Exception $e) {

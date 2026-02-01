@@ -48,7 +48,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
                 return;
             }
 
-            $digiflazzService = new DigiflazzService();
+            $digiflazzService = app(\App\Services\DigiflazzService::class);
 
             // Format customer number
             $customerData = $this->transaction->customer_data;

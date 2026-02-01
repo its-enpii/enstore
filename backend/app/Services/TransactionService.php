@@ -95,13 +95,6 @@ class TransactionService
 
       DB::commit();
 
-      Log::info('Purchase transaction created', [
-        'transaction_code' => $transaction->transaction_code,
-        'user_id' => $user ? $user->id : 'guest',
-        'product_id' => $product->id,
-        'total_price' => $totalPrice,
-      ]);
-
       return $transaction;
     } catch (\Exception $e) {
       DB::rollBack();
@@ -180,13 +173,6 @@ class TransactionService
 
       DB::commit();
 
-      Log::info('Balance purchase transaction created', [
-        'transaction_code' => $transaction->transaction_code,
-        'user_id' => $user->id,
-        'product_id' => $product->id,
-        'price' => $price,
-      ]);
-
       return $transaction;
     } catch (\Exception $e) {
       DB::rollBack();
@@ -251,13 +237,6 @@ class TransactionService
 
       DB::commit();
 
-      Log::info('Topup transaction created', [
-        'transaction_code' => $transaction->transaction_code,
-        'user_id' => $user->id,
-        'amount' => $amount,
-        'total_price' => $totalPrice,
-      ]);
-
       return $transaction;
     } catch (\Exception $e) {
       DB::rollBack();
@@ -283,12 +262,6 @@ class TransactionService
     $transaction->update(array_merge(['status' => $status], $data));
 
     $this->addLog($transaction, 'status_updated', "Status updated to: {$status}", $data);
-
-    Log::info('Transaction status updated', [
-      'transaction_code' => $transaction->transaction_code,
-      'old_status' => $transaction->getOriginal('status'),
-      'new_status' => $status,
-    ]);
   }
 
   /**
@@ -317,7 +290,7 @@ class TransactionService
    * @param string $reason
    * @return void
    */
-  public function markAsFailed(Transaction $transaction, string $reason = null)
+  public function markAsFailed(Transaction $transaction, ?string $reason = null)
   {
     $this->updateStatus($transaction, 'failed', [
       'failed_at' => now(),
