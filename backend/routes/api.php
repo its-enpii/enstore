@@ -93,6 +93,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/payment-methods', [App\Http\Controllers\Api\Admin\ReportController::class, 'paymentMethodReport']);
             Route::get('/export/transactions', [App\Http\Controllers\Api\Admin\ReportController::class, 'exportTransactions']);
         });
+
+        // Activity Logs
+        Route::prefix('activity-logs')->group(function () {
+            Route::get('/', [App\Http\Controllers\Api\Admin\ActivityLogController::class, 'index']);
+            Route::get('/statistics', [App\Http\Controllers\Api\Admin\ActivityLogController::class, 'statistics']);
+            Route::get('/{id}', [App\Http\Controllers\Api\Admin\ActivityLogController::class, 'show']);
+            Route::post('/clean', [App\Http\Controllers\Api\Admin\ActivityLogController::class, 'clean']);
+        });
     });
 
     // Customer routes (both retail and reseller)
