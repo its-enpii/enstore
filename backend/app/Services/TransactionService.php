@@ -371,6 +371,15 @@ class TransactionService
       $query->whereDate('created_at', '<=', $filters['end_date']);
     }
 
+    // Search by code or product name
+    if (!empty($filters['search'])) {
+      $search = $filters['search'];
+      $query->where(function ($q) use ($search) {
+        $q->where('transaction_code', 'like', "%{$search}%")
+          ->orWhere('product_name', 'like', "%{$search}%");
+      });
+    }
+
     // Sort
     $query->orderBy('created_at', 'desc');
 

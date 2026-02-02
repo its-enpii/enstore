@@ -78,15 +78,14 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 **Endpoint:** `GET /api/customer/products`
 
 **Query Parameters:**
-- `category` - Filter by category slug
-- `featured` - Filter featured products (true/false)
-- `search` - Search by product name
-- `min_price` - Minimum price filter
-- `max_price` - Maximum price filter
-- `sort_by` - Sort field (default: sort_order)
-- `sort_order` - Sort direction (asc/desc)
-- `per_page` - Items per page (default: 20)
-- `page` - Page number
+- `page`: Page number
+- `per_page`: products per page (default: 20)
+- `search`: **Flexible Search**. Mencari berdasarkan Nama Produk, Brand, Nama Category, Nama Item, atau Kode SKU.
+- **Dynamic Filters**:
+  - Filter by **ANY** column in `products` table (e.g. `type=game`, `featured=true`).
+  - Filter by **Relationship** (e.g. `category.slug=games`, `items.digiflazz_code=ML5`).
+- `sort_by`: Sort column (price, name, etc.)
+- `sort_order`: asc/desc
 
 **Features:**
 ✅ Filter by category  
@@ -301,11 +300,12 @@ Authorization: Bearer {token}
 **Endpoint:** `GET /api/customer/transactions`
 
 **Query Parameters:**
-- `type` - Filter by type (purchase/topup)
-- `status` - Filter by status
-- `start_date` - Start date (YYYY-MM-DD)
-- `end_date` - End date (YYYY-MM-DD)
-- `per_page` - Items per page (default: 20)
+- `type`: Filter by transaction type (purchase, topup)
+- `status`: Filter by status (pending, success, failed)
+- `search`: Search by Transaction Code or Product Name
+- `start_date`: Start date (YYYY-MM-DD)
+- `end_date`: End date (YYYY-MM-DD)
+- `per_page`: Items per page (default: 20)
 
 **Features:**
 ✅ Pagination  

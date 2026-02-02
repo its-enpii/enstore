@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\DatabaseLogger;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ActivityLogController extends Controller
 {
@@ -25,17 +26,74 @@ class ActivityLogController extends Controller
   public function index(Request $request)
   {
     try {
-      $filters = [
-        'type' => $request->get('type'),
-        'action' => $request->get('action'),
-        'user_id' => $request->get('user_id'),
-        'model_type' => $request->get('model_type'),
-        'start_date' => $request->get('start_date'),
-        'end_date' => $request->get('end_date'),
-        'per_page' => $request->get('per_page', 50),
-      ];
+      $query = ActivityLog::with('user');
 
-      $logs = $this->logger->getLogs($filters);
+      // 1. TRULY DYNAMIC FILTERING
+      $tableName = (new ActivityLog())->getTable();
+      $tableColumns = Schema::getColumnListing($tableName);
+
+      foreach ($request->all() as $key => $value) {
+        if ($value === null || $value === '') continue;
+
+        // Handle Date separate logic below
+        if ($key === 'start_date' || $key === 'end_date') continue;
+
+        // A. Direct Columns
+        if (in_array($key, $tableColumns)) {
+          $query->where($key, $value);
+        }
+
+        // B. Relations
+        elseif (str_contains($key, '.')) {
+          [$relation, $field] = explode('.', $key);
+          if (method_exists(ActivityLog::class, $relation)) {
+            $query->whereHas($relation, function ($q) use ($field, $value) {
+              $q->where($field, $value);
+            });
+          }
+        }
+      }
+      // Filter Date Range
+      if ($request->has('start_date')) {
+        $query->whereDate('created_at', '>=', $request->start_date);
+      }
+      if ($request->has('end_date')) {
+        $query->whereDate('created_at', '<=', $request->end_date);
+      }
+
+      // 2. Flexible Search
+      if ($request->filled('search')) {
+        $search = $request->search;
+        $searchableFields = ['description', 'action', 'type'];
+        $searchableRelations = [
+          'user' => ['name', 'email']
+        ];
+
+        $query->where(function ($q) use ($search, $searchableFields, $searchableRelations) {
+          foreach ($searchableFields as $field) {
+            $q->orWhere($field, 'like', '%' . $search . '%');
+          }
+          foreach ($searchableRelations as $relation => $fields) {
+            $q->orWhereHas($relation, function ($relQuery) use ($search, $fields) {
+              $relQuery->where(function ($nestedQ) use ($search, $fields) {
+                foreach ($fields as $field) {
+                  $nestedQ->orWhere($field, 'like', '%' . $search . '%');
+                }
+              });
+            });
+          }
+        });
+      }
+      // Sort
+      $sortBy = $request->get('sort_by', 'created_at');
+      $sortOrder = $request->get('sort_order', 'desc');
+      $query->orderBy($sortBy, $sortOrder);
+
+      // Pagination with max limit safety
+      $perPage = (int) $request->get('per_page', 50);
+      if ($perPage > 100) $perPage = 100; // Prevent abuse
+
+      $logs = $query->paginate($perPage);
 
       return response()->json([
         'success' => true,

@@ -27,40 +27,58 @@ class TransactionController extends Controller
     try {
       $query = Transaction::with(['user', 'productItem.product', 'payment']);
 
-      // Filter by type
-      if ($request->has('type')) {
-        $query->where('transaction_type', $request->type);
-      }
+      // 1. TRULY DYNAMIC FILTERING
+      $tableName = (new Transaction())->getTable();
+      $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
 
-      // Filter by status
-      if ($request->has('status')) {
-        $query->where('status', $request->status);
-      }
+      foreach ($request->all() as $key => $value) {
+        if ($value === null || $value === '') continue;
 
-      // Filter by payment status
-      if ($request->has('payment_status')) {
-        $query->where('payment_status', $request->payment_status);
-      }
+        // A. Direct Columns
+        if (in_array($key, $tableColumns)) {
+          $query->where($key, $value);
+        }
 
-      // Filter by user
-      if ($request->has('user_id')) {
-        $query->where('user_id', $request->user_id);
+        // B. Relations (Dot Notation)
+        elseif (str_contains($key, '.')) {
+          [$relation, $field] = explode('.', $key);
+          if (method_exists(Transaction::class, $relation)) {
+            $query->whereHas($relation, function ($q) use ($field, $value) {
+              $q->where($field, $value);
+            });
+          }
+        }
       }
-
-      // Filter by date range
+      // Filter date range (Manual handling for range)
       if ($request->has('start_date')) {
         $query->whereDate('created_at', '>=', $request->start_date);
       }
-
       if ($request->has('end_date')) {
         $query->whereDate('created_at', '<=', $request->end_date);
       }
 
-      // Search
-      if ($request->has('search')) {
-        $query->where(function ($q) use ($request) {
-          $q->where('transaction_code', 'like', '%' . $request->search . '%')
-            ->orWhere('product_name', 'like', '%' . $request->search . '%');
+      // 2. Flexible Search
+      if ($request->filled('search')) {
+        $search = $request->search;
+        $searchableFields = ['transaction_code', 'product_name'];
+        $searchableRelations = [
+          'user' => ['name', 'email', 'phone'],
+          'payment' => ['payment_method']
+        ];
+
+        $query->where(function ($q) use ($search, $searchableFields, $searchableRelations) {
+          foreach ($searchableFields as $field) {
+            $q->orWhere($field, 'like', '%' . $search . '%');
+          }
+          foreach ($searchableRelations as $relation => $fields) {
+            $q->orWhereHas($relation, function ($relQuery) use ($search, $fields) {
+              $relQuery->where(function ($nestedQ) use ($search, $fields) {
+                foreach ($fields as $field) {
+                  $nestedQ->orWhere($field, 'like', '%' . $search . '%');
+                }
+              });
+            });
+          }
         });
       }
 
@@ -70,7 +88,9 @@ class TransactionController extends Controller
       $query->orderBy($sortBy, $sortOrder);
 
       // Paginate
-      $perPage = $request->get('per_page', 20);
+      $perPage = (int) $request->get('per_page', 20);
+      if ($perPage > 100) $perPage = 100;
+
       $transactions = $query->paginate($perPage);
 
       return response()->json([

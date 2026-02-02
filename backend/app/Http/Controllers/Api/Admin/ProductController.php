@@ -8,6 +8,7 @@ use App\Models\ProductItem;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
@@ -26,21 +27,68 @@ class ProductController extends Controller
         try {
             $query = Product::with(['category', 'items']);
 
-            // Filter by category
-            if ($request->has('category_id')) {
-                $query->where('category_id', $request->category_id);
+            // 1. TRULY DYNAMIC FILTERING (Schema Aware)
+            $tableName = (new Product())->getTable();
+            $tableColumns = Schema::getColumnListing($tableName);
+
+            // Exclude kolom sensitif/internal jika perlu (opsional)
+            $excludedColumns = ['description', 'deleted_at'];
+
+            foreach ($request->all() as $key => $value) {
+                if ($value === null || $value === '') continue;
+
+                // A. Handle Kolom Tabel Utama (Direct Column)
+                if (in_array($key, $tableColumns) && !in_array($key, $excludedColumns)) {
+                    // Auto-detect boolean
+                    if ($value === 'true' || $value === 'false') {
+                        $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                    }
+                    $query->where($key, $value);
+                }
+
+                // B. Handle Relasi (Dot Notation: category.name)
+                elseif (str_contains($key, '.')) {
+                    [$relation, $field] = explode('.', $key);
+
+                    // Cek apakah method relasi ada di model
+                    if (method_exists(Product::class, $relation)) {
+                        $query->whereHas($relation, function ($q) use ($field, $value) {
+                            // Sederhana: kita asumsikan field-nya ada di tabel relasi (atau bisa pakai Schema check lagi tapi costly)
+                            $q->where($field, $value);
+                        });
+                    }
+                }
             }
 
-            // Filter by status
-            if ($request->has('is_active')) {
-                $query->where('is_active', $request->is_active);
-            }
+            // Flexible Search (Global Search Bar) - Configurable Approach
+            if ($request->filled('search')) {
+                $search = $request->search;
 
-            // Search by name or brand
-            if ($request->has('search')) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('brand', 'like', '%' . $request->search . '%');
+                // Konfigurasi kolom yang bisa dicari (tinggal tambah di sini jika mau expand)
+                $searchableFields = ['name', 'brand'];
+
+                // Konfigurasi relasi yang bisa dicari
+                $searchableRelations = [
+                    'category' => ['name', 'slug'],
+                    'items' => ['name', 'digiflazz_code']
+                ];
+
+                $query->where(function ($q) use ($search, $searchableFields, $searchableRelations) {
+                    // 1. Loop kolom di tabel utama
+                    foreach ($searchableFields as $field) {
+                        $q->orWhere($field, 'like', '%' . $search . '%');
+                    }
+
+                    // 2. Loop kolom di tabel relasi
+                    foreach ($searchableRelations as $relation => $fields) {
+                        $q->orWhereHas($relation, function ($relQuery) use ($search, $fields) {
+                            $relQuery->where(function ($nestedQ) use ($search, $fields) {
+                                foreach ($fields as $field) {
+                                    $nestedQ->orWhere($field, 'like', '%' . $search . '%');
+                                }
+                            });
+                        });
+                    }
                 });
             }
 
@@ -50,7 +98,9 @@ class ProductController extends Controller
             $query->orderBy($sortBy, $sortOrder);
 
             // Paginate
-            $perPage = $request->get('per_page', 20);
+            $perPage = (int) $request->get('per_page', 20);
+            if ($perPage > 100) $perPage = 100;
+
             $products = $query->paginate($perPage);
 
             return response()->json([

@@ -21,14 +21,8 @@ class ProductController extends Controller
   public function index(Request $request)
   {
     try {
-      $filters = [
-        'category_slug' => $request->get('category'),
-        'type' => $request->get('type'),
-        'featured' => $request->get('featured'),
-        'search' => $request->get('search'),
-        'sort_by' => $request->get('sort_by', 'sort_order'),
-        'sort_order' => $request->get('sort_order', 'asc'),
-      ];
+      // Pass all request parameters to support dynamic filtering
+      $filters = $request->all();
 
       // Get user's customer type for pricing
       $user = auth()->user();

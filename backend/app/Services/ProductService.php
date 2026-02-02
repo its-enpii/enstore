@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductItem;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 
 class ProductService
@@ -22,38 +23,61 @@ class ProductService
         $q->active()->available()->orderBy('sort_order', 'asc');
       }]);
 
-      // Filter by category
-      if (!empty($filters['category_id'])) {
-        $query->where('category_id', $filters['category_id']);
+      // 1. TRULY DYNAMIC FILTERING (Schema Aware)
+      $tableName = (new Product())->getTable();
+      $tableColumns = Schema::getColumnListing($tableName);
+
+      foreach ($filters as $key => $value) {
+        if ($value === null || $value === '') continue;
+
+        // Special logic for Category Slug from frontend
+        if ($key === 'category') {
+          $query->whereHas('category', fn($q) => $q->where('slug', $value));
+          continue;
+        }
+
+        // Special logic "featured" string
+        if ($key === 'featured') {
+          if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) $query->featured();
+          continue;
+        }
+
+        // A. Direct Columns
+        if (in_array($key, $tableColumns)) {
+          if ($value === 'true' || $value === 'false') {
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+          }
+          $query->where($key, $value);
+        }
+
+        // B. Relations
+        elseif (str_contains($key, '.')) {
+          [$relation, $field] = explode('.', $key);
+          if (method_exists(Product::class, $relation)) {
+            $query->whereHas($relation, function ($q) use ($field, $value) {
+              $q->where($field, $value);
+            });
+          }
+        }
       }
 
-      // Filter by category slug
-      if (!empty($filters['category_slug'])) {
-        $query->whereHas('category', function ($q) use ($filters) {
-          $q->where('slug', $filters['category_slug']);
-        });
-      }
-
-      // Filter by type (game, pulsa, etc)
-      if (!empty($filters['type'])) {
-        $query->where('type', $filters['type']);
-      }
-
-      // Filter by featured
-      if (isset($filters['featured']) && $filters['featured']) {
-        $query->featured();
-      }
-
-      // Search by name or brand
+      // 2. Flexible Search
       if (!empty($filters['search'])) {
         $search = $filters['search'];
         $query->where(function ($q) use ($search) {
           $q->where('name', 'like', "%{$search}%")
-            ->orWhere('brand', 'like', "%{$search}%");
+            ->orWhere('brand', 'like', "%{$search}%")
+            ->orWhereHas('category', function ($catQ) use ($search) {
+              $catQ->where('name', 'like', "%{$search}%");
+            })
+            ->orWhereHas('items', function ($itemQ) use ($search) {
+              $itemQ->where('name', 'like', "%{$search}%")
+                ->orWhere('digiflazz_code', 'like', "%{$search}%");
+            });
         });
       }
 
-      // Sort parent products
+      // Sort
       $sortBy = $filters['sort_by'] ?? 'sort_order';
       $sortOrder = $filters['sort_order'] ?? 'asc';
       $query->orderBy($sortBy, $sortOrder);

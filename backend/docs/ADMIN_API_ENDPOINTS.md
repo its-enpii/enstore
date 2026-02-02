@@ -9,13 +9,24 @@ Berhasil mengimplementasikan semua Admin API Endpoints untuk manajemen lengkap a
 **Controller:** `app/Http/Controllers/Api/Admin/ProductController.php`
 
 **Endpoints:**
-- `GET /api/admin/products` - List all products with filters
 - `GET /api/admin/products/{id}` - Get single product
 - `POST /api/admin/products` - Create new product
 - `PUT /api/admin/products/{id}` - Update product
 - `DELETE /api/admin/products/{id}` - Delete product
 - `POST /api/admin/products/bulk-update-prices` - Bulk update prices
 - `POST /api/admin/products/sync-digiflazz` - Sync from Digiflazz
+
+**Endpoint:** `GET /api/admin/products`
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `per_page`: Item per page (default: 20, max: 100)
+- `search`: **Flexible Search**. Mencari berdasarkan Nama Produk, Brand, Nama Kategori, Nama Varian, atau Kode SKU.
+- **Dynamic Filters**:
+  - Filter by **ANY** column in `products` table (e.g., `type=game`, `is_active=true`).
+  - Filter by **Relationship** using dot notation (e.g., `category.slug=games`, `items.digiflazz_code=MLBB`).
+- `sort_by`: Sort column (default: sort_order)
+- `sort_order`: asc/desc
 
 **Features:**
 ✅ Full CRUD operations  
@@ -29,7 +40,7 @@ Berhasil mengimplementasikan semua Admin API Endpoints untuk manajemen lengkap a
 
 **Example Request - List Products:**
 ```bash
-GET /api/admin/products?search=Legends&category_id=1
+GET /api/admin/products?search=Legends&category.slug=games&type=game&is_active=true
 Authorization: Bearer {token}
 ```
 
@@ -130,11 +141,19 @@ Digunakan untuk mengubah data spesifik satu varian (item) tanpa mempengaruhi par
 ### ✅ 2. View & Manage Transactions
 **Controller:** `app/Http/Controllers/Api/Admin/TransactionController.php`
 
-**Endpoints:**
-- `GET /api/admin/transactions` - List all transactions
-- `GET /api/admin/transactions/statistics` - Get transaction statistics
-- `GET /api/admin/transactions/{id}` - Get single transaction
-- `PUT /api/admin/transactions/{id}/status` - Update transaction status
+**Endpoint:** `GET /api/admin/transactions`
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `per_page`: Item per page (default: 20, max: 100)
+- `search`: **Flexible Search**. Mencari berdasarkan Transaction Code, Product Name, User Name/Email, atau Payment Method.
+- **Dynamic Filters**:
+  - Filter by **ANY** column in `transactions` table (e.g., `status=success`, `transaction_type=purchase`).
+  - Filter by **Relationship** (e.g., `user.name=Budi`, `payment.payment_method=BCAVA`).
+- `start_date`: Filter by start date (YYYY-MM-DD)
+- `end_date`: Filter by end date (YYYY-MM-DD)
+- `sort_by`: Sort column (default: created_at)
+- `sort_order`: asc/desc
 
 **Features:**
 ✅ List with pagination  
@@ -147,7 +166,7 @@ Digunakan untuk mengubah data spesifik satu varian (item) tanpa mempengaruhi par
 
 **Example Request - List Transactions:**
 ```bash
-GET /api/admin/transactions?status=success&start_date=2026-01-01&end_date=2026-01-31&per_page=20
+GET /api/admin/transactions?status=success&user.name=John&per_page=20
 Authorization: Bearer {token}
 ```
 
@@ -192,8 +211,18 @@ Authorization: Bearer {token}
 ### ✅ 3. View & Manage Users
 **Controller:** `app/Http/Controllers/Api/Admin/UserController.php`
 
+**Endpoint:** `GET /api/admin/users`
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `per_page`: Item per page (default: 20, max: 100)
+- `search`: **Flexible Search**. Mencari berdasarkan Name, Email, atau Phone.
+- **Dynamic Filters**:
+  - Filter by **ANY** column in `users` table (e.g., `role=customer`, `status=active`, `is_guest=true`).
+- `sort_by`: Sort column (default: created_at)
+- `sort_order`: asc/desc
+
 **Endpoints:**
-- `GET /api/admin/users` - List all users
 - `GET /api/admin/users/statistics` - Get user statistics
 - `GET /api/admin/users/{id}` - Get single user
 - `POST /api/admin/users` - Create new user

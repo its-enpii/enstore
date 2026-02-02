@@ -8,6 +8,7 @@ use App\Services\BalanceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
@@ -29,32 +30,44 @@ class UserController extends Controller
     try {
       $query = User::with('balance');
 
-      // Filter by role
-      if ($request->has('role')) {
-        $query->where('role', $request->role);
+      // 1. TRULY DYNAMIC FILTERING
+      $tableName = (new User())->getTable();
+      $tableColumns = Schema::getColumnListing($tableName);
+
+      foreach ($request->all() as $key => $value) {
+        if ($value === null || $value === '') continue;
+
+        // Handle password security (exclude)
+        if ($key === 'password' || $key === 'remember_token') continue;
+
+        // A. Direct Columns
+        if (in_array($key, $tableColumns)) {
+          if ($key === 'is_guest' || $value === 'true' || $value === 'false') {
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+          }
+          $query->where($key, $value);
+        }
+
+        // B. Relations
+        elseif (str_contains($key, '.')) {
+          [$relation, $field] = explode('.', $key);
+          if (method_exists(User::class, $relation)) {
+            $query->whereHas($relation, function ($q) use ($field, $value) {
+              $q->where($field, $value);
+            });
+          }
+        }
       }
 
-      // Filter by customer type
-      if ($request->has('customer_type')) {
-        $query->where('customer_type', $request->customer_type);
-      }
+      // 2. Flexible Search
+      if ($request->filled('search')) {
+        $search = $request->search;
+        $searchableFields = ['name', 'email', 'phone'];
 
-      // Filter by status
-      if ($request->has('status')) {
-        $query->where('status', $request->status);
-      }
-
-      // Filter by guest
-      if ($request->has('is_guest')) {
-        $query->where('is_guest', $request->is_guest);
-      }
-
-      // Search
-      if ($request->has('search')) {
-        $query->where(function ($q) use ($request) {
-          $q->where('name', 'like', '%' . $request->search . '%')
-            ->orWhere('email', 'like', '%' . $request->search . '%')
-            ->orWhere('phone', 'like', '%' . $request->search . '%');
+        $query->where(function ($q) use ($search, $searchableFields) {
+          foreach ($searchableFields as $field) {
+            $q->orWhere($field, 'like', '%' . $search . '%');
+          }
         });
       }
 
@@ -64,7 +77,9 @@ class UserController extends Controller
       $query->orderBy($sortBy, $sortOrder);
 
       // Paginate
-      $perPage = $request->get('per_page', 20);
+      $perPage = (int) $request->get('per_page', 20);
+      if ($perPage > 100) $perPage = 100;
+
       $users = $query->paginate($perPage);
 
       return response()->json([
