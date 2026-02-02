@@ -34,6 +34,14 @@ Route::post('/transactions/purchase', [App\Http\Controllers\Api\Public\PublicTra
 Route::get('/transactions/status/{transactionCode}', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'checkStatus']);
 Route::get('/transactions/payment-channels', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'paymentChannels']);
 
+// Public Product Routes (Catalog)
+Route::prefix('customer/products')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\Customer\ProductController::class, 'index']);
+    Route::get('/categories', [App\Http\Controllers\Api\Customer\ProductController::class, 'categories']);
+    Route::get('/{id}', [App\Http\Controllers\Api\Customer\ProductController::class, 'show'])->whereNumber('id');
+    Route::get('/slug/{slug}', [App\Http\Controllers\Api\Customer\ProductController::class, 'showBySlug']);
+});
+
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
@@ -112,13 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Customer routes (both retail and reseller)
     Route::middleware('role:customer')->prefix('customer')->group(function () {
-        // Products
-        Route::prefix('products')->group(function () {
-            Route::get('/', [App\Http\Controllers\Api\Customer\ProductController::class, 'index']);
-            Route::get('/categories', [App\Http\Controllers\Api\Customer\ProductController::class, 'categories']);
-            Route::get('/{id}', [App\Http\Controllers\Api\Customer\ProductController::class, 'show'])->whereNumber('id');
-            Route::get('/slug/{slug}', [App\Http\Controllers\Api\Customer\ProductController::class, 'showBySlug']);
-        });
+
 
         // Transactions
         Route::prefix('transactions')->group(function () {

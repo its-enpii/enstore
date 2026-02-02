@@ -70,8 +70,10 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 
 ## 👤 Registered Customer API
 
-### 1. Get Product List (with Filters)
+### 1. Get Product List (with Filters) - [Public Access / Optional Auth]
 **Controller:** `app/Http/Controllers/Api/Customer/ProductController.php`
+
+> **Note:** Endpoint ini bisa diakses tanpa token (Guest). Jika mengakses dengan Token, harga akan menyesuaikan tipe user (Reseller/Retail). Jika tanpa token, harga default Retail.
 
 **Endpoint:** `GET /api/customer/products`
 
