@@ -250,6 +250,8 @@ class ProductController extends Controller
 
                 $path = $request->file('image')->store('products', 'public');
                 $data['image'] = url('storage/' . $path);
+            } else {
+                unset($data['image']);
             }
 
             $product->update($data);

@@ -1,11 +1,11 @@
 meta {
-  name: Create New Product
+  name: Update Product
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
-  url: {{base_url}}/admin/products
+  url: {{base_url}}/admin/products/17
   body: multipartForm
   auth: bearer
 }
@@ -21,6 +21,7 @@ body:json {
 }
 
 body:multipart-form {
+  _method: PUT
   name: PUBG Mobile
   category_id: 1
   slug: pubg-mobile
@@ -28,7 +29,7 @@ body:multipart-form {
   type: game
   payment_type: prepaid
   description: Top Up UC PUBG Mobile
-  image: @file(C:\Users\arp46\Downloads\Enpii Studio - Logo with text (1) 2.png)
+  image: 
   input_fields[0][name]: user_id
   input_fields[0][label]: User ID
   input_fields[0][type]: text
