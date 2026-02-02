@@ -39,10 +39,18 @@ class TransactionController extends Controller
           $query->where($key, $value);
         }
 
-        // B. Relations (Dot Notation)
-        elseif (str_contains($key, '.')) {
-          [$relation, $field] = explode('.', $key);
-          if (method_exists(Transaction::class, $relation)) {
+        // B. Relations (Dot Notation OR Underscore)
+        else {
+          $relation = null;
+          $field = null;
+
+          if (str_contains($key, '.')) {
+            [$relation, $field] = explode('.', $key, 2);
+          } elseif (str_contains($key, '_')) {
+            [$relation, $field] = explode('_', $key, 2);
+          }
+
+          if ($relation && $field && method_exists(Transaction::class, $relation)) {
             $query->whereHas($relation, function ($q) use ($field, $value) {
               $q->where($field, $value);
             });

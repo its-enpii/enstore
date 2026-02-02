@@ -46,14 +46,28 @@ class ProductController extends Controller
                     $query->where($key, $value);
                 }
 
-                // B. Handle Relasi (Dot Notation: category.name)
-                elseif (str_contains($key, '.')) {
-                    [$relation, $field] = explode('.', $key);
+                // B. Handle Relasi (Dot Notation OR Underscore Notation due to PHP conversion)
+                // e.g. 'category.slug' (JSON) or 'category_slug' (GET Param)
+                else {
+                    $relation = null;
+                    $field = null;
 
-                    // Cek apakah method relasi ada di model
-                    if (method_exists(Product::class, $relation)) {
+                    // Coba pecah berdasarkan titik (JSON/Body)
+                    if (str_contains($key, '.')) {
+                        [$relation, $field] = explode('.', $key, 2);
+                    }
+                    // Coba pecah berdasarkan underscore pertama (GET Param)
+                    elseif (str_contains($key, '_')) {
+                        // Strategi: Split di underscore pertama. 
+                        // Jika 'user_name' -> relation 'user', field 'name'
+                        // Risiko: konflik jika nama relation mengandung underscore. 
+                        // Tapi convention Laravel relation biasanya camelCase (productItem), bukan snake_case.
+                        [$relation, $field] = explode('_', $key, 2);
+                    }
+
+                    // Jika kandidat relation ditemukan dan method-nya ada di Model
+                    if ($relation && $field && method_exists(Product::class, $relation)) {
                         $query->whereHas($relation, function ($q) use ($field, $value) {
-                            // Sederhana: kita asumsikan field-nya ada di tabel relasi (atau bisa pakai Schema check lagi tapi costly)
                             $q->where($field, $value);
                         });
                     }

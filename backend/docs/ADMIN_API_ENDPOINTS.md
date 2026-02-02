@@ -24,7 +24,8 @@ Berhasil mengimplementasikan semua Admin API Endpoints untuk manajemen lengkap a
 - `search`: **Flexible Search**. Mencari berdasarkan Nama Produk, Brand, Nama Kategori, Nama Varian, atau Kode SKU.
 - **Dynamic Filters**:
   - Filter by **ANY** column in `products` table (e.g., `type=game`, `is_active=true`).
-  - Filter by **Relationship** using dot notation (e.g., `category.slug=games`, `items.digiflazz_code=MLBB`).
+  - Filter by **Relationship** (e.g. `category.slug=games`, `items.digiflazz_code=ML5`).
+  *Note: API also supports underscore notation (e.g. `category_slug=games`) if needed.*
 - `sort_by`: Sort column (default: sort_order)
 - `sort_order`: asc/desc
 
@@ -150,6 +151,7 @@ Digunakan untuk mengubah data spesifik satu varian (item) tanpa mempengaruhi par
 - **Dynamic Filters**:
   - Filter by **ANY** column in `transactions` table (e.g., `status=success`, `transaction_type=purchase`).
   - Filter by **Relationship** (e.g., `user.name=Budi`, `payment.payment_method=BCAVA`).
+  *Note: API also accepts underscore notation (e.g., `user_name=Budi`) for compatibility.*
 - `start_date`: Filter by start date (YYYY-MM-DD)
 - `end_date`: Filter by end date (YYYY-MM-DD)
 - `sort_by`: Sort column (default: created_at)

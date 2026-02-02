@@ -50,10 +50,18 @@ class ProductService
           $query->where($key, $value);
         }
 
-        // B. Relations
-        elseif (str_contains($key, '.')) {
-          [$relation, $field] = explode('.', $key);
-          if (method_exists(Product::class, $relation)) {
+        // B. Relations (Dot or Underscore)
+        else {
+          $relation = null;
+          $field = null;
+
+          if (str_contains($key, '.')) {
+            [$relation, $field] = explode('.', $key, 2);
+          } elseif (str_contains($key, '_')) {
+            [$relation, $field] = explode('_', $key, 2);
+          }
+
+          if ($relation && $field && method_exists(Product::class, $relation)) {
             $query->whereHas($relation, function ($q) use ($field, $value) {
               $q->where($field, $value);
             });

@@ -84,6 +84,7 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 - **Dynamic Filters**:
   - Filter by **ANY** column in `products` table (e.g. `type=game`, `featured=true`).
   - Filter by **Relationship** (e.g. `category.slug=games`, `items.digiflazz_code=ML5`).
+  *Note: API also supports underscore notation (e.g. `category_slug=games`) if needed.*
 - `sort_by`: Sort column (price, name, etc.)
 - `sort_order`: asc/desc
 
