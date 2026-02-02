@@ -56,6 +56,7 @@ Authorization: Bearer {token}
         "name": "Mobile Legends",
         "brand": "MOBILE LEGENDS",
         "category": { "id": 1, "name": "Games" },
+        "image": "http://localhost:8000/storage/products/pubg.jpg",
         "is_active": true,
         "input_fields": [
           { "name": "user_id", "label": "User ID", "type": "text", "required": true },
@@ -69,24 +70,46 @@ Authorization: Bearer {token}
 }
 ```
 
-**Example Request - Update Parent Product:**
+**Example Request - Create New Product (Multipart/Form-Data):**
 ```bash
-PUT /api/admin/products/1
+POST /api/admin/products
 Authorization: Bearer {token}
-Content-Type: application/json
+Content-Type: multipart/form-data
 
-{
-  "retail_price": 25000,
-  "retail_profit": 2000,
-  "reseller_price": 23000,
-  "reseller_profit": 1000,
-  "input_fields": [
-    { "name": "user_id", "label": "User ID", "type": "text", "required": true }
-  ],
-  "stock": 100,
-  "is_active": true,
-  "is_featured": true
-}
+name: "Pubg Mobile"
+category_id: 1
+slug: "pubg-mobile"
+brand: "TENCENT"
+type: "game"
+payment_type: "prepaid"
+description: "Top up UC PUBG Mobile"
+image: (Binary File)
+input_fields[0][name]: "user_id"
+input_fields[0][label]: "User ID"
+input_fields[0][type]: "text"
+input_fields[0][required]: 1
+is_active: 1
+is_featured: 0
+sort_order: 0
+```
+
+**Example Request - Update Parent Product (with Image Upload):**
+> **Note:** Gunakan method `POST` dengan body `_method: PUT` jika ingin mengupload file saat update (Limitasi PHP).
+
+```bash
+POST /api/admin/products/1
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+
+_method: "PUT"
+name: "Mobile Legends Updated"
+description: "Updated description"
+image: (New Binary File)
+input_fields[0][name]: "user_id"
+input_fields[0][label]: "User ID"
+input_fields[0][type]: "text"
+input_fields[0][required]: 1
+is_active: 1
 ```
 
 

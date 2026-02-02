@@ -9,6 +9,7 @@ use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -164,7 +165,7 @@ class ProductController extends Controller
             'type' => 'required|string|in:game,pulsa,data,pln,pascabayar,other',
             'payment_type' => 'required|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'input_fields' => 'nullable|array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
@@ -180,7 +181,15 @@ class ProductController extends Controller
         }
 
         try {
-            $product = Product::create($validator->validated());
+            $data = $validator->validated();
+
+            // Handle Image Upload
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('products', 'public');
+                $data['image'] = url('storage/' . $path);
+            }
+
+            $product = Product::create($data);
 
             if (method_exists($this->productService, 'clearCache')) {
                 $this->productService->clearCache();
@@ -212,7 +221,7 @@ class ProductController extends Controller
             'type' => 'sometimes|string|in:game,pulsa,data,pln,pascabayar,other',
             'payment_type' => 'sometimes|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'input_fields' => 'nullable|array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
@@ -229,7 +238,21 @@ class ProductController extends Controller
 
         try {
             $product = Product::findOrFail($id);
-            $product->update($validator->validated());
+
+            $data = $validator->validated();
+
+            // Handle Image Upload
+            if ($request->hasFile('image')) {
+                // Delete old image
+                if ($product->image) {
+                    $this->deleteImage($product->image);
+                }
+
+                $path = $request->file('image')->store('products', 'public');
+                $data['image'] = url('storage/' . $path);
+            }
+
+            $product->update($data);
 
             if (method_exists($this->productService, 'clearCache')) {
                 $this->productService->clearCache();
@@ -267,6 +290,62 @@ class ProductController extends Controller
                 'success' => false,
                 'message' => 'Failed to sync products: ' . $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Delete parent product
+     */
+    public function destroy($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+
+            // Delete image if exists
+            if ($product->image) {
+                $this->deleteImage($product->image);
+            }
+
+            // Delete items if not cascaded by database
+            $product->items()->delete();
+            $product->delete();
+
+            if (method_exists($this->productService, 'clearCache')) {
+                $this->productService->clearCache();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper to delete image from storage
+     */
+    private function deleteImage($fullUrl)
+    {
+        if (!$fullUrl) return;
+
+        try {
+            // Convert full URL to relative storage path
+            // Example: http://domain.com/storage/products/abc.jpg -> products/abc.jpg
+            $baseUrl = url('storage/');
+            $path = str_replace($baseUrl, '', $fullUrl);
+            $path = ltrim($path, '/');
+
+            // Safety check: ensure we are not deleting outside
+            if (strpos($path, 'http') === false && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        } catch (\Exception $e) {
+            // Ignore error if image specific cleanup fails, as product deletion is priority
         }
     }
 }
