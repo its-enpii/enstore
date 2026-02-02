@@ -19,6 +19,8 @@ class Product extends Model
         'description',
         'image',
         'input_fields',
+        'server_options',
+        'rating',
         'is_active',
         'is_featured',
         'sort_order',
@@ -26,6 +28,8 @@ class Product extends Model
 
     protected $casts = [
         'input_fields' => 'array',
+        'server_options' => 'array',
+        'rating' => 'float',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
         'sort_order' => 'integer',

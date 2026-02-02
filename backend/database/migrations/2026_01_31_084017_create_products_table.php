@@ -27,6 +27,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
 
+            $table->json('server_options')->nullable()->comment('Server game options');
+            $table->decimal('rating', 3, 2)->default(0);
+
             $table->boolean('is_active')->default(true);
             $table->boolean('is_featured')->default(false);
             $table->integer('sort_order')->default(0);
@@ -60,10 +63,8 @@ return new class extends Migration
             $table->enum('stock_status', ['available', 'empty', 'maintenance'])->default('available');
             $table->boolean('is_active')->default(true);
 
-            $table->json('server_options')->nullable()->comment('Server game: ["1001", "1002", "1003"]');
-
             $table->integer('total_sold')->default(0);
-            $table->decimal('rating', 3, 2)->default(0);
+            // rating moved to products
             $table->integer('sort_order')->default(0);
 
             $table->timestamp('last_synced_at')->nullable()->comment('Last sync dengan Digiflazz');

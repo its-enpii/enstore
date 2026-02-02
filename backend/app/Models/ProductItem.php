@@ -21,9 +21,7 @@ class ProductItem extends Model
         'reseller_profit',
         'stock_status',
         'is_active',
-        'server_options',
         'total_sold',
-        'rating',
         'sort_order',
         'last_synced_at',
     ];
@@ -35,10 +33,8 @@ class ProductItem extends Model
         'admin_fee' => 'decimal:2',
         'retail_profit' => 'decimal:2',
         'reseller_profit' => 'decimal:2',
-        'server_options' => 'array',
         'is_active' => 'boolean',
         'total_sold' => 'integer',
-        'rating' => 'decimal:2',
         'sort_order' => 'integer',
         'last_synced_at' => 'datetime',
     ];

@@ -88,6 +88,10 @@ input_fields[0][name]: "user_id"
 input_fields[0][label]: "User ID"
 input_fields[0][type]: "text"
 input_fields[0][required]: 1
+input_fields[0][required]: 1
+server_options[0]: "Server 1"
+server_options[1]: "Server 2"
+rating: 4.5
 is_active: 1
 is_featured: 0
 sort_order: 0
@@ -109,6 +113,8 @@ input_fields[0][name]: "user_id"
 input_fields[0][label]: "User ID"
 input_fields[0][type]: "text"
 input_fields[0][required]: 1
+rating: 4.8
+server_options[0]: "Server 1"
 is_active: 1
 ```
 

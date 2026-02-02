@@ -1,0 +1,41 @@
+meta {
+  name: Bulk Update Prices
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/admin/products/bulk-update-prices
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "id": "1",
+        "retail_price": "13000",
+        "reseller_price": "12000"
+      },
+      {
+        "id": "2",
+        "retail_price": "8000",
+        "reseller_price": "9000"
+      }
+    ]
+  }
+}
+
+body:multipart-form {
+  _method: DELETE
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

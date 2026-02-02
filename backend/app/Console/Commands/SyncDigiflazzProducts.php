@@ -181,7 +181,6 @@ class SyncDigiflazzProducts extends Command
                 'stock_status' => $this->mapStockStatus($data),
                 'is_active' => $data['seller_product_status'] ?? true,
 
-                'server_options' => null,
                 'last_synced_at' => now(),
             ]
         );
