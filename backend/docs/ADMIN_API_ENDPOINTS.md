@@ -60,10 +60,6 @@ Authorization: Bearer {token}
         "input_fields": [
           { "name": "user_id", "label": "User ID", "type": "text", "required": true },
           { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
-        ],
-        "input_fields": [
-          { "name": "user_id", "label": "User ID", "type": "text", "required": true },
-          { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
         ]
       }
     ],
