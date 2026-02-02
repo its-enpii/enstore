@@ -105,60 +105,26 @@ Content-Type: application/json
 }
 ```
 
-**Example Request - Bulk Update Prices:**
-```bash
-POST /api/admin/products/bulk-update-prices
-Authorization: Bearer {token}
 
-{
-  "items": [
-    {
-      "id": 101,
-      "retail_price": 25000,
-      "retail_profit": 2000
-    },
-    {
-      "id": 102,
-      "reseller_price": 50000,
-      "reseller_profit": 3000
-    }
-  ]
-}
-```
 
 ---
 
 ---
 
-### ✅ 1.2 Read & Update Product Item Only
+### ✅ 1.2 Manage Product Items (Variants)
 **Controller:** `app/Http/Controllers/Api/Admin/ProductItemController.php`
 
-**Endpoints:** 
-- `GET /api/admin/products/items/{itemId}` - Get details
-- `PUT /api/admin/products/items/{itemId}` - Update item
-- `DELETE /api/admin/products/items/{itemId}` - Delete item
+**Endpoints:**
+- `GET /api/admin/products/items/{id}` - Get item detail
+- `POST /api/admin/products/{productId}/items` - Create new manual item
+- `PUT /api/admin/products/items/{id}` - Update item
+- `DELETE /api/admin/products/items/{id}` - Delete item
+- `POST /api/admin/products/bulk-update-prices` - Bulk update prices
 
-Digunakan untuk mengelola data spesifik satu varian (item) tanpa mempengaruhi parent.
+**1. Create Item (Manual)**
+**POST** `/api/admin/products/{productId}/items`
 
-**Update Request Body:**
-```json
-{
-  "name": "5 Diamonds",
-  "retail_price": 1500,
-  "reseller_price": 1200,
-  "stock_status": "available",
-  "is_active": true
-}
-```
-
----
-
-### ✅ 1.3 Create Product Item (Manual)
-**Endpoint:** `POST /api/admin/products/{productId}/items`
-
-Digunakan untuk menambah varian (item) baru secara manual ke dalam produk.
-
-**Request Body:**
+Request Body:
 ```json
 {
   "name": "1000 Diamonds",
@@ -169,8 +135,34 @@ Digunakan untuk menambah varian (item) baru secara manual ke dalam produk.
   "stock_status": "available",
   "is_active": true,
   "description": "Manual item",
-  "server_options": null,
   "sort_order": 0
+}
+```
+
+**2. Update Item**
+**PUT** `/api/admin/products/items/{id}`
+
+Request Body:
+```json
+{
+  "name": "5 Diamonds",
+  "retail_price": 1500,
+  "reseller_price": 1200,
+  "stock_status": "available",
+  "is_active": true
+}
+```
+
+**3. Bulk Update Prices**
+**POST** `/api/admin/products/bulk-update-prices`
+
+Request Body:
+```json
+{
+  "items": [
+    { "id": 101, "retail_price": 25000, "retail_profit": 2000 },
+    { "id": 102, "reseller_price": 45000, "reseller_profit": 3000 }
+  ]
 }
 ```
 
