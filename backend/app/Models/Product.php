@@ -18,12 +18,14 @@ class Product extends Model
         'payment_type',
         'description',
         'image',
+        'input_fields',
         'is_active',
         'is_featured',
         'sort_order',
     ];
 
     protected $casts = [
+        'input_fields' => 'array',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
         'sort_order' => 'integer',

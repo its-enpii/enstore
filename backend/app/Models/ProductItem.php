@@ -22,7 +22,6 @@ class ProductItem extends Model
         'stock_status',
         'is_active',
         'server_options',
-        'input_fields',
         'total_sold',
         'rating',
         'sort_order',
@@ -37,7 +36,6 @@ class ProductItem extends Model
         'retail_profit' => 'decimal:2',
         'reseller_profit' => 'decimal:2',
         'server_options' => 'array',
-        'input_fields' => 'array',
         'is_active' => 'boolean',
         'total_sold' => 'integer',
         'rating' => 'decimal:2',
@@ -90,9 +88,9 @@ class ProductItem extends Model
      */
     public function getPriceForCustomer(string $customerType): float
     {
-        return $customerType === 'reseller'
+        return floatval($customerType === 'reseller'
             ? $this->reseller_price
-            : $this->retail_price;
+            : $this->retail_price);
     }
 
     /**

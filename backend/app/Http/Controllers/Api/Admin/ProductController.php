@@ -165,6 +165,7 @@ class ProductController extends Controller
             'payment_type' => 'required|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
             'image_url' => 'nullable|string',
+            'input_fields' => 'nullable|array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'sort_order' => 'integer|min:0',
@@ -212,6 +213,7 @@ class ProductController extends Controller
             'payment_type' => 'sometimes|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
             'image_url' => 'nullable|string',
+            'input_fields' => 'nullable|array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'sort_order' => 'integer|min:0',
@@ -242,98 +244,6 @@ class ProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update product: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Update product item (variant)
-     */
-    public function updateItem(Request $request, $itemId)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'base_price' => 'sometimes|numeric|min:0',
-            'retail_price' => 'sometimes|numeric|min:0',
-            'retail_profit' => 'sometimes|numeric|min:0',
-            'reseller_price' => 'sometimes|numeric|min:0',
-            'reseller_profit' => 'sometimes|numeric|min:0',
-            'is_active' => 'boolean',
-            'stock_status' => 'sometimes|string|in:available,out_of_stock,under_maintenance',
-            'sort_order' => 'integer|min:0',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        try {
-            $item = ProductItem::findOrFail($itemId);
-            $item->update($validator->validated());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Product item updated successfully',
-                'data' => $item,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update product item: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Bulk update prices for product items
-     */
-    public function bulkUpdatePrices(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'items' => 'required|array',
-            'items.*.id' => 'required|exists:product_items,id',
-            'items.*.retail_price' => 'sometimes|numeric|min:0',
-            'items.*.retail_profit' => 'sometimes|numeric|min:0',
-            'items.*.reseller_price' => 'sometimes|numeric|min:0',
-            'items.*.reseller_profit' => 'sometimes|numeric|min:0',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        try {
-            $updated = 0;
-
-            foreach ($request->items as $itemData) {
-                $item = ProductItem::find($itemData['id']);
-                if ($item) {
-                    $item->update(array_intersect_key($itemData, array_flip([
-                        'retail_price',
-                        'retail_profit',
-                        'reseller_price',
-                        'reseller_profit'
-                    ])));
-                    $updated++;
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => "{$updated} product items updated successfully",
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update product items: ' . $e->getMessage(),
             ], 500);
         }
     }

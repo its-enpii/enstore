@@ -57,6 +57,10 @@ Authorization: Bearer {token}
         "brand": "MOBILE LEGENDS",
         "category": { "id": 1, "name": "Games" },
         "is_active": true,
+        "input_fields": [
+          { "name": "user_id", "label": "User ID", "type": "text", "required": true },
+          { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
+        ],
         "items": [
           {
             "id": 101,
@@ -92,6 +96,9 @@ Content-Type: application/json
   "retail_profit": 2000,
   "reseller_price": 23000,
   "reseller_profit": 1000,
+  "input_fields": [
+    { "name": "user_id", "label": "User ID", "type": "text", "required": true }
+  ],
   "stock": 100,
   "is_active": true,
   "is_featured": true
@@ -121,12 +128,19 @@ Authorization: Bearer {token}
 
 ---
 
-### ✅ 1.2 Update Product Item Only
-**Endpoint:** `PUT /api/admin/products/items/{itemId}`
+---
 
-Digunakan untuk mengubah data spesifik satu varian (item) tanpa mempengaruhi parent atau item lainnya.
+### ✅ 1.2 Read & Update Product Item Only
+**Controller:** `app/Http/Controllers/Api/Admin/ProductItemController.php`
 
-**Request Body:**
+**Endpoints:** 
+- `GET /api/admin/products/items/{itemId}` - Get details
+- `PUT /api/admin/products/items/{itemId}` - Update item
+- `DELETE /api/admin/products/items/{itemId}` - Delete item
+
+Digunakan untuk mengelola data spesifik satu varian (item) tanpa mempengaruhi parent.
+
+**Update Request Body:**
 ```json
 {
   "name": "5 Diamonds",
@@ -134,6 +148,29 @@ Digunakan untuk mengubah data spesifik satu varian (item) tanpa mempengaruhi par
   "reseller_price": 1200,
   "stock_status": "available",
   "is_active": true
+}
+```
+
+---
+
+### ✅ 1.3 Create Product Item (Manual)
+**Endpoint:** `POST /api/admin/products/{productId}/items`
+
+Digunakan untuk menambah varian (item) baru secara manual ke dalam produk.
+
+**Request Body:**
+```json
+{
+  "name": "1000 Diamonds",
+  "digiflazz_code": "ML1000-MANUAL",
+  "base_price": 250000,
+  "retail_price": 300000,
+  "reseller_price": 280000,
+  "stock_status": "available",
+  "is_active": true,
+  "description": "Manual item",
+  "server_options": null,
+  "sort_order": 0
 }
 ```
 

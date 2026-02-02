@@ -121,6 +121,10 @@ Authorization: Bearer {token}
         "description": "Top up Mobile Legends",
         "is_featured": true,
         "image_url": "https://...",
+        "input_fields": [
+           { "name": "user_id", "label": "User ID", "type": "text", "required": true },
+           { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
+        ],
         "items": [
           {
             "id": 101,
@@ -175,6 +179,10 @@ Authorization: Bearer {token}
     "is_featured": true,
     "is_active": true,
     "image_url": "https://...",
+    "input_fields": [
+        { "name": "user_id", "label": "User ID", "type": "text", "required": true },
+        { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
+    ],
     "items": [
           {
             "id": 101,

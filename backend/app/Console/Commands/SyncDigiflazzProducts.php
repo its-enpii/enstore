@@ -134,6 +134,7 @@ class SyncDigiflazzProducts extends Command
                 'is_active' => true,
                 'is_featured' => false,
                 'sort_order' => 0,
+                'input_fields' => $this->generateInputFields($type),
             ]
         );
 
@@ -181,8 +182,6 @@ class SyncDigiflazzProducts extends Command
                 'is_active' => $data['seller_product_status'] ?? true,
 
                 'server_options' => null,
-                'input_fields' => $this->generateInputFields($product->type),
-
                 'last_synced_at' => now(),
             ]
         );
