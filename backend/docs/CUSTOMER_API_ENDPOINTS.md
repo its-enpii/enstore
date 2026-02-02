@@ -125,13 +125,9 @@ Authorization: Bearer {token}
            { "name": "user_id", "label": "User ID", "type": "text", "required": true },
            { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
         ],
-        "items": [
-          {
-            "id": 101,
-            "name": "86 Diamond",
-            "price": 25000,
-            "is_active": true
-          }
+        "input_fields": [
+           { "name": "user_id", "label": "User ID", "type": "text", "required": true },
+           { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
         ]
       }
     ],

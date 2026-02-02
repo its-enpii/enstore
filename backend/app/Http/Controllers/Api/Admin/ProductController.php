@@ -25,7 +25,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Product::with(['category', 'items']);
+            $query = Product::with(['category']);
 
             // 1. TRULY DYNAMIC FILTERING (Schema Aware)
             $tableName = (new Product())->getTable();

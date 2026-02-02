@@ -19,9 +19,7 @@ class ProductService
     $cacheKey = 'products.active.hierarchical.' . md5(json_encode($filters));
 
     return Cache::remember($cacheKey, 300, function () use ($filters) {
-      $query = Product::active()->with(['category', 'items' => function ($q) {
-        $q->active()->available()->orderBy('sort_order', 'asc');
-      }]);
+      $query = Product::active()->with(['category']);
 
       // 1. TRULY DYNAMIC FILTERING (Schema Aware)
       $tableName = (new Product())->getTable();

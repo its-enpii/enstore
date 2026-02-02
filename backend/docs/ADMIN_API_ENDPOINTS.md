@@ -61,21 +61,9 @@ Authorization: Bearer {token}
           { "name": "user_id", "label": "User ID", "type": "text", "required": true },
           { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
         ],
-        "items": [
-          {
-            "id": 101,
-            "name": "86 Diamond",
-            "retail_price": 25000,
-            "reseller_price": 24000,
-            "stock_status": "available"
-          },
-          {
-            "id": 102,
-            "name": "172 Diamond",
-            "retail_price": 48000,
-            "reseller_price": 46000,
-            "stock_status": "available"
-          }
+        "input_fields": [
+          { "name": "user_id", "label": "User ID", "type": "text", "required": true },
+          { "name": "zone_id", "label": "Zone ID", "type": "text", "required": true }
         ]
       }
     ],
