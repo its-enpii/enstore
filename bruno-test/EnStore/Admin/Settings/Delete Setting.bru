@@ -1,0 +1,20 @@
+meta {
+  name: Delete Setting
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/admin/settings/profit_margin.retail
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

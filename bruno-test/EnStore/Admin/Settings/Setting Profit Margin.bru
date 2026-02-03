@@ -1,0 +1,20 @@
+meta {
+  name: Setting Profit Margin
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/admin/settings/profit-margins
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

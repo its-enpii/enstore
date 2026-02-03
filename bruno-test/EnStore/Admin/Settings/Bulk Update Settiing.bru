@@ -1,0 +1,35 @@
+meta {
+  name: Bulk Update Settiing
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/admin/settings/bulk-update
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "settings": [
+      {
+        "key": "app.maintenance_mode",
+        "value": "false",
+        "type": "boolean",
+        "group": "general",
+        "description": "Enable/disable maintenance mode",
+        "is_public": true
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
