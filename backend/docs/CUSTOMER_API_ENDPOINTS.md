@@ -758,26 +758,34 @@ Authorization: Bearer {token}
 
 ## API Routes Summary
 
-### Public / Guest (3 endpoints)
+### Public / Guest (6 endpoints)
 
 ```
 POST   /api/transactions/purchase                # Guest purchase
 GET    /api/transactions/status/{code}           # Check status
 GET    /api/transactions/payment-channels        # List channels
-```
-
-### Registered Customer (15 endpoints)
-
-```
 GET    /api/customer/products                    # List products
 GET    /api/customer/products/categories         # Categories
 GET    /api/customer/products/{id}               # Product detail
-GET    /api/customer/transactions                # History
-GET    /api/customer/transactions/{code}         # Detail
-POST   /api/customer/transactions/purchase       # Member purchase
-POST   /api/customer/transactions/topup          # Topup
-GET    /api/customer/balance                     # Balance
-...
 ```
 
-**Total: 18 Customer Facing Endpoints** 🎉
+### Registered Customer (14 endpoints)
+
+```
+GET    /api/customer/transactions                # Transaction history
+GET    /api/customer/transactions/payment-channels # Authenticated payment channels
+GET    /api/customer/transactions/{code}         # Transaction detail
+POST   /api/customer/transactions/purchase       # Purchase with Payment Gateway
+POST   /api/customer/transactions/purchase-balance # Purchase with Balance
+POST   /api/customer/transactions/topup          # Topup Balance
+GET    /api/customer/balance                     # Check Balance
+GET    /api/customer/balance/mutations           # Balance History
+POST   /api/customer/postpaid/inquiry            # Postpaid Inquiry (PLN/PDAM)
+POST   /api/customer/postpaid/pay                # Postpaid Payment
+GET    /api/customer/profile                     # Get Profile
+PUT    /api/customer/profile                     # Update Profile
+POST   /api/customer/profile/change-password     # Change Password
+DELETE /api/customer/profile                     # Delete Account
+```
+
+**Total: 20 Customer Facing Endpoints** 🎉
