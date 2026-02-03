@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('balance_mutations', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('balance_id')->constrained('balances')->cascadeOnDelete();
             $table->unsignedBigInteger('transaction_id')->nullable()->comment('Reference to transactions.id (no FK to avoid circular dependency)');
 
             // Mutation Info
@@ -33,14 +33,15 @@ return new class extends Migration
 
             // Timestamp
             $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
 
             // Indexes
-            $table->index('user_id');
+            $table->index('balance_id');
             $table->index('transaction_id');
             $table->index('type');
             $table->index(['reference_type', 'reference_id'], 'reference');
             $table->index('created_at');
-            $table->index(['user_id', 'created_at'], 'user_date');
+            $table->index(['balance_id', 'created_at'], 'balance_date');
         });
     }
 

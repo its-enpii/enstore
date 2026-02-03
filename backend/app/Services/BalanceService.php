@@ -24,8 +24,8 @@ class BalanceService
     if (!$balance) {
       $balance = Balance::create([
         'user_id' => $user->id,
-        'amount' => 0,
-        'hold_amount' => 0,
+        'balance' => 0,
+        'hold_balance' => 0,
       ]);
     }
 
@@ -33,7 +33,7 @@ class BalanceService
   }
 
   /**
-   * Get available balance (amount - hold_amount)
+   * Get available balance (balance - hold_balance)
    * 
    * @param User $user
    * @return float
@@ -41,14 +41,14 @@ class BalanceService
   public function getAvailableBalance(User $user)
   {
     $balance = $this->getOrCreateBalance($user);
-    return $balance->amount - $balance->hold_amount;
+    return $balance->balance - $balance->hold_balance;
   }
 
   /**
    * Check if user has sufficient balance
    * 
    * @param User $user
-   * @param float $amount
+   * @param float $balance
    * @return bool
    */
   public function hasSufficientBalance(User $user, $amount)
@@ -61,7 +61,7 @@ class BalanceService
    * Add balance (credit)
    * 
    * @param User $user
-   * @param float $amount
+   * @param float $balance
    * @param string $description
    * @param Transaction|null $transaction
    * @return BalanceMutation
@@ -70,7 +70,7 @@ class BalanceService
   public function addBalance(User $user, $amount, $description, $transaction = null)
   {
     if ($amount <= 0) {
-      throw new \Exception('Amount must be greater than 0');
+      throw new \Exception('balance must be greater than 0');
     }
 
     DB::beginTransaction();
@@ -78,12 +78,12 @@ class BalanceService
     try {
       $balance = $this->getOrCreateBalance($user);
 
-      $balanceBefore = $balance->amount;
+      $balanceBefore = $balance->balance;
       $balanceAfter = $balanceBefore + $amount;
 
       // Update balance
-      $balance->update([
-        'amount' => $balanceAfter,
+      Balance::where('id',$balance->id)->update([
+        'balance' => $balanceAfter,
       ]);
 
       // Create mutation record
@@ -99,14 +99,12 @@ class BalanceService
 
       DB::commit();
 
-
-
       return $mutation;
     } catch (\Exception $e) {
       DB::rollBack();
       Log::error('Failed to add balance', [
         'user_id' => $user->id,
-        'amount' => $amount,
+        'balance' => $balance,
         'error' => $e->getMessage(),
       ]);
       throw $e;
@@ -117,7 +115,7 @@ class BalanceService
    * Deduct balance (debit)
    * 
    * @param User $user
-   * @param float $amount
+   * @param float $balance
    * @param string $description
    * @param Transaction|null $transaction
    * @return BalanceMutation
@@ -126,7 +124,7 @@ class BalanceService
   public function deductBalance(User $user, $amount, $description, $transaction = null)
   {
     if ($amount <= 0) {
-      throw new \Exception('Amount must be greater than 0');
+      throw new \Exception('balance must be greater than 0');
     }
 
     if (!$this->hasSufficientBalance($user, $amount)) {
@@ -138,12 +136,12 @@ class BalanceService
     try {
       $balance = $this->getOrCreateBalance($user);
 
-      $balanceBefore = $balance->amount;
+      $balanceBefore = $balance->balance;
       $balanceAfter = $balanceBefore - $amount;
 
       // Update balance
-      $balance->update([
-        'amount' => $balanceAfter,
+      Balance::where('id',$balance->id)->update([
+        'balance' => $balanceAfter,
       ]);
 
       // Create mutation record
@@ -166,7 +164,7 @@ class BalanceService
       DB::rollBack();
       Log::error('Failed to deduct balance', [
         'user_id' => $user->id,
-        'amount' => $amount,
+        'balance' => $balance,
         'error' => $e->getMessage(),
       ]);
       throw $e;
@@ -177,14 +175,14 @@ class BalanceService
    * Hold balance (reserve for pending transaction)
    * 
    * @param User $user
-   * @param float $amount
+   * @param float $balance
    * @return void
    * @throws \Exception
    */
   public function holdBalance(User $user, $amount)
   {
     if ($amount <= 0) {
-      throw new \Exception('Amount must be greater than 0');
+      throw new \Exception('balance must be greater than 0');
     }
 
     if (!$this->hasSufficientBalance($user, $amount)) {
@@ -193,14 +191,14 @@ class BalanceService
 
     $balance = $this->getOrCreateBalance($user);
 
-    $balance->increment('hold_amount', $amount);
+    $balance->increment('hold_balance', $amount);
   }
 
   /**
    * Release held balance
    * 
    * @param User $user
-   * @param float $amount
+   * @param float $balance
    * @return void
    */
   public function releaseHoldBalance(User $user, $amount)
@@ -211,14 +209,14 @@ class BalanceService
 
     $balance = $this->getOrCreateBalance($user);
 
-    $balance->decrement('hold_amount', $amount);
+    $balance->decrement('hold_balance', $amount);
   }
 
   /**
    * Deduct from held balance
    * 
    * @param User $user
-   * @param float $amount
+   * @param float $balance
    * @param string $description
    * @param Transaction|null $transaction
    * @return BalanceMutation
@@ -227,7 +225,7 @@ class BalanceService
   public function deductFromHold(User $user, $amount, $description, $transaction = null)
   {
     if ($amount <= 0) {
-      throw new \Exception('Amount must be greater than 0');
+      throw new \Exception('balance must be greater than 0');
     }
 
     DB::beginTransaction();
@@ -235,17 +233,17 @@ class BalanceService
     try {
       $balance = $this->getOrCreateBalance($user);
 
-      if ($balance->hold_amount < $amount) {
+      if ($balance->hold_balance < $amount) {
         throw new \Exception('Insufficient hold balance');
       }
 
-      $balanceBefore = $balance->amount;
+      $balanceBefore = $balance->balance;
       $balanceAfter = $balanceBefore - $amount;
 
       // Update balance and hold
-      $balance->update([
-        'amount' => $balanceAfter,
-        'hold_amount' => $balance->hold_amount - $amount,
+      Balance::where('id',$balance->id)->update([
+        'balance' => $balanceAfter,
+        'hold_balance' => $balance->hold_balance - $amount,
       ]);
 
       // Create mutation record
@@ -253,7 +251,7 @@ class BalanceService
         'balance_id' => $balance->id,
         'transaction_id' => $transaction ? $transaction->id : null,
         'type' => 'debit',
-        'amount' => $amount,
+        'amount' => $balance,
         'balance_before' => $balanceBefore,
         'balance_after' => $balanceAfter,
         'description' => $description,
@@ -268,7 +266,7 @@ class BalanceService
       DB::rollBack();
       Log::error('Failed to deduct from hold balance', [
         'user_id' => $user->id,
-        'amount' => $amount,
+        'balance' => $balance,
         'error' => $e->getMessage(),
       ]);
       throw $e;
