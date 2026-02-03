@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\ProductItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -127,8 +128,18 @@ class DashboardController extends Controller
       'total_products' => Product::count(),
       'active_products' => Product::where('is_active', true)->count(),
       'featured_products' => Product::where('is_featured', true)->count(),
-      'out_of_stock' => Product::where('stock', '<=', 0)->whereNotNull('stock')->count(),
-      'top_selling' => Product::orderBy('total_sold', 'desc')->limit(5)->get(['id', 'name', 'total_sold']),
+      'out_of_stock' => ProductItem::where('stock_status', 'empty')->count(),
+      'top_selling' => ProductItem::with('product')
+        ->orderBy('total_sold', 'desc')
+        ->limit(5)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->product ? $item->product->name . ' - ' . $item->name : $item->name,
+                'total_sold' => $item->total_sold,
+            ];
+        }),
     ];
   }
 
