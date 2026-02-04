@@ -1,0 +1,25 @@
+meta {
+  name: Users Report
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/admin/reports/users?start_date=2026-02-01&end_date=2026-02-28
+  body: none
+  auth: bearer
+}
+
+params:query {
+  start_date: 2026-02-01
+  end_date: 2026-02-28
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

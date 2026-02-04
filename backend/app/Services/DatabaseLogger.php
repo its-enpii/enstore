@@ -168,7 +168,7 @@ class DatabaseLogger
     $query = ActivityLog::with('user');
 
     if (isset($filters['type'])) {
-      $query->where('type', $filters['type']);
+      $query->where('meta_data->log_type', $filters['type']);
     }
 
     if (isset($filters['action'])) {

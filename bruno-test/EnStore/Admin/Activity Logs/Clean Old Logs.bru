@@ -1,0 +1,26 @@
+meta {
+  name: Clean Old Logs
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/admin/activity-logs/clean
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "days": "1" // min = 1, max = 365
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

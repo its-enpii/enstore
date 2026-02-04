@@ -72,7 +72,7 @@ class ActivityLogController extends Controller
       // 2. Flexible Search
       if ($request->filled('search')) {
         $search = $request->search;
-        $searchableFields = ['description', 'action', 'type'];
+        $searchableFields = ['description', 'action']; // removed type as it is in meta_data
         $searchableRelations = [
           'user' => ['name', 'email']
         ];
@@ -155,17 +155,17 @@ class ActivityLogController extends Controller
       $stats = [
         'total_activities' => $query->count(),
         'by_type' => ActivityLog::whereBetween('created_at', [$startDate, $endDate])
-          ->selectRaw('type, COUNT(*) as count')
-          ->groupBy('type')
+          ->selectRaw("JSON_UNQUOTE(JSON_EXTRACT(meta_data, '$.log_type')) as log_type, COUNT(*) as count")
+          ->groupBy('log_type')
           ->get()
-          ->pluck('count', 'type'),
+          ->pluck('count', 'log_type'),
         'by_action' => ActivityLog::whereBetween('created_at', [$startDate, $endDate])
           ->selectRaw('action, COUNT(*) as count')
           ->groupBy('action')
           ->orderByDesc('count')
           ->limit(10)
           ->get(),
-        'recent_errors' => ActivityLog::where('type', 'error')
+        'recent_errors' => ActivityLog::where('meta_data->log_type', 'error')
           ->whereBetween('created_at', [$startDate, $endDate])
           ->latest()
           ->limit(10)

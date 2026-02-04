@@ -41,7 +41,9 @@ class ReportController extends Controller
         default => '%Y-%m-%d',
       };
 
-      $sales = $query->selectRaw("
+      // Clone query for details to avoid modifying the base query
+      $sales = $query->clone()
+        ->selectRaw("
                 DATE_FORMAT(created_at, '{$dateFormat}') as period,
                 COUNT(*) as total_transactions,
                 SUM(total_price) as total_revenue,
@@ -52,6 +54,7 @@ class ReportController extends Controller
         ->orderBy('period')
         ->get();
 
+      // Use base query for summary
       $summary = [
         'total_transactions' => $query->count(),
         'total_revenue' => $query->sum('total_price'),

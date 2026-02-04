@@ -1,0 +1,20 @@
+meta {
+  name: Get Activity Log List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/admin/activity-logs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
