@@ -82,7 +82,7 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 
 > **Note:** Endpoint ini **PUBLIC**. Bisa diakses Guest. Jika mengakses dengan Token, harga akan otomatis menyesuaikan tipe user (Reseller/Retail). Jika tanpa token, harga default Retail.
 
-**Endpoint:** `GET /api/customer/products`
+**Endpoint:** `GET /api/products`
 
 **Query Parameters:**
 
@@ -108,7 +108,7 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 **Example Request:**
 
 ```bash
-GET /api/customer/products?category=games&min_price=10000&max_price=50000&search=mobile&per_page=20
+GET /api/products?category=games&min_price=10000&max_price=50000&search=mobile&per_page=20
 Authorization: Bearer {optional_token}
 ```
 
@@ -163,7 +163,7 @@ Authorization: Bearer {optional_token}
 
 ### 2. Get Product Detail
 
-**Endpoint:** `GET /api/customer/products/{id}` OR `GET /api/customer/products/slug/{slug}`
+**Endpoint:** `GET /api/products/{id}` OR `GET /api/products/slug/{slug}`
 
 **Features:**
 ✅ Product details  
@@ -174,7 +174,7 @@ Authorization: Bearer {optional_token}
 **Example Request:**
 
 ```bash
-GET /api/customer/products/1
+GET /api/products/1
 Authorization: Bearer {optional_token}
 ```
 
@@ -231,7 +231,7 @@ Authorization: Bearer {optional_token}
 
 ### 3. Get Categories
 
-**Endpoint:** `GET /api/customer/products/categories`
+**Endpoint:** `GET /api/products/categories`
 
 **Response:**
 
@@ -764,9 +764,9 @@ Authorization: Bearer {token}
 POST   /api/transactions/purchase                # Guest purchase
 GET    /api/transactions/status/{code}           # Check status
 GET    /api/transactions/payment-channels        # List channels
-GET    /api/customer/products                    # List products
-GET    /api/customer/products/categories         # Categories
-GET    /api/customer/products/{id}               # Product detail
+GET    /api/products                    # List products
+GET    /api/products/categories         # Categories
+GET    /api/products/{id}               # Product detail
 ```
 
 ### Registered Customer (14 endpoints)

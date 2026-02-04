@@ -35,7 +35,7 @@ Route::get('/transactions/status/{transactionCode}', [App\Http\Controllers\Api\P
 Route::get('/transactions/payment-channels', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'paymentChannels']);
 
 // Public Product Routes (Catalog)
-Route::prefix('customer/products')->group(function () {
+Route::prefix('products')->group(function () {
     Route::get('/', [App\Http\Controllers\Api\Customer\ProductController::class, 'index']);
     Route::get('/categories', [App\Http\Controllers\Api\Customer\ProductController::class, 'categories']);
     Route::get('/{id}', [App\Http\Controllers\Api\Customer\ProductController::class, 'show'])->whereNumber('id');
