@@ -737,6 +737,73 @@ Authorization: Bearer {token}
 
 ---
 
+### 9. Postpaid Transaction (PPOB)
+
+#### 9.1 Inquiry Tagihan (Cek Tagihan)
+
+**Endpoint:** `POST /api/customer/postpaid/inquiry`
+
+**Request Body:**
+
+```json
+{
+    "product_item_id": 105,
+    "customer_no": "512345678901"
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Berhasil cek tagihan",
+    "data": {
+        "inquiry_ref": "INQ-20260205120000-1234",
+        "product_name": "PLN Pascabayar - PLN Postpaid",
+        "customer_no": "512345678901",
+        "customer_name": "BUDI SANTOSO",
+        "period": "202602",
+        "tagihan": 150000,
+        "admin": 2500,
+        "total": 152500
+    }
+}
+```
+
+#### 9.2 Pay Tagihan (Bayar Tagihan)
+
+**Endpoint:** `POST /api/customer/postpaid/pay`
+
+**Request Body:**
+
+```json
+{
+    "inquiry_ref": "INQ-20260205120000-1234",
+    "payment_method": "QRIS"
+}
+```
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Transaksi berhasil dibuat",
+    "data": {
+        "transaction_code": "TRX-20260205-PPOB123",
+        "payment": {
+            "payment_method": "QRIS",
+            "payment_url": "https://tripay.co.id/checkout/...",
+            "qr_code_url": "https://...",
+            "amount": 152500
+        }
+    }
+}
+```
+
+---
+
 ## Files Created/Modified
 
 ### Controllers (4 files)
