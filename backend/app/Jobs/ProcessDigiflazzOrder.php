@@ -55,18 +55,32 @@ class ProcessDigiflazzOrder implements ShouldQueue
             );
 
             $data = $result['data'];
+            
+            Log::info('Digiflazz Raw Response:', $data);
 
             // Parse response code
             $parsedResponse = $digiflazzService->parseResponseCode($data['rc'] ?? '999');
 
-            // Handle based on response code
-            if ($data['rc'] === '00') {
+            $rc = (string) ($data['rc'] ?? '');
+            $status = strtolower(trim($data['status'] ?? ''));
+
+            Log::info('Digiflazz Decision Debug:', [
+                'rc_raw' => $data['rc'] ?? null,
+                'rc_processed' => $rc,
+                'status_raw' => $data['status'] ?? null,
+                'status_processed' => $status,
+                'is_pending_check' => ($rc === '01' || $status === 'pending')
+            ]);
+
+            // Handle based on response code OR status string
+            if ($rc === '00' || $status === 'sukses' || $status === 'success') {
                 // ✅ SUCCESS
                 $this->handleSuccess($data);
-            } elseif ($data['rc'] === '01') {
+            } elseif ($rc === '01' || $status === 'pending') {
                 // ⏳ PENDING - Will check again later
                 $this->handlePending($data);
             } else {
+                Log::warning('Digiflazz Decision: FELL TO ELSE BLOCK');
                 // ❌ FAILED
                 $this->handleFailed($data, $parsedResponse['message']);
             }
@@ -118,8 +132,8 @@ class ProcessDigiflazzOrder implements ShouldQueue
 
             $this->createLog('processing', 'success', 'Order completed successfully', $data);
 
-            // Create notification for user (if Notification model exists)
-            if (class_exists('App\Models\Notification')) {
+            // Create notification for user (if Notification model exists and user exists)
+            if ($this->transaction->user_id) {
                 \App\Models\Notification::create([
                     'user_id' => $this->transaction->user_id,
                     'title' => 'Transaksi Berhasil!',
@@ -183,8 +197,8 @@ class ProcessDigiflazzOrder implements ShouldQueue
                 $this->refundBalance();
             }
 
-            // Create notification
-            if (class_exists('App\Models\Notification')) {
+            // Create notification (only if user exists)
+            if ($this->transaction->user_id) {
                 \App\Models\Notification::create([
                     'user_id' => $this->transaction->user_id,
                     'title' => 'Transaksi Gagal',
@@ -217,6 +231,11 @@ class ProcessDigiflazzOrder implements ShouldQueue
     {
         try {
             $user = $this->transaction->user;
+
+            if (!$user) {
+                return;
+            }
+
             $balance = $user->balance;
 
             if (!$balance) {

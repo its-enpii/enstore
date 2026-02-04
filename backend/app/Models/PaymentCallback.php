@@ -12,8 +12,10 @@ class PaymentCallback extends Model
     protected $fillable = [
         'payment_id',
         'callback_data',
-        'status',
-        'processed_at',
+        'signature',
+        'ip_address',
+        'is_valid',
+        'processed',
     ];
 
     protected $casts = [

@@ -17,7 +17,7 @@ return new class extends Migration
 
             // Status Change
             $table->string('status_from', 50)->nullable();
-            $table->string('status_to', 50);
+            $table->string('status_to', 50)->nullable();
 
             // Message
             $table->text('message')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->comment('Admin ID jika manual action')->constrained('users')->nullOnDelete();
 
             // Timestamp
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             // Indexes
             $table->index('transaction_id');

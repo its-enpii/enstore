@@ -1,0 +1,15 @@
+meta {
+  name: Get Product List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/products?name=Axis
+  body: none
+  auth: none
+}
+
+params:query {
+  name: Axis
+}

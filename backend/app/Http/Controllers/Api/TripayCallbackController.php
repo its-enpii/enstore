@@ -93,8 +93,10 @@ class TripayCallbackController extends Controller
       PaymentCallback::create([
         'payment_id' => $payment->id,
         'callback_data' => $callbackData,
-        'status' => $callbackData['status'] ?? 'unknown',
-        'processed_at' => now(),
+        'signature' => $callbackSignature,
+        'ip_address' => $request->ip(),
+        'is_valid' => true,
+        'processed' => true, // Marked as processed because we handle it immediately below
       ]);
 
       $tripayStatus = $callbackData['status'] ?? 'UNPAID';
@@ -167,17 +169,19 @@ class TripayCallbackController extends Controller
       $this->processPurchase($transaction);
     }
 
-    // Create notification
-    Notification::create([
-      'user_id' => $transaction->user_id,
-      'title' => 'Pembayaran Berhasil',
-      'message' => 'Pembayaran untuk ' . $transaction->product_name . ' telah berhasil.',
-      'type' => 'payment_success',
-      'data' => [
-        'transaction_code' => $transaction->transaction_code,
-        'amount' => $transaction->total_price,
-      ],
-    ]);
+    // Create notification only if user_id exists
+    if ($transaction->user_id) {
+      Notification::create([
+        'user_id' => $transaction->user_id,
+        'title' => 'Pembayaran Berhasil',
+        'message' => 'Pembayaran untuk ' . $transaction->product_name . ' telah berhasil.',
+        'type' => 'payment_success',
+        'data' => [
+          'transaction_code' => $transaction->transaction_code,
+          'amount' => $transaction->total_price,
+        ],
+      ]);
+    }
   }
 
   /**
@@ -204,17 +208,19 @@ class TripayCallbackController extends Controller
       $status === 'expired' ? 'expired_at' : 'failed_at' => now(),
     ]);
 
-    // Create notification
-    Notification::create([
-      'user_id' => $transaction->user_id,
-      'title' => $status === 'expired' ? 'Pembayaran Kadaluarsa' : 'Pembayaran Gagal',
-      'message' => 'Pembayaran untuk ' . $transaction->product_name . ' ' . ($status === 'expired' ? 'telah kadaluarsa' : 'gagal') . '.',
-      'type' => 'payment_' . $status,
-      'data' => [
-        'transaction_code' => $transaction->transaction_code,
-        'amount' => $transaction->total_price,
-      ],
-    ]);
+    // Create notification only if user_id exists
+    if ($transaction->user_id) {
+      Notification::create([
+        'user_id' => $transaction->user_id,
+        'title' => $status === 'expired' ? 'Pembayaran Kadaluarsa' : 'Pembayaran Gagal',
+        'message' => 'Pembayaran untuk ' . $transaction->product_name . ' ' . ($status === 'expired' ? 'telah kadaluarsa' : 'gagal') . '.',
+        'type' => 'payment_' . $status,
+        'data' => [
+          'transaction_code' => $transaction->transaction_code,
+          'amount' => $transaction->total_price,
+        ],
+      ]);
+    }
   }
 
   /**

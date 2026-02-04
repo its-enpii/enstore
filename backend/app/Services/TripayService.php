@@ -106,7 +106,7 @@ class TripayService
   {
     try {
       $merchantRef = $params['merchant_ref'];
-      $amount = $params['amount'];
+      $amount = (int) $params['amount'];
 
       $signature = $this->generateSignature($merchantRef, $amount);
 

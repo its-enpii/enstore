@@ -25,7 +25,7 @@ class CreatePurchaseRequest extends FormRequest
     {
         return [
             'product_item_id' => 'required|exists:product_items,id',
-            'payment_method' => 'required|string|in:QRIS,BRIVA,BCAVA,BNIVA,MANDIRIVA,PERMATAVA,CIMBVA,BSIVA,OVO,DANA,SHOPEEPAY,LINKAJA',
+            'payment_method' => 'required|string',
             'customer_data' => 'required|array',
             'customer_data.user_id' => 'sometimes|string|max:255',
             'customer_data.zone_id' => 'sometimes|string|max:255',

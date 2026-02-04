@@ -24,6 +24,11 @@ class ProductCategory extends Model
         'sort_order' => 'integer',
     ];
 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    } 
+
     // ==================== RELATIONSHIPS ====================
 
     /**

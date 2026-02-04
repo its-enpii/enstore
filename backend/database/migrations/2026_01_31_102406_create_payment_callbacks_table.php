@@ -25,7 +25,7 @@ return new class extends Migration
             $table->boolean('processed')->default(false)->comment('Callback sudah diproses?');
 
             // Timestamp
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             // Indexes
             $table->index('payment_id');

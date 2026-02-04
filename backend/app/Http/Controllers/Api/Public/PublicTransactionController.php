@@ -55,18 +55,28 @@ class PublicTransactionController extends Controller
       $tripayData = [
         'method' => $request->payment_method,
         'merchant_ref' => $transaction->transaction_code,
-        'amount' => $transaction->total_price,
+        'amount' => (int) $transaction->total_price,
         'customer_name' => $customerName,
         'customer_email' => $customerEmail,
         'customer_phone' => $customerPhone,
-        'order_items' => [
+        'order_items' => array_merge(
           [
-            'sku' => $productItem->digiflazz_code,
-            'name' => $productItem->product->name . ' - ' . $productItem->name,
-            'price' => $transaction->product_price,
-            'quantity' => 1,
+            [
+              'sku' => $productItem->digiflazz_code,
+              'name' => $productItem->product->name . ' - ' . $productItem->name,
+              'price' => (int) $transaction->product_price,
+              'quantity' => 1,
+            ]
           ],
-        ],
+          $transaction->admin_fee > 0 ? [
+            [
+              'sku' => 'ADMIN-FEE',
+              'name' => 'Biaya Admin',
+              'price' => (int) $transaction->admin_fee,
+              'quantity' => 1,
+            ]
+          ] : []
+        ),
         'return_url' => config('app.frontend_url') . '/transaction/' . $transaction->transaction_code,
         'expired_time' => now()->addHours(2)->timestamp,
       ];
@@ -76,20 +86,22 @@ class PublicTransactionController extends Controller
       // Save payment
       $payment = Payment::create([
         'transaction_id' => $transaction->id,
-        'payment_code' => $tripayResponse['reference'],
+        'payment_reference' => $tripayResponse['reference'],
+        'payment_code' => $tripayResponse['pay_code'] ?? null,
         'payment_method' => $tripayResponse['payment_method'],
         'payment_channel' => $tripayResponse['payment_name'],
         'amount' => $tripayResponse['amount'],
         'fee' => $tripayResponse['total_fee']['customer'] ?? 0,
         'total_amount' => $tripayResponse['amount_received'],
-        'payment_url' => $tripayResponse['checkout_url'] ?? null,
-        'va_number' => $tripayResponse['pay_code'] ?? null,
-        'qr_code_url' => $tripayResponse['qr_url'] ?? null,
+        'checkout_url' => $tripayResponse['checkout_url'] ?? null,
+        'qr_url' => $tripayResponse['qr_url'] ?? null,
         'status' => 'pending',
         'expired_at' => date('Y-m-d H:i:s', $tripayResponse['expired_time']),
-        'meta_data' => [
-          'instructions' => $tripayResponse['instructions'] ?? null,
-        ],
+        'payment_instructions' => $tripayResponse['instructions'] ?? [],
+        'tripay_merchant_ref' => $tripayResponse['merchant_ref'],
+        'tripay_customer_name' => $tripayResponse['customer_name'],
+        'tripay_customer_email' => $tripayResponse['customer_email'],
+        'tripay_customer_phone' => $tripayResponse['customer_phone'],
       ]);
 
       DB::commit();
@@ -137,11 +149,14 @@ class PublicTransactionController extends Controller
           'created_at' => $transaction->created_at,
           'payment' => [
             'payment_method' => $transaction->payment?->payment_method,
-            'payment_url' => $transaction->payment?->payment_url,
-            'qr_code_url' => $transaction->payment?->qr_code_url,
-            'va_number' => $transaction->payment?->va_number,
+            'checkout_url' => $transaction->payment?->checkout_url,
+            'qr_url' => $transaction->payment?->qr_url,
+            'payment_code' => $transaction->payment?->payment_code,
             'expired_at' => $transaction->payment?->expired_at,
-          ]
+            'instructions' => $transaction->payment?->payment_instructions,
+          ],
+          'sn' => $transaction->digiflazz_serial_number,
+          'note' => $transaction->digiflazz_message,
         ],
       ]);
     } catch (\Exception $e) {

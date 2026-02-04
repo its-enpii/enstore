@@ -30,7 +30,7 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
 
             // Timestamp
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             // Indexes
             $table->index('user_id');

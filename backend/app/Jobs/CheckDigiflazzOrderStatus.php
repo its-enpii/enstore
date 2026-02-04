@@ -58,10 +58,13 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
             // Parse response
             $parsedResponse = $digiflazzService->parseResponseCode($data['rc'] ?? '999');
 
-            if ($data['rc'] === '00') {
+            $rc = (string) ($data['rc'] ?? '');
+            $status = strtolower(trim($data['status'] ?? ''));
+
+            if ($rc === '00' || $status === 'sukses' || $status === 'success') {
                 // ✅ SUCCESS
                 $this->handleSuccess($data);
-            } elseif ($data['rc'] === '01') {
+            } elseif ($rc === '01' || $status === 'pending') {
                 // ⏳ STILL PENDING
                 $this->handleStillPending($data);
             } else {
@@ -119,7 +122,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
         ]);
 
         // Create notification
-        if (class_exists('App\Models\Notification')) {
+        if (class_exists('App\Models\Notification') && $this->transaction->user_id) {
             \App\Models\Notification::create([
                 'user_id' => $this->transaction->user_id,
                 'title' => 'Transaksi Berhasil!',
@@ -193,7 +196,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
         }
 
         // Create notification
-        if (class_exists('App\Models\Notification')) {
+        if (class_exists('App\Models\Notification') && $this->transaction->user_id) {
             \App\Models\Notification::create([
                 'user_id' => $this->transaction->user_id,
                 'title' => 'Transaksi Gagal',
@@ -219,6 +222,11 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
     {
         try {
             $user = $this->transaction->user;
+
+            if (!$user) {
+                return;
+            }
+
             $balance = $user->balance;
 
             if (!$balance) {

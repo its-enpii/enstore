@@ -11,6 +11,7 @@ class Payment extends Model
 
     protected $fillable = [
         'transaction_id',
+        'payment_reference',
         'payment_code',
         'payment_method',
         'payment_channel',
@@ -18,12 +19,15 @@ class Payment extends Model
         'fee',
         'total_amount',
         'status',
-        'payment_url',
-        'qr_code_url',
-        'va_number',
+        'checkout_url',
+        'qr_url',
         'expired_at',
         'paid_at',
-        'meta_data',
+        'payment_instructions',
+        'tripay_merchant_ref',
+        'tripay_customer_name',
+        'tripay_customer_email',
+        'tripay_customer_phone',
     ];
 
     protected $casts = [
@@ -32,7 +36,7 @@ class Payment extends Model
         'total_amount' => 'decimal:2',
         'expired_at' => 'datetime',
         'paid_at' => 'datetime',
-        'meta_data' => 'array',
+        'payment_instructions' => 'array',
     ];
 
     // ==================== RELATIONSHIPS ====================

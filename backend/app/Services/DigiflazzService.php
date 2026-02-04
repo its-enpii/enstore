@@ -453,6 +453,6 @@ class DigiflazzService
       '204' => ['status' => 'failed', 'message' => 'Duplicate transaction'],
     ];
 
-    return $codes[$rc] ?? ['status' => 'failed', 'message' => 'Unknown error'];
+    return $codes[$rc] ?? ['status' => 'failed', 'message' => "Unknown error (RC: {$rc})"];
   }
 }
