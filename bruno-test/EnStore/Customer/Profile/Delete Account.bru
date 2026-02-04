@@ -1,0 +1,26 @@
+meta {
+  name: Delete Account
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{base_url}}/customer/profile
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{customer_token}}
+}
+
+body:json {
+  {
+      "password": "password123"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

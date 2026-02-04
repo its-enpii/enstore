@@ -175,7 +175,7 @@ class TripayCallbackController extends Controller
         'user_id' => $transaction->user_id,
         'title' => 'Pembayaran Berhasil',
         'message' => 'Pembayaran untuk ' . $transaction->product_name . ' telah berhasil.',
-        'type' => 'payment_success',
+        'type' => 'success',
         'data' => [
           'transaction_code' => $transaction->transaction_code,
           'amount' => $transaction->total_price,
@@ -214,7 +214,7 @@ class TripayCallbackController extends Controller
         'user_id' => $transaction->user_id,
         'title' => $status === 'expired' ? 'Pembayaran Kadaluarsa' : 'Pembayaran Gagal',
         'message' => 'Pembayaran untuk ' . $transaction->product_name . ' ' . ($status === 'expired' ? 'telah kadaluarsa' : 'gagal') . '.',
-        'type' => 'payment_' . $status,
+        'type' => $status === 'expired' ? 'warning' : 'error',
         'data' => [
           'transaction_code' => $transaction->transaction_code,
           'amount' => $transaction->total_price,
@@ -236,18 +236,18 @@ class TripayCallbackController extends Controller
     if (!$balance) {
       $balance = Balance::create([
         'user_id' => $user->id,
-        'amount' => 0,
-        'hold_amount' => 0,
+        'balance' => 0,
+        'bonus_balance' => 0,
       ]);
     }
 
-    $balanceBefore = $balance->amount;
-    $topupAmount = $transaction->total_price;
+    $balanceBefore = $balance->balance;
+    $topupAmount = $transaction->product_price; // Use product_price (actual topup amount) excluding admin fee
     $balanceAfter = $balanceBefore + $topupAmount;
 
     // Update balance
-    $balance->update([
-      'amount' => $balanceAfter,
+    Balance::where('id', $balance->id)->update([
+      'balance' => $balanceAfter,
     ]);
 
     // Create balance mutation

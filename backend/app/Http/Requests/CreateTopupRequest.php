@@ -25,7 +25,7 @@ class CreateTopupRequest extends FormRequest
     {
         return [
             'amount' => 'required|numeric|min:10000|max:10000000',
-            'payment_method' => 'required|string|in:QRIS,BRIVA,BCAVA,BNIVA,MANDIRIVA,PERMATAVA,CIMBVA,BSIVA,OVO,DANA,SHOPEEPAY,LINKAJA',
+            'payment_method' => 'required|string',
         ];
     }
 

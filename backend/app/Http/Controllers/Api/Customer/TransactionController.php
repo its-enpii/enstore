@@ -13,6 +13,8 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\ProcessDigiflazzOrder;
+use App\Jobs\ProcessPostpaidPayment;
 
 class TransactionController extends Controller
 {
@@ -52,6 +54,24 @@ class TransactionController extends Controller
         $request->payment_method
       );
 
+      $orderItems = [
+        [
+          'sku' => $productItem->digiflazz_code,
+          'name' => $productItem->product->name . ' - ' . $productItem->name,
+          'price' => $transaction->product_price,
+          'quantity' => 1,
+        ],
+      ];
+
+      if ($transaction->admin_fee > 0) {
+        $orderItems[] = [
+          'sku' => 'ADM',
+          'name' => 'Biaya Admin',
+          'price' => $transaction->admin_fee,
+          'quantity' => 1,
+        ];
+      }
+
       // Create payment via Tripay
       $tripayData = [
         'method' => $request->payment_method,
@@ -60,14 +80,7 @@ class TransactionController extends Controller
         'customer_name' => $user->name,
         'customer_email' => $user->email,
         'customer_phone' => $user->phone,
-        'order_items' => [
-          [
-            'sku' => $productItem->digiflazz_code,
-            'name' => $productItem->product->name . ' - ' . $productItem->name,
-            'price' => $transaction->product_price,
-            'quantity' => 1,
-          ],
-        ],
+        'order_items' => $orderItems,
         'return_url' => config('app.frontend_url') . '/transaction/' . $transaction->transaction_code,
         'expired_time' => now()->addHours(2)->timestamp,
       ];
@@ -77,20 +90,18 @@ class TransactionController extends Controller
       // Save payment
       $payment = Payment::create([
         'transaction_id' => $transaction->id,
-        'payment_code' => $tripayResponse['reference'],
+        'payment_reference' => $tripayResponse['reference'],
+        'payment_code' => $tripayResponse['pay_code'] ?? null,
         'payment_method' => $tripayResponse['payment_method'],
         'payment_channel' => $tripayResponse['payment_name'],
         'amount' => $tripayResponse['amount'],
         'fee' => $tripayResponse['total_fee']['customer'] ?? 0,
         'total_amount' => $tripayResponse['amount_received'],
         'payment_url' => $tripayResponse['checkout_url'] ?? null,
-        'va_number' => $tripayResponse['pay_code'] ?? null,
         'qr_code_url' => $tripayResponse['qr_url'] ?? null,
         'status' => 'pending',
         'expired_at' => date('Y-m-d H:i:s', $tripayResponse['expired_time']),
-        'meta_data' => [
-          'instructions' => $tripayResponse['instructions'] ?? null,
-        ],
+        'payment_instructions' => $tripayResponse['instructions'] ?? [],
       ]);
 
       DB::commit();
@@ -136,6 +147,13 @@ class TransactionController extends Controller
         $request->customer_data
       );
 
+      // Dispatch appropriate job based on payment type
+      if ($transaction->prepaid_postpaid_type === 'postpaid') {
+        ProcessPostpaidPayment::dispatch($transaction);
+      } else {
+        ProcessDigiflazzOrder::dispatch($transaction);
+      }
+
       return response()->json([
         'success' => true,
         'message' => 'Transaction created successfully. Your order is being processed.',
@@ -174,6 +192,24 @@ class TransactionController extends Controller
         $request->payment_method
       );
 
+      $orderItems = [
+        [
+          'sku' => 'TOPUP',
+          'name' => 'Top Up Saldo',
+          'price' => $request->amount,
+          'quantity' => 1,
+        ],
+      ];
+
+      if ($transaction->admin_fee > 0) {
+        $orderItems[] = [
+          'sku' => 'ADM',
+          'name' => 'Biaya Admin',
+          'price' => $transaction->admin_fee,
+          'quantity' => 1,
+        ];
+      }
+
       // Create payment via Tripay
       $tripayData = [
         'method' => $request->payment_method,
@@ -182,14 +218,7 @@ class TransactionController extends Controller
         'customer_name' => $user->name,
         'customer_email' => $user->email,
         'customer_phone' => $user->phone,
-        'order_items' => [
-          [
-            'sku' => 'TOPUP',
-            'name' => 'Top Up Saldo',
-            'price' => $request->amount,
-            'quantity' => 1,
-          ],
-        ],
+        'order_items' => $orderItems,
         'return_url' => config('app.frontend_url') . '/transaction/' . $transaction->transaction_code,
         'expired_time' => now()->addHours(2)->timestamp,
       ];
@@ -197,22 +226,21 @@ class TransactionController extends Controller
       $tripayResponse = $this->tripayService->createPayment($tripayData);
 
       // Save payment
+      // Save payment
       $payment = Payment::create([
         'transaction_id' => $transaction->id,
-        'payment_code' => $tripayResponse['reference'],
+        'payment_reference' => $tripayResponse['reference'],
+        'payment_code' => $tripayResponse['pay_code'] ?? null,
         'payment_method' => $tripayResponse['payment_method'],
         'payment_channel' => $tripayResponse['payment_name'],
         'amount' => $tripayResponse['amount'],
         'fee' => $tripayResponse['total_fee']['customer'] ?? 0,
         'total_amount' => $tripayResponse['amount_received'],
         'payment_url' => $tripayResponse['checkout_url'] ?? null,
-        'va_number' => $tripayResponse['pay_code'] ?? null,
         'qr_code_url' => $tripayResponse['qr_url'] ?? null,
         'status' => 'pending',
         'expired_at' => date('Y-m-d H:i:s', $tripayResponse['expired_time']),
-        'meta_data' => [
-          'instructions' => $tripayResponse['instructions'] ?? null,
-        ],
+        'payment_instructions' => $tripayResponse['instructions'] ?? [],
       ]);
 
       DB::commit();

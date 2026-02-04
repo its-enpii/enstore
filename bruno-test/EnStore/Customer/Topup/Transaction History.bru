@@ -1,0 +1,20 @@
+meta {
+  name: Transaction History
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/customer/transactions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{customer_token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
