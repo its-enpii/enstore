@@ -74,6 +74,27 @@ class PostpaidController extends Controller
             }
 
             $data = $result['data'];
+            
+            // Calculate selling price
+            // Apply standard formula: (Nominal + Admin) + Profit
+            // Even if nominal is 0, we calculate the total with admin and profit as requested
+            $realAdmin = $data['admin'] ?? 0;
+            
+            // Determine profit based on user type
+            $customerType = auth()->user()->customer_type ?? 'retail';
+            $profit = $customerType === 'reseller' 
+                ? ($productItem->reseller_profit ?? 0) 
+                : ($productItem->retail_profit ?? 0);
+            
+            // Merge profit into admin fee for display consistency
+            // Customer sees: Admin = Real Admin + Profit
+            $displayAdmin = $realAdmin + $profit;
+            
+            $supplierPrice = isset($data['total_bayar']) && $data['total_bayar'] > 0 
+                ? $data['total_bayar'] 
+                : (($data['nominal'] ?? 0) + $realAdmin);
+                
+            $sellingPrice = $supplierPrice + $profit;
 
             // Save inquiry to cache for 30 minutes
             $inquiryData = [
@@ -84,8 +105,10 @@ class PostpaidController extends Controller
                 'customer_name' => $data['customer_name'] ?? '',
                 'period' => $data['period'] ?? '',
                 'nominal' => $data['nominal'] ?? 0,
-                'admin' => $data['admin'] ?? 0,
-                'total' => $data['total_bayar'] ?? 0,
+                'admin' => $realAdmin,
+                'profit' => $profit,
+                'display_admin' => $displayAdmin,
+                'total' => $sellingPrice,
             ];
 
             Cache::put($inquiryRef, $inquiryData, now()->addMinutes(30));
@@ -100,8 +123,8 @@ class PostpaidController extends Controller
                     'customer_name' => $data['customer_name'] ?? '',
                     'period' => $data['period'] ?? '',
                     'tagihan' => $data['nominal'] ?? 0,
-                    'admin' => $data['admin'] ?? 0,
-                    'total' => $data['total_bayar'] ?? 0,
+                    'admin' => $displayAdmin, // Show merged admin to user
+                    'total' => $sellingPrice,
                 ],
             ]);
         } catch (\Exception $e) {
@@ -138,6 +161,14 @@ class PostpaidController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Inquiry expired atau tidak ditemukan. Silakan cek tagihan lagi.',
+                ], 400);
+            }
+
+            // Validasi jumlah tagihan
+            if ($inquiryData['total'] <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tagihan sudah lunas atau tidak ada tagihan yang perlu dibayar.',
                 ], 400);
             }
 
@@ -179,6 +210,27 @@ class PostpaidController extends Controller
             $paymentResponse = method_exists($this->tripayService, 'createPayment')
                 ? $this->tripayService->createPayment($tripayData)
                 : $this->tripayService->createTransaction($tripayData);
+
+            // Create local Payment record
+            \App\Models\Payment::create([
+                'transaction_id' => $transaction->id,
+                'payment_reference' => $paymentResponse['reference'],
+                'payment_code' => $paymentResponse['pay_code'] ?? null,
+                'payment_method' => $paymentResponse['payment_method'],
+                'payment_channel' => $paymentResponse['payment_name'] ?? $paymentResponse['payment_method'],
+                'amount' => $paymentResponse['amount'],
+                'fee' => $paymentResponse['fee_customer'] ?? 0,
+                'total_amount' => $paymentResponse['amount_received'],
+                'status' => 'pending',
+                'checkout_url' => $paymentResponse['checkout_url'] ?? null,
+                'qr_url' => $paymentResponse['qr_url'] ?? null,
+                'expired_at' => isset($paymentResponse['expired_time']) ? date('Y-m-d H:i:s', $paymentResponse['expired_time']) : null,
+                'tripay_merchant_ref' => $paymentResponse['merchant_ref'],
+                'tripay_customer_name' => $tripayData['customer_name'],
+                'tripay_customer_email' => $tripayData['customer_email'],
+                'tripay_customer_phone' => $tripayData['customer_phone'],
+                'payment_instructions' => $paymentResponse['instructions'] ?? [],
+            ]);
 
             // Clear cache
             Cache::forget($request->inquiry_ref);

@@ -1,0 +1,27 @@
+meta {
+  name: Postpaid Payment
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/customer/postpaid/pay
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{customer_token}}
+}
+
+body:json {
+  {
+      "inquiry_ref": "INQ-20260205005346-3422",
+      "payment_method": "QRISC"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

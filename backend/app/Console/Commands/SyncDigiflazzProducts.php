@@ -35,11 +35,18 @@ class SyncDigiflazzProducts extends Command
             $digiflazzService = app(\App\Services\DigiflazzService::class);
 
             // Get price list from Digiflazz
-            $this->info('📡 Fetching price list from Digiflazz API...');
+            $this->info('📡 Fetching price list (Prepaid & Postpaid) from Digiflazz API...');
             $useCache = !$this->option('force');
-            $items = $digiflazzService->getPriceList($useCache);
 
-            $this->info('✅ Total items fetched: ' . count($items));
+            $prepaidItems = $digiflazzService->getPriceList($useCache);
+            $this->info('✅ Prepaid items fetched: ' . count($prepaidItems));
+
+            $postpaidItems = $digiflazzService->getPostpaidPriceList($useCache);
+            $this->info('✅ Postpaid items fetched: ' . count($postpaidItems));
+
+            $items = array_merge($prepaidItems, $postpaidItems);
+
+            $this->info('✅ Total items to process: ' . count($items));
             $this->newLine();
 
             // Filter by category if specified
@@ -91,7 +98,21 @@ class SyncDigiflazzProducts extends Command
         $grouped = [];
 
         foreach ($items as $item) {
+            // Ensure item is an array before processing
+            if (!is_array($item)) {
+                continue;
+            }
+
             $brand = $item['brand'] ?? 'Unknown';
+
+            // Special handling for PLN to separate Token and Postpaid
+            if ($brand === 'PLN') {
+                if ($this->detectPaymentType($item) === 'postpaid') {
+                    $brand = 'PLN Pascabayar';
+                } else {
+                    $brand = 'PLN Token';
+                }
+            }
 
             if (!isset($grouped[$brand])) {
                 $grouped[$brand] = [];
@@ -238,7 +259,8 @@ class SyncDigiflazzProducts extends Command
             'OVO' => 'OVO',
             'GOPAY' => 'GoPay',
             'SHOPEEPAY' => 'ShopeePay',
-            'PLN' => 'PLN',
+            'PLN Token' => 'PLN Token',
+            'PLN Pascabayar' => 'PLN Tagihan',
         ];
 
         foreach ($specialCases as $key => $value) {

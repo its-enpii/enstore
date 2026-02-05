@@ -1,0 +1,27 @@
+meta {
+  name: Postpaid Inquiry
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/customer/postpaid/inquiry
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{customer_token}}
+}
+
+body:json {
+  {
+      "product_item_id": 74,
+      "customer_no": "530000000006" // success = 530000000001, success 2 = 530000000002,                     inquiry failed = 530000000003, payment failed = 530000000006
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

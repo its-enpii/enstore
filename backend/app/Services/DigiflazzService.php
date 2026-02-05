@@ -116,6 +116,30 @@ class DigiflazzService
   }
 
   /**
+   * Get postpaid price list
+   * 
+   * @param bool $useCache
+   * @return array
+   * @throws \Exception
+   */
+  public function getPostpaidPriceList($useCache = true)
+  {
+    try {
+      // Cache for 1 hour
+      if ($useCache) {
+        return Cache::remember('digiflazz_postpaid_price_list', 3600, function () {
+          return $this->fetchPostpaidPriceList();
+        });
+      }
+
+      return $this->fetchPostpaidPriceList();
+    } catch (\Exception $e) {
+      Log::error('Digiflazz Get Postpaid Price List Error: ' . $e->getMessage());
+      throw $e;
+    }
+  }
+
+  /**
    * Fetch price list from API
    * 
    * @return array
@@ -156,6 +180,48 @@ class DigiflazzService
     }
 
     throw new \Exception('Failed to get price list: ' . json_encode($result));
+  }
+
+  /**
+   * Fetch postpaid price list from API
+   * 
+   * @return array
+   * @throws \Exception
+   */
+  private function fetchPostpaidPriceList()
+  {
+    $payload = [
+      'cmd' => 'pasca',
+      'username' => $this->username,
+      'sign' => $this->generateSign('pricelist'),
+    ];
+
+    $this->logger->logExternalApi(
+      'Digiflazz',
+      'Get Postpaid Price List Request',
+      $payload,
+      [],
+      true
+    );
+
+    $response = Http::timeout(60)
+      ->post($this->baseUrl . '/price-list', $payload);
+
+    $result = $response->json();
+
+    if (isset($result['data']) && is_array($result['data'])) {
+      $this->logger->logExternalApi(
+        'Digiflazz',
+        'Postpaid Price List Retrieved',
+        [],
+        ['total_products' => count($result['data'])],
+        true
+      );
+
+      return $result['data'];
+    }
+
+    throw new \Exception('Failed to get postpaid price list: ' . json_encode($result));
   }
 
   /**

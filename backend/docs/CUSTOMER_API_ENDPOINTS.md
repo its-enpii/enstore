@@ -760,16 +760,18 @@ Authorization: Bearer {token}
     "message": "Berhasil cek tagihan",
     "data": {
         "inquiry_ref": "INQ-20260205120000-1234",
-        "product_name": "PLN Pascabayar - PLN Postpaid",
+        "product_name": "PLN Pascabayar",
         "customer_no": "512345678901",
         "customer_name": "BUDI SANTOSO",
         "period": "202602",
         "tagihan": 150000,
-        "admin": 2500,
-        "total": 152500
+        "admin": 7000,
+        "total": 157000
     }
 }
 ```
+
+> **Note:** The `admin` field in the response includes both the base admin fee and the store's profit margin.
 
 #### 9.2 Pay Tagihan (Bayar Tagihan)
 
@@ -796,7 +798,9 @@ Authorization: Bearer {token}
             "payment_method": "QRIS",
             "payment_url": "https://tripay.co.id/checkout/...",
             "qr_code_url": "https://...",
-            "amount": 152500
+            "amount": 157000,
+            "fee": 0,
+            "total_amount": 157000
         }
     }
 }
