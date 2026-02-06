@@ -1,6 +1,6 @@
 services:
   # ==================== BACKEND SERVICES ====================
-  
+
   # PHP-FPM Service (Laravel Backend)
   backend:
     build:
@@ -80,7 +80,7 @@ services:
   # Next.js Frontend (DISABLED - Not Ready Yet)
   frontend:
     profiles:
-      - frontend  # Only runs when --profile frontend is specified
+      - frontend # Only runs when --profile frontend is specified
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -96,6 +96,8 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     networks:
       - enstore
     depends_on:
@@ -105,7 +107,7 @@ services:
   # ==================== FLUTTER WEB ====================
   # Note: Flutter is disabled by default. To enable, run:
   # docker-compose --profile flutter up -d
-  
+
   # Flutter Web Service (DISABLED - Not Ready Yet)
   # Uncomment when ready and add 'profiles: [flutter]'
   # flutter-web:

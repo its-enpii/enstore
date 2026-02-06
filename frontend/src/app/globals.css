@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* Brand Navy color palette (based on #00171F) */
+  --color-brand-50: #e6eaeb;
+  --color-brand-100: #ccd5d8;
+  --color-brand-200: #99abb1;
+  --color-brand-300: #66818a;
+  --color-brand-400: #335763;
+  --color-brand-500: #00171f;
+  --color-brand-600: #001319;
+  --color-brand-700: #000f13;
+  --color-brand-800: #000b0d;
+  --color-brand-900: #000506;
+
+  /* Cloud color palette (based on #F1F5F9) */
+  --color-cloud-50: #fafbfc;
+  --color-cloud-100: #f9fafb;
+  --color-cloud-200: #f1f5f9;
+  --color-cloud-300: #e2e8f0;
+  --color-cloud-400: #cbd5e1;
+  --color-cloud-500: #94a3b8;
+  --color-cloud-600: #64748b;
+  --color-cloud-700: #475569;
+  --color-cloud-800: #334155;
+  --color-cloud-900: #1e293b;
+
+  /* Smoke color palette (based on #F9F9F9) */
+  --color-smoke-50: #fefefe;
+  --color-smoke-100: #fdfdfd;
+  --color-smoke-200: #f9f9f9;
+  --color-smoke-300: #f5f5f5;
+  --color-smoke-400: #e5e5e5;
+  --color-smoke-500: #a3a3a3;
+  --color-smoke-600: #737373;
+  --color-smoke-700: #525252;
+  --color-smoke-800: #404040;
+  --color-smoke-900: #262626;
+
+  /* Ocean color palette (based on #00A7E1) */
+  --color-ocean-50: #e6f7fd;
+  --color-ocean-100: #cceffb;
+  --color-ocean-200: #99dff7;
+  --color-ocean-300: #66cff3;
+  --color-ocean-400: #33bfef;
+  --color-ocean-500: #00a7e1;
+  --color-ocean-600: #0086b4;
+  --color-ocean-700: #006487;
+  --color-ocean-800: #00435a;
+  --color-ocean-900: #00212d;
+
+  --font-sans: "Inter";
+}
