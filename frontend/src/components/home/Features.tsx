@@ -36,10 +36,10 @@ export function Features() {
     <section className="bg-white py-20">
       <div className="container mx-auto px-4 lg:px-0">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 font-sans text-3xl font-bold text-brand-500 lg:text-4xl">
+          <h2 className="mb-4 font-sans text-3xl font-bold text-brand-500/90 lg:text-4xl">
             Why EnTopUp
           </h2>
-          <p className="mx-auto max-w-xl text-brand-300">
+          <p className="mx-auto max-w-xl text-brand-500/40">
             We combine the reliability of a bank with the speed gamers need.
             Security and speed are our top priorities.
           </p>

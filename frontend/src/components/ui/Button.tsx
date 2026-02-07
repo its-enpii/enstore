@@ -21,7 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center whitespace-nowrap justify-center px-6 py-3 rounded-full font-medium cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center whitespace-nowrap justify-center px-6 py-3 rounded-full font-medium cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantStyles = {
     primary:
@@ -60,11 +60,11 @@ const Button: React.FC<ButtonProps> = ({
     if (!iconElement) return null;
 
     return (
-      <span
-        className={`${iconSizeStyles[size]} ${!iconOnly ? gapStyles[size] : ""}`}
+      <div
+        className={`flex items-center justify-center ${iconSizeStyles[size]} ${!iconOnly ? gapStyles[size] : ""}`}
       >
         {iconElement}
-      </span>
+      </div>
     );
   };
 

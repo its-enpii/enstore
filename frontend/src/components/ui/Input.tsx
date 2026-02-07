@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useId } from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   inputSize?: "sm" | "md" | "lg";
@@ -29,7 +29,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = useId();
+    const inputId = id || generatedId;
 
     const baseStyles =
       "appearance-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden border border-brand-500/5 bg-cloud-200 text-brand-500/60 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 transition-all duration-200 rounded-full focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
@@ -85,12 +86,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className={`block mb-1.5 text-sm font-medium ${
+            className={`mb-1.5 block text-sm font-medium ${
               error ? "text-red-600" : "text-gray-700"
             } ${disabled ? "opacity-50" : ""}`}
           >
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="ml-1 text-red-500">*</span>}
           </label>
         )}
 

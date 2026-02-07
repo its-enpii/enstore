@@ -11,7 +11,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 right-0 left-0 w-full bg-smoke-200 py-4 shadow-md">
+    <header className="fixed top-0 right-0 left-0 z-9999 w-full bg-smoke-200 py-4 shadow-md">
       <div className="container mx-auto px-4 lg:px-0">
         <div className="flex flex-col items-center lg:flex-row">
           <div
