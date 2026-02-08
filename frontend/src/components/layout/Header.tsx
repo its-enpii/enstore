@@ -90,7 +90,7 @@ export function Header() {
                   <Link
                     href={link.href}
                     className={`block rounded-full px-6 py-3 text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                      pathname === link.href
+                      ((pathname.includes(link.href) && link.href !== '/') || pathname === link.href)
                         ? "border border-brand-500/5 bg-smoke-200 text-ocean-500"
                         : "text-brand-500/40 hover:text-ocean-500"
                     }`}
