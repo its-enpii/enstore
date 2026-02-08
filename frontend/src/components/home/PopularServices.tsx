@@ -1,86 +1,77 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowForwardRounded } from "@mui/icons-material";
+import { motion } from "motion/react";
+
+import Card from "@/components/ui/Card";
 
 const services = [
   {
     title: "Mobile Legends",
     publisher: "Moonton",
-    image: "/game_mlbb.png",
-    color: "bg-blue-900",
+    image: "/assets/hero-image/mobile-legends.png",
   },
   {
     title: "Free Fire",
     publisher: "Garena",
-    image: "/game_ff.png",
-    color: "bg-orange-800",
+    image: "/assets/hero-image/free-fire.png",
   },
   {
     title: "Genshin Impact",
     publisher: "Hoyoverse",
-    image: "/game_gi.png",
-    color: "bg-indigo-900",
+    image: "/assets/hero-image/genshin-impact.png",
   },
   {
     title: "Valorant",
     publisher: "Riot Games",
-    image: "/game_val.png",
-    color: "bg-red-900",
+    image: "/assets/hero-image/valorant.png",
   },
 ];
 
+
 export function PopularServices() {
   return (
-    <section className="bg-smoke-200 py-20">
+    <section className="bg-cloud-200 py-28">
       <div className="container mx-auto px-4 lg:px-0">
-        <div className="mb-12 flex items-end justify-between">
+        <motion.div
+          className="mb-6 flex flex-col items-start justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5 }}
+        >
           <div>
-            <h2 className="mb-2 font-sans text-3xl font-bold text-brand-500 lg:text-4xl">
+            <h2 className="mb-2 font-sans text-2xl font-bold text-brand-500/90 sm:mb-4 sm:text-3xl lg:text-4xl">
               Popular Services
             </h2>
-            <p className="text-brand-300">
+            <p className="text-sm text-brand-500/40 sm:text-base">
               Top Up your favorite games and pay easily.
             </p>
           </div>
 
-          <Link
-            href="/services"
-            className="group flex items-center gap-1 text-sm font-semibold text-ocean-500 transition-colors hover:text-ocean-600"
-          >
-            View all services
-            <ArrowForwardRounded className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className="group relative cursor-pointer overflow-hidden rounded-3xl bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-ocean-500/10"
+          <motion.div whileHover={{ x: 5 }}>
+            <Link
+              href="/services"
+              className="group flex items-center gap-1 text-sm font-semibold text-ocean-500 transition-colors duration-300 hover:text-ocean-600 sm:text-base"
             >
-              <div
-                className={`relative aspect-4/5 w-full overflow-hidden rounded-2xl ${service.color}`}
-              >
-                {/* 
-                   Ideally next/image, using div bg for now to handle missing assets gracefully during dev.
-                   In real app, fallback to a color/placeholder if image fails load. 
-                */}
-                <div
-                  className="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${service.image})` }}
-                />
+              <span>View all services</span>
+              <ArrowForwardRounded className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </motion.div>
+        </motion.div>
 
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-linear-to-t from-brand-900/80 to-transparent opacity-60 transition-opacity group-hover:opacity-40" />
-              </div>
-
-              <div className="mt-4 px-2 pb-2">
-                <h3 className="font-bold text-brand-500">{service.title}</h3>
-                <p className="text-sm text-brand-300">{service.publisher}</p>
-              </div>
-            </div>
+        <div className="flex flex-wrap">
+          {services.map((service, index) => (
+            <Card
+              key={`card-${index}`}
+              href="/services"
+              imageUrl={service.image}
+              title={service.title}
+              publisher={service.publisher}
+              index={index}
+              className="mb-4 w-1/2 px-2 sm:mb-6 sm:px-3 md:mb-8 lg:w-1/4"
+            />
           ))}
         </div>
       </div>

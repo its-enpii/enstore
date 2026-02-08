@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "EnStore | The Professional Standard for Game Top-Ups",
@@ -16,10 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-cloud-200 antialiased">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-cloud-200 font-sans antialiased">
         <Header />
-        <main className="h-full min-h-screen w-full pt-[88px]">{children}</main>
+        <main className="h-full min-h-screen w-full pt-16 lg:pt-[88px]">{children}</main>
         <Footer />
       </body>
     </html>

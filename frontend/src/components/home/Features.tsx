@@ -1,21 +1,22 @@
 "use client";
 
 import {
-  BoltRounded,
-  ShieldRounded,
+  RocketLaunchRounded,
+  SecurityRounded,
   SupportAgentRounded,
 } from "@mui/icons-material";
+import { motion } from "motion/react";
 
 const features = [
   {
-    icon: <BoltRounded className="text-white" fontSize="large" />,
+    icon: <RocketLaunchRounded className="text-white" fontSize="large" />,
     title: "Instant Delivery",
     description:
       "Powered by real-time API connections. Your assets are credited immediately after payment verification. Zero waiting time.",
     color: "bg-ocean-500",
   },
   {
-    icon: <ShieldRounded className="text-white" fontSize="large" />,
+    icon: <SecurityRounded className="text-white" fontSize="large" />,
     title: "Secure Encryption",
     description:
       "Protected with 256-bit SSL encryption and verified payment gateways. We prioritize your data privacy and transaction safety.",
@@ -26,43 +27,60 @@ const features = [
     title: "Premium Support",
     description:
       "Our dedicated support team is ready to assist you via chat or email. Quick resolutions for every gamer.",
-    color: "bg-ocean-50",
-    iconColor: "text-ocean-500",
+    color: "bg-smoke-200",
   },
 ];
 
 export function Features() {
   return (
-    <section className="bg-white py-20">
+    <section className="bg-smoke-200 py-28">
       <div className="container mx-auto px-4 lg:px-0">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 font-sans text-3xl font-bold text-brand-500/90 lg:text-4xl">
-            Why EnTopUp
+        <motion.div
+          className="mb-10 text-center md:mb-14"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="mb-4 font-sans text-2xl font-bold text-brand-500/90 sm:text-3xl md:mb-6 lg:text-4xl">
+            Why EnStore
           </h2>
-          <p className="mx-auto max-w-xl text-brand-500/40">
+          <p className="mx-auto max-w-xl text-sm text-brand-500/40 sm:text-base">
             We combine the reliability of a bank with the speed gamers need.
             Security and speed are our top priorities.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-wrap">
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className="group relative overflow-hidden rounded-3xl bg-smoke-50 p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-ocean-500/5"
+              className="mb-6 w-full px-3 md:mb-8 md:w-1/2 lg:w-1/3"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
             >
-              <div
-                className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm ${feature.color}`}
+              <motion.div
+                className="group relative h-full overflow-hidden rounded-3xl bg-cloud-200 p-6 transition-shadow duration-300 hover:shadow-xl hover:shadow-ocean-500/5 sm:rounded-[40px] sm:p-8"
+                whileHover={{ y: -8 }}
+                transition={{ duration: 0.3 }}
               >
-                {feature.icon}
-              </div>
-              <h3 className="mb-3 text-xl font-bold text-brand-500">
-                {feature.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-brand-300">
-                {feature.description}
-              </p>
-            </div>
+                <motion.div
+                  className={`mb-6 w-fit rounded-xl p-3 sm:mb-8 sm:rounded-2xl sm:p-4 [&>svg]:h-6 [&>svg]:w-6 sm:[&>svg]:h-8 sm:[&>svg]:w-8 ${feature.color}`}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  {feature.icon}
+                </motion.div>
+                <h3 className="mb-3 text-xl font-bold text-brand-500/90 sm:mb-4 sm:text-2xl">
+                  {feature.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-brand-500/40 sm:text-base">
+                  {feature.description}
+                </p>
+              </motion.div>
+            </motion.div>
           ))}
         </div>
       </div>
