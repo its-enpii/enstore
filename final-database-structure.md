@@ -223,6 +223,7 @@ CREATE TABLE products (
     description TEXT NULL,
     image VARCHAR(255) NULL,
     brand VARCHAR(100) NULL COMMENT 'Mobile Legends, Free Fire, dll',
+    provider VARCHAR(255) NULL COMMENT 'Provider/publisher: Moonton, Garena, Telkomsel, dll',
     
     -- Pricing
     base_price DECIMAL(15, 2) NOT NULL COMMENT 'Harga modal dari Digiflazz',

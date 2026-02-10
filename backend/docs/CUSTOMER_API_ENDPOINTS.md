@@ -123,6 +123,7 @@ Authorization: Bearer {optional_token}
                 "id": 1,
                 "name": "Mobile Legends",
                 "brand": "MOBILE LEGENDS",
+                "provider": "Moonton",
                 "category": {
                     "id": 1,
                     "name": "Games",
@@ -187,6 +188,7 @@ Authorization: Bearer {optional_token}
         "id": 1,
         "name": "Mobile Legends",
         "brand": "MOBILE LEGENDS",
+        "provider": "Moonton",
         "category": {
             "id": 1,
             "name": "Games",
