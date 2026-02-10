@@ -1,36 +1,40 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { motion } from "motion/react";
 
 import Card from "@/components/ui/Card";
-
-const services = [
-  {
-    title: "Mobile Legends",
-    publisher: "Moonton",
-    image: "/assets/hero-image/mobile-legends.png",
-  },
-  {
-    title: "Free Fire",
-    publisher: "Garena",
-    image: "/assets/hero-image/free-fire.png",
-  },
-  {
-    title: "Genshin Impact",
-    publisher: "Hoyoverse",
-    image: "/assets/hero-image/genshin-impact.png",
-  },
-  {
-    title: "Valorant",
-    publisher: "Riot Games",
-    image: "/assets/hero-image/valorant.png",
-  },
-];
-
+import { getProducts, type Product } from "@/lib/api";
 
 export function PopularServices() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchFeatured() {
+      try {
+        const res = await getProducts({
+          is_featured: true,
+          is_active: true,
+          per_page: 4,
+          sort_by: "sort_order",
+          sort_order: "asc",
+        });
+        if (res.success && res.data.products) {
+          setProducts(res.data.products);
+        }
+      } catch (err) {
+        console.error("Failed to fetch featured products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchFeatured();
+  }, []);
+
   return (
     <section className="bg-cloud-200 py-28">
       <div className="container mx-auto px-4 lg:px-0">
@@ -61,19 +65,36 @@ export function PopularServices() {
           </motion.div>
         </motion.div>
 
-        <div className="flex flex-wrap">
-          {services.map((service, index) => (
-            <Card
-              key={`card-${index}`}
-              href="/services"
-              imageUrl={service.image}
-              title={service.title}
-              publisher={service.publisher}
-              index={index}
-              className="mb-4 w-1/2 px-2 sm:mb-6 sm:px-3 md:mb-8 lg:w-1/4"
-            />
-          ))}
-        </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-16">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-ocean-500/20 border-t-ocean-500" />
+          </div>
+        )}
+
+        {/* Products Grid */}
+        {!loading && (
+          <div className="flex flex-wrap">
+            {products.map((product, index) => (
+              <Card
+                key={`card-${product.id}`}
+                href={`/services/${product.slug}`}
+                imageUrl={product.image || "/assets/hero-image/mobile-legends.png"}
+                title={product.name}
+                publisher={product.provider || product.brand}
+                index={index}
+                className="mb-4 w-1/2 px-2 sm:mb-6 sm:px-3 md:mb-8 lg:w-1/4"
+              />
+            ))}
+
+            {/* Fallback if no featured products */}
+            {products.length === 0 && (
+              <p className="w-full text-center text-brand-500/40 py-8">
+                No featured products available.
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

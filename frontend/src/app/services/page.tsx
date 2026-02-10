@@ -1,55 +1,202 @@
 "use client";
 
-import { useState } from "react";
-import { SearchRounded, SportsEsportsRounded, CardGiftcardRounded, PhoneAndroidRounded, ShareRounded, ExpandMoreRounded } from "@mui/icons-material";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  SearchRounded,
+  SportsEsportsRounded,
+  CardGiftcardRounded,
+  PhoneAndroidRounded,
+  ShareRounded,
+  ExpandMoreRounded,
+} from "@mui/icons-material";
 import { motion } from "motion/react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import {
+  getProducts,
+  getCategories,
+  type Product,
+  type ProductCategory,
+} from "@/lib/api";
 
-const categories = [
-  { id: "all", label: "All Products", icon: null },
-  { id: "games", label: "Games", icon: <SportsEsportsRounded fontSize="small" /> },
-  { id: "vouchers", label: "Vouchers", icon: <CardGiftcardRounded fontSize="small" /> },
-  { id: "mobile-data", label: "Mobile Data", icon: <PhoneAndroidRounded fontSize="small" /> },
-  { id: "social-media", label: "Social Media", icon: <ShareRounded fontSize="small" /> },
-];
-
-const allProducts = [
-  { title: "Mobile Legends", publisher: "Moonton", image: "/assets/hero-image/mobile-legends.png", category: "games" },
-  { title: "Free Fire", publisher: "Garena", image: "/assets/hero-image/free-fire.png", category: "games" },
-  { title: "Genshin Impact", publisher: "Hoyoverse", image: "/assets/hero-image/genshin-impact.png", category: "games" },
-  { title: "Valorant", publisher: "Riot Games", image: "/assets/hero-image/valorant.png", category: "games" },
-  { title: "Netflix", publisher: "Netflix, Inc.", image: "/assets/hero-image/honkai-star-rail.png", category: "vouchers" },
-  { title: "iQIYI", publisher: "iQIYI, Inc.", image: "/assets/hero-image/zenless-zone-zero.png", category: "vouchers" },
-  { title: "Disney+ Hotstar", publisher: "The Walt Disney Company", image: "/assets/hero-image/genshin-impact.png", category: "vouchers" },
-  { title: "Zenless Zone Zero", publisher: "Hoyoverse", image: "/assets/hero-image/zenless-zone-zero.png", category: "games" },
-  { title: "WeTV", publisher: "Tencent Video", image: "/assets/hero-image/mobile-legends.png", category: "vouchers" },
-  { title: "PUBG Mobile", publisher: "Tencent Games", image: "/assets/hero-image/pubg-mobile.png", category: "games" },
-  { title: "Vidio Premier", publisher: "Emtek Group", image: "/assets/hero-image/free-fire.png", category: "vouchers" },
-  { title: "Apple TV", publisher: "Apple Inc.", image: "/assets/hero-image/valorant.png", category: "vouchers" },
-  { title: "Prime Video", publisher: "Amazon", image: "/assets/hero-image/honkai-impact-3rd.png", category: "vouchers" },
-  { title: "Honkai Impact 3rd", publisher: "Hoyoverse", image: "/assets/hero-image/honkai-impact-3rd.png", category: "games" },
-  { title: "HBO GO", publisher: "Warner Bros. Discovery", image: "/assets/hero-image/pubg-mobile.png", category: "vouchers" },
-  { title: "Honkai Star Rail", publisher: "Hoyoverse", image: "/assets/hero-image/honkai-star-rail.png", category: "games" },
-];
+const PER_PAGE = 8;
 
 export default function ServicesPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const filteredProducts = allProducts.filter((product) => {
-    const matchesCategory = activeCategory === "all" || product.category === activeCategory;
-    const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // API States
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [loading, setLoading] = useState(true); // initial full-page load
+  const [loadingMore, setLoadingMore] = useState(false); // loading next page
+  const [error, setError] = useState<string | null>(null);
 
-  const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredProducts.length;
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const hasMore = currentPage < lastPage;
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 8);
+  // Ref to prevent double-fetch on mount
+  const hasFetchedInitial = useRef(false);
+
+  // Category icon mapping
+  const categoryIcons: Record<string, React.ReactNode> = {
+    games: <SportsEsportsRounded fontSize="small" />,
+    vouchers: <CardGiftcardRounded fontSize="small" />,
+    "mobile-data": <PhoneAndroidRounded fontSize="small" />,
+    "paket-data": <PhoneAndroidRounded fontSize="small" />,
+    pulsa: <PhoneAndroidRounded fontSize="small" />,
+    "social-media": <ShareRounded fontSize="small" />,
   };
+
+  // ----------------------------------------------------------
+  // Debounce search input (400ms)
+  // ----------------------------------------------------------
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // ----------------------------------------------------------
+  // Fetch products (reusable)
+  // ----------------------------------------------------------
+  const fetchProducts = useCallback(
+    async (page: number, append: boolean) => {
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
+
+      try {
+        const filters: Record<string, unknown> = {
+          per_page: PER_PAGE,
+          page,
+          is_active: true,
+        };
+
+        if (activeCategory !== "all") {
+          filters["category.slug"] = activeCategory;
+        }
+
+        if (debouncedSearch.trim()) {
+          filters.search = debouncedSearch.trim();
+        }
+
+        const res = await getProducts(filters as any);
+
+        if (res.success) {
+          const newProducts = res.data.products || [];
+          const pagination = res.data.pagination;
+
+          if (append) {
+            // Append to existing list
+            setProducts((prev) => [...prev, ...newProducts]);
+          } else {
+            // Replace list (new search / category)
+            setProducts(newProducts);
+          }
+
+          setCurrentPage(pagination?.current_page || page);
+          setLastPage(pagination?.last_page || 1);
+        }
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        setError("Gagal memuat produk. Silakan coba lagi.");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [activeCategory, debouncedSearch],
+  );
+
+  // ----------------------------------------------------------
+  // Fetch categories (once on mount)
+  // ----------------------------------------------------------
+  useEffect(() => {
+    async function fetchCats() {
+      try {
+        const res = await getCategories();
+        if (res.success) {
+          setCategories(res.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    }
+    fetchCats();
+  }, []);
+
+  // ----------------------------------------------------------
+  // Fetch products: on mount + when category/search changes
+  // ----------------------------------------------------------
+  useEffect(() => {
+    // Reset to page 1 whenever filters change
+    setCurrentPage(1);
+    fetchProducts(1, false);
+  }, [fetchProducts]);
+
+  // ----------------------------------------------------------
+  // Handle Load More — fetch next page from API
+  // ----------------------------------------------------------
+  const handleLoadMore = useCallback(() => {
+    if (loadingMore || loading || !hasMore) return;
+    const nextPage = currentPage + 1;
+    fetchProducts(nextPage, true);
+  }, [loadingMore, loading, hasMore, currentPage, fetchProducts]);
+
+  // ----------------------------------------------------------
+  // Infinite Scroll — IntersectionObserver
+  // ----------------------------------------------------------
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Auto load when sentinel is near viewport
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      {
+        // Trigger 300px before the sentinel is visible
+        rootMargin: "0px 0px 300px 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [handleLoadMore]);
+
+  // ----------------------------------------------------------
+  // Handle category change
+  // ----------------------------------------------------------
+  const handleCategoryChange = (categoryId: string) => {
+    setActiveCategory(categoryId);
+    // fetchProducts will be called automatically via useEffect
+  };
+
+  // Build category tabs from API data
+  const categoryTabs = [
+    { id: "all", label: "All Products", icon: null },
+    ...categories
+      .filter((c) => c.is_active)
+      .map((c) => ({
+        id: c.slug,
+        label: c.name,
+        icon: categoryIcons[c.slug] || null,
+      })),
+  ];
 
   return (
     <>
@@ -83,15 +230,16 @@ export default function ServicesPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="flex flex-col items-center">
-                <h1 className="font-sans text-3xl font-bold text-brand-500/90 sm:text-4xl lg:text-6xl tracking-tight lg:leading-[1.1]">
-                    Top Up <span className="text-ocean-500">Anything</span>
-                </h1>
-                <h2 className="mb-10 text-xl font-bold text-brand-500/10 lg:text-5xl">
-                    Anywhere, Instantly.
-                </h2>
-                <p className="mb-12 text-sm text-brand-500/40 sm:text-base max-w-xl tracking-wide">
-                    Secure payments for games, vouchers, and bills with FinTech grade reliability.
-                </p>
+              <h1 className="font-sans text-3xl font-bold text-brand-500/90 sm:text-4xl lg:text-6xl tracking-tight lg:leading-[1.1]">
+                Top Up <span className="text-ocean-500">Anything</span>
+              </h1>
+              <h2 className="mb-10 text-xl font-bold text-brand-500/10 lg:text-5xl">
+                Anywhere, Instantly.
+              </h2>
+              <p className="mb-12 text-sm text-brand-500/40 sm:text-base max-w-xl tracking-wide">
+                Secure payments for games, vouchers, and bills with FinTech
+                grade reliability.
+              </p>
             </div>
 
             {/* Search Bar */}
@@ -129,13 +277,10 @@ export default function ServicesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            {categories.map((category) => (
+            {categoryTabs.map((category) => (
               <button
                 key={category.id}
-                onClick={() => {
-                  setActiveCategory(category.id);
-                  setVisibleCount(8);
-                }}
+                onClick={() => handleCategoryChange(category.id)}
                 className={`flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition-all duration-300 cursor-pointer ${
                   activeCategory === category.id
                     ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
@@ -148,52 +293,100 @@ export default function ServicesPage() {
             ))}
           </motion.div>
 
-          {/* Products Grid */}
-          <div className="flex flex-wrap">
-            {visibleProducts.map((product, index) => (
-              <Card
-                key={`product-${index}`}
-                href={`/services/${product.title.toLowerCase().replace(/\s+/g, "-")}`}
-                imageUrl={product.image}
-                title={product.title}
-                publisher={product.publisher}
-                index={index}
-                className="mb-4 w-1/2 px-2 sm:mb-6 sm:px-3 md:mb-8 lg:w-1/4"
-              />
-            ))}
-          </div>
+          {/* Initial Loading State */}
+          {loading && (
+            <div className="flex justify-center py-20">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-ocean-500/20 border-t-ocean-500" />
+            </div>
+          )}
 
-          {/* Empty State */}
-          {filteredProducts.length === 0 && (
+          {/* Error State */}
+          {error && !loading && (
             <motion.div
               className="py-20 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <p className="text-lg text-brand-500/40">No products found</p>
+              <p className="text-lg text-red-500/70">{error}</p>
+              <Button
+                variant="primary"
+                size="md"
+                className="mt-4"
+                onClick={() => fetchProducts(1, false)}
+              >
+                Coba Lagi
+              </Button>
             </motion.div>
           )}
 
-          {/* Load More Button */}
-          {hasMore && (
-            <motion.div
-              className="mt-20 flex justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
+          {/* Products Grid */}
+          {!loading && !error && (
+            <>
+              <div className="flex flex-wrap">
+                {products.map((product, index) => (
+                  <Card
+                    key={`product-${product.id}`}
+                    href={`/services/${product.slug}`}
+                    imageUrl={
+                      product.image || "/assets/hero-image/mobile-legends.png"
+                    }
+                    title={product.name}
+                    publisher={product.provider || product.brand}
+                    index={index}
+                    className="mb-4 w-1/2 px-2 sm:mb-6 sm:px-3 md:mb-8 lg:w-1/4"
+                  />
+                ))}
+              </div>
 
-                <Button
-                    variant="white"
-                    size="md"
-                    icon={<ExpandMoreRounded />}
-                    iconPosition="right"
-                    onClick={handleLoadMore}
-                    className="border border-brand-500/5 px-6! py-4!"
+              {/* Empty State */}
+              {products.length === 0 && (
+                <motion.div
+                  className="py-20 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                    Load More
-                </Button>
-            </motion.div>
+                  <p className="text-lg text-brand-500/40">
+                    No products found
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Infinite Scroll Sentinel + Load More Fallback */}
+              {hasMore && (
+                <>
+                  {/* Invisible sentinel — triggers auto-load when scrolled into view */}
+                  <div ref={sentinelRef} className="h-1 w-full" />
+
+                  {/* Loading spinner (shown during auto-load) */}
+                  {loadingMore && (
+                    <div className="mt-12 flex justify-center">
+                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-ocean-500/20 border-t-ocean-500" />
+                    </div>
+                  )}
+
+                  {/* Fallback button (visible when not auto-loading, e.g. slow connection) */}
+                  {!loadingMore && (
+                    <motion.div
+                      className="mt-20 flex justify-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <Button
+                        variant="white"
+                        size="md"
+                        icon={<ExpandMoreRounded />}
+                        iconPosition="right"
+                        onClick={handleLoadMore}
+                        className="border border-brand-500/5 px-6! py-4!"
+                      >
+                        Load More
+                      </Button>
+                    </motion.div>
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       </section>
