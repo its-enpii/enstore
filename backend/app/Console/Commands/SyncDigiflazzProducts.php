@@ -26,6 +26,8 @@ class SyncDigiflazzProducts extends Command
         'categories_created' => 0,
     ];
 
+    private $skippedItems = [];
+
     public function handle()
     {
         $this->info('🚀 Starting hierarchical product sync from Digiflazz...');
@@ -179,6 +181,13 @@ class SyncDigiflazzProducts extends Command
         // Skip inactive products
         if (isset($data['seller_product_status']) && !$data['seller_product_status']) {
             $this->stats['items_skipped']++;
+            $this->skippedItems[] = [
+                'sku_code' => $data['buyer_sku_code'] ?? '-',
+                'product_name' => $data['product_name'] ?? '-',
+                'brand' => $data['brand'] ?? '-',
+                'category' => $data['category'] ?? '-',
+                'reason' => 'Inactive (seller_product_status = false)',
+            ];
             return;
         }
 
@@ -460,5 +469,15 @@ class SyncDigiflazzProducts extends Command
                 ['Categories Created', $this->stats['categories_created']],
             ]
         );
+
+        // Display skipped items detail
+        if (!empty($this->skippedItems)) {
+            $this->newLine();
+            $this->warn('⚠️  Skipped Items (' . count($this->skippedItems) . '):');
+            $this->table(
+                ['SKU Code', 'Product Name', 'Brand', 'Category', 'Reason'],
+                $this->skippedItems
+            );
+        }
     }
 }
