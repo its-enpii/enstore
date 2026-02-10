@@ -6,18 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductItem;
 use App\Services\ProductService;
+use App\Services\SupabaseStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     protected $productService;
+    protected $supabaseStorage;
 
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, SupabaseStorageService $supabaseStorage)
     {
         $this->productService = $productService;
+        $this->supabaseStorage = $supabaseStorage;
     }
 
     /**
@@ -187,8 +189,7 @@ class ProductController extends Controller
 
             // Handle Image Upload
             if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('products', 'public');
-                $data['image'] = url('storage/' . $path);
+                $data['image'] = $this->supabaseStorage->upload('products', $request->file('image'));
             }
 
             $product = Product::create($data);
@@ -247,13 +248,12 @@ class ProductController extends Controller
 
             // Handle Image Upload
             if ($request->hasFile('image')) {
-                // Delete old image
+                // Delete old image from Supabase
                 if ($product->image) {
                     $this->deleteImage($product->image);
                 }
 
-                $path = $request->file('image')->store('products', 'public');
-                $data['image'] = url('storage/' . $path);
+                $data['image'] = $this->supabaseStorage->upload('products', $request->file('image'));
             } else {
                 unset($data['image']);
             }
@@ -333,25 +333,16 @@ class ProductController extends Controller
     }
 
     /**
-     * Helper to delete image from storage
+     * Helper to delete image from Supabase Storage
      */
     private function deleteImage($fullUrl)
     {
         if (!$fullUrl) return;
 
         try {
-            // Convert full URL to relative storage path
-            // Example: http://domain.com/storage/products/abc.jpg -> products/abc.jpg
-            $baseUrl = url('storage/');
-            $path = str_replace($baseUrl, '', $fullUrl);
-            $path = ltrim($path, '/');
-
-            // Safety check: ensure we are not deleting outside
-            if (strpos($path, 'http') === false && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
+            $this->supabaseStorage->delete($fullUrl);
         } catch (\Exception $e) {
-            // Ignore error if image specific cleanup fails, as product deletion is priority
+            // Ignore error if image cleanup fails, as product deletion is priority
         }
     }
 }

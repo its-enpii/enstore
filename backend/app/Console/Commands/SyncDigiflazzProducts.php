@@ -59,9 +59,9 @@ class SyncDigiflazzProducts extends Command
                 $this->info('🔍 Filtered to ' . count($items) . ' items for category: ' . $categoryFilter);
             }
 
-            // Group items by brand to create parent products
-            $this->info('📦 Grouping items by brand...');
-            $groupedItems = $this->groupItemsByBrand($items);
+            // Group items by brand + category to create parent products
+            $this->info('📦 Grouping items by brand + category...');
+            $groupedItems = $this->groupItemsByBrandAndCategory($items);
             $this->info('✅ Found ' . count($groupedItems) . ' unique products');
             $this->newLine();
 
@@ -70,8 +70,8 @@ class SyncDigiflazzProducts extends Command
             $progressBar = $this->output->createProgressBar(count($groupedItems));
             $progressBar->start();
 
-            foreach ($groupedItems as $brand => $brandItems) {
-                $this->syncProduct($brand, $brandItems);
+            foreach ($groupedItems as $groupKey => $brandItems) {
+                $this->syncProduct($groupKey, $brandItems);
                 $progressBar->advance();
             }
 
@@ -93,9 +93,10 @@ class SyncDigiflazzProducts extends Command
     }
 
     /**
-     * Group items by brand to create parent products
+     * Group items by brand + category to create separate products
+     * e.g. "TELKOMSEL|Pulsa" and "TELKOMSEL|Data" become separate products
      */
-    private function groupItemsByBrand(array $items): array
+    private function groupItemsByBrandAndCategory(array $items): array
     {
         $grouped = [];
 
@@ -106,6 +107,7 @@ class SyncDigiflazzProducts extends Command
             }
 
             $brand = $item['brand'] ?? 'Unknown';
+            $category = $item['category'] ?? 'Uncategorized';
 
             // Special handling for PLN to separate Token and Postpaid
             if ($brand === 'PLN') {
@@ -116,11 +118,14 @@ class SyncDigiflazzProducts extends Command
                 }
             }
 
-            if (!isset($grouped[$brand])) {
-                $grouped[$brand] = [];
+            // Create a unique key combining brand and category
+            $groupKey = $brand . '|' . $category;
+
+            if (!isset($grouped[$groupKey])) {
+                $grouped[$groupKey] = [];
             }
 
-            $grouped[$brand][] = $item;
+            $grouped[$groupKey][] = $item;
         }
 
         return $grouped;
@@ -129,20 +134,25 @@ class SyncDigiflazzProducts extends Command
     /**
      * Sync a product and its items
      */
-    private function syncProduct(string $brand, array $items): void
+    private function syncProduct(string $groupKey, array $items): void
     {
+        // Parse group key (brand|category)
+        $parts = explode('|', $groupKey, 2);
+        $brand = $parts[0];
+        $categoryName = $parts[1] ?? 'Uncategorized';
+
         // Get first item to extract common data
         $firstItem = $items[0];
 
         // Get or create category
-        $category = $this->getOrCreateCategory($firstItem['category'] ?? 'Uncategorized');
+        $category = $this->getOrCreateCategory($categoryName);
 
         // Detect product type and payment type
         $type = $this->detectType($firstItem);
         $paymentType = $this->detectPaymentType($firstItem);
 
-        // Generate product name from brand
-        $productName = $this->generateProductName($brand);
+        // Generate product name from brand + category
+        $productName = $this->generateProductName($brand, $categoryName);
         $slug = Str::slug($productName);
 
         // Create or update parent product
@@ -244,15 +254,12 @@ class SyncDigiflazzProducts extends Command
     }
 
     /**
-     * Generate product name from brand
+     * Generate product name from brand + category
      */
-    private function generateProductName(string $brand): string
+    private function generateProductName(string $brand, string $category = ''): string
     {
-        // Remove common suffixes
-        $name = preg_replace('/\s+(GAME|GAMES|VOUCHER|PULSA|DATA|PAKET)$/i', '', $brand);
-
-        // Special cases for better naming
-        $specialCases = [
+        // Special cases for brand naming
+        $brandNames = [
             'FREE FIRE' => 'Free Fire',
             'MOBILE LEGENDS' => 'Mobile Legends',
             'PUBG' => 'PUBG Mobile',
@@ -272,13 +279,36 @@ class SyncDigiflazzProducts extends Command
             'PLN Pascabayar' => 'PLN Tagihan',
         ];
 
-        foreach ($specialCases as $key => $value) {
+        // Get clean brand name
+        $cleanBrand = $brand;
+        foreach ($brandNames as $key => $value) {
             if (stripos($brand, $key) !== false) {
-                return $value;
+                $cleanBrand = $value;
+                break;
             }
         }
 
-        return ucwords(strtolower($name));
+        if ($cleanBrand === $brand) {
+            $cleanBrand = preg_replace('/\s+(GAME|GAMES|VOUCHER|PULSA|DATA|PAKET)$/i', '', $brand);
+            $cleanBrand = ucwords(strtolower($cleanBrand));
+        }
+
+        // For brands that already include type info (PLN Token, PLN Tagihan), return as-is
+        if (in_array($cleanBrand, ['PLN Token', 'PLN Tagihan'])) {
+            return $cleanBrand;
+        }
+
+        // Append category to differentiate products (e.g. "Telkomsel Pulsa", "Telkomsel Data")
+        if ($category) {
+            $cleanCategory = ucwords(strtolower($category));
+
+            // Avoid duplicating if brand already contains category
+            if (stripos($cleanBrand, $category) === false) {
+                return $cleanBrand . ' ' . $cleanCategory;
+            }
+        }
+
+        return $cleanBrand;
     }
 
     /**

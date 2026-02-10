@@ -31,8 +31,8 @@ class ProductCategorySeeder extends Seeder
                 'sort_order' => 2,
             ],
             [
-                'name' => 'Paket Data',
-                'slug' => 'paket-data',
+                'name' => 'Data',
+                'slug' => 'data',
                 'icon' => '📶',
                 'description' => 'Paket internet semua operator',
                 'is_active' => true,

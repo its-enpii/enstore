@@ -49,4 +49,9 @@ return [
         'mode' => env('TRIPAY_MODE', 'sandbox'), // sandbox or production
     ],
 
+    'supabase' => [
+        'url' => env('SUPABASE_URL'),
+        'bucket' => env('SUPABASE_BUCKET', 'uploads'),
+    ],
+
 ];
