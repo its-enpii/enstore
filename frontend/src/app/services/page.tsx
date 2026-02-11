@@ -29,8 +29,9 @@ export default function ServicesPage() {
   // API States
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [loading, setLoading] = useState(true); // initial full-page load
+  const [initialLoading, setInitialLoading] = useState(true); // only for the very first load
   const [loadingMore, setLoadingMore] = useState(false); // loading next page
+  const [refreshing, setRefreshing] = useState(false); // filter/search change (keeps grid visible)
   const [error, setError] = useState<string | null>(null);
 
   // Pagination
@@ -69,7 +70,7 @@ export default function ServicesPage() {
       if (append) {
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        setRefreshing(true);
       }
       setError(null);
 
@@ -109,8 +110,9 @@ export default function ServicesPage() {
         console.error("Failed to fetch products:", err);
         setError("Gagal memuat produk. Silakan coba lagi.");
       } finally {
-        setLoading(false);
+        setInitialLoading(false);
         setLoadingMore(false);
+        setRefreshing(false);
       }
     },
     [activeCategory, debouncedSearch],
@@ -146,10 +148,10 @@ export default function ServicesPage() {
   // Handle Load More — fetch next page from API
   // ----------------------------------------------------------
   const handleLoadMore = useCallback(() => {
-    if (loadingMore || loading || !hasMore) return;
+    if (loadingMore || refreshing || !hasMore) return;
     const nextPage = currentPage + 1;
     fetchProducts(nextPage, true);
-  }, [loadingMore, loading, hasMore, currentPage, fetchProducts]);
+  }, [loadingMore, refreshing, hasMore, currentPage, fetchProducts]);
 
   // ----------------------------------------------------------
   // Infinite Scroll — IntersectionObserver
@@ -203,7 +205,7 @@ export default function ServicesPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-cloud-200 pt-28 pb-[72px]">
         {/* Decorative Background Elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute -top-10 -left-10 text-cloud-300/50"
             initial={{ opacity: 0, rotate: -15 }}
@@ -222,7 +224,7 @@ export default function ServicesPage() {
           </motion.div>
         </div>
 
-        <div className="container relative z-10 mx-auto px-4 lg:px-0">
+        <div className="relative z-10 container mx-auto px-4 lg:px-0">
           <motion.div
             className="mx-auto max-w-2xl text-center"
             initial={{ opacity: 0, y: 30 }}
@@ -230,13 +232,13 @@ export default function ServicesPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="flex flex-col items-center">
-              <h1 className="font-sans text-3xl font-bold text-brand-500/90 sm:text-4xl lg:text-6xl tracking-tight lg:leading-[1.1]">
+              <h1 className="font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
                 Top Up <span className="text-ocean-500">Anything</span>
               </h1>
               <h2 className="mb-10 text-xl font-bold text-brand-500/10 lg:text-5xl">
                 Anywhere, Instantly.
               </h2>
-              <p className="mb-12 text-sm text-brand-500/40 sm:text-base max-w-xl tracking-wide">
+              <p className="mb-12 max-w-xl text-sm tracking-wide text-brand-500/40 sm:text-base">
                 Secure payments for games, vouchers, and bills with FinTech
                 grade reliability.
               </p>
@@ -281,7 +283,7 @@ export default function ServicesPage() {
               <button
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className={`flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition-all duration-300 cursor-pointer ${
+                className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition-all duration-300 ${
                   activeCategory === category.id
                     ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
                     : "bg-white text-brand-500/60 hover:bg-cloud-300"
@@ -293,15 +295,15 @@ export default function ServicesPage() {
             ))}
           </motion.div>
 
-          {/* Initial Loading State */}
-          {loading && (
+          {/* Initial Loading State (only shown on first ever load) */}
+          {initialLoading && (
             <div className="flex justify-center py-20">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-ocean-500/20 border-t-ocean-500" />
             </div>
           )}
 
           {/* Error State */}
-          {error && !loading && (
+          {error && !initialLoading && (
             <motion.div
               className="py-20 text-center"
               initial={{ opacity: 0 }}
@@ -319,10 +321,12 @@ export default function ServicesPage() {
             </motion.div>
           )}
 
-          {/* Products Grid */}
-          {!loading && !error && (
+          {/* Products Grid — stays visible even during refresh */}
+          {!initialLoading && !error && (
             <>
-              <div className="flex flex-wrap">
+              <div
+                className={`flex flex-wrap transition-opacity duration-200 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
+              >
                 {products.map((product, index) => (
                   <Card
                     key={`product-${product.id}`}
@@ -345,9 +349,7 @@ export default function ServicesPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
-                  <p className="text-lg text-brand-500/40">
-                    No products found
-                  </p>
+                  <p className="text-lg text-brand-500/40">No products found</p>
                 </motion.div>
               )}
 
