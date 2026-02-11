@@ -9,17 +9,14 @@ import {
   ContentCopyRounded,
   CheckCircleRounded,
   TimerRounded,
-  CreditCardRounded,
   FileDownloadRounded,
   SyncRounded,
 } from "@mui/icons-material";
 import Button from "@/components/ui/Button";
 import { getTransactionStatus, type TransactionStatus } from "@/lib/api";
 import Breadcrumb from "@/components/services/breadcrumb";
+import PaymentResult from "@/components/services/PaymentResult";
 
-/**
- * Countdown Timer Component
- */
 /**
  * Countdown Timer Component
  */
@@ -163,213 +160,181 @@ export default function PaymentPage() {
           ]}
         />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Left Column: Summary Card + Expiry Banner */}
-          <div className="col-span-1">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore"
-            >
-              {/* Status Badge */}
-              <div className="mb-6 font-medium">
-                <span
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs ${
-                    isPaid
-                      ? "border border-green-500/20 bg-green-500/10 text-green-500"
-                      : isExpired
-                        ? "border border-red-500/20 bg-red-500/10 text-red-500"
-                        : "border border-yellow-500/20 bg-yellow-500/10 text-yellow-500"
-                  }`}
-                >
-                  <TimerRounded className="h-4! w-4!" />
-                  <span className="capitalize">{transaction.status}</span>
-                </span>
-              </div>
-
-              {/* Product Info */}
-              <div className="mb-8 flex items-center gap-4">
-                <div className="relative h-16 w-16 overflow-hidden rounded-full border-4 border-cloud-200">
-                  <Image
-                    src={transaction.product.image || "/assets/placeholder.png"}
-                    alt={transaction.product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h2 className="mb-1 text-2xl leading-tight font-bold text-brand-500/90">
-                    {transaction.product.name}
-                  </h2>
-                  <p className="text-sm font-medium text-brand-500/40 lowercase first-letter:uppercase">
-                    {transaction.product.item}
-                  </p>
-                </div>
-              </div>
-
-              {/* Transaction Details */}
-              <div className="border-t border-brand-500/5 py-6">
-                {Object.entries(transaction.product.customer_data || {}).map(
-                  ([key, value]) => (
-                    <div
-                      key={key}
-                      className="mb-4 flex justify-between text-sm"
-                    >
-                      <span className="text-brand-500/40 lowercase first-letter:uppercase">
-                        {key.replace("_", " ").toLowerCase()}
-                      </span>
-                      <span className="font-medium text-brand-500/90">
-                        {value}
-                      </span>
-                    </div>
-                  ),
-                )}
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-brand-500/40">Transaction Id</span>
-                  <span className="font-medium text-brand-500/90">
-                    {transaction.transaction_code}
-                  </span>
-                </div>
-              </div>
-
-              {/* Pricing breakdown */}
-              <div className="border-t border-brand-500/5 py-6">
-                <div className="mb-4 flex justify-between text-sm">
-                  <span className="text-brand-500/40">Subtotal</span>
-                  <span className="font-medium text-brand-500/90">
-                    Rp. {formatPrice(transaction.pricing.product)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-brand-500/40">Admin Fee</span>
-                  <span className="font-medium text-brand-500/90">
-                    Rp. {formatPrice(transaction.pricing.admin)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mb-2 border-t border-brand-500/5 py-6">
-                <div className="mb-4 flex justify-between text-sm">
-                  <span className="text-[20px] font-bold text-brand-500/90">
-                    Total Payment
-                  </span>
-                  <span className="text-2xl font-bold tracking-tight text-ocean-500">
-                    Rp. {formatPrice(transaction.pricing.total)}
-                  </span>
-                </div>
-              </div>
-
-              {!isPaid && !isExpired && (
-                <Button
-                  variant="white"
-                  onClick={() => router.push("/")}
-                  className="w-full border border-ocean-500 text-ocean-500"
-                >
-                  Cancel Order
-                </Button>
-              )}
-            </motion.div>
-
-            {/* Expiry Banner */}
-            {!isPaid && !isExpired && transaction.payment.expired_at && (
+        {isPaid || isExpired ? (
+          <PaymentResult
+            status={isPaid ? "success" : "failed"}
+            transaction={transaction}
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Left Column: Summary Card + Expiry Banner */}
+            <div className="col-span-1">
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center justify-between rounded-full border border-ocean-500 bg-ocean-500/10 p-4 text-ocean-500"
-              >
-                <div className="flex items-center gap-2 text-sm">
-                  <TimerRounded className="h-4! w-4!" />
-                  <span>Payment expires in</span>
-                </div>
-                <span className="font-bold">
-                  <CountdownTimer
-                    targetDate={transaction.payment.expired_at}
-                    onExpire={() => setIsTimeExpired(true)}
-                  />
-                </span>
-              </motion.div>
-            )}
-
-            {/* Success Details (SN/Note) */}
-            {isPaid && (transaction.sn || transaction.note) && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-4 rounded-[32px] border border-green-100 bg-green-50 p-6"
+                className="mb-6 rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore"
               >
-                {transaction.sn && (
+                {/* Status Badge */}
+                <div className="mb-6 font-medium">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs ${
+                      isPaid
+                        ? "border border-green-500/20 bg-green-500/10 text-green-500"
+                        : isExpired
+                          ? "border border-red-500/20 bg-red-500/10 text-red-500"
+                          : "border border-yellow-500/20 bg-yellow-500/10 text-yellow-500"
+                    }`}
+                  >
+                    <TimerRounded className="h-4! w-4!" />
+                    <span className="capitalize">{transaction.status}</span>
+                  </span>
+                </div>
+
+                {/* Product Info */}
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full border-4 border-cloud-200">
+                    <Image
+                      src={
+                        transaction.product.image || "/assets/placeholder.png"
+                      }
+                      alt={transaction.product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                   <div>
-                    <p className="mb-1 text-[10px] font-bold tracking-widest text-green-600/60 uppercase">
-                      Serial Number / SN
-                    </p>
-                    <p className="font-mono font-bold break-all text-green-700">
-                      {transaction.sn}
+                    <h2 className="mb-1 text-2xl leading-tight font-bold text-brand-500/90">
+                      {transaction.product.name}
+                    </h2>
+                    <p className="text-sm font-medium text-brand-500/40 lowercase first-letter:uppercase">
+                      {transaction.product.item}
                     </p>
                   </div>
-                )}
-                {transaction.note && (
-                  <div>
-                    <p className="mb-1 text-[10px] font-bold tracking-widest text-green-600/60 uppercase">
-                      Note
-                    </p>
-                    <p className="text-sm text-green-700">{transaction.note}</p>
+                </div>
+
+                {/* Transaction Details */}
+                <div className="border-t border-brand-500/5 py-6">
+                  {Object.entries(transaction.product.customer_data || {}).map(
+                    ([key, value]) => (
+                      <div
+                        key={key}
+                        className="mb-4 flex justify-between text-sm"
+                      >
+                        <span className="text-brand-500/40 lowercase first-letter:uppercase">
+                          {key.replace("_", " ").toLowerCase()}
+                        </span>
+                        <span className="font-medium text-brand-500/90">
+                          {value}
+                        </span>
+                      </div>
+                    ),
+                  )}
+
+                  <div className="flex justify-between text-sm">
+                    <span className="text-brand-500/40">Transaction Id</span>
+                    <span className="font-medium text-brand-500/90">
+                      {transaction.transaction_code}
+                    </span>
                   </div>
+                </div>
+
+                {/* Pricing breakdown */}
+                <div className="border-t border-brand-500/5 py-6">
+                  <div className="mb-4 flex justify-between text-sm">
+                    <span className="text-brand-500/40">Subtotal</span>
+                    <span className="font-medium text-brand-500/90">
+                      Rp. {formatPrice(transaction.pricing.product)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-brand-500/40">Admin Fee</span>
+                    <span className="font-medium text-brand-500/90">
+                      Rp. {formatPrice(transaction.pricing.admin)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mb-2 border-t border-brand-500/5 py-6">
+                  <div className="mb-4 flex justify-between text-sm">
+                    <span className="text-[20px] font-bold text-brand-500/90">
+                      Total Payment
+                    </span>
+                    <span className="text-2xl font-bold tracking-tight text-ocean-500">
+                      Rp. {formatPrice(transaction.pricing.total)}
+                    </span>
+                  </div>
+                </div>
+
+                {!isPaid && !isExpired && (
+                  <Button
+                    variant="white"
+                    onClick={() => router.push("/")}
+                    className="w-full border border-ocean-500 text-ocean-500"
+                  >
+                    Cancel Order
+                  </Button>
                 )}
               </motion.div>
-            )}
-          </div>
 
-          {/* Right Column: Payment Method Details */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="col-span-1 lg:col-span-2"
-          >
-            <div className="rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore">
-              {isPaid ? (
-                <div className="flex flex-col items-center justify-center">
-                  <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 text-green-500">
-                    <CheckCircleRounded sx={{ fontSize: 64 }} />
+              {/* Expiry Banner */}
+              {!isPaid && !isExpired && transaction.payment.expired_at && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center justify-between rounded-full border border-ocean-500 bg-ocean-500/10 p-4 text-ocean-500"
+                >
+                  <div className="flex items-center gap-2 text-sm">
+                    <TimerRounded className="h-4! w-4!" />
+                    <span>Payment expires in</span>
                   </div>
-                  <h3 className="mb-4 text-3xl font-bold text-brand-500">
-                    Payment Successful!
-                  </h3>
-                  <p className="mb-8 leading-relaxed text-brand-500/60">
-                    Your order has been completed successfully.
-                    {transaction.sn
-                      ? " You can find your Serial Number on the left summary card."
-                      : " Thank you for your purchase!"}
-                  </p>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={() => router.push("/")}
-                  >
-                    Return to Home
-                  </Button>
-                </div>
-              ) : isExpired ? (
-                <div className="flex flex-col items-center justify-center">
-                  <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-red-100 text-red-500">
-                    <CreditCardRounded sx={{ fontSize: 64 }} />
-                  </div>
-                  <h3 className="mb-8 text-2xl font-bold text-brand-500/90">
-                    Payment Expired
-                  </h3>
-                  <p className="mb-10 text-brand-500/40">
-                    This transaction has expired. Please create a new order to
-                    continue.
-                  </p>
-                  <Button
-                    variant="primary"
-                    onClick={() => router.push("/services")}
-                  >
-                    Browse Services
-                  </Button>
-                </div>
-              ) : (
+                  <span className="font-bold">
+                    <CountdownTimer
+                      targetDate={transaction.payment.expired_at}
+                      onExpire={() => setIsTimeExpired(true)}
+                    />
+                  </span>
+                </motion.div>
+              )}
+
+              {/* Success Details (SN/Note) */}
+              {isPaid && (transaction.sn || transaction.note) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4 rounded-[32px] border border-green-100 bg-green-50 p-6"
+                >
+                  {transaction.sn && (
+                    <div>
+                      <p className="mb-1 text-[10px] font-bold tracking-widest text-green-600/60 uppercase">
+                        Serial Number / SN
+                      </p>
+                      <p className="font-mono font-bold break-all text-green-700">
+                        {transaction.sn}
+                      </p>
+                    </div>
+                  )}
+                  {transaction.note && (
+                    <div>
+                      <p className="mb-1 text-[10px] font-bold tracking-widest text-green-600/60 uppercase">
+                        Note
+                      </p>
+                      <p className="text-sm text-green-700">
+                        {transaction.note}
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+
+            {/* Right Column: Payment Method Details */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="col-span-1 lg:col-span-2"
+            >
+              <div className="rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore">
                 <div className="flex flex-col items-center justify-center">
                   {/* Adaptive Header */}
                   <h3 className="mb-8 text-2xl font-bold text-brand-500/90">
@@ -485,10 +450,10 @@ export default function PaymentPage() {
                     </Button>
                   </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </section>
   );
