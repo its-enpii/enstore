@@ -103,6 +103,7 @@ type: "game"
 payment_type: "prepaid"
 description: "Top up UC PUBG Mobile"
 image: (Binary File)
+icon: (Binary File)
 input_fields[0][name]: "user_id"
 input_fields[0][label]: "User ID"
 input_fields[0][type]: "text"
@@ -130,6 +131,7 @@ name: "Mobile Legends Updated"
 provider: "Moonton"
 description: "Updated description"
 image: (New Binary File)
+icon: (New Binary File)
 input_fields[0][name]: "user_id"
 input_fields[0][label]: "User ID"
 input_fields[0][type]: "text"
@@ -163,6 +165,7 @@ Request Body:
 ```json
 {
     "name": "1000 Diamonds",
+    "group": "Member",
     "digiflazz_code": "ML1000-MANUAL",
     "base_price": 250000,
     "retail_price": 300000,
@@ -182,6 +185,7 @@ Request Body:
 ```json
 {
     "name": "5 Diamonds",
+    "group": "Weekly",
     "retail_price": 1500,
     "reseller_price": 1200,
     "stock_status": "available",

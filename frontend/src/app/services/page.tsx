@@ -10,7 +10,7 @@ import {
   ExpandMoreRounded,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
-import Card from "@/components/ui/Card";
+import ProductCard from "@/components/ui/ProductCard";
 import Button from "@/components/ui/Button";
 import {
   getProducts,
@@ -97,7 +97,13 @@ export default function ServicesPage() {
 
           if (append) {
             // Append to existing list
-            setProducts((prev) => [...prev, ...newProducts]);
+            setProducts((prev) => {
+              const existingIds = new Set(prev.map((p) => p.id));
+              const uniqueNewProducts = newProducts.filter(
+                (p) => !existingIds.has(p.id),
+              );
+              return [...prev, ...uniqueNewProducts];
+            });
           } else {
             // Replace list (new search / category)
             setProducts(newProducts);
@@ -328,7 +334,7 @@ export default function ServicesPage() {
                 className={`flex flex-wrap transition-opacity duration-200 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
               >
                 {products.map((product, index) => (
-                  <Card
+                  <ProductCard
                     key={`product-${product.id}`}
                     href={`/services/${product.slug}`}
                     imageUrl={

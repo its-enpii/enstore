@@ -21,7 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center whitespace-nowrap justify-center px-6 py-3 rounded-full font-medium cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex h-fit items-center whitespace-nowrap justify-center rounded-full font-medium cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantStyles = {
     primary:
@@ -37,9 +37,9 @@ const Button: React.FC<ButtonProps> = ({
         lg: "p-3 text-lg",
       }
     : {
-        sm: "text-sm",
-        md: "text-base",
-        lg: "text-lg",
+        sm: "px-6 py-3 text-sm",
+        md: "px-6 py-4 text-base",
+        lg: "px-6 py-4 text-lg",
       };
 
   const iconSizeStyles = {

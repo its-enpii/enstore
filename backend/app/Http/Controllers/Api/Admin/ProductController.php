@@ -169,6 +169,7 @@ class ProductController extends Controller
             'payment_type' => 'required|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
             'input_fields' => 'nullable|array',
             'server_options' => 'nullable|array',
             'rating' => 'nullable|numeric|min:0|max:5',
@@ -191,6 +192,11 @@ class ProductController extends Controller
             // Handle Image Upload
             if ($request->hasFile('image')) {
                 $data['image'] = $this->supabaseStorage->upload('products', $request->file('image'));
+            }
+
+            // Handle Icon Upload
+            if ($request->hasFile('icon')) {
+                $data['icon'] = $this->supabaseStorage->upload('icons', $request->file('icon'));
             }
 
             $product = Product::create($data);
@@ -227,6 +233,7 @@ class ProductController extends Controller
             'payment_type' => 'sometimes|string|in:prepaid,postpaid',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
             'input_fields' => 'nullable|array',
             'server_options' => 'nullable|array',
             'rating' => 'nullable|numeric|min:0|max:5',
@@ -258,6 +265,18 @@ class ProductController extends Controller
                 $data['image'] = $this->supabaseStorage->upload('products', $request->file('image'));
             } else {
                 unset($data['image']);
+            }
+
+            // Handle Icon Upload
+            if ($request->hasFile('icon')) {
+                // Delete old icon from Supabase
+                if ($product->icon) {
+                    $this->deleteImage($product->icon);
+                }
+
+                $data['icon'] = $this->supabaseStorage->upload('icons', $request->file('icon'));
+            } else {
+                unset($data['icon']);
             }
 
             $product->update($data);
@@ -312,6 +331,11 @@ class ProductController extends Controller
             // Delete image if exists
             if ($product->image) {
                 $this->deleteImage($product->image);
+            }
+
+            // Delete icon if exists
+            if ($product->icon) {
+                $this->deleteImage($product->icon);
             }
 
             // Delete items if not cascaded by database

@@ -19,6 +19,7 @@ class Product extends Model
         'payment_type',
         'description',
         'image',
+        'icon',
         'input_fields',
         'server_options',
         'rating',

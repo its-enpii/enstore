@@ -19,6 +19,7 @@ export interface PaymentChannel {
   group: string;
   fee_merchant: { flat: number; percent: number };
   fee_customer: { flat: number; percent: number };
+  total_fee: { flat: number; percent: number };
   icon_url: string;
   active: boolean;
 }
@@ -51,10 +52,31 @@ export interface TransactionStatus {
   status: string;
   payment_status: string;
   product_name: string;
+  total_price: number;
+  created_at: string;
+  product: {
+    name: string;
+    item: string;
+    image: string;
+    slug: string;
+    brand: string;
+    customer_data: Record<string, string>;
+  };
+  pricing: {
+    product: number;
+    admin: number;
+    total: number;
+  };
   payment: {
     payment_method: string;
-    paid_at: string | null;
+    checkout_url?: string;
+    qr_url?: string;
+    payment_code?: string;
+    expired_at?: string;
+    instructions?: Array<{ title: string; steps: string[] }>;
   };
+  sn?: string | null;
+  note?: string | null;
 }
 
 // ----------------------------------------------------------

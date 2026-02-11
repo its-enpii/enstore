@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { motion } from "motion/react";
 
-import Card from "@/components/ui/Card";
+import ProductCard from "@/components/ui/ProductCard";
 import { getProducts, type Product } from "@/lib/api";
 
 export function PopularServices() {
@@ -60,7 +60,7 @@ export function PopularServices() {
               className="group flex items-center gap-1 text-sm font-semibold text-ocean-500 transition-colors duration-300 hover:text-ocean-600 sm:text-base"
             >
               <span>View all services</span>
-              <ArrowForwardRounded className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
+              <ArrowForwardRounded className="h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5" />
             </Link>
           </motion.div>
         </motion.div>
@@ -76,10 +76,12 @@ export function PopularServices() {
         {!loading && (
           <div className="flex flex-wrap">
             {products.map((product, index) => (
-              <Card
+              <ProductCard
                 key={`card-${product.id}`}
                 href={`/services/${product.slug}`}
-                imageUrl={product.image || "/assets/hero-image/mobile-legends.png"}
+                imageUrl={
+                  product.image || "/assets/hero-image/mobile-legends.png"
+                }
                 title={product.name}
                 publisher={product.provider || product.brand}
                 index={index}
@@ -89,7 +91,7 @@ export function PopularServices() {
 
             {/* Fallback if no featured products */}
             {products.length === 0 && (
-              <p className="w-full text-center text-brand-500/40 py-8">
+              <p className="w-full py-8 text-center text-brand-500/40">
                 No featured products available.
               </p>
             )}

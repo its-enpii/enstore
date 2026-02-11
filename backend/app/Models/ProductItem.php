@@ -12,6 +12,7 @@ class ProductItem extends Model
         'product_id',
         'digiflazz_code',
         'name',
+        'group',
         'description',
         'base_price',
         'retail_price',

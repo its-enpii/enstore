@@ -2,7 +2,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 
 const MotionLink = motion.create(Link);
-interface CardProps {
+interface ProductCardProps {
   href: string;
   imageUrl: string;
   title: string;
@@ -11,14 +11,14 @@ interface CardProps {
   index?: number;
 }
 
-const Card = ({
+const ProductCard = ({
   href,
   imageUrl,
   title,
   publisher,
   className,
   index = 0,
-}: CardProps) => {
+}: ProductCardProps) => {
   const delay = Math.min(index * 0.1, 0.4);
 
   return (
@@ -56,4 +56,4 @@ const Card = ({
   );
 };
 
-export default Card;
+export default ProductCard;

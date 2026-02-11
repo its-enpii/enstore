@@ -138,6 +138,22 @@ class PublicTransactionController extends Controller
         ->where('transaction_code', $transactionCode)
         ->firstOrFail();
 
+      // Check for expiration
+      if (
+        in_array($transaction->status, ['pending', 'unpaid']) &&
+        $transaction->payment &&
+        $transaction->payment->expired_at &&
+        now()->greaterThan($transaction->payment->expired_at)
+      ) {
+        $transaction->status = 'failed';
+        $transaction->payment_status = 'expired';
+        $transaction->failed_at = now();
+        $transaction->save();
+        
+        // Refresh to get updated model
+        $transaction->refresh();
+      }
+
       return response()->json([
         'success' => true,
         'data' => [
@@ -147,10 +163,23 @@ class PublicTransactionController extends Controller
           'product_name' => $transaction->product_name,
           'total_price' => $transaction->total_price,
           'created_at' => $transaction->created_at,
+          'product' => [
+            'name' => $transaction->productItem->product->name,
+            'item' => $transaction->productItem->name,
+            'image' => $transaction->productItem->product->image,
+            'slug' => $transaction->productItem->product->slug,
+            'brand' => $transaction->productItem->product->brand,
+            'customer_data' => $transaction->customer_data,
+          ],
+          'pricing' => [
+            'product' => $transaction->product_price,
+            'admin' => $transaction->admin_fee,
+            'total' => $transaction->total_price,
+          ],
           'payment' => [
             'payment_method' => $transaction->payment?->payment_method,
             'checkout_url' => $transaction->payment?->checkout_url,
-            'qr_url' => $transaction->payment?->qr_url,
+            'qr_url' => $transaction->payment?->qr_url ?? $transaction->payment?->qr_code_url,
             'payment_code' => $transaction->payment?->payment_code,
             'expired_at' => $transaction->payment?->expired_at,
             'instructions' => $transaction->payment?->payment_instructions,
@@ -162,8 +191,8 @@ class PublicTransactionController extends Controller
     } catch (\Exception $e) {
       return response()->json([
         'success' => false,
-        'message' => 'Transaction not found',
-      ], 404);
+        'message' => $e->getMessage(),
+      ], 500);
     }
   }
 

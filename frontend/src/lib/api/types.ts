@@ -32,6 +32,7 @@ export interface ProductItem {
   product_id: number;
   digiflazz_code: string;
   name: string;
+  group: string | null;
   description: string | null;
   price: number; // Customer-facing price (based on customer type)
   stock_status: "available" | "empty" | "maintenance";
@@ -55,6 +56,7 @@ export interface Product {
   payment_type: "prepaid" | "postpaid";
   description: string | null;
   image: string | null;
+  icon: string | null;
   input_fields: InputField[] | null;
   server_options: string[] | null;
   rating: number;

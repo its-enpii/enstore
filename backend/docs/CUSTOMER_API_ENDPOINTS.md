@@ -60,10 +60,34 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
         "status": "success",
         "payment_status": "paid",
         "product_name": "Mobile Legends 86 Diamond",
+        "total_price": 25000,
+        "created_at": "2026-02-01T10:00:00Z",
+        "product": {
+            "name": "Mobile Legends",
+            "item": "86 Diamond",
+            "image": "https://...",
+            "slug": "mobile-legends",
+            "brand": "MOBILE LEGENDS",
+            "customer_data": {
+                "user_id": "123456789",
+                "zone_id": "1234"
+            }
+        },
+        "pricing": {
+            "product": 23000,
+            "admin": 2000,
+            "total": 25000
+        },
         "payment": {
             "payment_method": "QRIS",
-            "paid_at": "2026-02-01T10:05:00Z"
-        }
+            "checkout_url": "https://...",
+            "qr_url": "https://...",
+            "payment_code": "T1234567890ABCDE",
+            "expired_at": "2026-02-01T12:00:00Z",
+            "instructions": [...]
+        },
+        "sn": "123456789",
+        "note": "Transaksi Berhasil"
     }
 }
 ```
@@ -132,6 +156,7 @@ Authorization: Bearer {optional_token}
                 "description": "Top up Mobile Legends",
                 "is_featured": true,
                 "image_url": "https://...",
+                "icon": "https://...",
                 "input_fields": [
                     {
                         "name": "user_id",
@@ -198,6 +223,7 @@ Authorization: Bearer {optional_token}
         "is_featured": true,
         "is_active": true,
         "image_url": "https://...",
+        "icon": "https://...",
         "input_fields": [
             {
                 "name": "user_id",
@@ -216,6 +242,7 @@ Authorization: Bearer {optional_token}
             {
                 "id": 101,
                 "name": "86 Diamond",
+                "group": "Member",
                 "price": 25000,
                 "stock_status": "available"
             },
