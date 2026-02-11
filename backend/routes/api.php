@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TripayCallbackController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +20,28 @@ use Illuminate\Support\Facades\Route;
 // Webhook routes (no authentication required)
 Route::prefix('webhooks')->group(function () {
     Route::post('/tripay', [TripayCallbackController::class, 'handle']);
+});
+
+Route::get('/download-qr', function (Request $request) {
+    $url = $request->query('url');
+
+    if (!$url) {
+        return response()->json(['error' => 'URL required'], 400);
+    }
+
+    try {
+        $response = Http::get($url);
+
+        if ($response->failed()) {
+            return response()->json(['error' => 'Failed to fetch image'], 500);
+        }
+
+        return response($response->body(), 200)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="qr-code.png"');
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 });
 
 // Public routes

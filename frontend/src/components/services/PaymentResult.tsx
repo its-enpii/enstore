@@ -6,6 +6,7 @@ import {
   DescriptionRounded,
   SportsEsportsRounded,
   DiamondRounded,
+  ArrowBackRounded,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -33,13 +34,13 @@ export default function PaymentResult({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-10">
+    <div className="flex flex-col items-center justify-center w-full lg:max-w-5/12 mx-auto px-8 py-10 bg-smoke-200 shadow-enstore rounded-[48px]">
       {/* Icon */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        className={`mb-8 flex h-24 w-24 items-center justify-center rounded-full ${
+        className={`mb-10 flex h-24 w-24 items-center justify-center rounded-full ${
           isSuccess
             ? "bg-green-500 text-white shadow-lg shadow-green-500/30"
             : "bg-red-500 text-white shadow-lg shadow-red-500/30"
@@ -57,7 +58,7 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mb-4 text-center text-3xl font-bold text-brand-500 lg:text-4xl"
+        className={`mb-4 text-center text-3xl font-bold lg:text-4xl ${isSuccess ? "text-ocean-500" : "text-red-500"}`}
       >
         {isSuccess ? "Transaction Successful!" : "Transaction Failed"}
       </motion.h1>
@@ -66,7 +67,7 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mb-12 text-center text-brand-500/60"
+        className="mb-10 text-center text-brand-500/40"
       >
         {isSuccess
           ? "Your top-up has been processed and delivered."
@@ -78,26 +79,26 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mb-10 w-full max-w-lg rounded-[32px] border border-brand-500/5 bg-white p-2 shadow-sm lg:p-4"
+        className="mb-8 w-full"
       >
         {/* Invoice ID */}
-        <div className="mb-2 flex items-center justify-between rounded-[24px] bg-cloud-100/50 p-4">
+        <div className="mb-4 flex items-center justify-between rounded-[24px] bg-cloud-200 p-4 border border-brand-500/5">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-ocean-500 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 border border-brand-500/5 text-ocean-500">
               <DescriptionRounded />
             </div>
             <div>
-              <p className="text-xs font-bold tracking-wide text-brand-500/40 uppercase">
+              <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Invoice ID
               </p>
-              <p className="font-bold text-brand-500 md:text-lg">
+              <p className="font-bold text-brand-500/90">
                 {transaction.transaction_code}
               </p>
             </div>
           </div>
           <button
             onClick={() => handleCopy(transaction.transaction_code)}
-            className="rounded-xl p-2 text-brand-500/40 transition-colors hover:bg-white hover:text-ocean-500"
+            className="rounded-xl p-2 text-brand-500/40 transition-colors duration-300 hover:bg-smoke-200 hover:text-ocean-500"
           >
             {copied ? (
               <CheckCircleRounded fontSize="small" className="text-green-500" />
@@ -108,37 +109,39 @@ export default function PaymentResult({
         </div>
 
         {/* Game */}
-        <div className="mb-2 flex items-center gap-4 rounded-[24px] bg-cloud-100/50 p-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-ocean-500 shadow-sm">
-            <SportsEsportsRounded />
-          </div>
-          <div>
-            <p className="text-xs font-bold tracking-wide text-brand-500/40 uppercase">
-              Game
-            </p>
-            <p className="font-bold text-brand-500 md:text-lg">
-              {transaction.product.name}
-            </p>
+        <div className="mb-4 flex items-center justify-between rounded-[24px] bg-cloud-200 p-4 border border-brand-500/5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 border border-brand-500/5 text-ocean-500">
+              <SportsEsportsRounded />
+            </div>
+            <div>
+              <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
+                Game
+              </p>
+              <p className="font-bold text-brand-500/90">
+                {transaction.product.name}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Item Delivered */}
-        <div className="flex items-center justify-between rounded-[24px] bg-cloud-100/50 p-4">
+        <div className="flex items-center justify-between rounded-[24px] bg-cloud-200 p-4 border border-brand-500/5">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-ocean-500 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 border border-brand-500/5 text-ocean-500">
               <DiamondRounded />
             </div>
             <div>
-              <p className="text-xs font-bold tracking-wide text-brand-500/40 uppercase">
+              <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Item Delivered
               </p>
-              <p className="font-bold text-brand-500 md:text-lg">
+              <p className="font-bold text-brand-500/90">
                 {transaction.product.item}
               </p>
             </div>
           </div>
           {isSuccess && (
-            <span className="hidden rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-600 sm:inline-block">
+            <span className="hidden rounded-full bg-green-500/10 border border-green-500/20 px-3 py-2 text-xs text-green-600 sm:inline-block">
               DELIVERED
             </span>
           )}
@@ -150,7 +153,7 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="flex w-full max-w-lg flex-col gap-4 sm:flex-row"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full"
       >
         <Button
           variant="white"
@@ -161,7 +164,7 @@ export default function PaymentResult({
           Download E-Receipt
         </Button>
         <Link href="/" className="w-full">
-          <Button variant="primary" className="w-full justify-center">
+          <Button variant="primary" icon={<ArrowBackRounded />} className="w-full justify-center">
             Back to Home
           </Button>
         </Link>

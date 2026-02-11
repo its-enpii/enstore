@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import {
   SyncRounded,
 } from "@mui/icons-material";
 import Button from "@/components/ui/Button";
-import { getTransactionStatus, type TransactionStatus } from "@/lib/api";
+import { API_BASE_URL, getTransactionStatus, type TransactionStatus } from "@/lib/api";
 import Breadcrumb from "@/components/services/breadcrumb";
 import PaymentResult from "@/components/services/PaymentResult";
 
@@ -66,6 +66,8 @@ function CountdownTimer({
 }
 
 export default function PaymentPage() {
+  const imgRef = useRef(null);
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const transactionCode = searchParams.get("transactionCode");
@@ -77,6 +79,26 @@ export default function PaymentPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isTimeExpired, setIsTimeExpired] = useState(false);
+
+  const handleDownloadQR = async (qrUrl: string) => {
+    try {
+    const response = await fetch(
+      `${API_BASE_URL}/download-qr?url=${encodeURIComponent(qrUrl)}`
+    );
+    
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'qr-code.png';
+    a.click();
+    
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    alert('Gagal download');
+  }
+};
 
   const fetchStatus = async () => {
     if (!transactionCode) return;
@@ -364,9 +386,7 @@ export default function PaymentPage() {
                       </div>
                       <div className="flex justify-center">
                         <Button
-                          onClick={() =>
-                            window.open(transaction.payment.qr_url, "_blank")
-                          }
+                          onClick={() => handleDownloadQR(transaction.payment.qr_url || "")}
                           variant="white"
                           className="border border-brand-500/5"
                           icon={<FileDownloadRounded />}
