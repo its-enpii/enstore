@@ -13,7 +13,13 @@ import {
   SyncRounded,
 } from "@mui/icons-material";
 import Button from "@/components/ui/Button";
-import { API_BASE_URL, getTransactionStatus, type TransactionStatus } from "@/lib/api";
+import Accordion from "@/components/ui/Accordion";
+import {
+  API_BASE_URL,
+  getTransactionStatus,
+  cancelTransaction,
+  type TransactionStatus,
+} from "@/lib/api";
 import Breadcrumb from "@/components/services/breadcrumb";
 import PaymentResult from "@/components/services/PaymentResult";
 
@@ -69,7 +75,6 @@ export default function PaymentPage() {
   const imgRef = useRef(null);
 
   const searchParams = useSearchParams();
-  const router = useRouter();
   const transactionCode = searchParams.get("transactionCode");
 
   const [transaction, setTransaction] = useState<TransactionStatus | null>(
@@ -82,23 +87,23 @@ export default function PaymentPage() {
 
   const handleDownloadQR = async (qrUrl: string) => {
     try {
-    const response = await fetch(
-      `${API_BASE_URL}/download-qr?url=${encodeURIComponent(qrUrl)}`
-    );
-    
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'qr-code.png';
-    a.click();
-    
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    alert('Gagal download');
-  }
-};
+      const response = await fetch(
+        `${API_BASE_URL}/download-qr?url=${encodeURIComponent(qrUrl)}`,
+      );
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "qr-code.png";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      alert("Gagal download");
+    }
+  };
 
   const fetchStatus = async () => {
     if (!transactionCode) return;
@@ -134,6 +139,28 @@ export default function PaymentPage() {
       setLoading(false);
     }
   }, [transactionCode, isPaid, isExpired]);
+
+  const handleCancelOrder = async () => {
+    if (!transactionCode) return;
+
+    if (!confirm("Apakah anda yakin ingin membatalkan pesanan ini?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await cancelTransaction(transactionCode);
+      if (res.success) {
+        await fetchStatus();
+      } else {
+        alert(res.message || "Gagal membatalkan pesanan");
+      }
+    } catch (err) {
+      alert("Terjadi kesalahan saat membatalkan pesanan");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -290,7 +317,7 @@ export default function PaymentPage() {
                 {!isPaid && !isExpired && (
                   <Button
                     variant="white"
-                    onClick={() => router.push("/")}
+                    onClick={handleCancelOrder}
                     className="w-full border border-ocean-500 text-ocean-500"
                   >
                     Cancel Order
@@ -386,7 +413,9 @@ export default function PaymentPage() {
                       </div>
                       <div className="flex justify-center">
                         <Button
-                          onClick={() => handleDownloadQR(transaction.payment.qr_url || "")}
+                          onClick={() =>
+                            handleDownloadQR(transaction.payment.qr_url || "")
+                          }
                           variant="white"
                           className="border border-brand-500/5"
                           icon={<FileDownloadRounded />}
@@ -396,59 +425,65 @@ export default function PaymentPage() {
                       </div>
                     </>
                   ) : transaction.payment.payment_code ? (
-                    /* VA / Payment Code View */
-                    <div className="rounded-[40px] border border-gray-100 bg-[#F3F4F6]/50 p-8 text-left lg:p-12">
-                      <p className="mb-4 text-sm font-bold tracking-widest text-brand-500/40 uppercase">
-                        Payment Code / VA Number
-                      </p>
-                      <div className="mb-10 flex items-center justify-between">
-                        <span className="font-mono text-4xl font-bold tracking-wider text-brand-500">
-                          {transaction.payment.payment_code}
-                        </span>
-                        <button
-                          onClick={() =>
-                            handleCopy(transaction.payment.payment_code!)
-                          }
-                          className={`rounded-2xl p-4 transition-all ${copied ? "bg-green-100 text-green-600" : "border border-gray-200 bg-white text-ocean-500 shadow-sm"}`}
-                        >
-                          {copied ? (
-                            <CheckCircleRounded />
-                          ) : (
-                            <ContentCopyRounded />
-                          )}
-                        </button>
+                    <div className="w-full lg:max-w-10/12">
+                      {/* VA / Payment Code View */}
+                      <div className="mb-10 inline-block w-full rounded-[40px] border border-brand-500/5 bg-cloud-200 p-10">
+                        <p className="mb-4 text-sm font-bold tracking-widest text-brand-500/40 uppercase">
+                          Payment Code / VA Number
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-4xl font-bold tracking-wider text-brand-500/90">
+                            {transaction.payment.payment_code}
+                          </span>
+
+                          <Button
+                            onClick={() =>
+                              handleCopy(transaction.payment.payment_code!)
+                            }
+                            variant="white"
+                            className={`rounded-2xl! border border-brand-500/5 p-4 ${copied ? "border-ocean-500" : ""}`}
+                            icon={
+                              copied ? (
+                                <CheckCircleRounded className="h-6! w-6! text-ocean-500" />
+                              ) : (
+                                <ContentCopyRounded className="h-6! w-6! text-brand-500" />
+                              )
+                            }
+                            iconOnly={true}
+                          />
+                        </div>
                       </div>
 
                       <div className="space-y-6">
                         <p className="font-bold text-brand-500">How to pay:</p>
-                        <div className="space-y-4">
-                          {transaction.payment.instructions?.map(
-                            (section, sidx) => (
-                              <div key={sidx} className="space-y-2">
-                                <p className="text-sm font-bold tracking-wide text-brand-500/60 uppercase">
-                                  {section.title}
-                                </p>
-                                <ul className="space-y-3">
-                                  {section.steps.map((step, idx) => (
-                                    <li
-                                      key={idx}
-                                      className="flex items-start gap-4 text-sm leading-relaxed text-brand-500/70"
-                                    >
-                                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ocean-500/10 text-[10px] font-bold text-ocean-500">
-                                        {idx + 1}
-                                      </span>
-                                      <span
-                                        dangerouslySetInnerHTML={{
-                                          __html: step,
-                                        }}
-                                      />
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ),
-                          )}
-                        </div>
+                        <Accordion
+                          items={
+                            transaction.payment.instructions?.map(
+                              (section) => ({
+                                title: section.title,
+                                content: (
+                                  <ul className="space-y-3">
+                                    {section.steps.map((step, idx) => (
+                                      <li
+                                        key={idx}
+                                        className="flex items-start gap-4 text-sm leading-relaxed text-brand-500/70"
+                                      >
+                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ocean-500/10 text-[10px] font-bold text-ocean-500">
+                                          {idx + 1}
+                                        </span>
+                                        <span
+                                          dangerouslySetInnerHTML={{
+                                            __html: step,
+                                          }}
+                                        />
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ),
+                              }),
+                            ) || []
+                          }
+                        />
                       </div>
                     </div>
                   ) : (

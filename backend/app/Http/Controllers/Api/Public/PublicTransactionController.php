@@ -197,6 +197,35 @@ class PublicTransactionController extends Controller
   }
 
   /**
+   * Cancel transaction (guest)
+   */
+  public function cancelTransaction(string $transactionCode)
+  {
+    try {
+      $transaction = Transaction::where('transaction_code', $transactionCode)->firstOrFail();
+
+      if (!in_array($transaction->status, ['pending', 'unpaid'])) {
+        return response()->json([
+          'success' => false,
+          'message' => 'Transaction cannot be cancelled',
+        ], 400);
+      }
+
+      $this->transactionService->cancelTransaction($transaction, 'Cancelled by user');
+
+      return response()->json([
+        'success' => true,
+        'message' => 'Transaction cancelled successfully',
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => $e->getMessage(),
+      ], 500);
+    }
+  }
+
+  /**
    * Get payment channels
    */
   public function paymentChannels()

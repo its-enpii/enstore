@@ -32,7 +32,7 @@ class TransactionService
   public function generateTransactionCode()
   {
     do {
-      $code = 'TRX-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+      $code = 'ENS-' . date('Ymd') . '-' . strtoupper(Str::random(6));
     } while (Transaction::where('transaction_code', $code)->exists());
 
     return $code;
@@ -246,6 +246,23 @@ class TransactionService
       ]);
       throw $e;
     }
+  }
+
+  /**
+   * Cancel transaction (customer/system initiated)
+   * 
+   * @param Transaction $transaction
+   * @param string $reason
+   * @return void
+   * @throws \Exception
+   */
+  public function cancelTransaction(Transaction $transaction, string $reason = 'Cancelled by user')
+  {
+    if (!in_array($transaction->status, ['pending', 'unpaid'])) {
+      throw new \Exception('Transaction cannot be cancelled');
+    }
+
+    $this->markAsFailed($transaction, $reason);
   }
 
   /**

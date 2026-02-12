@@ -38,6 +38,8 @@ export const ENDPOINTS = {
     purchase: "/transactions/purchase",
     /** GET - Check transaction status */
     status: (code: string) => `/transactions/status/${code}`,
+    /** POST - Cancel transaction */
+    cancel: (code: string) => `/transactions/${code}/cancel`,
     /** GET - Get available payment channels */
     paymentChannels: "/transactions/payment-channels",
   },
@@ -136,8 +138,7 @@ export const ENDPOINTS = {
       /** GET - Get transaction detail */
       detail: (id: number | string) => `/admin/transactions/${id}`,
       /** PUT - Update transaction status */
-      updateStatus: (id: number | string) =>
-        `/admin/transactions/${id}/status`,
+      updateStatus: (id: number | string) => `/admin/transactions/${id}/status`,
     },
 
     users: {

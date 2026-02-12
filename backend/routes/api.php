@@ -55,6 +55,7 @@ Route::prefix('auth')->group(function () {
 // Public Transaction Routes (Guest Checkout)
 Route::post('/transactions/purchase', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'createPurchase']);
 Route::get('/transactions/status/{transactionCode}', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'checkStatus']);
+Route::post('/transactions/{transactionCode}/cancel', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'cancelTransaction']);
 Route::get('/transactions/payment-channels', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'paymentChannels']);
 
 // Public Product Routes (Catalog)

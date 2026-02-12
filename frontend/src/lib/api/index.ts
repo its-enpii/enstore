@@ -11,7 +11,12 @@ export { API_BASE_URL, ENDPOINTS } from "./config";
 
 // Client
 export { api } from "./client";
-export type { ApiResponse, ApiError, PaginatedData, QueryParams } from "./client";
+export type {
+  ApiResponse,
+  ApiError,
+  PaginatedData,
+  QueryParams,
+} from "./client";
 
 // Types
 export type {
@@ -35,6 +40,7 @@ export {
   guestPurchase,
   getTransactionStatus,
   getPaymentChannels,
+  cancelTransaction,
 } from "./transactions";
 
 export type {

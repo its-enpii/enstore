@@ -109,3 +109,12 @@ export async function getPaymentChannels(): Promise<
 > {
   return api.get<PaymentChannel[]>(ENDPOINTS.transactions.paymentChannels);
 }
+
+/**
+ * Cancel transaction
+ */
+export async function cancelTransaction(
+  code: string,
+): Promise<ApiResponse<void>> {
+  return api.post<void>(ENDPOINTS.transactions.cancel(code), {});
+}

@@ -40,6 +40,7 @@ class Transaction extends Model
         'failed_at',
         'refunded_at',
         'expired_at',
+        'failed_reason',
     ];
 
     protected $casts = [

@@ -92,7 +92,20 @@ Fitur ini memungkinkan pembeli melakukan transaksi tanpa harus login/register (W
 }
 ```
 
-### 3. Get Payment Channels
+### 3. Cancel Transaction
+
+**Endpoint:** `POST /api/transactions/{transactionCode}/cancel`
+
+**Response:**
+
+```json
+{
+    "success": true,
+    "message": "Transaction cancelled successfully"
+}
+```
+
+### 4. Get Payment Channels
 
 **Endpoint:** `GET /api/transactions/payment-channels`
 
