@@ -486,6 +486,64 @@ export default function PaymentPage() {
                         />
                       </div>
                     </div>
+                  ) : transaction.payment.checkout_url ? (
+                    <div className="w-full lg:max-w-10/12">
+                      {/* Checkout URL View */}
+                      <div className="mb-10 inline-block w-full rounded-[40px] border border-brand-500/5 bg-cloud-200 p-10 text-center">
+                        <p className="mb-6 text-brand-500/70">
+                          Click the button below to complete your payment via{" "}
+                          <span className="font-bold text-brand-500">
+                            {transaction.payment.payment_method}
+                          </span>
+                        </p>
+                        <Link
+                          href={transaction.payment.checkout_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full"
+                        >
+                          <Button
+                            variant="primary"
+                            size="lg"
+                            className="w-full justify-center"
+                          >
+                            Pay Now
+                          </Button>
+                        </Link>
+                      </div>
+
+                      <div className="space-y-6">
+                        <p className="font-bold text-brand-500">How to pay:</p>
+                        <Accordion
+                          items={
+                            transaction.payment.instructions?.map(
+                              (section) => ({
+                                title: section.title,
+                                content: (
+                                  <ul className="space-y-3">
+                                    {section.steps.map((step, idx) => (
+                                      <li
+                                        key={idx}
+                                        className="flex items-start gap-4 text-sm leading-relaxed text-brand-500/70"
+                                      >
+                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ocean-500/10 text-[10px] font-bold text-ocean-500">
+                                          {idx + 1}
+                                        </span>
+                                        <span
+                                          dangerouslySetInnerHTML={{
+                                            __html: step,
+                                          }}
+                                        />
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ),
+                              }),
+                            ) || []
+                          }
+                        />
+                      </div>
+                    </div>
                   ) : (
                     <div className="py-20 text-brand-500/40">
                       Waiting for payment details...

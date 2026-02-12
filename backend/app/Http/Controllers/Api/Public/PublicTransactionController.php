@@ -195,7 +195,7 @@ class PublicTransactionController extends Controller
       ], 500);
     }
   }
-
+ 
   /**
    * Cancel transaction (guest)
    */
