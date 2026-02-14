@@ -149,7 +149,7 @@ class PublicTransactionController extends Controller
         $transaction->payment_status = 'expired';
         $transaction->failed_at = now();
         $transaction->save();
-        
+
         // Refresh to get updated model
         $transaction->refresh();
       }
@@ -184,6 +184,12 @@ class PublicTransactionController extends Controller
             'expired_at' => $transaction->payment?->expired_at,
             'instructions' => $transaction->payment?->payment_instructions,
           ],
+          'refund' => [
+            'is_refunded' => $transaction->refunded_at !== null,
+            'refunded_at' => $transaction->refunded_at,
+            'refund_amount' => $transaction->refunded_at ? $transaction->total_price : null,
+            'refund_method' => $transaction->refunded_at ? 'balance' : null,
+          ],
           'sn' => $transaction->digiflazz_serial_number,
           'note' => $transaction->digiflazz_message,
         ],
@@ -195,7 +201,7 @@ class PublicTransactionController extends Controller
       ], 500);
     }
   }
- 
+
   /**
    * Cancel transaction (guest)
    */

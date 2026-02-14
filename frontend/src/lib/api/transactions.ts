@@ -75,6 +75,12 @@ export interface TransactionStatus {
     expired_at?: string;
     instructions?: Array<{ title: string; steps: string[] }>;
   };
+  refund?: {
+    is_refunded: boolean;
+    refunded_at: string | null;
+    refund_amount: number | null;
+    refund_method: string | null;
+  };
   sn?: string | null;
   note?: string | null;
 }

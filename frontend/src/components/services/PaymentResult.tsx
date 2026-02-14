@@ -15,7 +15,7 @@ import { TransactionStatus } from "@/lib/api";
 import { useState } from "react";
 
 interface PaymentResultProps {
-  status: "success" | "failed" | "expired";
+  status: "success" | "failed" | "expired" | "refunded";
   transaction: TransactionStatus;
 }
 

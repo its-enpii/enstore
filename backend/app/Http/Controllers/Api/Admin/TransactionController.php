@@ -147,7 +147,7 @@ class TransactionController extends Controller
   public function updateStatus(Request $request, $id)
   {
     $request->validate([
-      'status' => 'required|in:pending,processing,success,failed,cancelled',
+      'status' => 'required|in:pending,processing,success,failed,cancelled,refunded',
       'reason' => 'nullable|string',
     ]);
 
@@ -215,6 +215,41 @@ class TransactionController extends Controller
         'success' => false,
         'message' => 'Failed to get statistics: ' . $e->getMessage(),
       ], 500);
+    }
+  }
+
+  /**
+   * Refund a transaction (admin manual refund)
+   * Refund amount is credited to user's balance.
+   * 
+   * @param Request $request
+   * @param int $id
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function refund(Request $request, $id)
+  {
+    $request->validate([
+      'reason' => 'required|string|max:500',
+    ]);
+
+    try {
+      $transaction = Transaction::findOrFail($id);
+
+      $this->transactionService->refundTransaction(
+        $transaction,
+        'Admin refund: ' . $request->reason
+      );
+
+      return response()->json([
+        'success' => true,
+        'message' => 'Transaction refunded successfully. Amount credited to user balance.',
+        'data' => $transaction->fresh()->load(['user', 'payment']),
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Failed to refund: ' . $e->getMessage(),
+      ], 400);
     }
   }
 }

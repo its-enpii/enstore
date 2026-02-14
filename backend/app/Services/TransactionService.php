@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductItem;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
+use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -304,14 +305,110 @@ class TransactionService
    * 
    * @param Transaction $transaction
    * @param string $reason
+   * @param bool $autoRefund Whether to automatically refund (for balance payments)
    * @return void
    */
-  public function markAsFailed(Transaction $transaction, ?string $reason = null)
+  public function markAsFailed(Transaction $transaction, ?string $reason = null, bool $autoRefund = false)
   {
     $this->updateStatus($transaction, 'failed', [
       'failed_at' => now(),
       'failed_reason' => $reason,
     ]);
+
+    // Auto-refund for balance payments when order fails at provider
+    if ($autoRefund && $transaction->payment_method_type === 'balance' && $transaction->user_id) {
+      $this->refundTransaction($transaction, 'Auto-refund: ' . ($reason ?? 'Transaction failed'));
+    }
+  }
+
+  /**
+   * Refund a transaction
+   * Supports both balance and gateway payments.
+   * For gateway payments, the refund is credited to the user's balance.
+   * 
+   * @param Transaction $transaction
+   * @param string $reason
+   * @return bool
+   * @throws \Exception
+   */
+  public function refundTransaction(Transaction $transaction, string $reason = 'Refund by system')
+  {
+    // Validate: Can only refund failed or processing transactions
+    if (!in_array($transaction->status, ['failed', 'processing', 'success'])) {
+      throw new \Exception('Transaction cannot be refunded in current status: ' . $transaction->status);
+    }
+
+    // Validate: Cannot refund if already refunded
+    if ($transaction->refunded_at) {
+      throw new \Exception('Transaction has already been refunded');
+    }
+
+    // Must have a user to refund to
+    if (!$transaction->user_id) {
+      Log::warning('Cannot refund transaction without user', [
+        'transaction_code' => $transaction->transaction_code,
+      ]);
+      throw new \Exception('Cannot refund: no user associated with this transaction');
+    }
+
+    DB::beginTransaction();
+
+    try {
+      $user = $transaction->user;
+      $refundAmount = $transaction->total_price;
+
+      // Add balance back to user
+      $this->balanceService->addBalance(
+        $user,
+        $refundAmount,
+        'Refund: ' . $transaction->transaction_code . ' - ' . $reason,
+        $transaction
+      );
+
+      // Update transaction status
+      $transaction->update([
+        'status' => 'refunded',
+        'refunded_at' => now(),
+      ]);
+
+      // Log the refund
+      $this->addLog($transaction, 'refunded', 'Transaction refunded: ' . $reason, [
+        'refund_amount' => $refundAmount,
+        'refund_method' => 'balance',
+        'original_payment_method' => $transaction->payment_method_type,
+      ]);
+
+      // Create notification
+      if ($transaction->user_id) {
+        Notification::create([
+          'user_id' => $transaction->user_id,
+          'title' => 'Refund Berhasil',
+          'message' => "Dana sebesar Rp " . number_format($refundAmount, 0, ',', '.') . " telah dikembalikan ke saldo Anda untuk transaksi {$transaction->transaction_code}.",
+          'type' => 'success',
+          'data' => [
+            'transaction_code' => $transaction->transaction_code,
+            'refund_amount' => $refundAmount,
+          ],
+        ]);
+      }
+
+      DB::commit();
+
+      Log::info('Transaction refunded successfully', [
+        'transaction_code' => $transaction->transaction_code,
+        'user_id' => $user->id,
+        'refund_amount' => $refundAmount,
+      ]);
+
+      return true;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('Refund Transaction Error', [
+        'transaction_code' => $transaction->transaction_code,
+        'error' => $e->getMessage(),
+      ]);
+      throw $e;
+    }
   }
 
   /**

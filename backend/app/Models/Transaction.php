@@ -199,10 +199,26 @@ class Transaction extends Model
     }
 
     /**
+     * Check if transaction is refunded
+     */
+    public function isRefunded()
+    {
+        return $this->status === 'refunded' || $this->refunded_at !== null;
+    }
+
+    /**
      * Check if payment is paid
      */
     public function isPaid()
     {
         return $this->payment_status === 'paid';
+    }
+
+    /**
+     * Scope a query to only include refunded transactions
+     */
+    public function scopeRefunded($query)
+    {
+        return $query->where('status', 'refunded');
     }
 }

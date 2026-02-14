@@ -593,6 +593,130 @@ $sign = md5($username . $apiKey . $refId);
 
 ---
 
+## 🔄 Refund Flow (Transaksi Gagal)
+
+### Scenario A: Auto-Refund (Digiflazz Order Gagal)
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ STEP 6-ALT: Digiflazz Order FAILED                                  │
+│ ------------------------------------------------------------------- │
+│ Digiflazz Response:                                                 │
+│ {                                                                   │
+│   "data": {                                                         │
+│     "ref_id": "TRX-20260201-001",                                   │
+│     "status": "Gagal",                                              │
+│     "message": "Nomor tujuan tidak valid"                           │
+│   }                                                                 │
+│ }                                                                   │
+│                                                                     │
+│ Backend Process:                                                    │
+│ 1. handleFailed() dipanggil                                          │
+│ 2. Cek: user_id ada?                                                 │
+│    → Ya: TransactionService->refundTransaction()                     │
+│      a. BalanceService->addBalance() — dana masuk saldo             │
+│      b. Transaction status → 'refunded', set refunded_at            │
+│      c. TransactionLog dicatat                                       │
+│      d. Notification: "Refund Berhasil, Rp 25.000"                   │
+│    → Tidak (guest): Skip auto-refund, perlu manual admin            │
+│                                                                     │
+│ Database Changes:                                                   │
+│ - UPDATE transactions SET status='refunded', refunded_at=now()      │
+│ - UPDATE balances SET balance=balance+25000                          │
+│ - INSERT into balance_mutations (type='credit', amount=25000)       │
+│ - INSERT into transaction_logs (status='refunded')                  │
+│ - INSERT into notifications (type='success', title='Refund')        │
+└─────────────────────────────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ Customer menerima notifikasi:                                        │
+│ "Dana sebesar Rp 25.000 telah dikembalikan ke saldo Anda"           │
+│                                                                     │
+│ Saldo user otomatis bertambah Rp 25.000                              │
+│ ✅ Refund Complete!                                                  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Scenario B: Admin Manual Refund
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Admin membuka dashboard → Detail Transaksi                           │
+│ ------------------------------------------------------------------- │
+│ Admin: POST /api/admin/transactions/{id}/refund                      │
+│ Body: { "reason": "Customer complaint - product not received" }      │
+│                                                                     │
+│ Backend Process:                                                    │
+│ 1. Validasi: status in [failed, processing, success]                │
+│ 2. Validasi: belum pernah refund (refunded_at == null)              │
+│ 3. Validasi: user_id ada                                             │
+│ 4. TransactionService->refundTransaction()                           │
+│    → Sama seperti auto-refund di atas                               │
+│                                                                     │
+│ Response: 200 OK                                                    │
+│ {                                                                   │
+│   "success": true,                                                  │
+│   "message": "Transaction refunded successfully"                    │
+│ }                                                                   │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Refund Database State
+
+```sql
+-- UPDATE transactions (status refunded)
+UPDATE transactions
+SET 
+    status = 'refunded',
+    refunded_at = '2026-02-01 17:42:00'
+WHERE id = 1;
+
+-- UPDATE balances (dana dikembalikan)
+UPDATE balances
+SET balance = balance + 25000
+WHERE user_id = 1;
+
+-- INSERT balance_mutations (record credit)
+INSERT INTO balance_mutations (
+    balance_id, transaction_id, type, amount,
+    balance_before, balance_after, description
+) VALUES (
+    1, 1, 'credit', 25000,
+    0, 25000, 'Refund: TRX-20260201-001 - Digiflazz order failed'
+);
+
+-- INSERT transaction_logs
+INSERT INTO transaction_logs (
+    transaction_id, from_status, to_status, description, meta_data
+) VALUES (
+    1, 'failed', 'refunded', 'Transaction refunded: order failed',
+    '{"refund_amount":25000,"refund_method":"balance","original_payment_method":"tripay"}'
+);
+
+-- INSERT notifications
+INSERT INTO notifications (
+    user_id, title, message, type
+) VALUES (
+    1, 'Refund Berhasil',
+    'Dana sebesar Rp 25.000 telah dikembalikan ke saldo Anda untuk transaksi TRX-20260201-001.',
+    'success'
+);
+```
+
+### Refund Timeline (tambahan)
+
+| Time | Event | Status |
+|------|-------|--------|
+| 17:41:00 | Digiflazz gagal memproses | failed |
+| 17:41:01 | Auto-refund ke saldo | refunded |
+| 17:41:02 | Notifikasi refund dikirim | refunded |
+| 17:42:00 | Customer cek saldo — sudah bertambah | ✅ Done |
+
+> 📖 **Dokumentasi lengkap fitur refund:** Lihat [REFUND_FEATURE.md](./REFUND_FEATURE.md)
+
+---
+
 ## 🎯 Success Criteria
 
 ✅ Transaction created successfully  
@@ -601,6 +725,8 @@ $sign = md5($username . $apiKey . $refId);
 ✅ Serial number received  
 ✅ Customer notified  
 ✅ Diamond credited to game account  
+✅ **Refund otomatis jika transaksi gagal**  
+✅ **Admin bisa refund manual**  
 
 ---
 

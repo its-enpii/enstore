@@ -106,6 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/statistics', [App\Http\Controllers\Api\Admin\TransactionController::class, 'statistics']);
             Route::get('/{id}', [App\Http\Controllers\Api\Admin\TransactionController::class, 'show']);
             Route::put('/{id}/status', [App\Http\Controllers\Api\Admin\TransactionController::class, 'updateStatus']);
+            Route::post('/{id}/refund', [App\Http\Controllers\Api\Admin\TransactionController::class, 'refund']);
         });
 
         // Users Management

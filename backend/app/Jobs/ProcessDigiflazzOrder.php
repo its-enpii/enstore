@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
 use App\Models\BalanceMutation;
+use App\Services\TransactionService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -55,7 +56,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             );
 
             $data = $result['data'];
-            
+
             Log::info('Digiflazz Raw Response:', $data);
 
             // Parse response code
@@ -192,23 +193,20 @@ class ProcessDigiflazzOrder implements ShouldQueue
             $message = $errorMessage ?? ($data['message'] ?? 'Unknown error');
             $this->createLog('processing', 'failed', 'Order failed: ' . $message, $data);
 
-            // Refund if payment via balance
-            if ($this->transaction->payment_method_type === 'balance') {
-                $this->refundBalance();
-            }
-
-            // Create notification (only if user exists)
+            // Refund to user balance (both balance and gateway payments)
             if ($this->transaction->user_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $this->transaction->user_id,
-                    'title' => 'Transaksi Gagal',
-                    'message' => "Pesanan {$this->transaction->product_name} gagal diproses. {$message}",
-                    'type' => 'error',
-                    'data' => [
+                try {
+                    $transactionService = app(TransactionService::class);
+                    $transactionService->refundTransaction(
+                        $this->transaction,
+                        'Digiflazz order failed: ' . $message
+                    );
+                } catch (\Exception $refundError) {
+                    Log::error('Auto-refund failed during ProcessDigiflazzOrder', [
                         'transaction_code' => $this->transaction->transaction_code,
-                        'error' => $message,
-                    ],
-                ]);
+                        'error' => $refundError->getMessage(),
+                    ]);
+                }
             }
 
             DB::commit();
@@ -221,48 +219,6 @@ class ProcessDigiflazzOrder implements ShouldQueue
             DB::rollBack();
             Log::error('Handle Failed Error: ' . $e->getMessage());
             throw $e;
-        }
-    }
-
-    /**
-     * Refund balance to user
-     */
-    private function refundBalance()
-    {
-        try {
-            $user = $this->transaction->user;
-
-            if (!$user) {
-                return;
-            }
-
-            $balance = $user->balance;
-
-            if (!$balance) {
-                Log::warning('No balance found for user', ['user_id' => $user->id]);
-                return;
-            }
-
-            // Add back the amount
-            $balance->increment('amount', $this->transaction->total_amount);
-
-            // Create balance mutation record
-            BalanceMutation::create([
-                'balance_id' => $balance->id,
-                'transaction_id' => $this->transaction->id,
-                'type' => 'credit',
-                'amount' => $this->transaction->total_amount,
-                'balance_before' => $balance->amount - $this->transaction->total_amount,
-                'balance_after' => $balance->amount,
-                'description' => 'Refund for failed transaction: ' . $this->transaction->transaction_code,
-            ]);
-
-            Log::info('Balance refunded', [
-                'user_id' => $user->id,
-                'amount' => $this->transaction->total_amount,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Refund Balance Error: ' . $e->getMessage());
         }
     }
 
