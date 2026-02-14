@@ -1,10 +1,9 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -51,8 +50,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center transition-colors duration-300">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-smoke-200 dark:bg-brand-900 flex items-center justify-center transition-colors duration-300">
+        <div className="w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -63,13 +62,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => 
     <div className={`min-h-screen ${sidebarHidden ? 'sidebar-hidden' : ''}`}>
       {/* Mobile Sidebar Overlay */}
       <div 
-        className={`fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${sidebarHidden ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
+        className={`fixed inset-0 z-40 bg-brand-900/50 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${sidebarHidden ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
         onClick={() => setSidebarHidden(true)}
       />
 
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+      <div className="min-h-screen bg-cloud-50 dark:bg-brand-900 transition-colors duration-300">
         {/* Sidebar */}
-        <aside className="layout-sidebar bg-white dark:bg-slate-800">
+        <aside className="layout-sidebar bg-smoke-200 dark:bg-brand-800">
           <Sidebar role={role} onClose={() => setSidebarHidden(true)} />
         </aside>
 
@@ -88,8 +87,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => 
               </motion.div>
             </div>
             
-            <footer className="mt-auto py-8 text-center border-t border-slate-100 dark:border-slate-800/50">
-                <p className="text-center text-sm text-slate-500 dark:text-slate-400 font-medium tracking-wide">
+            <footer className="mt-auto py-8 text-center border-t border-brand-500/5 dark:border-brand-500/10">
+                <p className="text-center text-sm text-brand-500/40 dark:text-brand-500/30 font-bold uppercase tracking-widest">
                     &copy; 2026 ENCORE UI &bull; ENSTORE PLATFORM
                 </p>
             </footer>

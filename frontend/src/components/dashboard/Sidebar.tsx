@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -15,7 +14,6 @@ import {
   NotificationsRounded,
   LocalOfferRounded,
   AssessmentRounded,
-  CategoryRounded,
   PaymentRounded,
   ViewCarouselRounded,
   CloseRounded,
@@ -108,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
         { title: 'Platform Settings', href: '/admin/settings', icon: <SettingsRounded className="nav-icon" /> },
         { title: 'Activity Logs', href: '/admin/logs', icon: <HistoryRounded className="nav-icon" /> },
       ]
-    }
+    },
   ] : role === 'reseller' ? [
     {
       header: 'Reseller Panel',
@@ -169,17 +167,17 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
 
   return (
     <>
-      <div className="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-700/50 shrink-0">
-        <div className="flex items-center gap-3 font-bold text-xl text-indigo-600 dark:text-indigo-400 tracking-tight">
-          <div className="w-10 h-10 bg-linear-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 rotate-3">
+      <div className="h-20 flex items-center px-6 border-b border-brand-500/5 shrink-0">
+        <div className="flex items-center gap-3 font-bold text-xl text-ocean-500 tracking-tight">
+          <div className="w-10 h-10 bg-linear-to-br from-ocean-400 to-ocean-600 rounded-2xl flex items-center justify-center text-smoke-100 shadow-lg shadow-ocean-500/20 rotate-3">
             <GamepadRounded fontSize="medium" />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-slate-900 dark:text-white font-black tracking-tighter text-2xl">ENSTORE</span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">Platform</span>
+            <span className="text-brand-500 font-black tracking-tighter text-2xl">ENSTORE</span>
+            <span className="text-[10px] text-brand-500/40 uppercase tracking-widest font-bold">Platform</span>
           </div>
         </div>
-        <button onClick={onClose} className="lg:hidden ml-auto p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
+        <button onClick={onClose} className="lg:hidden ml-auto p-2 text-brand-500/40 hover:text-brand-500 bg-cloud-200 rounded-xl">
           <CloseRounded fontSize="small" />
         </button>
       </div>
@@ -190,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
             {menuSections.map((section, idx) => (
               <li key={idx} className="space-y-2">
                 <div className="nav-header flex items-center gap-2 pl-2">
-                   <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                   <div className="w-1.5 h-1.5 rounded-full bg-ocean-500"></div>
                    {section.header}
                 </div>
                 <ul className="space-y-1">
@@ -225,7 +223,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                                       href={sub.href} 
                                       className={`nav-sub-link flex items-center gap-2 ${pathname === sub.href ? 'active' : ''}`}
                                     >
-                                      <div className={`w-1 h-1 rounded-full ${pathname === sub.href ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
+                                      <div className={`w-1 h-1 rounded-full ${pathname === sub.href ? 'bg-ocean-500' : 'bg-brand-500/20'}`}></div>
                                       {sub.title}
                                     </Link>
                                   </li>
@@ -241,7 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                             <span className="nav-icon-wrapper">{item.icon}</span>
                             <span className="flex-1">{item.title}</span>
                             {item.badge && (
-                                <span className={`px-2 py-0.5 text-[9px] font-bold text-white rounded-lg ${item.badge === 'VIP' ? 'bg-indigo-500' : 'bg-amber-500'}`}>
+                                <span className={`px-2 py-0.5 text-[9px] font-bold text-smoke-200 rounded-lg ${item.badge === 'VIP' ? 'bg-ocean-500' : 'bg-brand-500'}`}>
                                     {item.badge}
                                 </span>
                             )}
@@ -257,21 +255,21 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
         </nav>
       </div>
 
-      <div className="p-4 border-t border-slate-100 dark:border-slate-700/50">
-        <div className="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-2xl mb-4">
+      <div className="p-4 border-t border-brand-500/5">
+        <div className="bg-cloud-200 p-3 rounded-2xl mb-4">
             <div className="flex items-center gap-3">
-                <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-xl">
-                    <ContactSupportRounded className="text-indigo-600 dark:text-indigo-400" fontSize="small" />
+                <div className="bg-ocean-500/10 p-2 rounded-xl">
+                    <ContactSupportRounded className="text-ocean-500" fontSize="small" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Need Help?</span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Contact our support</span>
+                    <span className="text-xs font-bold text-brand-500">Need Help?</span>
+                    <span className="text-[10px] text-brand-500/40">Contact our support</span>
                 </div>
             </div>
         </div>
         <button 
           onClick={logout}
-          className="flex items-center gap-3 px-3.5 py-3 w-full text-sm text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-300 group"
+          className="flex items-center gap-3 px-3.5 py-3 w-full text-sm text-red-500 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-300 group"
         >
           <div className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/10 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors">
             <LogoutRounded fontSize="small" />

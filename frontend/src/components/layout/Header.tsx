@@ -255,8 +255,8 @@ export function Header() {
                         className="flex items-center gap-3 bg-cloud-200 dark:bg-brand-900 p-1.5 pl-4 rounded-full border border-brand-500/5 hover:border-ocean-500/30 transition-all group"
                     >
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Welcome back,</span>
-                            <span className="text-sm font-black text-slate-900 dark:text-smoke-200 leading-tight truncate max-w-[100px]">{user.name.split(' ')[0]}</span>
+                            <span className="text-[10px] font-bold text-brand-500/40 uppercase tracking-widest leading-none">Welcome back,</span>
+                            <span className="text-sm font-black text-brand-500/90 dark:text-smoke-200 leading-tight truncate max-w-[100px]">{user.name.split(' ')[0]}</span>
                         </div>
                         <div className="w-9 h-9 rounded-full bg-linear-to-br from-ocean-400 to-ocean-600 flex items-center justify-center text-smoke-200 text-sm font-black">
                             {user.name.charAt(0).toUpperCase()}
