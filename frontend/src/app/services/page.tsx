@@ -209,7 +209,7 @@ export default function ServicesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-cloud-200 pt-28 pb-[72px]">
+      <section className="relative overflow-hidden bg-cloud-200 pt-28 pb-12 md:pb-[72px]">
         {/* Decorative Background Elements */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
@@ -238,13 +238,13 @@ export default function ServicesPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="flex flex-col items-center">
-              <h1 className="font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
+              <h1 className="font-sans text-3xl font-bold tracking-tight text-brand-500/90 md:text-4xl lg:text-6xl lg:leading-[1.1]">
                 Top Up <span className="text-ocean-500">Anything</span>
               </h1>
-              <h2 className="mb-10 text-xl font-bold text-brand-500/10 lg:text-5xl">
+              <h2 className="mb-6 text-2xl font-bold text-brand-500/10 md:mb-10 md:text-3xl lg:text-5xl">
                 Anywhere, Instantly.
               </h2>
-              <p className="mb-12 max-w-xl text-sm tracking-wide text-brand-500/40 sm:text-base">
+              <p className="mb-8 max-w-xl text-sm text-brand-500/40 md:mb-12 md:text-base md:tracking-wide">
                 Secure payments for games, vouchers, and bills with FinTech
                 grade reliability.
               </p>
@@ -258,11 +258,11 @@ export default function ServicesPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <div className="flex flex-1 items-center gap-2 px-4">
-                <SearchRounded className="text-brand-500/30" />
+                <SearchRounded className="h-4! w-4! text-brand-500/30 md:h-6! md:w-6!" />
                 <input
                   type="text"
                   placeholder="Search for games or services..."
-                  className="w-full bg-transparent py-2 text-brand-500/90 placeholder:text-brand-500/30 focus:outline-none"
+                  className="w-full bg-transparent py-3 text-sm text-brand-500/90 placeholder:text-brand-500/30 focus:outline-none md:py-4 md:text-base"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -280,7 +280,7 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 lg:px-0">
           {/* Category Tabs */}
           <motion.div
-            className="mb-10 flex flex-wrap items-center justify-center gap-4"
+            className="mb-6 flex flex-wrap items-center justify-center gap-2 md:mb-10 md:gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -331,7 +331,7 @@ export default function ServicesPage() {
           {!initialLoading && !error && (
             <>
               <div
-                className={`flex flex-wrap transition-opacity duration-200 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
+                className={`grid grid-cols-1 gap-x-6 gap-y-8 transition-opacity duration-200 md:grid-cols-2 lg:grid-cols-4 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
               >
                 {products.map((product, index) => (
                   <ProductCard
@@ -343,7 +343,7 @@ export default function ServicesPage() {
                     title={product.name}
                     publisher={product.provider || product.brand}
                     index={index}
-                    className="mb-4 w-1/2 px-2 sm:mb-6 sm:px-3 md:mb-8 lg:w-1/4"
+                    className="h-full"
                   />
                 ))}
               </div>

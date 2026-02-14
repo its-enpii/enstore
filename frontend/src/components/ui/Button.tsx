@@ -38,8 +38,8 @@ const Button: React.FC<ButtonProps> = ({
       }
     : {
         sm: "px-6 py-3 text-sm",
-        md: "px-6 py-4 text-base",
-        lg: "px-6 py-4 text-lg",
+        md: "px-6 py-3 text-sm md:py-4 md:text-base",
+        lg: "px-6 py-4 text-base md:text-lg",
       };
 
   const iconSizeStyles = {

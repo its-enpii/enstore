@@ -23,7 +23,12 @@ export function CTA() {
           <motion.div
             className="absolute right-0 bottom-0 h-[250px] w-[250px] translate-x-1/3 translate-y-1/3 rounded-full bg-linear-to-br from-smoke-200 to-ocean-500 opacity-10 sm:h-[426px] sm:w-[426px]"
             animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.15, 0.1] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2,
+            }}
           />
 
           <motion.h2
@@ -57,7 +62,6 @@ export function CTA() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="white"
-                size="lg"
                 className="w-full text-ocean-500 hover:bg-cloud-200/90 active:bg-cloud-200/30 sm:w-auto"
               >
                 Create Free Account
@@ -66,8 +70,7 @@ export function CTA() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="dark"
-                size="lg"
-                className="w-full bg-brand-500/10! border border-cloud-200/20 text-cloud-200 backdrop-blur-sm hover:bg-brand-500/20 active:bg-brand-500/30 sm:w-auto"
+                className="w-full border border-cloud-200/20 bg-brand-500/10! text-cloud-200 backdrop-blur-sm hover:bg-brand-500/20 active:bg-brand-500/30 sm:w-auto"
               >
                 Download App
               </Button>

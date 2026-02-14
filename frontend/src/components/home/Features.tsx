@@ -51,11 +51,11 @@ export function Features() {
           </p>
         </motion.div>
 
-        <div className="flex flex-wrap">
+        <div className="mb-6 grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className="mb-6 w-full px-3 md:mb-8 md:w-1/2 lg:w-1/3"
+              className="w-full"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}

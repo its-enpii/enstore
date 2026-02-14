@@ -31,7 +31,7 @@ const ProductCard = ({
         transition={{ duration: 0.5, delay }}
       >
         <motion.div
-          className="group relative cursor-pointer overflow-hidden rounded-2xl bg-smoke-200 p-2 shadow-enstore sm:rounded-3xl sm:p-3 lg:rounded-[40px] lg:p-4"
+          className="group relative h-full cursor-pointer overflow-hidden rounded-2xl bg-smoke-200 p-2 shadow-enstore sm:rounded-3xl sm:p-3 lg:rounded-[40px] lg:p-4"
           whileHover={{ y: -8, scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
