@@ -331,7 +331,7 @@ export default function ServicesPage() {
           {!initialLoading && !error && (
             <>
               <div
-                className={`grid grid-cols-1 gap-x-6 gap-y-8 transition-opacity duration-200 md:grid-cols-2 lg:grid-cols-4 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
+                className={`grid grid-cols-2 gap-y-6 gap-x-6 md:gap-y-8 transition-opacity duration-200 md:grid-cols-3 lg:grid-cols-4 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
               >
                 {products.map((product, index) => (
                   <ProductCard

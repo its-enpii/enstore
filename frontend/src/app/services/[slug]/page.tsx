@@ -526,7 +526,7 @@ export default function ProductDetailPage() {
                     <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                       Total
                     </p>
-                    <p className="text-xl font-bold text-ocean-500">
+                    <p className="text-base md:text-xl font-bold text-ocean-500">
                       Rp. {formatPrice(total)}
                     </p>
                   </div>

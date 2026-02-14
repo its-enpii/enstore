@@ -76,7 +76,7 @@ export default function HelpPage() {
       {/* Header Section */}
       <div className="container mx-auto px-4 lg:px-0">
         <div className="mx-auto mb-16 max-w-4xl text-center">
-          <h1 className="mb-8 font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
+          <h1 className="mb-6 md:mb-8 font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
             Frequently Asked <span className="text-ocean-500">Questions</span>
           </h1>
           <p className="mb-10 text-center text-sm tracking-wide text-brand-500/40 sm:text-base">
@@ -124,7 +124,7 @@ export default function HelpPage() {
         </div>
 
         {/* Contact Section */}
-        <div className="mx-auto max-w-6xl rounded-[48px] bg-smoke-200 p-6 shadow-enstore sm:px-8 sm:py-10">
+        <div className="mx-auto max-w-6xl rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore sm:px-8 sm:py-10">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Left Column: Contact Info */}
             <div className="flex flex-col">
@@ -169,7 +169,7 @@ export default function HelpPage() {
               </div>
 
               {/* Office Hours */}
-              <div className="rounded-2xl bg-cloud-200 p-4">
+              <div className="rounded-2xl bg-cloud-200 p-4 mt-6">
                 <div className="mb-4 flex items-center gap-2 text-brand-500/40">
                   <AccessTimeFilledRounded className="h-[20px]! w-[20px]!" />
                   <span className="font-medium tracking-widest uppercase">
@@ -194,7 +194,7 @@ export default function HelpPage() {
             </div>
 
             {/* Right Column: Form */}
-            <div className="col-span-2">
+            <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
                   <Input

@@ -101,7 +101,7 @@ export default function TrackOrderPage() {
       <div className="relative z-10 container mx-auto px-4 lg:px-0">
         <div className="mx-auto max-w-3xl">
           <div className="flex flex-col items-center">
-            <h1 className="mb-8 font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
+            <h1 className="mb-6 md:mb-8 font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
               Track <span className="text-ocean-500">Your Order</span>
             </h1>
             <p className="mb-12 max-w-xl text-center text-sm tracking-wide text-brand-500/40 sm:text-base">
@@ -111,7 +111,7 @@ export default function TrackOrderPage() {
           </div>
 
           {/* Search Card */}
-          <div className="rounded-[48px] bg-smoke-200 p-4 shadow-enstore sm:p-8">
+          <div className="rounded-[48px] bg-smoke-200 p-6 shadow-enstore md:p-8">
             <form
               onSubmit={handleTrack}
               className="flex flex-col items-center gap-6 sm:flex-row"

@@ -121,12 +121,14 @@ export default function PaymentPage() {
     }
   };
 
-  const isPaid =
-    transaction?.status === "success" || transaction?.payment_status === "paid";
   const isExpired =
     transaction?.status === "failed" ||
     transaction?.status === "expired" ||
     isTimeExpired;
+
+  const isPaid =
+    (transaction?.status === "success" || transaction?.payment_status === "paid") &&
+    !isExpired;
 
   useEffect(() => {
     if (transactionCode && !isPaid && !isExpired) {
@@ -221,7 +223,7 @@ export default function PaymentPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore"
+                className="mb-6 rounded-[48px] bg-smoke-200 px-6 py-8 md:px-8 md:py-10 shadow-enstore"
               >
                 {/* Status Badge */}
                 <div className="mb-6 font-medium">
@@ -383,7 +385,7 @@ export default function PaymentPage() {
               animate={{ opacity: 1, x: 0 }}
               className="col-span-1 lg:col-span-2"
             >
-              <div className="rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore">
+              <div className="rounded-[48px] bg-smoke-200 px-6 py-8 md:px-8 md:py-10 shadow-enstore">
                 <div className="flex flex-col items-center justify-center">
                   {/* Adaptive Header */}
                   <h3 className="mb-8 text-2xl font-bold text-brand-500/90">
@@ -391,7 +393,7 @@ export default function PaymentPage() {
                       ? "Scan QR to Pay"
                       : "Complete Payment"}
                   </h3>
-                  <p className="mb-10 text-brand-500/40">
+                  <p className="mb-10 text-brand-500/40 text-center">
                     {transaction.payment.qr_url
                       ? "Supports payments via Shopee Pay, OVO, DANA, GoPay, LinkAja, and bank transfers via QRIS."
                       : `Please follow the instructions below to complete your payment via ${transaction.payment.payment_method}.`}
@@ -400,8 +402,8 @@ export default function PaymentPage() {
                   {/* QRIS View */}
                   {transaction.payment.qr_url ? (
                     <>
-                      <div className="mb-10 inline-block rounded-[40px] border border-brand-500/5 bg-cloud-200 p-10">
-                        <div className="relative flex h-80 w-80 items-center justify-center overflow-hidden rounded-3xl border border-brand-500/5">
+                      <div className="mb-10 inline-block rounded-[40px] border border-brand-500/5 bg-cloud-200 p-6 md:p-10">
+                        <div className="relative p-6 flex w-56 h-56 md:h-80 md:w-80 items-center justify-center overflow-hidden rounded-2xl border border-brand-500/5">
                           <Image
                             src={transaction.payment.qr_url}
                             alt="Payment QR"
@@ -427,12 +429,12 @@ export default function PaymentPage() {
                   ) : transaction.payment.payment_code ? (
                     <div className="w-full lg:max-w-10/12">
                       {/* VA / Payment Code View */}
-                      <div className="mb-10 inline-block w-full rounded-[40px] border border-brand-500/5 bg-cloud-200 p-10">
+                      <div className="mb-10 inline-block w-full rounded-[40px] border border-brand-500/5 bg-cloud-200 p-6 md:p-10">
                         <p className="mb-4 text-sm font-bold tracking-widest text-brand-500/40 uppercase">
                           Payment Code / VA Number
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-4xl font-bold tracking-wider text-brand-500/90">
+                          <span className="font-mono text-xl md:text-4xl font-bold tracking-wider text-brand-500/90">
                             {transaction.payment.payment_code}
                           </span>
 
@@ -444,9 +446,9 @@ export default function PaymentPage() {
                             className={`rounded-2xl! border border-brand-500/5 p-4 ${copied ? "border-ocean-500" : ""}`}
                             icon={
                               copied ? (
-                                <CheckCircleRounded className="h-6! w-6! text-ocean-500" />
+                                <CheckCircleRounded className="h-4! w-4! md:h-6! md:w-6! text-ocean-500" />
                               ) : (
-                                <ContentCopyRounded className="h-6! w-6! text-brand-500" />
+                                <ContentCopyRounded className="h-4! w-4! md:h-6! md:w-6! text-brand-500" />
                               )
                             }
                             iconOnly={true}
@@ -550,7 +552,7 @@ export default function PaymentPage() {
                     </div>
                   )}
 
-                  <div className="mt-14 flex w-full items-center justify-between border-t border-brand-500/5 pt-6">
+                  <div className="w-full mt-14 flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-t border-brand-500/5 pt-6">
                     <p className="text-sm text-brand-500/40 italic">
                       Paid already? It might take 1-2 mins to sync.
                     </p>

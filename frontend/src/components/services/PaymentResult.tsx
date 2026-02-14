@@ -34,7 +34,7 @@ export default function PaymentResult({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full lg:max-w-5/12 mx-auto px-8 py-10 bg-smoke-200 shadow-enstore rounded-[48px]">
+    <div className="flex flex-col items-center justify-center w-full lg:max-w-5/12 mx-auto px-6 py-8 md:px-8 md:py-10 bg-smoke-200 shadow-enstore rounded-[48px]">
       {/* Icon */}
       <motion.div
         initial={{ scale: 0 }}
@@ -58,7 +58,7 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className={`mb-4 text-center text-3xl font-bold lg:text-4xl ${isSuccess ? "text-ocean-500" : "text-red-500"}`}
+        className={`mb-4 text-center text-2xl md:text-3xl font-bold lg:text-4xl ${isSuccess ? "text-ocean-500" : "text-red-500"}`}
       >
         {isSuccess ? "Transaction Successful!" : "Transaction Failed"}
       </motion.h1>
@@ -67,7 +67,7 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mb-10 text-center text-brand-500/40"
+        className="text-sm md:text-base mb-10 text-center text-brand-500/40"
       >
         {isSuccess
           ? "Your top-up has been processed and delivered."
@@ -91,7 +91,7 @@ export default function PaymentResult({
               <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Invoice ID
               </p>
-              <p className="font-bold text-brand-500/90">
+              <p className="text-sm md:text-base font-bold text-brand-500/90">
                 {transaction.transaction_code}
               </p>
             </div>
@@ -118,7 +118,7 @@ export default function PaymentResult({
               <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Game
               </p>
-              <p className="font-bold text-brand-500/90">
+              <p className="text-sm md:text-base font-bold text-brand-500/90">
                 {transaction.product.name}
               </p>
             </div>
@@ -135,7 +135,7 @@ export default function PaymentResult({
               <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Item Delivered
               </p>
-              <p className="font-bold text-brand-500/90">
+              <p className="text-sm md:text-base font-bold text-brand-500/90">
                 {transaction.product.item}
               </p>
             </div>
