@@ -107,7 +107,10 @@ export default function ProductDetailPage() {
 
   // Helpers
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("id-ID").format(price);
+    return new Intl.NumberFormat("id-ID", {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+    }).format(price);
   };
 
   const selectedItem = product?.items?.find((i) => i.id === selectedPackage);
@@ -182,10 +185,10 @@ export default function ProductDetailPage() {
           ]}
         />
 
-        <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3">
           {/* Left Side - Sticky on Desktop */}
           <motion.div
-            className="w-full lg:w-4/12"
+            className="lg:col-span-1"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -215,7 +218,7 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <div className="px-6 py-8">
+                <div className="px-4 py-6 md:px-6 md:py-8">
                   {/* How to Top Up */}
                   <div className="mb-8 flex items-start gap-4">
                     <InfoRounded className="text-[20px] text-ocean-500" />
@@ -286,15 +289,15 @@ export default function ProductDetailPage() {
 
           {/* Right Side - Main Content */}
           <motion.div
-            className="w-full lg:w-8/12"
+            className="lg:col-span-2"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             {/* Step 1: Enter User Data (Dynamic from input_fields) */}
             {product.input_fields && product.input_fields.length > 0 && (
-              <div className="mb-8 rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore">
-                <div className="mb-10 flex items-center gap-3">
+              <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
+                <div className="mb-6 flex items-center gap-3 md:mb-10">
                   <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
                     1
                   </div>
@@ -304,7 +307,7 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div
-                  className={`mb-8 grid gap-6 ${product.input_fields.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+                  className={`mb-8 grid gap-x-6 gap-y-8 ${product.input_fields.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}
                 >
                   {product.input_fields.map((field) => (
                     <Input
@@ -334,8 +337,8 @@ export default function ProductDetailPage() {
             )}
 
             {/* Step 2: Select Nominal */}
-            <div className="mb-8 rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore">
-              <div className="mb-10 flex items-center gap-3">
+            <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
+              <div className="mb-6 flex items-center gap-3 md:mb-10">
                 <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
                   {product.input_fields && product.input_fields.length > 0
                     ? 2
@@ -376,7 +379,7 @@ export default function ProductDetailPage() {
                             <h3 className="mb-4 text-lg font-bold text-brand-500/80 capitalize">
                               {group}
                             </h3>
-                            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
                               {groupItems.map((item) => (
                                 <ItemCard
                                   key={item.id}
@@ -392,7 +395,7 @@ export default function ProductDetailPage() {
                         );
                       })
                     ) : (
-                      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
                         {activeItems.map((item) => (
                           <ItemCard
                             key={item.id}
@@ -417,8 +420,8 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Step 3: Payment Method */}
-            <div className="mb-8 rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore">
-              <div className="mb-10 flex items-center gap-3">
+            <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
+              <div className="mb-6 flex items-center gap-3 md:mb-10">
                 <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
                   3
                 </div>
@@ -430,8 +433,8 @@ export default function ProductDetailPage() {
               {/* Payment Channels from API */}
               {Object.entries(groupedChannels).map(
                 ([group, channels], index) => (
-                  <div key={group} className={index > 0 ? "mt-8" : ""}>
-                    <p className="flex items-center gap-2 text-sm font-medium tracking-wide text-brand-500/40 uppercase">
+                  <div key={group} className={index > 0 ? "mt-6 md:mt-8" : ""}>
+                    <p className="flex items-center gap-2 text-xs font-medium tracking-wide text-brand-500/40 uppercase md:text-sm">
                       <span className="h-2 w-2 rounded-full bg-brand-500/40" />
                       {group}
                     </p>
@@ -441,7 +444,7 @@ export default function ProductDetailPage() {
                         <motion.button
                           key={channel.code}
                           onClick={() => setSelectedPayment(channel.code)}
-                          className={`mt-4 w-full rounded-3xl border-2 p-4 text-left transition-all duration-300 ${
+                          className={`mt-2 w-full rounded-3xl border-2 p-4 text-left transition-all duration-300 md:mt-4 ${
                             selectedPayment === channel.code
                               ? "border-ocean-500 bg-ocean-500/5"
                               : "border-brand-500/5 bg-smoke-200 hover:border-ocean-500/30"
@@ -449,16 +452,16 @@ export default function ProductDetailPage() {
                           whileTap={{ scale: 0.99 }}
                         >
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 md:gap-3">
                               <div
-                                className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-300 ${
+                                className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 md:h-12 md:w-12 md:rounded-2xl ${
                                   selectedPayment === channel.code
                                     ? "bg-ocean-500"
                                     : "bg-cloud-200"
                                 }`}
                               >
                                 <span
-                                  className={`text-sm font-bold transition-all duration-300 ${
+                                  className={`text-xs font-bold transition-all duration-300 md:text-sm ${
                                     selectedPayment === channel.code
                                       ? "text-cloud-200"
                                       : "text-ocean-500"
@@ -467,13 +470,15 @@ export default function ProductDetailPage() {
                                   {channel.code.slice(0, 3)}
                                 </span>
                               </div>
-                              <p className="font-medium text-brand-500/90">
-                                {channel.name}
+                              <p className="text-sm font-medium text-brand-500/90 md:text-base">
+                                {channel.name
+                                  .replace("Virtual Account", "VA")
+                                  .replace("(Customizable)", "")}
                               </p>
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-brand-500/40">Fee</p>
-                              <p className="font-medium text-ocean-500">
+                              <p className="text-sm font-medium text-ocean-500 md:text-base">
                                 Rp. {formatPrice(getChannelFee(channel))}
                               </p>
                             </div>
@@ -494,12 +499,12 @@ export default function ProductDetailPage() {
 
             {/* Checkout Bar */}
             <motion.div
-              className="rounded-[48px] bg-smoke-200 px-8 py-10 shadow-enstore"
+              className="rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
                 <div>
                   <Input
                     type="email"
@@ -511,12 +516,12 @@ export default function ProductDetailPage() {
                     iconPosition="left"
                     fullWidth={true}
                   />
-                  <p className="mt-2 text-center text-xs text-brand-500/40 sm:text-left">
+                  <p className="mt-2 text-left text-xs text-brand-500/40">
                     Receipt & order updates will be sent here
                   </p>
                 </div>
 
-                <div className="flex justify-end gap-6">
+                <div className="flex items-center justify-between gap-6 md:justify-end">
                   <div className="text-right">
                     <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                       Total

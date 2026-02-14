@@ -20,7 +20,7 @@ export default function ItemCard({
   return (
     <motion.button
       onClick={() => setSelectedPackage(item.id)}
-      className={`relative rounded-3xl border-2 p-6 text-center transition-all duration-300 ${
+      className={`relative rounded-3xl border-2 p-4 text-center transition-all duration-300 md:p-6 ${
         selectedPackage === item.id
           ? "border-ocean-500 bg-ocean-500/5"
           : "border-brand-500/5 bg-smoke-200 hover:border-ocean-500/30"
@@ -28,8 +28,8 @@ export default function ItemCard({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      <div className="mb-6 flex justify-center">
-        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-ocean-500/20 bg-ocean-500/10">
+      <div className="mb-4 flex justify-center md:mb-6">
+        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-ocean-500/20 bg-ocean-500/10 md:h-12 md:w-12 md:rounded-2xl">
           {icon ? (
             <div className="relative h-8 w-8">
               <Image
@@ -45,7 +45,9 @@ export default function ItemCard({
         </div>
       </div>
 
-      <p className="mb-2 font-bold text-brand-500/90">{item.name}</p>
+      <p className="mb-1 text-sm font-bold text-brand-500/90 md:mb-2 md:text-base">
+        {item.name}
+      </p>
       <p className="text-xs text-brand-500/40">Rp. {formatPrice(item.price)}</p>
     </motion.button>
   );

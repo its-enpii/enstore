@@ -258,7 +258,7 @@ export default function ServicesPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <div className="flex flex-1 items-center gap-2 px-4">
-                <SearchRounded className="h-4! w-4! text-brand-500/30 md:h-6! md:w-6!" />
+                <SearchRounded className="h-5! w-5! text-brand-500/40 md:h-6! md:w-6!" />
                 <input
                   type="text"
                   placeholder="Search for games or services..."
