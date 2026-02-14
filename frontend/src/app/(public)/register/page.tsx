@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -19,9 +19,11 @@ import {
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { register } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { user, refreshUser, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
@@ -36,9 +38,22 @@ export default function RegisterPage() {
     password_confirmation: "",
     referral_code: "",
     terms: false,
+    customer_type: "retail",
   });
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === 'admin') {
+        router.push("/admin/dashboard");
+      } else if (user.customer_type === 'reseller') {
+        router.push("/reseller/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,11 +77,30 @@ export default function RegisterPage() {
         name: `${firstName} ${lastName}`.trim(),
     };
 
+    // Remove terms from payload as backend doesn't expect it
+    const { terms, ...apiPayload } = payload;
+
     try {
-      const res = await register(payload);
+      const res = await register(apiPayload);
       if (res.success) {
-        toast.success("Registration successful! Please login.");
-        router.push("/login");
+        const token = (res.data as any).access_token;
+        if (token) {
+          localStorage.setItem("auth_token", token);
+          await refreshUser();
+          toast.success("Registration successful!");
+          
+          const userData = (res.data as any).user;
+          if (userData.role === 'admin') {
+            router.push("/admin/dashboard");
+          } else if (userData.customer_type === 'reseller') {
+            router.push("/reseller/dashboard");
+          } else {
+            router.push("/dashboard");
+          }
+        } else {
+          toast.success("Registration successful! Please login.");
+          router.push("/login");
+        }
       } else {
         toast.error(res.message || "Registration failed");
       }
@@ -95,7 +129,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="mt-12 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Input
-              label="Email or Phone"
+              label="Email"
               placeholder="john@gmail.com"
               startIcon={<AlternateEmailRounded />}
               value={formData.email}
@@ -104,7 +138,7 @@ export default function RegisterPage() {
               }
               required
               fullWidth
-              type="text"
+              type="email"
               error={fieldErrors.email?.[0]}
             />
           </div>
@@ -146,7 +180,7 @@ export default function RegisterPage() {
 
           <Input
             label="Referral Code (optional)"
-            placeholder="112345"
+            placeholder="ABC12345"
             startIcon={<ConfirmationNumberRounded />}
             value={formData.referral_code}
             onChange={(e) =>

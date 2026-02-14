@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api\Customer;
 use App\Http\Controllers\Controller;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -16,85 +19,105 @@ class ProductController extends Controller
   }
 
   /**
+   * Helper to get customer type from optional auth.
+   * Uses multi-layer detection to ensure resellers are correctly identified
+   * even on unprotected public routes.
+   */
+  private function getCustomerType(): string
+  {
+    try {
+      // Layer 1: Check if Sanctum guard already has the user
+      $user = Auth::guard('sanctum')->user();
+      if ($user) {
+        return $user->customer_type;
+      }
+
+      // Layer 2: Manually find token from Authorization header if guard didn't pick it up
+      $token = request()->bearerToken();
+      if ($token) {
+        $accessToken = PersonalAccessToken::findToken($token);
+        if ($accessToken && $accessToken->tokenable) {
+          $user = $accessToken->tokenable;
+          // Important: Authenticate the user for the rest of this request
+          Auth::guard('sanctum')->setUser($user);
+          return $user->customer_type;
+        }
+      }
+    } catch (\Exception $e) {
+      Log::error('[AUTH_DETECTION] Error: ' . $e->getMessage());
+    }
+
+    return 'retail';
+  }
+
+  /**
    * Get product list with hierarchical items
    */
   public function index(Request $request)
   {
     try {
-      // Pass all request parameters to support dynamic filtering
       $filters = $request->all();
+      $customerType = $this->getCustomerType();
 
-      // Get user's customer type for pricing
-      $user = auth()->user();
-      $customerType = $user ? $user->customer_type : 'retail';
+      $products = $this->productService->getActiveProducts($filters, $customerType);
 
-      $products = $this->productService->getActiveProducts($filters);
-
-      // Hide sensitive fields from items and add price based on customer type
       $products->each(function ($product) use ($customerType) {
+        // Eager load items if they aren't there
+        if (!$product->relationLoaded('items')) {
+          $product->load(['items' => function ($q) {
+            $q->active()->available()->orderBy('sort_order', 'asc');
+          }]);
+        }
+
         $product->items->each(function ($item) use ($customerType) {
-          $item->price = $item->getPriceForCustomer($customerType);
-          $item->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+          $price = $item->getPriceForCustomer($customerType);
+          $item->price = $price;
+          $item->retail_price = $price;
+          $item->makeHidden(['base_price', 'reseller_price', 'reseller_profit', 'retail_profit']);
         });
 
-        // Add price range metadata for the parent product
-        $range = $product->getPriceRange($customerType);
-        $product->price_range = $range;
+        $product->price_range = $product->getPriceRange($customerType);
       });
-
-      // Handle manual pagination since getActiveProducts returns a collection
-      $perPage = $request->get('per_page', 20);
-      $page = $request->get('page', 1);
-      $total = $products->count();
-      $paginatedProducts = $products->forPage($page, $perPage)->values();
 
       return response()->json([
         'success' => true,
+        'role' => $customerType,
         'data' => [
-          'products' => $paginatedProducts,
+          'products' => $products,
           'pagination' => [
-            'current_page' => (int) $page,
-            'per_page' => (int) $perPage,
-            'total' => $total,
-            'last_page' => ceil($total / $perPage),
+            'current_page' => (int) $request->get('page', 1),
+            'total' => $products->count(),
           ],
         ],
-      ]);
+      ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to get products: ' . $e->getMessage(),
-      ], 500);
+      return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
     }
   }
 
   /**
-   * Get product detail with items
+   * Get product detail
    */
   public function show($id)
   {
     try {
       $product = $this->productService->getProductById($id);
+      $customerType = $this->getCustomerType();
 
-      // Get user's customer type for pricing
-      $user = auth()->user();
-      $customerType = $user ? $user->customer_type : 'retail';
-
-      // Add price and hide sensitive fields for each item
       $product->items->each(function ($item) use ($customerType) {
-        $item->price = $item->getPriceForCustomer($customerType);
-        $item->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+        $price = $item->getPriceForCustomer($customerType);
+        $item->price = $price;
+        $item->retail_price = $price;
+        $item->makeHidden(['base_price', 'reseller_price', 'reseller_profit', 'retail_profit']);
       });
 
       return response()->json([
         'success' => true,
+        'role' => $customerType,
         'data' => $product,
-      ]);
+      ])->header('Cache-Control', 'no-store');
     } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Product not found',
-      ], 404);
+      return response()->json(['success' => false, 'message' => 'Not found'], 404);
     }
   }
 
@@ -105,44 +128,34 @@ class ProductController extends Controller
   {
     try {
       $product = $this->productService->getProductBySlug($slug);
-
-      $user = auth()->user();
-      $customerType = $user ? $user->customer_type : 'retail';
+      $customerType = $this->getCustomerType();
 
       $product->items->each(function ($item) use ($customerType) {
-        $item->price = $item->getPriceForCustomer($customerType);
-        $item->makeHidden(['base_price', 'retail_price', 'retail_profit', 'reseller_price', 'reseller_profit']);
+        $price = $item->getPriceForCustomer($customerType);
+        $item->price = $price;
+        $item->retail_price = $price;
+        $item->makeHidden(['base_price', 'reseller_price', 'reseller_profit', 'retail_profit']);
       });
 
       return response()->json([
         'success' => true,
+        'role' => $customerType,
         'data' => $product,
-      ]);
+      ])->header('Cache-Control', 'no-store');
     } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Product not found',
-      ], 404);
+      return response()->json(['success' => false, 'message' => 'Not found'], 404);
     }
   }
 
-  /**
-   * Get product categories
-   */
   public function categories()
   {
     try {
-      $categories = $this->productService->getCategories();
-
       return response()->json([
         'success' => true,
-        'data' => $categories,
+        'data' => $this->productService->getCategories(),
       ]);
     } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to get categories: ' . $e->getMessage(),
-      ], 500);
+      return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
     }
   }
 }

@@ -14,5 +14,5 @@ export const logout = async () => {
 };
 
 export const getMe = async () => {
-  return api.get(ENDPOINTS.auth.me, undefined, true);
+  return api.get((ENDPOINTS.auth as any).profile, undefined, true);
 };

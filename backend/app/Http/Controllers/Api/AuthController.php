@@ -297,6 +297,7 @@ class AuthController extends Controller
                     'role' => $user->role,
                     'customer_type' => $user->customer_type,
                     'avatar' => $user->avatar,
+                    'balance' => $user->balance?->amount ?? 0,
                     'referral_code' => $user->referral_code,
                     'status' => $user->status,
                     'email_verified_at' => $user->email_verified_at,

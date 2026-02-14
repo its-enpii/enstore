@@ -91,9 +91,8 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative overflow-hidden py-28">
-      {/* Background gradient overlay - only visible on mobile/tablet for text readability */}
-      <div className="pointer-events-none absolute inset-0 z-1 bg-linear-to-r from-cloud-200 via-cloud-200/90 to-cloud-200/60 lg:hidden" />
+    <section className="relative overflow-hidden py-28 bg-smoke-200">
+      <div className="pointer-events-none absolute inset-0 z-1 bg-linear-to-r from-smoke-200 via-smoke-200/90 to-smoke-200/60 lg:hidden" />
 
       <div className="relative z-2 container mx-auto px-4 lg:px-0">
         <motion.div
@@ -103,17 +102,17 @@ export function Hero() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <motion.span
-            className="mb-6 inline-flex items-center rounded-full border border-ocean-500/20 bg-ocean-500/10 px-3 py-2 text-xs font-medium tracking-wide text-ocean-500 uppercase sm:text-sm md:mb-8"
+            className="mb-6 inline-flex items-center rounded-full border border-ocean-500/20 bg-ocean-500/10 px-3 py-2 text-xs font-bold tracking-wide text-ocean-500 uppercase sm:text-sm md:mb-8"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ocean-500" />
-            <span className="ml-2">Banking for Gamers</span>
+            <span className="ml-2 lowercase">Banking for Gamers</span>
           </motion.span>
 
           <motion.h1
-            className="mb-4 max-w-2xl font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl md:mb-6 lg:text-6xl lg:leading-[1.1]"
+            className="mb-4 max-w-2xl font-sans text-3xl font-black tracking-tight text-brand-500 sm:text-4xl md:mb-6 lg:text-6xl lg:leading-[1.1]"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -126,7 +125,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            className="mb-8 max-w-sm text-sm leading-relaxed text-brand-500/40 sm:text-base md:mb-10"
+            className="mb-8 max-w-sm text-sm font-bold leading-relaxed text-brand-500/20 sm:text-base md:mb-10 uppercase tracking-widest"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -141,23 +140,23 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
                 variant="dark"
                 icon={<ArrowForwardRounded />}
                 iconPosition="right"
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto rounded-2xl"
               >
                 Top Up Now
               </Button>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
               <Button
                 variant="white"
                 size="lg"
                 icon={<PlayArrowRounded />}
-                className="w-full border border-brand-500/10 hover:bg-white sm:w-auto"
+                className="w-full border border-brand-500/5 sm:w-auto rounded-2xl bg-cloud-200"
               >
                 How it works
               </Button>
@@ -166,7 +165,6 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Game covers background - visible on all screen sizes */}
       <motion.div
         className="absolute inset-0 z-0 h-full w-full lg:right-0 lg:left-auto lg:w-1/2"
         initial={{ opacity: 0, x: 100 }}
@@ -174,7 +172,6 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 0.3 }}
       >
         <div className="flex h-full w-full rotate-25 items-center justify-center gap-4 sm:gap-6">
-          {/* First column */}
           <div
             ref={ScrollContainerRef}
             className="mt-20 h-screen w-fit overflow-x-hidden overflow-y-auto scroll-auto [&::-webkit-scrollbar]:hidden"
@@ -182,7 +179,7 @@ export function Hero() {
             {[...gameCovers, ...gameCovers].map((game, index) => (
               <div
                 key={index}
-                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl"
+                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl grayscale hover:grayscale-0 transition-all duration-500"
               >
                 <Image
                   src={game.image}
@@ -195,7 +192,6 @@ export function Hero() {
             ))}
           </div>
 
-          {/* Second column - visible on all sizes */}
           <div
             ref={ReverseScrollContainerRef}
             className="mb-20 h-screen w-fit overflow-x-hidden overflow-y-auto scroll-auto [&::-webkit-scrollbar]:hidden"
@@ -203,7 +199,7 @@ export function Hero() {
             {[...gameCovers, ...gameCovers].reverse().map((game, index) => (
               <div
                 key={index}
-                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl"
+                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl grayscale hover:grayscale-0 transition-all duration-500"
               >
                 <Image
                   src={game.image}

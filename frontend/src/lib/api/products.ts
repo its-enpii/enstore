@@ -17,7 +17,7 @@ import type {
 } from "./types";
 
 // ----------------------------------------------------------
-// Public Product API (No Auth)
+// Product API (Optional Auth for dynamic pricing)
 // ----------------------------------------------------------
 
 /**
@@ -29,6 +29,7 @@ export async function getProducts(
   return api.get<ProductListResponse>(
     ENDPOINTS.products.list,
     filters as QueryParams,
+    true // Enable optional auth
   );
 }
 
@@ -38,7 +39,11 @@ export async function getProducts(
 export async function getProductById(
   id: number | string,
 ): Promise<ApiResponse<Product>> {
-  return api.get<Product>(ENDPOINTS.products.detail(id));
+  return api.get<Product>(
+    ENDPOINTS.products.detail(id),
+    undefined,
+    true // Enable optional auth
+  );
 }
 
 /**
@@ -47,7 +52,11 @@ export async function getProductById(
 export async function getProductBySlug(
   slug: string,
 ): Promise<ApiResponse<Product>> {
-  return api.get<Product>(ENDPOINTS.products.detailBySlug(slug));
+  return api.get<Product>(
+    ENDPOINTS.products.detailBySlug(slug),
+    undefined,
+    true // Enable optional auth
+  );
 }
 
 /**

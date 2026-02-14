@@ -1,10 +1,12 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,48 +14,86 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarHidden, setSidebarHidden] = useState(false);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Initial state based on screen size
+    if (window.innerWidth < 1024) {
+      setSidebarHidden(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+      return;
+    }
+    
+    // Strict Role Separation
+    if (!loading && user) {
+      if (user.role === 'admin') {
+        if (role !== 'admin') {
+          router.push('/admin/dashboard');
+        }
+      } else if (user.customer_type === 'reseller') {
+        if (role !== 'reseller') {
+          router.push('/reseller/dashboard');
+        }
+      } else { // retail / customer
+        if (role !== 'retail') {
+          router.push('/dashboard');
+        }
+      }
+    }
+  }, [user, loading, role, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center transition-colors duration-300">
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className={`min-h-screen ${sidebarHidden ? 'sidebar-hidden' : ''}`}>
       {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {!sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSidebarOpen(true)}
-            className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden transition-opacity"
-          />
-        )}
-      </AnimatePresence>
+      <div 
+        className={`fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${sidebarHidden ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
+        onClick={() => setSidebarHidden(true)}
+      />
 
-      <div className="flex h-screen overflow-hidden">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
         {/* Sidebar */}
-        <div className={`
-          fixed inset-y-0 left-0 z-50 lg:relative lg:block transition-transform duration-300
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          ${sidebarOpen ? 'w-64' : 'lg:w-0'}
-        `}>
-          <Sidebar role={role} onClose={() => setSidebarOpen(false)} />
-        </div>
+        <aside className="layout-sidebar bg-white dark:bg-slate-800">
+          <Sidebar role={role} onClose={() => setSidebarHidden(true)} />
+        </aside>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        {/* Main Content Area */}
+        <div className="layout-content">
+          <Navbar onToggleSidebar={() => setSidebarHidden(!sidebarHidden)} />
           
-          <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8 lg:px-10 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+          <main className="flex-1 overflow-x-hidden p-4 lg:p-8 relative">
             <div className="container mx-auto">
-              {children}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                {children}
+              </motion.div>
             </div>
+            
+            <footer className="mt-auto py-8 text-center border-t border-slate-100 dark:border-slate-800/50">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400 font-medium tracking-wide">
+                    &copy; 2026 ENCORE UI &bull; ENSTORE PLATFORM
+                </p>
+            </footer>
           </main>
-          
-          <footer className="py-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 text-center">
-            <p className="text-[10px] md:text-sm text-slate-500 dark:text-slate-400">
-              &copy; 2026 Enstore. All rights reserved. Specialized by Encore UI.
-            </p>
-          </footer>
         </div>
       </div>
     </div>

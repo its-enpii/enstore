@@ -16,13 +16,16 @@ import {
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ResellerDashboard() {
+  const { user } = useAuth();
+
   const stats = [
-    { title: "Available Balance", value: "Rp 2.450.000", icon: <AccountBalanceWalletRounded />, color: "bg-indigo-500", light: "bg-indigo-50", dark: "dark:bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
-    { title: "Today's Sales", value: "Rp 540.000", icon: <ShoppingCartRounded />, color: "bg-emerald-500", light: "bg-emerald-50", dark: "dark:bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
-    { title: "Monthly Profit", value: "Rp 1.250.000", icon: <TrendingUpRounded />, color: "bg-purple-500", light: "bg-purple-50", dark: "dark:bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
-    { title: "Active Orders", value: "12", icon: <AssessmentRounded />, color: "bg-amber-500", light: "bg-amber-50", dark: "dark:bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+    { title: "Available Balance", value: `Rp ${user?.balance?.toLocaleString('id-ID') || '0'}`, icon: <AccountBalanceWalletRounded />, color: "bg-indigo-500", light: "bg-indigo-50", dark: "dark:bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
+    { title: "Today's Sales", value: "Rp 0", icon: <ShoppingCartRounded />, color: "bg-emerald-500", light: "bg-emerald-50", dark: "dark:bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
+    { title: "Monthly Profit", value: "Rp 0", icon: <TrendingUpRounded />, color: "bg-purple-500", light: "bg-purple-50", dark: "dark:bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
+    { title: "Active Orders", value: "0", icon: <AssessmentRounded />, color: "bg-amber-500", light: "bg-amber-50", dark: "dark:bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
   ];
 
   return (
@@ -32,7 +35,7 @@ export default function ResellerDashboard() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reseller Panel 💼</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Monitor your sales performance and balance.</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Hello, {user?.name}. Monitor your sales performance and balance.</p>
           </div>
           <div className="flex gap-2">
             <Link 
@@ -64,9 +67,8 @@ export default function ResellerDashboard() {
                   {stat.icon}
                 </div>
               </div>
-              <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-emerald-500 uppercase italic">
-                <NorthEastRounded fontSize="inherit" />
-                <span>+12.5% vs yesterday</span>
+              <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase italic">
+                <span>Updated just now</span>
               </div>
             </motion.div>
           ))}
@@ -75,32 +77,6 @@ export default function ResellerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Sales Chart Placeholder */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700">
-               <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-bold text-slate-900 dark:text-white">Sales Analytics</h2>
-                  <select className="bg-slate-50 dark:bg-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border-0 outline-none">
-                    <option>Last 7 Days</option>
-                    <option>Last 30 Days</option>
-                  </select>
-               </div>
-               <div className="h-64 flex items-end justify-between gap-2 px-2">
-                  {[40, 65, 45, 80, 55, 90, 70].map((height, i) => (
-                    <div key={i} className="flex-1 space-y-2 text-center group">
-                      <div className="relative h-48 w-full bg-slate-50 dark:bg-slate-700/50 rounded-lg overflow-hidden flex items-end">
-                        <motion.div 
-                          initial={{ height: 0 }}
-                          animate={{ height: `${height}%` }}
-                          transition={{ delay: i * 0.1 + 0.5, type: "spring" }}
-                          className="w-full bg-linear-to-t from-indigo-500 to-purple-500 rounded-t-lg group-hover:from-indigo-400 group-hover:to-purple-400 transition-all cursor-pointer"
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">Day {i+1}</span>
-                    </div>
-                  ))}
-               </div>
-            </div>
-
             {/* Recent Orders */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -110,34 +86,13 @@ export default function ResellerDashboard() {
                 </Link>
               </div>
               <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                <table className="w-full text-left">
-                  <thead className="border-b border-slate-100 dark:border-slate-700">
-                    <tr>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transaction</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Amount</th>
-                      <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Profit</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                    {[1, 2, 3, 4].map((i) => (
-                      <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">Weekly Diamond Pass</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 uppercase tracking-tighter">ENS20260214-99{i}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 font-bold rounded-full uppercase">
-                             <CheckCircleRounded fontSize="inherit" />
-                             <span>Success</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">Rp 28.500</td>
-                        <td className="px-6 py-4 text-sm font-bold text-indigo-600 dark:text-indigo-400">Rp 1.500</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                 <div className="p-16 text-center">
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <ShoppingCartRounded className="text-slate-200 dark:text-slate-600" fontSize="large" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">No sales data found</h3>
+                    <p className="text-slate-500 mt-2">Start selling game products to see your performance here.</p>
+                 </div>
               </div>
             </div>
           </div>
@@ -150,36 +105,25 @@ export default function ResellerDashboard() {
                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
                       <AccountBalanceWalletRounded />
                    </div>
-                   <span className="text-xs font-bold uppercase tracking-widest opacity-60 italic">Reseller Plus</span>
+                   <span className="text-xs font-bold uppercase tracking-widest opacity-60 italic">{user?.customer_type} User</span>
                 </div>
-                <p className="text-xs opacity-80">Connected Wallet Balance</p>
-                <p className="text-2xl font-black mt-1">Rp 2.450.000</p>
+                <p className="text-xs opacity-80">Available Wallet Balance</p>
+                <p className="text-2xl font-black mt-1">Rp {user?.balance?.toLocaleString('id-ID') || '0'}</p>
                 <div className="mt-8 grid grid-cols-2 gap-3">
-                   <button className="py-2.5 bg-white text-indigo-600 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                   <Link href="/reseller/topup" className="py-2.5 bg-white text-indigo-600 font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition-transform hover:scale-105 active:scale-95">
                       <AddRounded fontSize="inherit" /> Top Up
-                   </button>
-                   <button className="py-2.5 bg-white/20 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 backdrop-blur-md">
+                   </Link>
+                   <Link href="/reseller/balance/history" className="py-2.5 bg-white/20 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 backdrop-blur-md transition-transform hover:scale-105 active:scale-95">
                       History
-                   </button>
+                   </Link>
                 </div>
              </div>
 
              {/* Recent Balance Mutations */}
              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <h3 className="font-bold text-slate-900 dark:text-white mb-4">Balance Mutations</h3>
-                <div className="space-y-4">
-                   {[1, 2].map(i => (
-                     <div key={i} className="flex items-start gap-4">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${i === 1 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600' : 'bg-red-50 dark:bg-red-500/10 text-red-600'}`}>
-                           <HistoryRounded fontSize="small" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                           <p className="text-xs font-bold text-slate-900 dark:text-white truncate">Top Up Balance Confirmed</p>
-                           <p className="text-[10px] text-slate-400 mt-0.5">Feb 14, 2026 • 12:45</p>
-                        </div>
-                        <p className={`text-xs font-bold ${i === 1 ? 'text-emerald-500' : 'text-red-500'}`}>{i === 1 ? '+500k' : '-28k'}</p>
-                     </div>
-                   ))}
+                <div className="py-8 text-center border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-xl">
+                   <p className="text-xs text-slate-400 font-medium">No recent mutations</p>
                 </div>
                 <button className="w-full mt-6 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                    View Full History

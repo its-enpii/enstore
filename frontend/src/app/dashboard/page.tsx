@@ -14,13 +14,16 @@ import {
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CustomerDashboard() {
+  const { user } = useAuth();
+
   const stats = [
-    { title: "Total Orders", value: "24", icon: <ShoppingCartRounded />, color: "bg-indigo-500", light: "bg-indigo-50", dark: "dark:bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
-    { title: "My Balance", value: "Rp 150.000", icon: <AccountBalanceWalletRounded />, color: "bg-emerald-500", light: "bg-emerald-50", dark: "dark:bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
-    { title: "Saved Items", value: "12", icon: <LocalOfferRounded />, color: "bg-purple-500", light: "bg-purple-50", dark: "dark:bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
-    { title: "Notifications", value: "3", icon: <NotificationsRounded />, color: "bg-amber-500", light: "bg-amber-50", dark: "dark:bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+    { title: "Total Orders", value: "0", icon: <ShoppingCartRounded />, color: "bg-indigo-500", light: "bg-indigo-50", dark: "dark:bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
+    { title: "My Balance", value: `Rp ${user?.balance?.toLocaleString('id-ID') || '0'}`, icon: <AccountBalanceWalletRounded />, color: "bg-emerald-500", light: "bg-emerald-50", dark: "dark:bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
+    { title: "Saved Items", value: "0", icon: <LocalOfferRounded />, color: "bg-purple-500", light: "bg-purple-50", dark: "dark:bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
+    { title: "Notifications", value: "0", icon: <NotificationsRounded />, color: "bg-amber-500", light: "bg-amber-50", dark: "dark:bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
   ];
 
   return (
@@ -29,7 +32,7 @@ export default function CustomerDashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome back, John! 👋</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome back, {user?.name.split(' ')[0]}! 👋</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1">Here&apos;s what&apos;s happening with your account today.</p>
           </div>
           <Link 
@@ -75,25 +78,13 @@ export default function CustomerDashboard() {
             </div>
             
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
-              <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                        <HistoryRounded className="text-slate-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">Mobile Legends - 86 Diamonds</p>
-                        <p className="text-xs text-slate-500 mt-0.5">ENS/20260214/10{item} • Feb 14, 2026</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">Rp 21.000</p>
-                      <span className="text-[10px] px-2 py-0.5 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 font-bold rounded-full uppercase">Success</span>
-                    </div>
+               <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <HistoryRounded className="text-slate-300" fontSize="large" />
                   </div>
-                ))}
-              </div>
+                  <h3 className="font-bold text-slate-900 dark:text-white">No transactions yet</h3>
+                  <p className="text-sm text-slate-500 mt-1">When you make a purchase, it will show up here.</p>
+               </div>
             </div>
           </div>
 

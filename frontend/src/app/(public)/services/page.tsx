@@ -29,9 +29,9 @@ export default function ServicesPage() {
   // API States
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true); // only for the very first load
-  const [loadingMore, setLoadingMore] = useState(false); // loading next page
-  const [refreshing, setRefreshing] = useState(false); // filter/search change (keeps grid visible)
+  const [initialLoading, setInitialLoading] = useState(true); 
+  const [loadingMore, setLoadingMore] = useState(false); 
+  const [refreshing, setRefreshing] = useState(false); 
   const [error, setError] = useState<string | null>(null);
 
   // Pagination
@@ -39,7 +39,6 @@ export default function ServicesPage() {
   const [lastPage, setLastPage] = useState(1);
   const hasMore = currentPage < lastPage;
 
-  // Ref to prevent double-fetch on mount
   const hasFetchedInitial = useRef(false);
 
   // Category icon mapping
@@ -52,9 +51,6 @@ export default function ServicesPage() {
     "social-media": <ShareRounded fontSize="small" />,
   };
 
-  // ----------------------------------------------------------
-  // Debounce search input (400ms)
-  // ----------------------------------------------------------
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -62,9 +58,6 @@ export default function ServicesPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // ----------------------------------------------------------
-  // Fetch products (reusable)
-  // ----------------------------------------------------------
   const fetchProducts = useCallback(
     async (page: number, append: boolean) => {
       if (append) {
@@ -96,7 +89,6 @@ export default function ServicesPage() {
           const pagination = res.data.pagination;
 
           if (append) {
-            // Append to existing list
             setProducts((prev) => {
               const existingIds = new Set(prev.map((p) => p.id));
               const uniqueNewProducts = newProducts.filter(
@@ -105,7 +97,6 @@ export default function ServicesPage() {
               return [...prev, ...uniqueNewProducts];
             });
           } else {
-            // Replace list (new search / category)
             setProducts(newProducts);
           }
 
@@ -124,9 +115,6 @@ export default function ServicesPage() {
     [activeCategory, debouncedSearch],
   );
 
-  // ----------------------------------------------------------
-  // Fetch categories (once on mount)
-  // ----------------------------------------------------------
   useEffect(() => {
     async function fetchCats() {
       try {
@@ -141,27 +129,17 @@ export default function ServicesPage() {
     fetchCats();
   }, []);
 
-  // ----------------------------------------------------------
-  // Fetch products: on mount + when category/search changes
-  // ----------------------------------------------------------
   useEffect(() => {
-    // Reset to page 1 whenever filters change
     setCurrentPage(1);
     fetchProducts(1, false);
   }, [fetchProducts]);
 
-  // ----------------------------------------------------------
-  // Handle Load More — fetch next page from API
-  // ----------------------------------------------------------
   const handleLoadMore = useCallback(() => {
     if (loadingMore || refreshing || !hasMore) return;
     const nextPage = currentPage + 1;
     fetchProducts(nextPage, true);
   }, [loadingMore, refreshing, hasMore, currentPage, fetchProducts]);
 
-  // ----------------------------------------------------------
-  // Infinite Scroll — IntersectionObserver
-  // ----------------------------------------------------------
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -170,13 +148,11 @@ export default function ServicesPage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // Auto load when sentinel is near viewport
         if (entries[0].isIntersecting) {
           handleLoadMore();
         }
       },
       {
-        // Trigger 300px before the sentinel is visible
         rootMargin: "0px 0px 300px 0px",
         threshold: 0,
       },
@@ -186,15 +162,10 @@ export default function ServicesPage() {
     return () => observer.disconnect();
   }, [handleLoadMore]);
 
-  // ----------------------------------------------------------
-  // Handle category change
-  // ----------------------------------------------------------
   const handleCategoryChange = (categoryId: string) => {
     setActiveCategory(categoryId);
-    // fetchProducts will be called automatically via useEffect
   };
 
-  // Build category tabs from API data
   const categoryTabs = [
     { id: "all", label: "All Products", icon: null },
     ...categories
@@ -207,23 +178,22 @@ export default function ServicesPage() {
   ];
 
   return (
-    <>
+    <div className="bg-smoke-200 min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-cloud-200 pt-28 pb-12 md:pb-[72px]">
-        {/* Decorative Background Elements */}
+      <section className="relative overflow-hidden bg-smoke-200 pt-28 pb-12 md:pb-20">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <motion.div
-            className="absolute -top-10 -left-10 text-cloud-300/50"
+            className="absolute -top-10 -left-10 text-cloud-300 opacity-20"
             initial={{ opacity: 0, rotate: -15 }}
-            animate={{ opacity: 1, rotate: -15 }}
+            animate={{ opacity: 0.2, rotate: -15 }}
             transition={{ duration: 0.8 }}
           >
             <SportsEsportsRounded style={{ fontSize: 180 }} />
           </motion.div>
           <motion.div
-            className="absolute top-20 right-10 text-cloud-300/30"
+            className="absolute top-20 right-10 text-cloud-300 opacity-10"
             initial={{ opacity: 0, rotate: 15 }}
-            animate={{ opacity: 1, rotate: 15 }}
+            animate={{ opacity: 0.1, rotate: 15 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <SportsEsportsRounded style={{ fontSize: 120 }} />
@@ -238,13 +208,13 @@ export default function ServicesPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="flex flex-col items-center">
-              <h1 className="font-sans text-3xl font-bold tracking-tight text-brand-500/90 md:text-4xl lg:text-6xl lg:leading-[1.1]">
+              <h1 className="font-sans text-3xl font-black tracking-tight text-brand-500 md:text-4xl lg:text-6xl lg:leading-[1.1]">
                 Top Up <span className="text-ocean-500">Anything</span>
               </h1>
-              <h2 className="mb-6 text-2xl font-bold text-brand-500/10 md:mb-10 md:text-3xl lg:text-5xl">
+              <h2 className="mb-6 text-2xl font-black text-brand-500/10 md:mb-10 md:text-3xl lg:text-5xl">
                 Anywhere, Instantly.
               </h2>
-              <p className="mb-8 max-w-xl text-sm text-brand-500/40 md:mb-12 md:text-base md:tracking-wide">
+              <p className="mb-8 max-w-xl text-sm font-bold text-brand-500/20 md:mb-12 md:text-base uppercase tracking-widest">
                 Secure payments for games, vouchers, and bills with FinTech
                 grade reliability.
               </p>
@@ -252,7 +222,7 @@ export default function ServicesPage() {
 
             {/* Search Bar */}
             <motion.div
-              className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-brand-500/5 bg-white p-2 shadow-2xl shadow-ocean-500/10"
+              className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-brand-500/5 bg-cloud-300 p-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -262,12 +232,12 @@ export default function ServicesPage() {
                 <input
                   type="text"
                   placeholder="Search for games or services..."
-                  className="w-full bg-transparent py-3 text-sm text-brand-500/90 placeholder:text-brand-500/30 focus:outline-none md:py-4 md:text-base"
+                  className="w-full bg-transparent py-3 text-sm text-brand-500 font-bold placeholder:text-brand-500/20 focus:outline-none md:py-4 md:text-base placeholder:uppercase placeholder:tracking-widest"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="primary" size="md">
+              <Button variant="dark" size="md" className="rounded-full px-8!">
                 Search
               </Button>
             </motion.div>
@@ -276,11 +246,11 @@ export default function ServicesPage() {
       </section>
 
       {/* Products Section */}
-      <section className="bg-cloud-200 pb-28">
+      <section className="bg-smoke-200 pb-28">
         <div className="container mx-auto px-4 lg:px-0">
           {/* Category Tabs */}
           <motion.div
-            className="mb-6 flex flex-wrap items-center justify-center gap-2 md:mb-10 md:gap-4"
+            className="mb-8 flex flex-wrap items-center justify-center gap-2 md:mb-12 md:gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -289,10 +259,10 @@ export default function ServicesPage() {
               <button
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                className={`flex cursor-pointer items-center gap-2 rounded-full px-5 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 border ${
                   activeCategory === category.id
-                    ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
-                    : "bg-white text-brand-500/60 hover:bg-cloud-300"
+                    ? "bg-brand-500 text-cloud-200 border-brand-500"
+                    : "bg-cloud-300 text-brand-500/40 border-transparent hover:bg-cloud-400"
                 }`}
               >
                 {category.icon}
@@ -301,7 +271,7 @@ export default function ServicesPage() {
             ))}
           </motion.div>
 
-          {/* Initial Loading State (only shown on first ever load) */}
+          {/* Initial Loading State */}
           {initialLoading && (
             <div className="flex justify-center py-20">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-ocean-500/20 border-t-ocean-500" />
@@ -315,11 +285,11 @@ export default function ServicesPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <p className="text-lg text-red-500/70">{error}</p>
+              <p className="text-lg font-bold text-red-500/70">{error}</p>
               <Button
-                variant="primary"
+                variant="dark"
                 size="md"
-                className="mt-4"
+                className="mt-6 rounded-2xl"
                 onClick={() => fetchProducts(1, false)}
               >
                 Coba Lagi
@@ -327,7 +297,7 @@ export default function ServicesPage() {
             </motion.div>
           )}
 
-          {/* Products Grid — stays visible even during refresh */}
+          {/* Products Grid */}
           {!initialLoading && !error && (
             <>
               <div
@@ -348,31 +318,25 @@ export default function ServicesPage() {
                 ))}
               </div>
 
-              {/* Empty State */}
               {products.length === 0 && (
                 <motion.div
-                  className="py-20 text-center"
+                  className="py-24 text-center bg-cloud-300/50 rounded-[40px] border border-dashed border-brand-500/5"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
-                  <p className="text-lg text-brand-500/40">No products found</p>
+                  <SearchRounded className="text-brand-500/10 mb-4" style={{ fontSize: 64 }} />
+                  <p className="text-lg font-black text-brand-500/20 uppercase tracking-widest">No products found</p>
                 </motion.div>
               )}
 
-              {/* Infinite Scroll Sentinel + Load More Fallback */}
               {hasMore && (
                 <>
-                  {/* Invisible sentinel — triggers auto-load when scrolled into view */}
                   <div ref={sentinelRef} className="h-1 w-full" />
-
-                  {/* Loading spinner (shown during auto-load) */}
                   {loadingMore && (
                     <div className="mt-12 flex justify-center">
                       <div className="h-8 w-8 animate-spin rounded-full border-4 border-ocean-500/20 border-t-ocean-500" />
                     </div>
                   )}
-
-                  {/* Fallback button (visible when not auto-loading, e.g. slow connection) */}
                   {!loadingMore && (
                     <motion.div
                       className="mt-20 flex justify-center"
@@ -386,7 +350,7 @@ export default function ServicesPage() {
                         icon={<ExpandMoreRounded />}
                         iconPosition="right"
                         onClick={handleLoadMore}
-                        className="border border-brand-500/5 px-6! py-4!"
+                        className="rounded-full bg-cloud-300 border border-brand-500/5 text-brand-500/40 hover:text-brand-500 px-8!"
                       >
                         Load More
                       </Button>
@@ -398,6 +362,6 @@ export default function ServicesPage() {
           )}
         </div>
       </section>
-    </>
+    </div>
   );
 }

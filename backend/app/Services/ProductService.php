@@ -14,9 +14,10 @@ class ProductService
   /**
    * Get all active products with hierarchical structure
    */
-  public function getActiveProducts(array $filters = [])
+  public function getActiveProducts(array $filters = [], string $customerType = 'retail')
   {
-    $cacheKey = 'products.active.hierarchical.' . md5(json_encode($filters));
+    // Partition cache by customer type to prevent pricing leaks/stale prices between roles
+    $cacheKey = 'products.active.h.' . $customerType . '.' . md5(json_encode($filters));
 
     return Cache::remember($cacheKey, 300, function () use ($filters) {
       $query = Product::active()->with(['category']);
@@ -154,6 +155,11 @@ class ProductService
    */
   public function clearCache()
   {
+    try {
+      Cache::flush();
+    } catch (\Exception $e) {
+      // Redis error?
+    }
     Log::info('Product cache cleared');
     return true;
   }

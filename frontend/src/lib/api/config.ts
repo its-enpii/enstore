@@ -54,8 +54,8 @@ export const ENDPOINTS = {
     register: "/auth/register",
     /** POST - Logout */
     logout: "/auth/logout",
-    /** GET - Get current user */
-    me: "/auth/me",
+    /** GET - Get current user profile */
+    profile: "/auth/profile",
   },
 
   // ----------------------------------------------------------
