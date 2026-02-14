@@ -20,6 +20,7 @@ import Button from "@/components/ui/Button";
 import { getTransactionStatus, type TransactionStatus } from "@/lib/api";
 import Input from "@/components/ui/Input";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 export default function TrackOrderPage() {
   const [invoiceId, setInvoiceId] = useState("");
@@ -32,22 +33,29 @@ export default function TrackOrderPage() {
 
   const handleTrack = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!invoiceId.trim()) return;
+    if (!invoiceId.trim()) {
+        toast.error("Please enter an Invoice ID");
+        return;
+    }
 
     setLoading(true);
     setError(null);
     setSearched(true);
     setTransaction(null);
-
+    
     try {
       const res = await getTransactionStatus(invoiceId.trim());
       if (res.success) {
         setTransaction(res.data);
       } else {
-        setError(res.message || "Transaction not found");
+        const msg = res.message || "Transaction not found";
+        setError(msg);
+        toast.error(msg);
       }
     } catch (err: any) {
-      setError(err.message || "Failed to track order");
+      const msg = err.message || "Failed to track order";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 import React, { forwardRef, useId } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   inputSize?: "sm" | "md" | "lg";
@@ -9,6 +10,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   iconPosition?: "left" | "right";
   fullWidth?: boolean;
   required?: boolean;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  onStartIconClick?: () => void;
+  onEndIconClick?: () => void;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -20,6 +25,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       helperText,
       icon,
       iconPosition = "left",
+      startIcon: propStartIcon,
+      endIcon: propEndIcon,
+      onStartIconClick,
+      onEndIconClick,
       fullWidth = false,
       required = false,
       className = "",
@@ -31,6 +40,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const generatedId = useId();
     const inputId = id || generatedId;
+
+    // Resolve icons (backward compatibility)
+    const startIcon = propStartIcon || (iconPosition === "left" ? icon : undefined);
+    const endIcon = propEndIcon || (iconPosition === "right" ? icon : undefined);
 
     const baseStyles =
       "appearance-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden bg-cloud-200 text-brand-500/60 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 transition-all duration-200 rounded-full focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
@@ -46,18 +59,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       : "";
 
     const widthStyles = fullWidth ? "w-full" : "";
-    const iconPaddingStyles = icon
-      ? iconPosition === "left"
-        ? inputSize === "sm"
-          ? "!pl-9"
-          : inputSize === "md"
-            ? "!pl-10"
-            : "!pl-11"
-        : inputSize === "sm"
-          ? "!pr-9"
-          : inputSize === "md"
-            ? "!pr-10"
-            : "!pr-11"
+    
+    // Padding Logic
+    const paddingLeftStyles = startIcon 
+      ? inputSize === "sm" ? "!pl-9" : inputSize === "md" ? "!pl-10" : "!pl-11"
+      : "";
+      
+    const paddingRightStyles = endIcon
+      ? inputSize === "sm" ? "!pr-9" : inputSize === "md" ? "!pr-10" : "!pr-11"
       : "";
 
     const iconSizeStyles = {
@@ -66,20 +75,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       lg: "[&>svg]:w-6! [&>svg]:h-6!",
     };
 
-    const iconPositionStyles =
-      iconPosition === "left"
-        ? inputSize === "sm"
-          ? "left-3"
-          : inputSize === "md"
-            ? "left-3.5"
-            : "left-4"
-        : inputSize === "sm"
-          ? "right-3"
-          : inputSize === "md"
-            ? "right-3.5"
-            : "right-4";
+    const startIconPosition = inputSize === "sm" ? "left-3" : inputSize === "md" ? "left-3.5" : "left-4";
+    const endIconPosition = inputSize === "sm" ? "right-3" : inputSize === "md" ? "right-3.5" : "right-4";
 
-    const inputClasses = `${baseStyles} ${sizeStyles[inputSize]} ${widthStyles} ${errorStyles} ${iconPaddingStyles} ${className}`;
+    const inputClasses = `${baseStyles} ${sizeStyles[inputSize]} ${widthStyles} ${errorStyles} ${paddingLeftStyles} ${paddingRightStyles} ${className}`;
 
     return (
       <div className={`${fullWidth ? "w-full" : ""}`}>
@@ -96,16 +95,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         <div className="relative">
-          {icon && (
+          {startIcon && (
             <div
-              className={`absolute top-1/2 -translate-y-1/2 ${iconPositionStyles} ${
+              onClick={onStartIconClick}
+              className={`absolute top-1/2 -translate-y-1/2 ${startIconPosition} ${
                 error ? "text-red-500" : "text-brand-500/40"
-              } ${disabled ? "opacity-50" : ""} pointer-events-none`}
+              } ${disabled ? "opacity-50" : ""} ${onStartIconClick ? "cursor-pointer pointer-events-auto hover:text-brand-500/70" : "pointer-events-none"}`}
             >
-              <span
-                className={`flex items-center ${iconSizeStyles[inputSize]}`}
-              >
-                {icon}
+              <span className={`flex items-center ${iconSizeStyles[inputSize]}`}>
+                {startIcon}
               </span>
             </div>
           )}
@@ -125,13 +123,35 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             }
             {...props}
           />
+
+          {endIcon && (
+            <div
+              onClick={onEndIconClick}
+              className={`absolute top-1/2 -translate-y-1/2 ${endIconPosition} ${
+                error ? "text-red-500" : "text-brand-500/40"
+              } ${disabled ? "opacity-50" : ""} ${onEndIconClick ? "cursor-pointer pointer-events-auto hover:text-brand-500/70" : "pointer-events-none"}`}
+            >
+              <span className={`flex items-center ${iconSizeStyles[inputSize]}`}>
+                {endIcon}
+              </span>
+            </div>
+          )}
         </div>
 
-        {error && (
-          <p id={`${inputId}-error`} className="mt-1.5 text-sm text-red-600">
-            {error}
-          </p>
-        )}
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              id={`${inputId}-error`}
+              className="mt-1.5 text-sm text-red-500"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         {!error && helperText && (
           <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-gray-500">

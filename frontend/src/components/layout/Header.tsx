@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { SearchRounded, MenuRounded, CloseRounded } from "@mui/icons-material";
+import { useState, useEffect, useRef } from "react";
+import { SearchRounded, MenuRounded, CloseRounded, ImageNotSupportedRounded } from "@mui/icons-material";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import Button from "../ui/Button";
 import Input from "../ui/Input";
+import { getProducts } from "@/lib/api";
+import type { Product } from "@/lib/api/types";
 
 const navLinks = [
   { href: "/", label: "Home"},
@@ -15,6 +18,135 @@ const navLinks = [
   { href: "/track-order", label: "Track Order"},
   { href: "/help", label: "Help"},
 ];
+
+function SearchBar({ mobile = false, onSearchSelect }: { mobile?: boolean; onSearchSelect?: () => void }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Clear search when navigating to a new page
+  useEffect(() => {
+    setQuery("");
+  }, [pathname]);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (query.trim().length >= 2) {
+        setLoading(true);
+        try {
+          const res = await getProducts({ search: query, per_page: 5 });
+          if (res.success) {
+            setResults(res.data.products);
+          } else {
+             setResults([]);
+          }
+        } catch (error) {
+           console.error("Search error", error);
+           setResults([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setResults([]);
+      }
+    }, 500); 
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (slug: string) => {
+    router.push(`/services/${slug}`);
+    setIsFocused(false);
+    // query clear is handled by useEffect[pathname] but we can also do it here for immediate feedback
+    if (onSearchSelect) onSearchSelect();
+  };
+
+  return (
+    <div ref={containerRef} className={`relative ${mobile ? "w-full" : "w-64 lg:w-80"}`}>
+        <Input
+            type="search"
+            icon={<SearchRounded />}
+            iconPosition="left"
+            placeholder="Search games..."
+            inputSize="sm"
+            fullWidth={true}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onClick={(e) => e.currentTarget.select()}
+            className="search-input"
+        />
+        
+        <AnimatePresence>
+            {isFocused && (query.trim().length >= 2) && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-brand-500/5 bg-white p-2 shadow-xl z-50 overflow-hidden"
+                >
+                    {loading ? (
+                        <div className="flex items-center justify-center p-4 text-sm text-brand-500/40">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500/20 border-t-ocean-500 mr-2"></div>
+                            Searching...
+                        </div>
+                    ) : results.length > 0 ? (
+                        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto custom-scrollbar">
+                            {results.map((product) => (
+                                <button
+                                    key={product.id}
+                                    onClick={() => handleSelect(product.slug)}
+                                    className="flex cursor-pointer items-center gap-3 rounded-xl p-2 text-left hover:bg-smoke-200 transition-colors w-full"
+                                >
+                                    <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100 shrink-0">
+                                        {product.image ? (
+                                           <Image 
+                                            src={product.image} 
+                                            alt={product.name} 
+                                            fill 
+                                            className="object-cover"
+                                            sizes="40px"
+                                           /> 
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-brand-500/20">
+                                                <ImageNotSupportedRounded fontSize="small" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="truncate text-sm font-semibold text-brand-500">{product.name}</p>
+                                        <p className="truncate text-xs text-brand-500/50">{product.brand}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="p-4 text-center text-sm text-brand-500/40">
+                            No results found for "{query}"
+                        </div>
+                    )}
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -102,20 +234,15 @@ export function Header() {
             </nav>
 
             <div className="flex items-center justify-center gap-4">
-              <Input
-                type="search"
-                icon={<SearchRounded />}
-                iconPosition="left"
-                placeholder="Search games..."
-                inputSize="sm"
-                fullWidth={true}
-              />
+              <SearchBar />
 
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button variant="dark" size="sm" className="w-fit">
-                  Sign In
-                </Button>
-              </motion.div>
+              <Link href="/login">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button variant="dark" size="sm" className="w-fit">
+                    Sign In
+                  </Button>
+                </motion.div>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -159,18 +286,13 @@ export function Header() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <Input
-                  type="search"
-                  icon={<SearchRounded />}
-                  iconPosition="left"
-                  placeholder="Search games..."
-                  inputSize="sm"
-                  fullWidth={true}
-                />
+                <SearchBar mobile onSearchSelect={() => setIsMenuOpen(false)} />
 
-                <Button variant="dark" size="sm" className="w-full">
-                  Sign In
-                </Button>
+                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="dark" size="sm" className="w-full">
+                    Sign In
+                  </Button>
+                </Link>
               </motion.div>
             </motion.div>
           )}

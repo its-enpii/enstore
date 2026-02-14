@@ -24,6 +24,7 @@ import {
 } from "@/lib/api";
 import ItemCard from "@/components/services/ItemCard";
 import Breadcrumb from "@/components/services/breadcrumb";
+import { toast } from "react-hot-toast";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -47,7 +48,24 @@ export default function ProductDetailPage() {
   const [email, setEmail] = useState("");
 
   const handlePurchase = async () => {
-    if (!selectedPackage || !selectedPayment || !product) return;
+    if (!selectedPackage || !selectedPayment || !product) {
+       toast.error("Please select a package and payment method.");
+       return;
+    }
+    
+    // Validate required fields
+    if (product.input_fields) {
+        const missingFields = product.input_fields.filter(f => f.required && !formData[f.name]);
+        if (missingFields.length > 0) {
+            toast.error(`Please fill in: ${missingFields.map(f => f.label).join(", ")}`);
+            return;
+        }
+    }
+
+    if (!email) {
+        toast.error("Please enter your email address.");
+        return;
+    }
 
     setSubmitting(true);
     try {
@@ -64,10 +82,10 @@ export default function ProductDetailPage() {
           `/services/${slug}/payment?transactionCode=${response.data.transaction.transaction_code}`,
         );
       } else {
-        setError(response.message || "Failed to create transaction");
+        toast.error(response.message || "Failed to create transaction");
       }
     } catch (err: any) {
-      setError(err.message || "An error occurred");
+      toast.error(err.message || "An error occurred");
     } finally {
       setSubmitting(false);
     }

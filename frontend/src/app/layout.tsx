@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
@@ -28,6 +29,7 @@ export default function RootLayout({
         <Header />
         <main className="h-full min-h-screen w-full pt-16 lg:pt-[88px]">{children}</main>
         <Footer />
+        <Toaster position="top-center" reverseOrder={false} />
       </body>
     </html>
   );

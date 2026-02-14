@@ -71,6 +71,11 @@ function CountdownTimer({
   return <>{timeLeft}</>;
 }
 
+import { toast } from "react-hot-toast";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+
+// ... existing imports ...
+
 export default function PaymentPage() {
   const imgRef = useRef(null);
 
@@ -84,6 +89,10 @@ export default function PaymentPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isTimeExpired, setIsTimeExpired] = useState(false);
+  
+  // Confirmation state
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const handleDownloadQR = async (qrUrl: string) => {
     try {
@@ -101,7 +110,7 @@ export default function PaymentPage() {
 
       URL.revokeObjectURL(url);
     } catch (error) {
-      alert("Gagal download");
+      toast.error("Gagal download");
     }
   };
 
@@ -143,24 +152,26 @@ export default function PaymentPage() {
   }, [transactionCode, isPaid, isExpired]);
 
   const handleCancelOrder = async () => {
+    setIsConfirmOpen(true);
+  };
+
+  const onConfirmCancel = async () => {
     if (!transactionCode) return;
-
-    if (!confirm("Apakah anda yakin ingin membatalkan pesanan ini?")) {
-      return;
-    }
-
+    
     try {
-      setLoading(true);
+      setIsCancelling(true);
       const res = await cancelTransaction(transactionCode);
       if (res.success) {
+        toast.success("Pesanan berhasil dibatalkan");
         await fetchStatus();
       } else {
-        alert(res.message || "Gagal membatalkan pesanan");
+        toast.error(res.message || "Gagal membatalkan pesanan");
       }
     } catch (err) {
-      alert("Terjadi kesalahan saat membatalkan pesanan");
+      toast.error("Terjadi kesalahan saat membatalkan pesanan");
     } finally {
-      setLoading(false);
+      setIsCancelling(false);
+      setIsConfirmOpen(false);
     }
   };
 
@@ -570,6 +581,16 @@ export default function PaymentPage() {
           </div>
         )}
       </div>
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={onConfirmCancel}
+        title="Batalkan Pesanan?"
+        description="Apakah anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Ya, Batalkan"
+        variant="danger"
+        isLoading={isCancelling}
+      />
     </section>
   );
 }

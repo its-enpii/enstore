@@ -27,7 +27,7 @@ class RegisterRequest extends FormRequest
             'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'customer_type' => ['sometimes', 'in:retail,reseller'],
-            'referral_code' => ['sometimes', 'string', 'exists:users,referral_code'],
+            'referral_code' => ['nullable', 'string', 'exists:users,referral_code'],
         ];
     }
 

@@ -43,9 +43,26 @@ export {
   cancelTransaction,
 } from "./transactions";
 
+export {
+  login,
+  register,
+  logout,
+  getMe,
+} from "./auth";
+
 export type {
   PaymentChannel,
   PurchaseRequest,
   PurchaseResponse,
   TransactionStatus,
 } from "./transactions";
+
+export interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+  };
+}

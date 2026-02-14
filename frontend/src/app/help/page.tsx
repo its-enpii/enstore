@@ -12,6 +12,7 @@ import {
   EmailRounded,
   CallToActionRounded,
 } from "@mui/icons-material";
+import { toast } from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -52,7 +53,6 @@ export default function HelpPage() {
     message: "",
   });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -64,10 +64,9 @@ export default function HelpPage() {
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      setSuccess(true);
-      // Reset form usually, or just show success message
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      // Reset form
       setForm({ name: "", email: "", subject: "", message: "" });
-      setTimeout(() => setSuccess(false), 3000);
     }, 1500);
   };
 
@@ -255,19 +254,6 @@ export default function HelpPage() {
                 >
                   {loading ? "Sending..." : "Send Message"}
                 </Button>
-
-                <AnimatePresence>
-                  {success && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="rounded-xl border border-green-100 bg-green-50 p-4 text-center text-sm font-bold text-green-600"
-                    >
-                      Message sent successfully! We'll get back to you soon.
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </form>
             </div>
           </div>
