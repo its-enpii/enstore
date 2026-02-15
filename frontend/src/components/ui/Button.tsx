@@ -1,3 +1,5 @@
+import React from "react";
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "dark" | "white";
   size?: "sm" | "md" | "lg";
@@ -21,25 +23,25 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex h-fit items-center whitespace-nowrap justify-center rounded-full font-medium cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex h-fit items-center whitespace-nowrap justify-center rounded-full font-bold cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantStyles = {
     primary:
-      "bg-ocean-500 text-cloud-200 hover:bg-ocean-600 active:bg-ocean-700",
+      "bg-ocean-500 text-cloud-200 hover:bg-ocean-600 active:bg-ocean-700 hover:shadow-lg hover:shadow-ocean-500/20",
     dark: "bg-brand-500 text-cloud-200 hover:bg-brand-600 active:bg-brand-700",
-    white: "bg-smoke-200 text-brand-500 hover:bg-smoke-300 active:bg-smoke-400",
+    white: "bg-white text-brand-500 hover:bg-smoke-200 active:bg-smoke-300 border border-brand-500/5",
   };
 
   const sizeStyles = iconOnly
     ? {
-        sm: "p-1.5 text-sm",
-        md: "p-2 text-base",
-        lg: "p-3 text-lg",
+        sm: "p-2 text-sm",
+        md: "p-3 text-base",
+        lg: "p-4 text-lg",
       }
     : {
-        sm: "px-6 py-3 text-sm",
-        md: "px-6 py-3 text-sm md:py-4 md:text-base",
-        lg: "px-6 py-4 text-base md:text-lg",
+        sm: "px-4 py-2 text-sm",
+        md: "px-6 py-3 text-sm md:text-base",
+        lg: "px-8 py-4 text-base md:text-lg",
       };
 
   const iconSizeStyles = {

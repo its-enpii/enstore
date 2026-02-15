@@ -59,21 +59,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => 
   if (!user) return null;
 
   return (
-    <div className={`min-h-screen ${sidebarHidden ? 'sidebar-hidden' : ''}`}>
+    <div className={`min-h-screen`}>
       {/* Mobile Sidebar Overlay */}
       <div 
         className={`fixed inset-0 z-40 bg-brand-900/50 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${sidebarHidden ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
         onClick={() => setSidebarHidden(true)}
       />
 
-      <div className="min-h-screen bg-cloud-50 transition-colors duration-300">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
         {/* Sidebar */}
-        <aside className="layout-sidebar bg-smoke-200">
+        <aside className={`fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-slate-800 border-r border-slate-100 dark:border-slate-700 z-40 transition-transform duration-300 ease-in-out flex flex-col 
+          ${sidebarHidden ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}`}>
           <Sidebar role={role} onClose={() => setSidebarHidden(true)} />
         </aside>
 
         {/* Main Content Area */}
-        <div className="layout-content">
+        <div className={`min-h-screen flex flex-col transition-all duration-300 ease-in-out lg:ml-72 ml-0`}>
           <Navbar onToggleSidebar={() => setSidebarHidden(!sidebarHidden)} />
           
           <main className="flex-1 overflow-x-hidden p-4 lg:p-8 relative">

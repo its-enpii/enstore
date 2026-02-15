@@ -327,23 +327,58 @@ export default function ProductDetailPage() {
                 <div
                   className={`mb-8 grid gap-x-6 gap-y-8 ${product.input_fields.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}
                 >
-                  {product.input_fields.map((field) => (
-                    <Input
-                      key={field.name}
-                      label={field.label}
-                      type={field.type || "text"}
-                      placeholder={field.placeholder || field.label}
-                      value={formData[field.name] || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [field.name]: e.target.value,
-                        }))
-                      }
-                      inputSize="md"
-                      fullWidth
-                    />
-                  ))}
+                  {product.input_fields.map((field) => {
+                    if (field.type === 'select' && field.options) {
+                       const options = field.options.split(',').map(o => o.trim());
+                       return (
+                          <div key={field.name} className="w-full">
+                             <div className="mb-1.5 block text-sm font-medium text-gray-700">
+                                {field.label} {field.required && <span className="text-red-500">*</span>}
+                             </div>
+                             <div className="relative">
+                                <select
+                                   className="appearance-none w-full bg-cloud-200 text-brand-500/60 placeholder:text-brand-500/30 border-0 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 transition-all duration-200 rounded-full px-6 py-4 text-base focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                   value={formData[field.name] || ""}
+                                   onChange={(e) =>
+                                     setFormData((prev) => ({
+                                       ...prev,
+                                       [field.name]: e.target.value,
+                                     }))
+                                   }
+                                >
+                                   <option value="">Select {field.label}</option>
+                                   {options.map(opt => (
+                                      <option key={opt} value={opt}>{opt}</option>
+                                   ))}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-brand-500/40">
+                                   <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                                   </svg>
+                                </div>
+                             </div>
+                          </div>
+                       );
+                    }
+                    
+                    return (
+                      <Input
+                        key={field.name}
+                        label={field.label}
+                        type={field.type || "text"}
+                        placeholder={field.placeholder || field.label}
+                        value={formData[field.name] || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            [field.name]: e.target.value,
+                          }))
+                        }
+                        inputSize="md"
+                        fullWidth
+                      />
+                    );
+                  })}
                 </div>
 
                 <p className="flex items-center gap-2 rounded-full border border-brand-500/5 bg-cloud-200 p-3 text-sm text-brand-500/50">

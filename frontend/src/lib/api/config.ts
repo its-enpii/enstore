@@ -107,6 +107,8 @@ export const ENDPOINTS = {
     /** GET - Dashboard statistics */
     dashboard: "/admin/dashboard",
 
+
+
     products: {
       /** GET - List all products */
       list: "/admin/products",

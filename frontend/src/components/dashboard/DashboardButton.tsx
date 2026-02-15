@@ -35,15 +35,15 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      "bg-ocean-500 hover:bg-ocean-600 active:bg-ocean-700 focus:ring-4 focus:ring-ocean-500/30 text-smoke-200 shadow-sm hover:shadow-md",
+      "bg-ocean-500 hover:bg-ocean-600 active:bg-ocean-800 focus:ring-4 focus:ring-ocean-500/30 text-white shadow-sm hover:shadow-md",
     secondary:
-      "bg-brand-500/10 hover:bg-brand-500/20 active:bg-brand-500/30 focus:ring-4 focus:ring-brand-500/20 text-brand-500",
+      "bg-slate-100 hover:bg-slate-200 active:bg-slate-300 focus:ring-4 focus:ring-slate-500/20 text-slate-600 dark:bg-slate-700 dark:text-slate-200",
     success:
-      "bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 focus:ring-4 focus:ring-emerald-500/30 text-smoke-200 shadow-sm hover:shadow-md",
+      "bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 focus:ring-4 focus:ring-emerald-500/30 text-white shadow-sm hover:shadow-md",
     danger:
-      "bg-red-600 hover:bg-red-700 active:bg-red-800 focus:ring-4 focus:ring-red-500/30 text-smoke-200 shadow-sm hover:shadow-md",
+      "bg-red-600 hover:bg-red-700 active:bg-red-800 focus:ring-4 focus:ring-red-500/30 text-white shadow-sm hover:shadow-md",
     outline:
-      "border-2 border-ocean-500 text-ocean-500 hover:bg-ocean-500 hover:text-smoke-200 active:bg-ocean-600 focus:ring-4 focus:ring-ocean-500/30",
+      "border-2 border-ocean-500 text-ocean-500 hover:bg-ocean-500 hover:text-white active:bg-ocean-600 focus:ring-4 focus:ring-ocean-500/30",
   };
 
   const sizeStyles = {

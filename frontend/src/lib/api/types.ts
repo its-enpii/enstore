@@ -77,6 +77,7 @@ export interface InputField {
   type: string;
   required: boolean;
   placeholder?: string;
+  options?: string;
 }
 
 // ----------------------------------------------------------
