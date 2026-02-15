@@ -51,14 +51,14 @@
   --color-ocean-800: #00435a;
   --color-ocean-900: #00212d;
 
-  --shadow-enstore: none;
+  --shadow-enstore: 0 10px 40px -10px rgba(0, 23, 31, 0.08);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Core Dashboard Layout Classes from encore-ui */
 .layout-sidebar {
-  @apply fixed inset-y-0 left-0 -translate-x-full lg:translate-x-0 w-64 flex flex-col z-50 transition-all duration-300 ease-in-out border-r border-brand-500/5 dark:border-brand-500/10;
+  @apply fixed inset-y-0 left-0 -translate-x-full lg:translate-x-0 w-64 flex flex-col z-50 transition-all duration-300 ease-in-out border-r border-brand-500/10;
 }
 
 .sidebar-hidden .layout-sidebar {
@@ -74,27 +74,27 @@
 }
 
 .nav-header {
-  @apply px-3.5 py-4 text-[10px] font-bold text-brand-500/20 dark:text-brand-500/30 uppercase tracking-widest;
+  @apply px-3.5 py-4 text-[10px] font-bold text-brand-500/20;
 }
 
 .nav-link {
-  @apply flex items-center gap-2 px-3.5 py-2.5 text-sm font-normal text-brand-500/60 dark:text-brand-500/40 rounded-xl hover:bg-cloud-200 dark:hover:bg-brand-900 transition-colors cursor-pointer;
+  @apply flex items-center gap-2 px-3.5 py-2.5 text-sm font-normal text-brand-500/60 rounded-xl hover:bg-cloud-200 transition-colors cursor-pointer;
 }
 
 .nav-link.active {
-  @apply font-bold text-ocean-500 dark:text-ocean-400 bg-ocean-500/5 dark:bg-ocean-500/10;
+  @apply font-bold text-ocean-500 bg-ocean-500/5;
 }
 
 .nav-icon {
-  @apply text-lg text-brand-500/20 dark:text-brand-500/30 mr-1;
+  @apply text-lg text-brand-500/20 mr-1;
 }
 
 .nav-link.active .nav-icon {
-  @apply text-ocean-500 dark:text-ocean-400;
+  @apply text-ocean-500;
 }
 
 .nav-chevron {
-  @apply text-brand-500/20 dark:text-brand-500/30 transition-transform duration-300 ml-auto;
+  @apply text-brand-500/20 transition-transform duration-300 ml-auto;
 }
 
 .nav-submenu {
@@ -110,11 +110,11 @@
 }
 
 .nav-sub-link {
-  @apply block px-3.5 py-2.5 pl-9 text-sm text-brand-500/40 dark:text-brand-500/30 hover:text-ocean-500 dark:hover:text-ocean-400 hover:bg-cloud-100 dark:hover:bg-brand-800 rounded-xl transition-colors;
+  @apply block px-3.5 py-2.5 pl-9 text-sm text-brand-500/40 hover:text-ocean-500 hover:bg-cloud-100 rounded-xl transition-colors;
 }
 
 .nav-sub-link.active {
-  @apply text-ocean-500 dark:text-ocean-400 font-bold bg-ocean-500/5 dark:bg-ocean-500/10;
+  @apply text-ocean-500 font-bold bg-ocean-500/5;
 }
 
 /* Animations */
@@ -152,7 +152,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--color-cloud-300);
   border-radius: 10px;
 }
 

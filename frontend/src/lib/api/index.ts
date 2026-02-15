@@ -57,6 +57,32 @@ export type {
   TransactionStatus,
 } from "./transactions";
 
+// Customer API (Authenticated)
+export {
+  getBalance,
+  getBalanceMutations,
+  getTransactions,
+  getTransactionDetail,
+  customerPurchase,
+  purchaseWithBalance,
+  createTopUp,
+  getCustomerPaymentChannels,
+  getProfile,
+  updateProfile,
+  changePassword,
+} from "./customer";
+
+export type {
+  BalanceData,
+  BalanceMutation,
+  CustomerTransaction,
+  TransactionFilters,
+  TopUpRequest,
+  TopUpResponse,
+  PurchaseBalanceRequest,
+  CustomerProfile,
+} from "./customer";
+
 export interface LoginResponse {
   token: string;
   user: {

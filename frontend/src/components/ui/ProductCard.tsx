@@ -47,7 +47,7 @@ const ProductCard = ({
             <h3 className="mb-1 text-sm font-black text-brand-500 sm:mb-2 sm:text-base lg:text-[20px]">
               {title}
             </h3>
-            <p className="text-xs font-bold text-brand-500/20 uppercase tracking-widest sm:text-sm">{publisher}</p>
+            <p className="text-xs font-bold text-brand-500/20 sm:text-sm">{publisher}</p>
           </div>
         </motion.div>
       </MotionLink>

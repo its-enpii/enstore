@@ -160,7 +160,7 @@ export function Header() {
 
   return (
     <motion.header
-      className="fixed top-0 right-0 left-0 z-9999 w-full bg-smoke-200 py-3 shadow-[0_4px_16px_0_rgba(0,23,32,0.08)] sm:py-4"
+      className="fixed top-0 right-0 left-0 z-9999 w-full bg-smoke-200/80 backdrop-blur-lg py-3 shadow-[0_4px_16px_0_rgba(0,23,32,0.06)] sm:py-4"
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -252,11 +252,11 @@ export function Header() {
                   <Link href={getDashboardHref()}>
                     <motion.div 
                         whileHover={{ y: -1 }} 
-                        className="flex items-center gap-3 bg-cloud-200 dark:bg-brand-900 p-1.5 pl-4 rounded-full border border-brand-500/5 hover:border-ocean-500/30 transition-all group"
+                        className="flex items-center gap-3 bg-cloud-200 p-1.5 pl-4 rounded-full border border-brand-500/5 hover:border-ocean-500/30 transition-all group"
                     >
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-bold text-brand-500/40 uppercase tracking-widest leading-none">Welcome back,</span>
-                            <span className="text-sm font-black text-brand-500/90 dark:text-smoke-200 leading-tight truncate max-w-[100px]">{user.name.split(' ')[0]}</span>
+                            <span className="text-[10px] font-bold text-brand-500/40 leading-none">Welcome back,</span>
+                            <span className="text-sm font-black text-brand-500/90 leading-tight truncate max-w-[100px]">{user.name.split(' ')[0]}</span>
                         </div>
                         <div className="w-9 h-9 rounded-full bg-linear-to-br from-ocean-400 to-ocean-600 flex items-center justify-center text-smoke-200 text-sm font-black">
                             {user.name.charAt(0).toUpperCase()}
@@ -322,7 +322,7 @@ export function Header() {
                             {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1">
-                            <div className="text-xs text-slate-400 font-bold uppercase tracking-widest">My Account</div>
+                            <div className="text-xs text-slate-400 font-bold">My Account</div>
                             <div className="text-sm font-black text-slate-900 dark:text-white">{user.name}</div>
                         </div>
                         <DashboardRounded className="text-slate-400" />

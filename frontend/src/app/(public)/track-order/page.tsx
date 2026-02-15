@@ -125,7 +125,7 @@ export default function TrackOrderPage() {
             <h1 className="mb-6 md:mb-8 font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
               Track <span className="text-ocean-500">Your Order</span>
             </h1>
-            <p className="mb-12 max-w-xl text-center text-sm tracking-wide text-brand-500/40 sm:text-base">
+            <p className="mb-12 max-w-xl text-center text-sm text-brand-500/40 sm:text-base">
               Enter your invoice ID to see real-time status of your gaming
               top-up
             </p>
@@ -308,7 +308,7 @@ export default function TrackOrderPage() {
                           </p>
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                              <p className="text-xs font-medium uppercase text-amber-500/60">
+                              <p className="text-xs font-medium text-amber-500/60">
                                 Jumlah Refund
                               </p>
                               <p className="text-lg font-bold text-amber-700">
@@ -316,7 +316,7 @@ export default function TrackOrderPage() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs font-medium uppercase text-amber-500/60">
+                              <p className="text-xs font-medium text-amber-500/60">
                                 Metode Refund
                               </p>
                               <p className="text-sm font-bold capitalize text-amber-700">
@@ -325,7 +325,7 @@ export default function TrackOrderPage() {
                             </div>
                             {transaction.refund.refunded_at && (
                               <div>
-                                <p className="text-xs font-medium uppercase text-amber-500/60">
+                                <p className="text-xs font-medium text-amber-500/60">
                                   Tanggal Refund
                                 </p>
                                 <p className="text-sm font-bold text-amber-700">
@@ -382,7 +382,7 @@ export default function TrackOrderPage() {
 
                     <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40">
                           Target Info
                         </p>
                         <div className="font-bold text-brand-500/90">
@@ -403,7 +403,7 @@ export default function TrackOrderPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40">
                           Item Name
                         </p>
                         <div className="font-bold text-brand-500/90">
@@ -412,7 +412,7 @@ export default function TrackOrderPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40">
                           Payment Method
                         </p>
                         <div className="font-bold text-brand-500/90 capitalize">
@@ -421,7 +421,7 @@ export default function TrackOrderPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40">
                           Transaction Value
                         </p>
                         <div className="font-bold text-brand-500/90">

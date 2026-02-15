@@ -86,7 +86,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             className={`mb-1.5 block text-sm font-medium ${
-              error ? "text-red-600" : "text-gray-700"
+              error ? "text-red-600" : "text-brand-500/70"
             } ${disabled ? "opacity-50" : ""}`}
           >
             {label}
@@ -154,7 +154,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </AnimatePresence>
 
         {!error && helperText && (
-          <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-gray-500">
+          <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-brand-500/40">
             {helperText}
           </p>
         )}

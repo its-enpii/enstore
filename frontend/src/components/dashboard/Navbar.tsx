@@ -1,66 +1,76 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   MenuRounded, 
   SearchRounded, 
   NotificationsRounded, 
   KeyboardArrowDownRounded,
-  LightModeRounded,
-  DarkModeRounded,
   LogoutRounded,
   PersonRounded,
   SettingsRounded,
   CheckCircleRounded,
   InfoRounded,
-  WarningRounded
 } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'motion/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import DashboardConfirmDialog from './DashboardConfirmDialog';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+  const router = useRouter();
   const { user, logout } = useAuth();
-  const [isDark, setIsDark] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // Sync state with DOM class on mount
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-  }, []);
+  const notifications = [
+    { 
+      id: 1, 
+      title: 'Transaction Success', 
+      desc: 'Mobile Legends 86 Diamonds successful.', 
+      time: '2m ago', 
+      icon: <CheckCircleRounded className="text-emerald-500" />,
+      href: '/reseller/transactions/ENMD12345/invoice' // Example code
+    },
+    { 
+      id: 2, 
+      title: 'System Update', 
+      desc: 'New payment methods added to the platform.', 
+      time: '1h ago', 
+      icon: <InfoRounded className="text-ocean-500" /> 
+    },
+    { 
+      id: 3, 
+      title: 'Top Up Success', 
+      desc: 'Balance Rp 100.000 has been added.', 
+      time: '5h ago', 
+      icon: <CheckCircleRounded className="text-emerald-500" />,
+      href: '/reseller/transactions/TPUP999/invoice'
+    },
+  ];
 
-  const toggleTheme = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    if (newDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+  const handleNotifClick = (href?: string) => {
+    setNotifOpen(false);
+    if (href) {
+      router.push(href);
     }
   };
 
-  const notifications = [
-    { id: 1, title: 'Transaction Success', desc: 'Your ML BB topup was successful.', time: '2m ago', icon: <CheckCircleRounded className="text-emerald-500" /> },
-    { id: 2, title: 'System Update', desc: 'Platform maintenance completed.', time: '1h ago', icon: <InfoRounded className="text-ocean-500" /> },
-    { id: 3, title: 'Price Alert', desc: 'Diamonds price dropped!', time: '5h ago', icon: <WarningRounded className="text-brand-500" /> },
-  ];
-
   return (
-    <header className="sticky top-0 z-30 w-full bg-smoke-200/90 dark:bg-brand-900/95 backdrop-blur-md border-b border-brand-500/5 transition-colors duration-300">
+    <header className="sticky top-0 z-30 w-full bg-smoke-200/90 backdrop-blur-md border-b border-brand-500/5 transition-colors">
       <div className="h-20 px-4 lg:px-8 flex items-center justify-between">
         
         {/* Left Section */}
         <div className="flex items-center gap-4">
           <button 
             onClick={onToggleSidebar}
-            className="p-2 hover:bg-ocean-500/5 dark:hover:bg-ocean-500/10 rounded-xl transition-all duration-300 group"
+            className="p-2 hover:bg-ocean-500/5 rounded-xl transition-all duration-300 group"
           >
             <MenuRounded className="text-brand-500/40 group-hover:text-ocean-500 transition-colors" />
           </button>
@@ -68,7 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           <div className="hidden lg:flex items-center flex-1 max-w-sm ml-4">
             <div className="relative w-full group">
                 <div className="absolute inset-0 bg-ocean-500/5 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300"></div>
-                <div className="relative flex items-center bg-cloud-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 group-hover:border-ocean-500/30 transition-all duration-300">
+                <div className="relative flex items-center bg-cloud-200 rounded-xl border border-brand-500/5 group-hover:border-ocean-500/30 transition-all duration-300">
                     <SearchRounded className="ml-3 text-brand-500/30 group-hover:text-ocean-500 transition-colors" fontSize="small" />
                     <input 
                         type="text" 
@@ -83,20 +93,13 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
         {/* Right Section */}
         <div className="flex items-center gap-2">
           
-          <button 
-            onClick={toggleTheme}
-            className="p-2.5 hover:bg-brand-500/5 rounded-xl transition-all duration-300 text-brand-500/40 hover:text-brand-500"
-          >
-            {isDark ? <LightModeRounded fontSize="small" /> : <DarkModeRounded fontSize="small" />}
-          </button>
-
           <div className="relative">
             <button 
               onClick={() => setNotifOpen(!notifOpen)}
               className="p-2.5 hover:bg-ocean-500/5 rounded-xl transition-all duration-300 text-brand-500/40 hover:text-ocean-500"
             >
               <NotificationsRounded fontSize="small" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-ocean-500 rounded-full border-2 border-smoke-200 dark:border-brand-900"></span>
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-ocean-500 rounded-full border-2 border-smoke-200"></span>
             </button>
 
             <AnimatePresence>
@@ -107,25 +110,32 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-80 bg-smoke-200 dark:bg-brand-900 rounded-[24px] border border-brand-500/5 overflow-hidden z-20"
+                    className="absolute right-0 mt-2 w-80 bg-smoke-200 rounded-[28px] border border-brand-500/5 shadow-xl shadow-brand-500/5 overflow-hidden z-20"
                   >
-                    <div className="p-4 border-b border-brand-500/5 flex justify-between items-center">
+                    <div className="p-5 border-b border-brand-500/5 flex justify-between items-center bg-cloud-200/20">
                       <h4 className="font-black text-brand-500">Notifications</h4>
-                      <Link href="/notifications" className="text-[10px] text-ocean-500 font-bold uppercase hover:underline">Mark all read</Link>
+                      <button className="text-[10px] text-ocean-500 font-bold hover:underline">Mark all read</button>
                     </div>
                     <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
                       {notifications.map((notif) => (
-                        <div key={notif.id} className="p-4 flex gap-4 hover:bg-cloud-200 dark:hover:bg-brand-800 transition-colors cursor-pointer group">
-                           <div className="w-10 h-10 rounded-xl bg-cloud-200 dark:bg-brand-800 flex items-center justify-center shrink-0 border border-brand-500/5">
+                        <div 
+                          key={notif.id} 
+                          onClick={() => handleNotifClick(notif.href)}
+                          className="p-4 flex gap-4 hover:bg-cloud-200 transition-colors cursor-pointer group border-b border-brand-500/5 last:border-0"
+                        >
+                           <div className="w-12 h-12 rounded-2xl bg-cloud-200 flex items-center justify-center shrink-0 border border-brand-500/5 group-hover:scale-110 transition-transform">
                               {notif.icon}
                            </div>
                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-brand-500 truncate">{notif.title}</p>
-                              <p className="text-xs text-brand-500/50 line-clamp-2">{notif.desc}</p>
-                              <p className="text-[10px] text-brand-500/30 mt-1 uppercase tracking-tight font-bold">{notif.time}</p>
+                              <p className="text-sm font-black text-brand-500 truncate">{notif.title}</p>
+                              <p className="text-xs text-brand-500/50 line-clamp-2 mt-0.5">{notif.desc}</p>
+                              <p className="text-[10px] text-brand-500/30 mt-1 font-black">{notif.time}</p>
                            </div>
                         </div>
                       ))}
+                    </div>
+                    <div className="p-3 bg-cloud-200/20 text-center">
+                        <button onClick={() => setNotifOpen(false)} className="text-xs font-black text-brand-500/40 hover:text-ocean-500 transition-colors">Close Notification</button>
                     </div>
                   </motion.div>
                 </>
@@ -144,13 +154,13 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 <img 
                   src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=0ea5e9&color=fff`} 
                   alt="Avatar"
-                  className="w-10 h-10 rounded-full ring-2 ring-smoke-200 dark:ring-brand-800"
+                  className="w-10 h-10 rounded-full ring-2 ring-smoke-200"
                 />
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-smoke-200 dark:border-brand-900"></span>
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-smoke-200"></span>
               </div>
               <div className="hidden lg:block text-left">
                 <p className="text-xs font-black text-brand-500 leading-none truncate max-w-[100px]">{user?.name}</p>
-                <p className="text-[10px] text-brand-500/40 mt-1 uppercase font-bold tracking-wider">{user?.role}</p>
+                <p className="text-[10px] text-brand-500/40 mt-1 font-bold">{user?.role}</p>
               </div>
               <KeyboardArrowDownRounded className={`text-brand-500/30 transition-all ${profileOpen ? 'rotate-180' : ''}`} fontSize="small" />
             </button>
@@ -163,29 +173,46 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-64 bg-smoke-200 dark:bg-brand-900 rounded-[24px] border border-brand-500/5 overflow-hidden z-20"
+                    className="absolute right-0 mt-2 w-72 bg-smoke-200 rounded-[28px] border border-brand-500/5 shadow-xl shadow-brand-500/5 overflow-hidden z-20"
                   >
-                    <div className="p-6 border-b border-brand-500/5 bg-cloud-200/50 dark:bg-brand-800/50 text-center">
-                       <img src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=0ea5e9&color=fff`} className="w-16 h-16 rounded-full mx-auto mb-3 border-4 border-smoke-200 dark:border-brand-900" />
-                       <p className="text-sm font-black text-brand-500 truncate">{user?.name}</p>
-                       <p className="text-xs text-brand-500/40 truncate font-bold">{user?.email}</p>
+                    {/* Profile Header */}
+                    <div className="p-8 pb-6 text-center">
+                       <div className="relative inline-block mb-4">
+                          <div className="w-20 h-20 rounded-full bg-ocean-500 flex items-center justify-center text-2xl font-black text-smoke-100 ring-4 ring-smoke-200">
+                             {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'EO'}
+                          </div>
+                       </div>
+                       <h4 className="text-base font-black text-brand-500">{user?.name}</h4>
+                       <p className="text-xs text-brand-500/40 font-bold mt-1">{user?.email}</p>
                     </div>
                     
-                    <div className="p-2">
-                       <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-brand-500 font-bold hover:bg-cloud-200 dark:hover:bg-brand-800 rounded-xl transition-colors">
-                          <PersonRounded fontSize="small" className="text-brand-500/40" />
-                          <span>My Profile</span>
-                       </button>
-                       <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-brand-500 font-bold hover:bg-cloud-200 dark:hover:bg-brand-800 rounded-xl transition-colors">
-                          <SettingsRounded fontSize="small" className="text-brand-500/40" />
-                          <span>Settings</span>
-                       </button>
-                       <button 
-                         onClick={logout}
-                         className="w-full mt-1 flex items-center gap-3 px-4 py-3 text-sm text-red-500 font-bold hover:bg-red-500/5 rounded-xl transition-colors"
+                    {/* Menu Items */}
+                    <div className="px-3 pb-4 pt-2 border-t border-brand-500/5 transition-colors">
+                       <Link 
+                          href={user?.role === 'admin' ? '/admin/profile' : '/reseller/settings?tab=profile'} 
+                          className="flex items-center gap-4 px-5 py-4 text-brand-500 hover:bg-cloud-200 rounded-2xl transition-all group"
+                          onClick={() => setProfileOpen(false)}
                        >
-                          <LogoutRounded fontSize="small" />
-                          <span>Logout</span>
+                          <PersonRounded className="text-brand-500/30 group-hover:text-ocean-500 transition-colors" />
+                          <span className="text-sm font-black">My Profile</span>
+                       </Link>
+                       <Link 
+                          href={user?.role === 'admin' ? '/admin/settings' : '/reseller/settings?tab=security'}
+                          className="flex items-center gap-4 px-5 py-4 text-brand-500 hover:bg-cloud-200 rounded-2xl transition-all group"
+                          onClick={() => setProfileOpen(false)}
+                       >
+                          <SettingsRounded className="text-brand-500/30 group-hover:text-ocean-500 transition-colors" />
+                          <span className="text-sm font-black">Settings</span>
+                       </Link>
+                       
+                       <div className="my-2 h-px bg-brand-500/5 mx-4"></div>
+
+                       <button 
+                         onClick={() => { setProfileOpen(false); setShowLogoutConfirm(true); }}
+                         className="w-full flex items-center gap-4 px-5 py-4 text-red-500 hover:bg-red-500/5 rounded-2xl transition-all group"
+                       >
+                          <LogoutRounded className="text-red-500/40 group-hover:text-red-500 transition-colors" />
+                          <span className="text-sm font-black">Logout</span>
                        </button>
                     </div>
                   </motion.div>
@@ -195,6 +222,19 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           </div>
         </div>
       </div>
+
+      <DashboardConfirmDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          logout();
+        }}
+        title="Logout Confirmation"
+        description="Are you sure you want to logout? You will need to login again to access your account."
+        confirmLabel="Logout Now"
+        cancelLabel="Stay Logged In"
+      />
     </header>
   );
 };

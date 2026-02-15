@@ -1,134 +1,227 @@
-
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { 
+import PageHeader from "@/components/dashboard/PageHeader";
+import StatCard from "@/components/dashboard/StatCard";
+import BalanceCard from "@/components/dashboard/BalanceCard";
+import StatusBadge from "@/components/dashboard/StatusBadge";
+import EmptyState from "@/components/dashboard/EmptyState";
+import {
   TrendingUpRounded,
-  AccountBalanceWalletRounded, 
-  ShoppingCartRounded, 
+  AccountBalanceWalletRounded,
+  ShoppingCartRounded,
   AssessmentRounded,
-  HistoryRounded,
   ChevronRightRounded,
   AddRounded,
   NorthEastRounded,
-  CheckCircleRounded
+  SouthWestRounded,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import {
+  getBalance,
+  getBalanceMutations,
+  getTransactions,
+  type BalanceData,
+  type BalanceMutation,
+  type CustomerTransaction,
+} from "@/lib/api";
 
 export default function ResellerDashboard() {
   const { user } = useAuth();
+  const [balance, setBalance] = useState<BalanceData | null>(null);
+  const [mutations, setMutations] = useState<BalanceMutation[]>([]);
+  const [recentOrders, setRecentOrders] = useState<CustomerTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [balRes, mutRes, txnRes] = await Promise.all([
+        getBalance().catch(() => null),
+        getBalanceMutations(5).catch(() => null),
+        getTransactions({ per_page: 5, type: "purchase" }).catch(() => null),
+      ]);
+
+      if (balRes?.success) setBalance(balRes.data);
+      if (mutRes?.success) setMutations(Array.isArray(mutRes.data) ? mutRes.data : []);
+      if (txnRes?.success) setRecentOrders(txnRes.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stats = [
-    { title: "Available Balance", value: `Rp ${user?.balance?.toLocaleString('id-ID') || '0'}`, icon: <AccountBalanceWalletRounded />, color: "bg-indigo-500", light: "bg-indigo-50", dark: "dark:bg-indigo-500/10", text: "text-indigo-600 dark:text-indigo-400" },
-    { title: "Today's Sales", value: "Rp 0", icon: <ShoppingCartRounded />, color: "bg-emerald-500", light: "bg-emerald-50", dark: "dark:bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400" },
-    { title: "Monthly Profit", value: "Rp 0", icon: <TrendingUpRounded />, color: "bg-purple-500", light: "bg-purple-50", dark: "dark:bg-purple-500/10", text: "text-purple-600 dark:text-purple-400" },
-    { title: "Active Orders", value: "0", icon: <AssessmentRounded />, color: "bg-amber-500", light: "bg-amber-50", dark: "dark:bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
+    {
+      title: "Available Balance",
+      value: `Rp ${(balance?.available_balance ?? user?.balance ?? 0).toLocaleString("id-ID")}`,
+      icon: <AccountBalanceWalletRounded />,
+      color: "ocean" as const,
+    },
+    {
+      title: "Hold Amount",
+      value: `Rp ${(balance?.hold_amount ?? 0).toLocaleString("id-ID")}`,
+      icon: <AssessmentRounded />,
+      color: "brand" as const,
+    },
+    {
+      title: "Today's Sales",
+      value: `${recentOrders.filter(o => {
+        const today = new Date().toISOString().slice(0, 10);
+        return o.created_at?.startsWith(today);
+      }).length} orders`,
+      icon: <ShoppingCartRounded />,
+      color: "ocean" as const,
+    },
+    {
+      title: "Recent Transactions",
+      value: `${recentOrders.length}`,
+      icon: <TrendingUpRounded />,
+      color: "brand" as const,
+    },
   ];
+
+  const formatCurrency = (amount: number) => `Rp ${amount.toLocaleString("id-ID")}`;
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+  };
+  const formatTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  };
 
   return (
     <DashboardLayout role="reseller">
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reseller Panel 💼</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Hello, {user?.name}. Monitor your sales performance and balance.</p>
-          </div>
-          <div className="flex gap-2">
-            <Link 
+        <PageHeader
+          title="Reseller Panel"
+          emoji="💼"
+          description={`Hello, ${user?.name}. Monitor your sales performance and balance.`}
+          actions={
+            <Link
               href="/reseller/topup"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-ocean-500 hover:bg-ocean-600 text-smoke-200 font-black text-xs rounded-2xl transition-all"
             >
               <AddRounded fontSize="small" />
               <span>Top Up Balance</span>
             </Link>
-          </div>
-        </div>
+          }
+        />
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {stats.map((stat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group"
-            >
-              <div className="relative z-10 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{stat.title}</p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">{stat.value}</p>
-                </div>
-                <div className={`w-12 h-12 ${stat.light} ${stat.dark} rounded-xl flex items-center justify-center ${stat.text} group-hover:scale-110 transition-transform`}>
-                  {stat.icon}
-                </div>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase italic">
-                <span>Updated just now</span>
-              </div>
-            </motion.div>
+            <StatCard key={idx} index={idx} {...stat} />
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Recent Orders */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Sales</h2>
-                <Link href="/transactions" className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1">
-                  View All Orders <ChevronRightRounded fontSize="small" />
-                </Link>
-              </div>
-              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                 <div className="p-16 text-center">
-                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <ShoppingCartRounded className="text-slate-200 dark:text-slate-600" fontSize="large" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">No sales data found</h3>
-                    <p className="text-slate-500 mt-2">Start selling game products to see your performance here.</p>
-                 </div>
-              </div>
+          {/* Main Content: Recent Orders */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-black text-brand-500 dark:text-smoke-200">Recent Sales</h2>
+              <Link href="/reseller/transactions" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1">
+                View All <ChevronRightRounded fontSize="small" />
+              </Link>
             </div>
+
+            {loading ? (
+              <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-8 space-y-4">
+                {[1,2,3].map(i => (
+                  <div key={i} className="animate-pulse flex items-center gap-4">
+                    <div className="w-10 h-10 bg-brand-500/5 rounded-xl" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-brand-500/5 rounded-full w-3/4" />
+                      <div className="h-2 bg-brand-500/5 rounded-full w-1/2" />
+                    </div>
+                    <div className="h-6 w-16 bg-brand-500/5 rounded-full" />
+                  </div>
+                ))}
+              </div>
+            ) : recentOrders.length > 0 ? (
+              <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 divide-y divide-brand-500/5">
+                {recentOrders.map((order) => (
+                  <Link
+                    key={order.id}
+                    href={`/reseller/transactions/${order.transaction_code}`}
+                    className="flex items-center gap-4 p-5 hover:bg-cloud-200/50 dark:hover:bg-brand-700/30 transition-colors first:rounded-t-[28px] last:rounded-b-[28px]"
+                  >
+                    <div className="w-10 h-10 bg-ocean-500/10 rounded-xl flex items-center justify-center text-ocean-500 shrink-0">
+                      <ShoppingCartRounded fontSize="small" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-brand-500 dark:text-smoke-200 truncate">{order.product_name}</p>
+                      <p className="text-[10px] font-bold text-brand-500/30 mt-0.5">
+                        {order.transaction_code} • {formatDate(order.created_at)}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-black text-brand-500 dark:text-smoke-200">{formatCurrency(order.total_price)}</p>
+                      <StatusBadge status={order.status} size="sm" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={<ShoppingCartRounded fontSize="large" />}
+                title="No sales data yet"
+                description="Start selling game products to see your performance here."
+              />
+            )}
           </div>
 
-          {/* Sidebar Area */}
+          {/* Sidebar: Balance + Mutations */}
           <div className="space-y-6">
-             {/* Quick Topup / Card */}
-             <div className="bg-linear-to-br from-indigo-600 to-purple-700 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200 dark:shadow-none">
-                <div className="flex items-center justify-between mb-8">
-                   <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
-                      <AccountBalanceWalletRounded />
-                   </div>
-                   <span className="text-xs font-bold uppercase tracking-widest opacity-60 italic">{user?.customer_type} User</span>
-                </div>
-                <p className="text-xs opacity-80">Available Wallet Balance</p>
-                <p className="text-2xl font-black mt-1">Rp {user?.balance?.toLocaleString('id-ID') || '0'}</p>
-                <div className="mt-8 grid grid-cols-2 gap-3">
-                   <Link href="/reseller/topup" className="py-2.5 bg-white text-indigo-600 font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition-transform hover:scale-105 active:scale-95">
-                      <AddRounded fontSize="inherit" /> Top Up
-                   </Link>
-                   <Link href="/reseller/balance/history" className="py-2.5 bg-white/20 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 backdrop-blur-md transition-transform hover:scale-105 active:scale-95">
-                      History
-                   </Link>
-                </div>
-             </div>
+            <BalanceCard
+              balance={balance?.available_balance ?? user?.balance ?? 0}
+              userType={user?.customer_type}
+            />
 
-             {/* Recent Balance Mutations */}
-             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700">
-                <h3 className="font-bold text-slate-900 dark:text-white mb-4">Balance Mutations</h3>
-                <div className="py-8 text-center border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-xl">
-                   <p className="text-xs text-slate-400 font-medium">No recent mutations</p>
+            {/* Recent Mutations */}
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-6">
+              <h3 className="text-xs font-black text-brand-500 dark:text-smoke-200 mb-5">Balance Mutations</h3>
+
+              {mutations.length > 0 ? (
+                <div className="space-y-3">
+                  {mutations.map((mut) => (
+                    <div key={mut.id} className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${mut.type === "credit" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"}`}>
+                        {mut.type === "credit" ? <SouthWestRounded fontSize="small" /> : <NorthEastRounded fontSize="small" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-brand-500 dark:text-smoke-300 truncate">{mut.description}</p>
+                        <p className="text-[10px] text-brand-500/30 font-bold">{formatDate(mut.created_at)}</p>
+                      </div>
+                      <span className={`text-xs font-black ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
+                        {mut.type === "credit" ? "+" : "-"}{formatCurrency(mut.amount)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-                <button className="w-full mt-6 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                   View Full History
-                </button>
-             </div>
+              ) : (
+                <div className="py-8 text-center border-2 border-dashed border-brand-500/5 rounded-2xl">
+                  <p className="text-[10px] text-brand-500/30 font-bold">No recent mutations</p>
+                </div>
+              )}
+
+              <Link
+                href="/reseller/balance/history"
+                className="block w-full mt-5 py-3 text-[10px] font-black text-brand-500/40 dark:text-brand-500/50 border border-brand-500/5 rounded-2xl hover:bg-cloud-200 dark:hover:bg-brand-700/30 transition-colors text-center"
+              >
+                View Full History
+              </Link>
+            </div>
           </div>
         </div>
       </div>

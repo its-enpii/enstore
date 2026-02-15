@@ -321,7 +321,7 @@ export default function PaymentPage() {
                     <span className="text-[20px] font-bold text-brand-500/90">
                       Total Payment
                     </span>
-                    <span className="text-2xl font-bold tracking-tight text-ocean-500">
+                    <span className="text-2xl font-bold text-ocean-500">
                       Rp. {formatPrice(transaction.pricing.total)}
                     </span>
                   </div>
@@ -368,7 +368,7 @@ export default function PaymentPage() {
                 >
                   {transaction.sn && (
                     <div>
-                      <p className="mb-1 text-[10px] font-bold tracking-widest text-green-600/60 uppercase">
+                      <p className="mb-1 text-[10px] font-bold text-green-600/60">
                         Serial Number / SN
                       </p>
                       <p className="font-mono font-bold break-all text-green-700">
@@ -378,7 +378,7 @@ export default function PaymentPage() {
                   )}
                   {transaction.note && (
                     <div>
-                      <p className="mb-1 text-[10px] font-bold tracking-widest text-green-600/60 uppercase">
+                      <p className="mb-1 text-[10px] font-bold text-green-600/60">
                         Note
                       </p>
                       <p className="text-sm text-green-700">
@@ -441,11 +441,11 @@ export default function PaymentPage() {
                     <div className="w-full lg:max-w-10/12">
                       {/* VA / Payment Code View */}
                       <div className="mb-10 inline-block w-full rounded-[40px] border border-brand-500/5 bg-cloud-200 p-6 md:p-10">
-                        <p className="mb-4 text-sm font-bold tracking-widest text-brand-500/40 uppercase">
+                        <p className="mb-4 text-sm font-bold text-brand-500/40">
                           Payment Code / VA Number
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-xl md:text-4xl font-bold tracking-wider text-brand-500/90">
+                          <span className="font-mono text-xl md:text-4xl font-bold text-brand-500/90">
                             {transaction.payment.payment_code}
                           </span>
 

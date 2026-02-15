@@ -26,6 +26,7 @@ import {
   AutoGraphRounded
 } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
+import DashboardConfirmDialog from './DashboardConfirmDialog';
 
 interface MenuItem {
   title: string;
@@ -49,6 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
   const pathname = usePathname();
   const { logout } = useAuth();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const toggleMenu = (title: string) => {
     setOpenMenus(prev => ({
@@ -123,15 +125,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
       header: 'Purchase & Sales',
       items: [
         { title: 'Game Services', href: '/services', icon: <StorefrontRounded className="nav-icon" />, badge: 'VIP' },
-        { title: 'Order History', href: '/transactions', icon: <ShoppingCartRounded className="nav-icon" /> },
+        { title: 'Transaction History', href: '/reseller/transactions', icon: <ReceiptLongRounded className="nav-icon" /> },
         { title: 'Special Price List', href: '/reseller/prices', icon: <LocalOfferRounded className="nav-icon" />, badge: 'Special' },
-        { title: 'API Documentation', href: '/reseller/api-docs', icon: <AdminPanelSettingsRounded className="nav-icon" /> },
       ]
     },
     {
       header: 'Account',
       items: [
-        { title: 'My Profile', href: '/profile', icon: <PeopleRounded className="nav-icon" /> },
         { title: 'Settings', href: '/reseller/settings', icon: <SettingsRounded className="nav-icon" /> },
       ]
     }
@@ -169,12 +169,12 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
     <>
       <div className="h-20 flex items-center px-6 border-b border-brand-500/5 shrink-0">
         <div className="flex items-center gap-3 font-bold text-xl text-ocean-500 tracking-tight">
-          <div className="w-10 h-10 bg-linear-to-br from-ocean-400 to-ocean-600 rounded-2xl flex items-center justify-center text-smoke-100 shadow-lg shadow-ocean-500/20 rotate-3">
+          <div className="w-10 h-10 bg-linear-to-br from-ocean-400 to-ocean-600 rounded-2xl flex items-center justify-center text-smoke-200 shadow-lg shadow-ocean-500/20 rotate-3">
             <GamepadRounded fontSize="medium" />
           </div>
           <div className="flex flex-col leading-tight">
             <span className="text-brand-500 font-black tracking-tighter text-2xl">ENSTORE</span>
-            <span className="text-[10px] text-brand-500/40 uppercase tracking-widest font-bold">Platform</span>
+            <span className="text-[10px] text-brand-500/40 font-bold">Platform</span>
           </div>
         </div>
         <button onClick={onClose} className="lg:hidden ml-auto p-2 text-brand-500/40 hover:text-brand-500 bg-cloud-200 rounded-xl">
@@ -255,28 +255,42 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
         </nav>
       </div>
 
-      <div className="p-4 border-t border-brand-500/5">
-        <div className="bg-cloud-200 p-3 rounded-2xl mb-4">
-            <div className="flex items-center gap-3">
-                <div className="bg-ocean-500/10 p-2 rounded-xl">
+      <div className="p-4 border-t border-brand-500/5 space-y-4">
+        <div className="bg-cloud-200 p-4 rounded-[24px]">
+            <div className="flex items-center gap-4">
+                <div className="bg-ocean-500/10 p-2.5 rounded-xl">
                     <ContactSupportRounded className="text-ocean-500" fontSize="small" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-xs font-bold text-brand-500">Need Help?</span>
-                    <span className="text-[10px] text-brand-500/40">Contact our support</span>
+                    <span className="text-xs font-black text-brand-500">Need Help?</span>
+                    <span className="text-[10px] text-brand-500/40 font-bold mt-0.5">Contact support</span>
                 </div>
             </div>
         </div>
+        
         <button 
-          onClick={logout}
-          className="flex items-center gap-3 px-3.5 py-3 w-full text-sm text-red-500 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-300 group"
+          onClick={() => setShowLogoutConfirm(true)}
+          className="flex items-center gap-3 px-4 py-3.5 w-full text-sm text-red-500 font-bold rounded-2xl hover:bg-red-500/5 active:scale-[0.98] transition-all duration-300 group ring-red-500/20 focus:ring-4"
         >
-          <div className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/10 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors">
+          <div className="p-2 rounded-xl bg-red-500/10 group-hover:bg-red-500 group-hover:text-smoke-200 transition-all duration-300">
             <LogoutRounded fontSize="small" />
           </div>
-          <span>Logout Session</span>
+          <span className="font-black">Logout Session</span>
         </button>
       </div>
+
+      <DashboardConfirmDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          logout();
+        }}
+        title="Logout Confirmation"
+        description="Are you sure you want to logout? You will need to login again to access your account."
+        confirmLabel="Logout Now"
+        cancelLabel="Stay Logged In"
+      />
     </>
   );
 };

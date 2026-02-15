@@ -146,7 +146,7 @@ export default function LoginPage() {
 
         <div className="my-10 flex items-center gap-4">
           <div className="h-px flex-1 bg-brand-500/5"></div>
-          <span className="text-xs font-medium tracking-widest text-brand-500/40 uppercase">
+          <span className="text-xs font-medium text-brand-500/40">
             OR CONTINUE WITH
           </span>
           <div className="h-px flex-1 bg-brand-500/5"></div>

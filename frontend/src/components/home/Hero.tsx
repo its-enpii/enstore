@@ -92,7 +92,7 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden py-28 bg-smoke-200">
-      <div className="pointer-events-none absolute inset-0 z-1 bg-linear-to-r from-smoke-200 via-smoke-200/90 to-smoke-200/60 lg:hidden" />
+      <div className="pointer-events-none absolute inset-0 z-1 bg-linear-to-r from-smoke-200 via-smoke-200/95 to-smoke-200/60 lg:hidden" />
 
       <div className="relative z-2 container mx-auto px-4 lg:px-0">
         <motion.div
@@ -102,13 +102,13 @@ export function Hero() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <motion.span
-            className="mb-6 inline-flex items-center rounded-full border border-ocean-500/20 bg-ocean-500/10 px-3 py-2 text-xs font-bold tracking-wide text-ocean-500 uppercase sm:text-sm md:mb-8"
+            className="mb-6 inline-flex items-center rounded-full border border-ocean-500/20 bg-ocean-500/10 px-3 py-2 text-xs font-bold text-ocean-500 sm:text-sm md:mb-8"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ocean-500" />
-            <span className="ml-2 lowercase">Banking for Gamers</span>
+            <span className="ml-2">Banking for Gamers</span>
           </motion.span>
 
           <motion.h1
@@ -125,7 +125,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            className="mb-8 max-w-sm text-sm font-bold leading-relaxed text-brand-500/20 sm:text-base md:mb-10 uppercase tracking-widest"
+            className="mb-8 max-w-sm text-sm font-bold leading-relaxed text-brand-500/60 sm:text-base md:mb-10"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -153,9 +153,6 @@ export function Hero() {
             </motion.div>
             <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
               <Button
-                variant="white"
-                size="lg"
-                icon={<PlayArrowRounded />}
                 className="w-full border border-brand-500/5 sm:w-auto rounded-2xl bg-cloud-200"
               >
                 How it works
@@ -179,7 +176,7 @@ export function Hero() {
             {[...gameCovers, ...gameCovers].map((game, index) => (
               <div
                 key={index}
-                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl grayscale hover:grayscale-0 transition-all duration-500"
+                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl hover:scale-105 transition-all duration-500"
               >
                 <Image
                   src={game.image}
@@ -199,7 +196,7 @@ export function Hero() {
             {[...gameCovers, ...gameCovers].reverse().map((game, index) => (
               <div
                 key={index}
-                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl grayscale hover:grayscale-0 transition-all duration-500"
+                className="relative mb-4 h-[160px] w-[120px] overflow-hidden rounded-2xl sm:mb-6 sm:h-[220px] sm:w-[180px] lg:h-[260px] lg:w-[220px] lg:rounded-4xl hover:scale-105 transition-all duration-500"
               >
                 <Image
                   src={game.image}

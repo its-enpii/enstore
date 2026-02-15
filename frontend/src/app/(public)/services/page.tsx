@@ -214,7 +214,7 @@ export default function ServicesPage() {
               <h2 className="mb-6 text-2xl font-black text-brand-500/10 md:mb-10 md:text-3xl lg:text-5xl">
                 Anywhere, Instantly.
               </h2>
-              <p className="mb-8 max-w-xl text-sm font-bold text-brand-500/20 md:mb-12 md:text-base uppercase tracking-widest">
+              <p className="mb-8 max-w-xl text-sm font-bold text-brand-500/20 md:mb-12 md:text-base">
                 Secure payments for games, vouchers, and bills with FinTech
                 grade reliability.
               </p>
@@ -232,7 +232,7 @@ export default function ServicesPage() {
                 <input
                   type="text"
                   placeholder="Search for games or services..."
-                  className="w-full bg-transparent py-3 text-sm text-brand-500 font-bold placeholder:text-brand-500/20 focus:outline-none md:py-4 md:text-base placeholder:uppercase placeholder:tracking-widest"
+                  className="w-full bg-transparent py-3 text-sm text-brand-500 font-bold placeholder:text-brand-500/20 focus:outline-none md:py-4 md:text-base"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -259,7 +259,7 @@ export default function ServicesPage() {
               <button
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className={`flex cursor-pointer items-center gap-2 rounded-full px-5 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 border ${
+                className={`flex cursor-pointer items-center gap-2 rounded-full px-5 py-3 text-xs font-black transition-all duration-300 border ${
                   activeCategory === category.id
                     ? "bg-brand-500 text-cloud-200 border-brand-500"
                     : "bg-cloud-300 text-brand-500/40 border-transparent hover:bg-cloud-400"
@@ -325,7 +325,7 @@ export default function ServicesPage() {
                   animate={{ opacity: 1 }}
                 >
                   <SearchRounded className="text-brand-500/10 mb-4" style={{ fontSize: 64 }} />
-                  <p className="text-lg font-black text-brand-500/20 uppercase tracking-widest">No products found</p>
+                  <p className="text-lg font-black text-brand-500/20">No products found</p>
                 </motion.div>
               )}
 

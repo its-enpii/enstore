@@ -45,7 +45,7 @@ export function Features() {
           <h2 className="mb-4 font-sans text-2xl font-black text-brand-500 sm:text-3xl md:mb-6 lg:text-4xl">
             Why En<span className="text-ocean-500">Store</span>
           </h2>
-          <p className="mx-auto max-w-xl text-sm font-bold text-brand-500/20 sm:text-base uppercase tracking-widest">
+          <p className="mx-auto max-w-xl text-sm font-bold text-brand-500/60 sm:text-base">
             We combine the reliability of a bank with the speed gamers need.
             Security and speed are our top priorities.
           </p>
