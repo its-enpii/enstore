@@ -20,7 +20,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    identifier: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
@@ -34,12 +34,20 @@ export default function LoginPage() {
     try {
       const res = await login(formData);
       if (res.success) {
-        const token = (res.data as any).token; 
+        const token = (res.data as any).access_token; 
         if (token) {
             localStorage.setItem("auth_token", token);
             window.dispatchEvent(new Event("storage"));
             toast.success("Login successful!");
-            router.push("/");
+            
+            const user = (res.data as any).user;
+            if (user.role === 'admin') {
+                router.push("/admin/dashboard");
+            } else if (user.role === 'customer' && user.customer_type === 'reseller') {
+                router.push("/reseller/dashboard");
+            } else {
+                router.push("/dashboard");
+            }
         } else {
              toast.error("Login successful but no token received.");
         }
@@ -73,13 +81,13 @@ export default function LoginPage() {
             label="Email or Phone"
             placeholder="john@gmail.com"
             startIcon={<AlternateEmailRounded />}
-            value={formData.email}
+            value={formData.identifier}
             onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
+              setFormData({ ...formData, identifier: e.target.value })
             }
             required
             fullWidth
-            error={fieldErrors.email?.[0]}
+            error={fieldErrors.identifier?.[0] || fieldErrors.email?.[0]}
           />
 
           <div className="flex flex-col gap-2">

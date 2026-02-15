@@ -65,8 +65,24 @@ export default function RegisterPage() {
     try {
       const res = await register(payload);
       if (res.success) {
-        toast.success("Registration successful! Please login.");
-        router.push("/login");
+        toast.success("Registration successful!");
+        // Auto login if token is present
+        const token = (res.data as any).access_token;
+        if (token) {
+            localStorage.setItem("auth_token", token);
+            window.dispatchEvent(new Event("storage"));
+            
+            const user = (res.data as any).user;
+            if (user.role === 'admin') {
+                router.push("/admin/dashboard");
+            } else if (user.role === 'customer' && user.customer_type === 'reseller') {
+                router.push("/reseller/dashboard");
+            } else {
+                router.push("/dashboard");
+            }
+        } else {
+            router.push("/login");
+        }
       } else {
         toast.error(res.message || "Registration failed");
       }

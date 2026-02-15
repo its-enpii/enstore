@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { SearchRounded, MenuRounded, CloseRounded, ImageNotSupportedRounded } from "@mui/icons-material";
+import { SearchRounded, MenuRounded, CloseRounded, ImageNotSupportedRounded, PersonRounded } from "@mui/icons-material";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import Button from "../ui/Button";
 import Input from "../ui/Input";
-import { getProducts } from "@/lib/api";
+import { getProducts, getMe } from "@/lib/api";
 import type { Product } from "@/lib/api/types";
 
 const navLinks = [
@@ -151,6 +151,48 @@ function SearchBar({ mobile = false, onSearchSelect }: { mobile?: boolean; onSea
 export function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  // Initialize to false to show "Sign In" by default (optimistic unauthenticated)
+  // instead of showing nothing while checking
+  const [loadingAuth, setLoadingAuth] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        return;
+      }
+
+      try {
+        const res = await getMe();
+        if (res.success) {
+          setUser(res.data);
+        } else {
+          localStorage.removeItem("auth_token"); // Invalid token
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        // Don't remove token on network error, be consistent with optimistic UI
+      }
+    };
+
+    checkAuth();
+
+    // Listen for storage events (login/logout from other tabs or components)
+    const handleStorageChange = () => {
+        checkAuth();
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const getDashboardLink = () => {
+      if (!user) return "/login";
+      if (user.role === 'admin') return "/admin/dashboard";
+      if (user.role === 'customer' && user.customer_type === 'reseller') return "/reseller/dashboard";
+      return "/dashboard";
+  };
 
   return (
     <motion.header
@@ -162,14 +204,16 @@ export function Header() {
       <div className="container mx-auto px-4 lg:px-0">
         <div className="flex items-center justify-between lg:flex-row">
           {/* Logo */}
-          <motion.div
-            className="text-2xl font-extrabold text-brand-500/90 sm:text-3xl"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            En<span className="text-ocean-500">Store</span>
-          </motion.div>
+          <Link href="/">
+            <motion.div
+                className="text-2xl font-extrabold text-brand-500/90 sm:text-3xl cursor-pointer"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+            >
+                En<span className="text-ocean-500">Store</span>
+            </motion.div>
+          </Link>
 
           {/* Mobile menu button */}
           <motion.button
@@ -236,13 +280,23 @@ export function Header() {
             <div className="flex items-center justify-center gap-4">
               <SearchBar />
 
-              <Link href="/login">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button variant="dark" size="sm" className="w-fit">
-                    Sign In
-                  </Button>
-                </motion.div>
-              </Link>
+              {user ? (
+                <Link href={getDashboardLink()}>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button variant="primary" size="sm" className="w-fit" icon={<PersonRounded/>}>
+                        Dashboard
+                    </Button>
+                    </motion.div>
+                </Link>
+              ) : (
+                <Link href="/login">
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button variant="dark" size="sm" className="w-fit">
+                        Sign In
+                    </Button>
+                    </motion.div>
+                </Link>
+              )}
             </div>
           </motion.div>
         </div>
@@ -288,11 +342,19 @@ export function Header() {
               >
                 <SearchBar mobile onSearchSelect={() => setIsMenuOpen(false)} />
 
-                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="dark" size="sm" className="w-full">
-                    Sign In
-                  </Button>
-                </Link>
+                {user ? (
+                    <Link href={getDashboardLink()} onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="primary" size="sm" className="w-full" icon={<PersonRounded/>}>
+                            Dashboard
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="dark" size="sm" className="w-full">
+                            Sign In
+                        </Button>
+                    </Link>
+                )}
               </motion.div>
             </motion.div>
           )}
