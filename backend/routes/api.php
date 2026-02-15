@@ -50,6 +50,13 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    // Social Authentication (Google & Facebook)
+    Route::prefix('social')->group(function () {
+        Route::get('/{provider}/redirect', [App\Http\Controllers\Api\SocialAuthController::class, 'redirect']);
+        Route::get('/{provider}/callback', [App\Http\Controllers\Api\SocialAuthController::class, 'callback']);
+        Route::post('/{provider}/token', [App\Http\Controllers\Api\SocialAuthController::class, 'handleToken']);
+    });
 });
 
 // Public Transaction Routes (Guest Checkout)

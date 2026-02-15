@@ -251,6 +251,109 @@ Reset password using token from email.
 
 ---
 
+## Social Authentication (Google & Facebook)
+
+### 8. Get Social Login Redirect URL
+**GET** `/auth/social/{provider}/redirect`
+
+Get the OAuth2 authorization URL to redirect the user to Google or Facebook.
+
+**Parameters:**
+- `{provider}` - Social provider: `google` or `facebook`
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "redirect_url": "https://accounts.google.com/o/oauth2/auth?client_id=...&redirect_uri=...&scope=..."
+  }
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Provider tidak didukung. Gunakan: google, facebook"
+}
+```
+
+---
+
+### 9. Social Login Callback
+**GET** `/auth/social/{provider}/callback`
+
+Handles the OAuth2 callback from Google/Facebook. This endpoint is called automatically by the provider after user authorization. **Not called directly by frontend.**
+
+**Parameters:**
+- `{provider}` - Social provider: `google` or `facebook`
+
+**Behavior:**
+- On success: Redirects to `{FRONTEND_URL}/auth/social-callback?token={access_token}&role={role}&customer_type={type}`
+- On error: Redirects to `{FRONTEND_URL}/auth/social-callback?error={error_message}`
+
+**User Matching Logic:**
+1. If user with matching `google_id`/`facebook_id` exists → Login that user
+2. If user with matching `email` exists → Link social account to existing user, then login
+3. If no matching user → Create new user account, then login
+
+---
+
+### 10. Social Token Exchange
+**POST** `/auth/social/{provider}/token`
+
+Alternative flow: Exchange a social provider access token (obtained by frontend directly) for an EnStore auth token.
+
+**Parameters:**
+- `{provider}` - Social provider: `google` or `facebook`
+
+**Request Body:**
+```json
+{
+  "access_token": "ya29.a0AfH6SMC..." 
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Login berhasil",
+  "data": {
+    "user": {
+      "id": 5,
+      "name": "John Doe",
+      "email": "john@gmail.com",
+      "phone": null,
+      "role": "customer",
+      "customer_type": "retail",
+      "avatar": "https://lh3.googleusercontent.com/..."
+    },
+    "access_token": "5|stuvwx901234...",
+    "token_type": "Bearer"
+  }
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Provider tidak didukung"
+}
+```
+
+**Error Response (403):**
+```json
+{
+  "success": false,
+  "message": "Akun Anda tidak aktif. Silakan hubungi admin."
+}
+```
+
+---
+
 ## Middleware Usage
 
 ### Role-Based Access Control

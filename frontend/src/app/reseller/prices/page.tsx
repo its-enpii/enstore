@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import PageHeader from "@/components/dashboard/PageHeader";
 import DashboardInput from "@/components/dashboard/DashboardInput";
 import DashboardSelect from "@/components/dashboard/DashboardSelect";
@@ -52,8 +51,7 @@ export default function ResellerPriceListPage() {
   });
 
   return (
-    <DashboardLayout role="reseller">
-      <div className="space-y-8">
+    <div className="space-y-8">
         <PageHeader
           title="Price List"
           emoji="🏷️"
@@ -178,6 +176,5 @@ export default function ResellerPriceListPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }

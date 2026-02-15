@@ -11,9 +11,7 @@ import {
   LogoutRounded,
   AccountBalanceWalletRounded,
   HistoryRounded,
-  NotificationsRounded,
   LocalOfferRounded,
-  AssessmentRounded,
   PaymentRounded,
   ViewCarouselRounded,
   CloseRounded,
@@ -23,6 +21,7 @@ import {
   AdminPanelSettingsRounded,
   ContactSupportRounded,
   StorefrontRounded,
+  FavoriteRounded,
   AutoGraphRounded
 } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
@@ -94,7 +93,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
           subItems: [
               { title: 'Categories', href: '/admin/categories' },
               { title: 'Products/Games', href: '/admin/products' },
-              { title: 'Vouchers', href: '/admin/vouchers' },
           ]
         },
         { title: 'Users & Customers', href: '/admin/users', icon: <PeopleRounded className="nav-icon" /> },
@@ -115,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
       items: [
         { title: 'Dashboard', href: '/reseller/dashboard', icon: <DashboardRounded className="nav-icon" /> },
         { 
-          title: 'Balance & Wallet', 
+          title: 'My Wallet', 
           icon: <AccountBalanceWalletRounded className="nav-icon" />,
           subItems: walletSubItems
         },
@@ -132,16 +130,16 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
     {
       header: 'Account',
       items: [
-        { title: 'Settings', href: '/reseller/settings', icon: <SettingsRounded className="nav-icon" /> },
+        { title: 'My Profile', href: '/reseller/profile', icon: <PeopleRounded className="nav-icon" /> },
       ]
     }
   ] : [
     {
-      header: 'Dashboard',
+      header: 'Customer Menu',
       items: [
-        { title: 'Home Overview', href: '/dashboard', icon: <DashboardRounded className="nav-icon" /> },
-        { 
-          title: 'My Wallet', 
+        { title: 'Dashboard', href: '/dashboard', icon: <DashboardRounded className="nav-icon" /> },
+        {
+          title: 'My Wallet',
           icon: <AccountBalanceWalletRounded className="nav-icon" />,
           subItems: walletSubItems
         },
@@ -150,17 +148,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
     {
       header: 'Shopping',
       items: [
-        { title: 'Order History', href: '/transactions', icon: <ReceiptLongRounded className="nav-icon" /> },
         { title: 'Game Services', href: '/services', icon: <StorefrontRounded className="nav-icon" /> },
-        { title: 'Active Vouchers', href: '/vouchers', icon: <LocalOfferRounded className="nav-icon" /> },
+        { title: 'Transaction History', href: '/dashboard/transactions', icon: <ReceiptLongRounded className="nav-icon" /> },
       ]
     },
     {
       header: 'Account',
       items: [
-        { title: 'My Profile', href: '/profile', icon: <PeopleRounded className="nav-icon" /> },
-        { title: 'Notification Settings', href: '/settings/notifications', icon: <NotificationsRounded className="nav-icon" /> },
-        { title: 'Support Center', href: '/support', icon: <ContactSupportRounded className="nav-icon" /> },
+        { title: 'My Profile', href: '/dashboard/profile', icon: <PeopleRounded className="nav-icon" /> },
       ]
     }
   ];
@@ -196,7 +191,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                     const hasSubItems = item.subItems && item.subItems.length > 0;
                     const isOpen = openMenus[item.title];
                     const isActive = item.href 
-                        ? (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))
+                        ? (item.href === '/dashboard' ? pathname === '/dashboard' : item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))
                         : (hasSubItems && item.subItems?.some(sub => pathname === sub.href));
 
                     if (hasSubItems && item.subItems?.some(sub => pathname === sub.href) && !isOpen) {
@@ -223,7 +218,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                                       href={sub.href} 
                                       className={`nav-sub-link flex items-center gap-2 ${pathname === sub.href ? 'active' : ''}`}
                                     >
-                                      <div className={`w-1 h-1 rounded-full ${pathname === sub.href ? 'bg-ocean-500' : 'bg-brand-500/20'}`}></div>
                                       {sub.title}
                                     </Link>
                                   </li>
@@ -256,17 +250,19 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
       </div>
 
       <div className="p-4 border-t border-brand-500/5 space-y-4">
-        <div className="bg-cloud-200 p-4 rounded-[24px]">
-            <div className="flex items-center gap-4">
-                <div className="bg-ocean-500/10 p-2.5 rounded-xl">
-                    <ContactSupportRounded className="text-ocean-500" fontSize="small" />
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs font-black text-brand-500">Need Help?</span>
-                    <span className="text-[10px] text-brand-500/40 font-bold mt-0.5">Contact support</span>
-                </div>
-            </div>
-        </div>
+        <Link href="/help" className="block">
+          <div className="bg-cloud-200 p-4 rounded-[24px] hover:bg-cloud-300 transition-colors cursor-pointer group/support">
+              <div className="flex items-center gap-4">
+                  <div className="bg-ocean-500/10 p-2.5 rounded-xl group-hover/support:bg-ocean-500 group-hover/support:text-smoke-200 transition-all">
+                      <ContactSupportRounded className="text-ocean-500 group-hover/support:text-smoke-200" fontSize="small" />
+                  </div>
+                  <div className="flex flex-col">
+                      <span className="text-xs font-black text-brand-500">Need Help?</span>
+                      <span className="text-[10px] text-brand-500/40 font-bold mt-0.5">Contact support</span>
+                  </div>
+              </div>
+          </div>
+        </Link>
         
         <button 
           onClick={() => setShowLogoutConfirm(true)}

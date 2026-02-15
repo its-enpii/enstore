@@ -44,16 +44,6 @@ class ProfileController extends Controller
 
     $validator = Validator::make($request->all(), [
       'name' => 'sometimes|string|max:255',
-      'email' => [
-        'sometimes',
-        'email',
-        Rule::unique('users')->ignore($user->id),
-      ],
-      'phone' => [
-        'sometimes',
-        'string',
-        Rule::unique('users')->ignore($user->id),
-      ],
       'avatar' => 'sometimes|url',
     ]);
 
@@ -66,7 +56,8 @@ class ProfileController extends Controller
     }
 
     try {
-      $user->update($validator->validated());
+      // Only update name and avatar, explicitly ignoring email and phone
+      $user->update($request->only(['name', 'avatar']));
 
       return response()->json([
         'success' => true,

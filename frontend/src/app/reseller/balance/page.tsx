@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import PageHeader from "@/components/dashboard/PageHeader";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import StatCard from "@/components/dashboard/StatCard";
@@ -58,8 +57,7 @@ export default function ResellerBalance() {
   const totalDebit = mutations.filter(m => m.type === "debit").reduce((s, m) => s + m.amount, 0);
 
   return (
-    <DashboardLayout role="reseller">
-      <div className="space-y-8">
+    <div className="space-y-8">
         <PageHeader
           title="Balance Overview"
           emoji="💰"
@@ -154,8 +152,7 @@ export default function ResellerBalance() {
               <p className="text-xs text-brand-500/20 mt-1">Top up your balance to get started.</p>
             </div>
           )}
-        </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

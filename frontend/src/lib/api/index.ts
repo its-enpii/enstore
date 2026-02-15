@@ -48,6 +48,7 @@ export {
   register,
   logout,
   getMe,
+  socialLogin,
 } from "./auth";
 
 export type {

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import PageHeader from "@/components/dashboard/PageHeader";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Link from "next/link";
@@ -55,8 +54,7 @@ export default function TransactionDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout role="reseller">
-        <div className="space-y-6 animate-pulse">
+      <div className="space-y-6 animate-pulse">
           <div className="h-8 w-48 bg-brand-500/5 rounded-xl" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] p-8 border border-brand-500/5 space-y-4">
@@ -67,23 +65,19 @@ export default function TransactionDetailPage() {
             </div>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 
   if (!transaction) {
     return (
-      <DashboardLayout role="reseller">
-        <div className="py-20 text-center">
+      <div className="py-20 text-center">
           <p className="text-brand-500/40 font-bold text-sm">Transaction not found.</p>
         </div>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout role="reseller">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader
           title="Transaction Detail"
           breadcrumbs={[
@@ -241,7 +235,6 @@ export default function TransactionDetailPage() {
           </motion.div>
         )}
       </div>
-    </DashboardLayout>
   );
 }
 

@@ -344,6 +344,7 @@ export default function ServicesPage() {
                     publisher={product.provider || product.brand}
                     index={index}
                     className="h-full"
+                    product={product}
                   />
                 ))}
               </div>

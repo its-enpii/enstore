@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import PageHeader from "@/components/dashboard/PageHeader";
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import DashboardInput from "@/components/dashboard/DashboardInput";
@@ -105,8 +104,7 @@ export default function TopUpPage() {
 
   if (success) {
     return (
-      <DashboardLayout role="reseller">
-        <div className="max-w-lg mx-auto text-center py-16">
+      <div className="max-w-lg mx-auto text-center py-16">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -137,13 +135,11 @@ export default function TopUpPage() {
             </DashboardButton>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout role="reseller">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader
           title="Top Up Balance"
           emoji="💳"
@@ -316,8 +312,7 @@ export default function TopUpPage() {
               </motion.div>
             )}
           </div>
-        </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

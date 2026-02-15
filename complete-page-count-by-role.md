@@ -16,16 +16,15 @@
 
 ### Public Pages (No Login Required)
 
-| # | Page Name | Status | URL Example |
-|---|-----------|--------|-------------|
+| # | Page Name | Status | URL Example | Description |
+|---|-----------|--------|-------------|-------------|
 | 1 | Homepage | ✅ Done | `/` |
 | 2 | Services/Product List | ✅ Done | `/services` atau `/products` |
 | 3 | Product Detail | ✅ Done | `/products/mobile-legends` |
 | 4 | Checkout/Payment | ✅ Done | `/checkout` → `/payment/{code}` |
-| 5 | Track Order | ✅ Done | `/track-order` |
-| 6 | Transaction Success | ✅ Done | `/transaction/result/{code}` |
-| 7 | Help/FAQ | ✅ Done | `/help` |
-| 8 | Contact/Support | ✅ Done | `/help` |
+| 5 | Track Order | ✅ Done | `/track-order` | Transaction status |
+| 6 | Help Center | ✅ Done | `/help` | FAQ & Support |
+| 7 | Terms & Privacy | ✅ Done | `/terms`, `/privacy` | Static pages |
 
 ### Additional Public Pages (Legal/Info)
 
@@ -47,21 +46,25 @@
 
 | # | Page Name | Status | URL Example | Description |
 |---|-----------|--------|-------------|-------------|
-| 1 | Login | ❌ Missing | `/login` | Login form |
-| 2 | Register | ❌ Missing | `/register` | Registration form |
+| 1 | Login | ✅ Done | `/login` | Login form |
+| 2 | Register | ✅ Done | `/register` | Registration form |
 | 3 | Email Verification | ❌ Missing | `/verify-email` | After register |
-| 4 | Forgot Password | ❌ Missing | `/forgot-password` | Request reset link |
-| 5 | Reset Password | ❌ Missing | `/reset-password/{token}` | Set new password |
-| 6 | Dashboard/Profile | ✅ Done | `/dashboard` | User overview |
-| 7 | Edit Profile | ❌ Missing | `/profile/edit` | Edit name, avatar, etc |
-| 8 | Change Password | ❌ Missing | `/profile/change-password` | Security settings |
-| 9 | Transaction History | ❌ Missing | `/transactions` | All transactions list |
-| 10 | Transaction Detail | ❌ Missing | `/transactions/{id}` | Single transaction |
-| 11 | Favorites | ❌ Missing | `/favorites` | Saved products |
-| 12 | Settings | ❌ Missing | `/settings` | Preferences |
-| 13 | Notifications | ❌ Missing | `/notifications` | In-app notifications |
-| 14 | Voucher/Promo | ❌ Missing | `/vouchers` | Available vouchers |
-| 15 | Referral | ❌ Missing | `/referral` | Referral program |
+| 4 | Forgot Password | ✅ Done | `/forgot-password` | Recover account |
+| 5 | Reset Password | ✅ Done | `/reset-password` | Set new password |
+| 6 | Dashboard Overview | ✅ Done | `/dashboard` | User overview |
+| 7 | Edit Profile | ✅ Done | `/dashboard/profile?tab=details` | Edit name, avatar, etc |
+| 8 | Change Password | ✅ Done | `/dashboard/profile?tab=security` | Security settings |
+| 9 | Transaction History | ✅ Done | `/dashboard/transactions` | All transactions list |
+| 10 | Transaction Detail | ✅ Done | `/dashboard/transactions/{code}` | Single transaction |
+| 11 | Favorites | ✅ Done | `/dashboard/favorites` | Saved items |
+| 12 | Settings | ❌ Missing | `/settings` | Backend Pending |
+| 13 | Notifications | ❌ Missing | `/notifications` | Backend Pending |
+| 14 | Voucher/Promo | ❌ Missing | `/vouchers` | Backend Pending |
+| 15 | Referral | ❌ Missing | `/referral` | Backend Pending |
+| 16 | Wallet Overview | ✅ Done | `/dashboard/balance` | Balance & Quick Actions |
+| 17 | Top Up Balance | ✅ Done | `/dashboard/topup` | Add funds |
+| 18 | Wallet History | ✅ Done | `/dashboard/balance/history` | Transaction mutations |
+| 19 | Withdrawal | ✅ Done | `/dashboard/withdrawal` | Withdraw funds |
 
 **Total Retail Customer Pages: 13 (Guest) + 15 (Member) = 28 pages**
 
@@ -74,19 +77,19 @@
 | # | Page Name | Status | URL Example | Description |
 |---|-----------|--------|-------------|-------------|
 | 1 | Reseller Dashboard | ✅ Done | `/reseller/dashboard` | Different from retail dashboard |
-| 2 | Balance Overview | ❌ Missing | `/reseller/balance` | Main balance page |
-| 3 | Top Up Balance | ❌ Missing | `/reseller/topup` | Deposit saldo |
+| 2 | Balance Overview | ✅ Done | `/reseller/balance` | Main balance page |
+| 3 | Top Up Balance | ✅ Done | `/reseller/topup` | Deposit saldo |
 | 4 | Top Up Checkout | ❌ Missing | `/reseller/topup/checkout` | Similar to product checkout |
 | 5 | Top Up Success | ❌ Missing | `/reseller/topup/success/{code}` | After deposit success |
-| 6 | Balance History | ❌ Missing | `/reseller/balance/history` | All mutations |
+| 6 | Balance History | ✅ Done | `/reseller/balance/history` | All mutations |
 | 7 | Balance Mutation Detail | ❌ Missing | `/reseller/balance/{id}` | Single mutation detail |
 | 8 | Sales Report | ❌ Missing | `/reseller/reports/sales` | Sales statistics |
 | 9 | Product Performance | ❌ Missing | `/reseller/reports/products` | Best selling products |
 | 10 | Profit Report | ❌ Missing | `/reseller/reports/profit` | Profit tracking |
 | 11 | Withdrawal Request | ❌ Missing | `/reseller/withdrawal` | Request withdraw saldo |
 | 12 | Withdrawal History | ❌ Missing | `/reseller/withdrawal/history` | Withdrawal records |
-| 13 | Reseller Settings | ❌ Missing | `/reseller/settings` | Reseller-specific settings |
-| 14 | Price List | ❌ Missing | `/reseller/prices` | View reseller prices |
+| 13 | My Profile | ✅ Done | `/reseller/profile` | Reseller-specific settings |
+| 14 | Price List | ✅ Done | `/reseller/prices` | View reseller prices |
 
 **Total Reseller Pages: 28 (Retail) + 14 (Reseller) = 42 pages**
 
@@ -212,10 +215,10 @@
 
 ### B. **Auth Pages (Shared by Retail & Reseller)** - 5 pages
 ```
-❌ All Missing
+⚠️ 3 Missing
 
-1. Login
-2. Register
+1. Login ✅
+2. Register ✅
 3. Email Verification
 4. Forgot Password
 5. Reset Password
@@ -225,18 +228,22 @@
 
 ### C. **Retail Customer Pages** - 10 pages
 ```
-❌ All Missing
+✅ 5 Done, 5 Missing
 
-1. Dashboard/Profile
-2. Edit Profile
-3. Change Password
-4. Transaction History
-5. Transaction Detail
-6. Favorites
-7. Settings
-8. Notifications
-9. Voucher/Promo
-10. Referral
+1. Dashboard Overview ✅
+2. Edit Profile ✅
+3. Change Password ✅
+4. Transaction History ✅
+5. Transaction Detail ✅
+6. Favorites ✅
+7. Settings ❌ (Backend Missing)
+8. Notifications ❌ (Backend Missing)
+9. Voucher/Promo ❌ (Backend Missing)
+10. Referral ❌ (Backend Missing)
+11. Wallet Overview ✅
+12. Top Up Balance ✅
+13. Wallet History ✅
+14. Withdrawal ✅
 ```
 
 ---
@@ -245,20 +252,20 @@
 ```
 ❌ All Missing
 
-1. Reseller Dashboard
-2. Balance Overview
-3. Top Up Balance
-4. Top Up Checkout
-5. Top Up Success
-6. Balance History
-7. Balance Mutation Detail
-8. Sales Report
-9. Product Performance
-10. Profit Report
-11. Withdrawal Request
-12. Withdrawal History
-13. Reseller Settings
-14. Price List
+1. Reseller Dashboard ✅
+2. Balance Overview ✅
+3. Top Up Balance ✅
+4. Top Up Checkout ❌
+5. Top Up Success ❌
+6. Balance History ✅
+7. Balance Mutation Detail ❌
+8. Sales Report ❌
+9. Product Performance ❌
+10. Profit Report ❌
+11. Withdrawal Request ✅ (Maintenance)
+12. Withdrawal History ❌
+13. My Profile ✅
+14. Price List ✅
 ```
 
 ---

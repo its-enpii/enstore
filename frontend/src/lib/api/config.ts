@@ -56,6 +56,12 @@ export const ENDPOINTS = {
     logout: "/auth/logout",
     /** GET - Get current user profile */
     profile: "/auth/profile",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
+    /** GET - Get social login redirect URL */
+    socialRedirect: (provider: string) => `/auth/social/${provider}/redirect`,
+    /** POST - Exchange social token for auth token */
+    socialToken: (provider: string) => `/auth/social/${provider}/token`,
   },
 
   // ----------------------------------------------------------

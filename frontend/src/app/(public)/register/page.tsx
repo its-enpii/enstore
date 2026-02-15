@@ -18,10 +18,12 @@ import {
 } from "@mui/icons-material";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { register } from "@/lib/api";
+import { register, socialLogin } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
@@ -39,6 +41,17 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+    setSocialLoading(provider);
+    try {
+      await socialLogin(provider);
+    } catch (err: any) {
+      toast.error(err.message || `Gagal login dengan ${provider}`);
+      setSocialLoading(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +83,7 @@ export default function RegisterPage() {
         const token = (res.data as any).access_token;
         if (token) {
             localStorage.setItem("auth_token", token);
-            window.dispatchEvent(new Event("storage"));
+            await refreshUser(); // Update auth context before redirect
             
             const user = (res.data as any).user;
             if (user.role === 'admin') {
@@ -261,6 +274,9 @@ export default function RegisterPage() {
             variant="white"
             icon={<Google className="text-red-500" />}
             className="flex-1 border border-brand-500/5"
+            onClick={() => handleSocialLogin('google')}
+            isLoading={socialLoading === 'google'}
+            disabled={!!socialLoading}
           >
             Google
           </Button>
@@ -268,6 +284,9 @@ export default function RegisterPage() {
             variant="white"
             icon={<FacebookRounded className="text-blue-500" />}
             className="flex-1 border border-brand-500/5"
+            onClick={() => handleSocialLogin('facebook')}
+            isLoading={socialLoading === 'facebook'}
+            disabled={!!socialLoading}
           >
             Facebook
           </Button>

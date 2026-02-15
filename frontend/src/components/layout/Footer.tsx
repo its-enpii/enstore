@@ -23,14 +23,14 @@ export function Footer() {
         { href: "#", label: "About Us" },
         { href: "#", label: "Careers" },
         { href: "#", label: "Press" },
-        { href: "#", label: "Contact" },
+        { href: "/help", label: "Contact" },
       ],
     },
     {
       title: "Legal",
       links: [
-        { href: "#", label: "Terms" },
-        { href: "#", label: "Privacy" },
+        { href: "/terms", label: "Terms" },
+        { href: "/privacy", label: "Privacy" },
         { href: "#", label: "Security" },
       ],
     },

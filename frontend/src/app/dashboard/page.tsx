@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+
 import PageHeader from "@/components/dashboard/PageHeader";
 import StatCard from "@/components/dashboard/StatCard";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import EmptyState from "@/components/dashboard/EmptyState";
-import { 
-  ShoppingCartRounded, 
-  AccountBalanceWalletRounded, 
-  NotificationsRounded, 
+import {
+  ShoppingCartRounded,
+  AccountBalanceWalletRounded,
+  NotificationsRounded,
   TrendingUpRounded,
   HistoryRounded,
   LocalOfferRounded,
@@ -30,12 +30,12 @@ export default function CustomerDashboard() {
     { title: "Notifications", value: "0", icon: <NotificationsRounded />, color: "brand" as const },
   ];
 
+
   return (
-    <DashboardLayout role="retail">
-      <div className="space-y-8">
+    <>
         {/* Header */}
         <PageHeader 
-          title={`Welcome back, ${user?.name.split(' ')[0]}!👋`}
+          title={`Welcome back, ${user?.name?.split(' ')[0] || 'User'}!👋`}
           description="Here's what's happening with your account today."
           actions={
             <Link 
@@ -60,7 +60,7 @@ export default function CustomerDashboard() {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-black text-brand-500 dark:text-smoke-200">Recent Transactions</h2>
-              <Link href="/transactions" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1">
+              <Link href="/dashboard/transactions" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1">
                 View All <ChevronRightRounded fontSize="small" />
               </Link>
             </div>
@@ -104,7 +104,7 @@ export default function CustomerDashboard() {
             </div>
 
             {/* Refer & Earn */}
-            <div className="bg-smoke-200 dark:bg-brand-800 p-6 rounded-[28px] border border-brand-500/5">
+            {/* <div className="bg-smoke-200 dark:bg-brand-800 p-6 rounded-[28px] border border-brand-500/5">
                <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-ocean-500/10 rounded-xl flex items-center justify-center text-ocean-500">
                     <LocalOfferRounded />
@@ -117,10 +117,9 @@ export default function CustomerDashboard() {
                <button className="w-full py-2 border-2 border-brand-500/5 text-brand-500/40 font-bold rounded-xl hover:bg-cloud-200 transition-colors">
                   Share Referral Link
                </button>
-            </div>
+            </div> */}
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+    </>
   );
 }

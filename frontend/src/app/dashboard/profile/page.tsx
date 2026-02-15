@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+
 import PageHeader from "@/components/dashboard/PageHeader";
 import DashboardInput from "@/components/dashboard/DashboardInput";
 import DashboardButton from "@/components/dashboard/DashboardButton";
@@ -24,18 +24,19 @@ import {
   updateProfile,
   changePassword,
   type CustomerProfile,
-} from "@/lib/api";
+} from "@/lib/api/customer";
 
-function SettingsContent() {
+function ProfileContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [tab, setTab] = useState<"profile" | "password">("profile");
+  const [tab, setTab] = useState<"details" | "security">("details");
 
   // Profile form
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
@@ -54,8 +55,8 @@ function SettingsContent() {
   // Sync tab with URL
   useEffect(() => {
     const t = searchParams.get("tab");
-    if (t === "security" || t === "password") setTab("password");
-    else if (t === "profile") setTab("profile");
+    if (t === "security") setTab("security");
+    else setTab("details");
   }, [searchParams]);
 
   useEffect(() => {
@@ -68,7 +69,9 @@ function SettingsContent() {
       const res = await getProfile();
       if (res.success) {
         setProfile(res.data);
-        setName(res.data.name);
+        const [first, ...rest] = res.data.name.split(" ");
+        setFirstName(first || "");
+        setLastName(rest.join(" ") || "");
         setEmail(res.data.email || "");
         setPhone(res.data.phone || "");
       }
@@ -85,7 +88,11 @@ function SettingsContent() {
     setSuccessMsg("");
     try {
       setSaving(true);
-      const res = await updateProfile({ name, email, phone });
+      const res = await updateProfile({ 
+        name: `${firstName} ${lastName}`.trim(), 
+        email, 
+        phone 
+      });
       if (res.success) {
         setSuccessMsg("Profile updated successfully!");
         setTimeout(() => setSuccessMsg(""), 3000);
@@ -136,23 +143,22 @@ function SettingsContent() {
   };
 
   return (
-    <DashboardLayout role="reseller">
       <div className="space-y-8">
         <PageHeader
-          title="Account Settings"
-          emoji="⚙️"
-          description="Manage your profile information and security settings."
+          title="My Profile"
+          emoji="👤"
+          description="Manage your account information and security."
           breadcrumbs={[
-            { label: "Dashboard", href: "/reseller/dashboard" },
-            { label: "Settings" },
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "My Profile" },
           ]}
         />
 
         {/* Tab Switcher */}
         <div className="flex gap-2 p-1.5 bg-smoke-200 dark:bg-brand-800 rounded-2xl w-fit">
           {[
-            { id: "profile", label: "Profile", icon: <PersonRounded fontSize="small" /> },
-            { id: "password", label: "Security", icon: <LockRounded fontSize="small" /> },
+            { id: "details", label: "Details", icon: <PersonRounded fontSize="small" /> },
+            { id: "security", label: "Security", icon: <LockRounded fontSize="small" /> },
           ].map((t) => (
             <button
               key={t.id}
@@ -199,9 +205,9 @@ function SettingsContent() {
               <div key={i} className="h-14 bg-brand-500/5 rounded-2xl" />
             ))}
           </div>
-        ) : tab === "profile" ? (
+        ) : tab === "details" ? (
           <motion.form
-            key="profile"
+            key="details"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             onSubmit={handleProfileSave}
@@ -210,33 +216,44 @@ function SettingsContent() {
             {/* Account Info */}
             <div className="flex items-center gap-4 pb-6 border-b border-brand-500/5">
               <div className="w-16 h-16 rounded-2xl bg-ocean-500 text-smoke-200 flex items-center justify-center text-2xl font-black">
-                {name?.charAt(0).toUpperCase() || "U"}
+                {firstName?.charAt(0).toUpperCase() || "U"}
               </div>
               <div>
-                <h3 className="font-black text-brand-500 dark:text-smoke-200">{name}</h3>
+                <h3 className="font-black text-brand-500 dark:text-smoke-200">{firstName} {lastName}</h3>
                 <div className="flex items-center gap-2 mt-1">
                   <StatusBadge status={profile?.status || "active"} />
-                  <StatusBadge status="info" label={profile?.customer_type || "reseller"} />
+                  <StatusBadge status="neutral" label={profile?.customer_type || "Retail"} />
                 </div>
               </div>
             </div>
 
             {/* Fields */}
-            <DashboardInput
-              label="Full Name"
-              icon={<PersonRounded fontSize="small" />}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your full name"
-              fullWidth
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <DashboardInput
+                label="First Name"
+                icon={<PersonRounded fontSize="small" />}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="First name"
+                fullWidth
+              />
+              <DashboardInput
+                label="Last Name"
+                icon={<PersonRounded fontSize="small" />}
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Last name"
+                fullWidth
+              />
+            </div>
             <DashboardInput
               label="Email"
               icon={<EmailRounded fontSize="small" />}
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@email.com"
+              readOnly
+              className="bg-brand-500/5 cursor-not-allowed"
+              helperText="Email cannot be changed."
               fullWidth
             />
             <DashboardInput
@@ -244,8 +261,9 @@ function SettingsContent() {
               icon={<PhoneRounded fontSize="small" />}
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="081234567890"
+              readOnly
+              className="bg-brand-500/5 cursor-not-allowed"
+              helperText="Phone number cannot be changed."
               fullWidth
             />
 
@@ -256,12 +274,12 @@ function SettingsContent() {
               loading={saving}
               icon={<SaveRounded fontSize="small" />}
             >
-              Save Changes
+              Save Details
             </DashboardButton>
           </motion.form>
         ) : (
           <motion.form
-            key="password"
+            key="security"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             onSubmit={handlePasswordChange}
@@ -305,12 +323,12 @@ function SettingsContent() {
               loading={saving}
               icon={<LockRounded fontSize="small" />}
             >
-              Change Password
+              Update Password
             </DashboardButton>
           </motion.form>
         )}
       </div>
-    </DashboardLayout>
+
   );
 }
 
@@ -342,10 +360,10 @@ function PasswordField({
   );
 }
 
-export default function ResellerSettings() {
+export default function ProfilePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <SettingsContent />
+      <ProfileContent />
     </Suspense>
   );
 }

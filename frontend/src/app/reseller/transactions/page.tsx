@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import PageHeader from "@/components/dashboard/PageHeader";
 import DataTable, { type TableColumn } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
@@ -129,8 +128,7 @@ export default function ResellerTransactions() {
   const typeOptions = ["", "purchase", "topup"];
 
   return (
-    <DashboardLayout role="reseller">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader
           title="Transaction History"
           emoji="📋"
@@ -191,6 +189,5 @@ export default function ResellerTransactions() {
           rowKey={(row) => row.id}
         />
       </div>
-    </DashboardLayout>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import React, { useEffect, useState } from "react";
 import PageHeader from "@/components/dashboard/PageHeader";
 import DataTable, { type TableColumn } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
@@ -100,8 +99,7 @@ export default function BalanceHistoryPage() {
   ];
 
   return (
-    <DashboardLayout role="reseller">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader
           title="Balance History"
           emoji="📊"
@@ -140,6 +138,5 @@ export default function BalanceHistoryPage() {
           rowKey={(row) => row.id}
         />
       </div>
-    </DashboardLayout>
   );
 }

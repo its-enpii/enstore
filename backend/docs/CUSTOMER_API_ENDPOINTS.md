@@ -617,13 +617,13 @@ Authorization: Bearer {token}
 
 **Endpoint:** `PUT /api/customer/profile`
 
+> **Note:** Alamat Email dan Nomor Telepon **tidak dapat diubah** setelah registrasi karena digunakan sebagai identitas login unik. Endpoint ini hanya menerima perubahan Nama dan Avatar.
+
 **Request Body:**
 
 ```json
 {
     "name": "John Doe Updated",
-    "email": "john.new@example.com",
-    "phone": "081234567891",
     "avatar": "https://..."
 }
 ```
@@ -637,8 +637,9 @@ Authorization: Bearer {token}
     "data": {
         "id": 1,
         "name": "John Doe Updated",
-        "email": "john.new@example.com",
-        "phone": "081234567891"
+        "email": "john@example.com",
+        "phone": "081234567890",
+        "avatar": "https://..."
     }
 }
 ```
