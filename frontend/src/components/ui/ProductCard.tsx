@@ -25,29 +25,30 @@ const ProductCard = ({
     <div className={className}>
       <MotionLink
         href={href}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.5, delay }}
       >
         <motion.div
-          className="group relative h-full cursor-pointer overflow-hidden rounded-3xl bg-smoke-200 p-3 border border-brand-500/5 transition-all duration-300 sm:rounded-[40px] sm:p-4"
-          whileHover={{ y: -5 }}
+          className="group relative h-full cursor-pointer overflow-hidden rounded-2xl bg-smoke-200 p-2 shadow-enstore sm:rounded-3xl sm:p-3 lg:rounded-[40px] lg:p-4"
+          whileHover={{ y: -8, scale: 1.02 }}
+          transition={{ duration: 0.3 }}
         >
-          <div className="relative w-full overflow-hidden rounded-2xl lg:rounded-3xl border border-brand-500/5 bg-smoke-300">
+          <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl">
             <motion.div
               className="h-40 w-full bg-cover bg-center sm:h-52 lg:h-64"
               style={{ backgroundImage: `url(${imageUrl})` }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.1 }}
               transition={{ duration: 0.4 }}
             />
           </div>
 
-          <div className="p-3 lg:p-4">
-            <h3 className="mb-1 text-sm font-black text-brand-500 sm:mb-2 sm:text-base lg:text-[20px]">
+          <div className="p-2 sm:p-3 lg:p-4">
+            <h3 className="mb-1 text-sm font-bold text-brand-500/90 sm:mb-2 sm:text-base lg:text-[20px]">
               {title}
             </h3>
-            <p className="text-xs font-bold text-brand-500/20 sm:text-sm">{publisher}</p>
+            <p className="text-xs text-brand-500/40 sm:text-sm">{publisher}</p>
           </div>
         </motion.div>
       </MotionLink>

@@ -9,14 +9,14 @@ import { motion } from "motion/react";
 
 const features = [
   {
-    icon: <RocketLaunchRounded className="text-smoke-100" fontSize="large" />,
+    icon: <RocketLaunchRounded className="text-white" fontSize="large" />,
     title: "Instant Delivery",
     description:
       "Powered by real-time API connections. Your assets are credited immediately after payment verification. Zero waiting time.",
     color: "bg-ocean-500",
   },
   {
-    icon: <SecurityRounded className="text-smoke-100" fontSize="large" />,
+    icon: <SecurityRounded className="text-white" fontSize="large" />,
     title: "Secure Encryption",
     description:
       "Protected with 256-bit SSL encryption and verified payment gateways. We prioritize your data privacy and transaction safety.",
@@ -27,7 +27,7 @@ const features = [
     title: "Premium Support",
     description:
       "Our dedicated support team is ready to assist you via chat or email. Quick resolutions for every gamer.",
-    color: "bg-cloud-300",
+    color: "bg-smoke-200",
   },
 ];
 
@@ -42,10 +42,10 @@ export function Features() {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="mb-4 font-sans text-2xl font-black text-brand-500 sm:text-3xl md:mb-6 lg:text-4xl">
-            Why En<span className="text-ocean-500">Store</span>
+          <h2 className="mb-4 font-sans text-2xl font-bold text-brand-500/90 sm:text-3xl md:mb-6 lg:text-4xl">
+            Why EnStore
           </h2>
-          <p className="mx-auto max-w-xl text-sm font-bold text-brand-500/60 sm:text-base">
+          <p className="mx-auto max-w-xl text-sm text-brand-500/40 sm:text-base">
             We combine the reliability of a bank with the speed gamers need.
             Security and speed are our top priorities.
           </p>
@@ -58,24 +58,25 @@ export function Features() {
               className="w-full"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <motion.div
-                className="group relative h-full overflow-hidden rounded-[40px] bg-cloud-200 p-8 border border-brand-500/5 transition-all duration-300"
-                whileHover={{ y: -5 }}
+                className="group relative h-full overflow-hidden rounded-3xl bg-cloud-200 p-6 transition-shadow duration-300 hover:shadow-xl hover:shadow-ocean-500/5 sm:rounded-[40px] sm:p-8"
+                whileHover={{ y: -8 }}
+                transition={{ duration: 0.3 }}
               >
                 <motion.div
-                  className={`mb-8 w-fit rounded-2xl p-4 [&>svg]:h-8 [&>svg]:w-8 ${feature.color}`}
+                  className={`mb-6 w-fit rounded-xl p-3 sm:mb-8 sm:rounded-2xl sm:p-4 [&>svg]:h-6 [&>svg]:w-6 sm:[&>svg]:h-8 sm:[&>svg]:w-8 ${feature.color}`}
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   {feature.icon}
                 </motion.div>
-                <h3 className="mb-4 text-2xl font-black text-brand-500">
+                <h3 className="mb-3 text-xl font-bold text-brand-500/90 sm:mb-4 sm:text-2xl">
                   {feature.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-brand-500/50 sm:text-base">
+                <p className="text-sm leading-relaxed text-brand-500/40 sm:text-base">
                   {feature.description}
                 </p>
               </motion.div>

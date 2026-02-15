@@ -316,7 +316,7 @@ export default function ProductDetailPage() {
             {product.input_fields && product.input_fields.length > 0 && (
               <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
                 <div className="mb-6 flex items-center gap-3 md:mb-10">
-                  <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-smoke-200">
+                  <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
                     1
                   </div>
                   <h2 className="text-[20px] font-bold text-brand-500/90">
@@ -357,7 +357,7 @@ export default function ProductDetailPage() {
             {/* Step 2: Select Nominal */}
             <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
               <div className="mb-6 flex items-center gap-3 md:mb-10">
-                <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-smoke-200">
+                <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
                   {product.input_fields && product.input_fields.length > 0
                     ? 2
                     : 1}
@@ -440,7 +440,7 @@ export default function ProductDetailPage() {
             {/* Step 3: Payment Method */}
             <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
               <div className="mb-6 flex items-center gap-3 md:mb-10">
-                <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-smoke-200">
+                <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
                   3
                 </div>
                 <h2 className="text-[20px] font-bold text-brand-500/90">
@@ -452,7 +452,7 @@ export default function ProductDetailPage() {
               {Object.entries(groupedChannels).map(
                 ([group, channels], index) => (
                   <div key={group} className={index > 0 ? "mt-6 md:mt-8" : ""}>
-                    <p className="flex items-center gap-2 text-xs font-medium text-brand-500/40 md:text-sm">
+                    <p className="flex items-center gap-2 text-xs font-medium tracking-wide text-brand-500/40 uppercase md:text-sm">
                       <span className="h-2 w-2 rounded-full bg-brand-500/40" />
                       {group}
                     </p>
@@ -541,7 +541,7 @@ export default function ProductDetailPage() {
 
                 <div className="flex items-center justify-between gap-6 md:justify-end">
                   <div className="text-right">
-                    <p className="mb-2 text-xs font-medium text-brand-500/40">
+                    <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                       Total
                     </p>
                     <p className="text-base md:text-xl font-bold text-ocean-500">

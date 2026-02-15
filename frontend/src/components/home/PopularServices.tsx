@@ -49,7 +49,7 @@ export function PopularServices() {
             <h2 className="mb-2 font-sans text-2xl font-bold text-brand-500/90 sm:mb-4 sm:text-3xl lg:text-4xl">
               Popular Services
             </h2>
-            <p className="text-sm text-brand-500/60 sm:text-base">
+            <p className="text-sm text-brand-500/40 sm:text-base">
               Top Up your favorite games and pay easily.
             </p>
           </div>

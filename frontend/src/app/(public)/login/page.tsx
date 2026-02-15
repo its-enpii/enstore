@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -15,30 +15,16 @@ import {
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { login } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, refreshUser, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    identifier: "",
+    email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-
-  useEffect(() => {
-    if (!authLoading && user) {
-      if (user.role === 'admin') {
-        router.push("/admin/dashboard");
-      } else if (user.customer_type === 'reseller') {
-        router.push("/reseller/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
-    }
-  }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,22 +34,14 @@ export default function LoginPage() {
     try {
       const res = await login(formData);
       if (res.success) {
-        const token = (res.data as any).access_token; 
+        const token = (res.data as any).token; 
         if (token) {
             localStorage.setItem("auth_token", token);
-            await refreshUser();
+            window.dispatchEvent(new Event("storage"));
             toast.success("Login successful!");
-            
-            const userData = (res.data as any).user;
-            if (userData.role === 'admin') {
-              router.push("/admin/dashboard");
-            } else if (userData.customer_type === 'reseller') {
-              router.push("/reseller/dashboard");
-            } else {
-              router.push("/dashboard");
-            }
+            router.push("/");
         } else {
-             toast.error("Login successful but no access token received.");
+             toast.error("Login successful but no token received.");
         }
       } else {
         toast.error(res.message || "Login failed");
@@ -95,13 +73,13 @@ export default function LoginPage() {
             label="Email or Phone"
             placeholder="john@gmail.com"
             startIcon={<AlternateEmailRounded />}
-            value={formData.identifier}
+            value={formData.email}
             onChange={(e) =>
-              setFormData({ ...formData, identifier: e.target.value })
+              setFormData({ ...formData, email: e.target.value })
             }
             required
             fullWidth
-            error={fieldErrors.identifier?.[0]}
+            error={fieldErrors.email?.[0]}
           />
 
           <div className="flex flex-col gap-2">
@@ -146,7 +124,7 @@ export default function LoginPage() {
 
         <div className="my-10 flex items-center gap-4">
           <div className="h-px flex-1 bg-brand-500/5"></div>
-          <span className="text-xs font-medium text-brand-500/40">
+          <span className="text-xs font-medium tracking-widest text-brand-500/40 uppercase">
             OR CONTINUE WITH
           </span>
           <div className="h-px flex-1 bg-brand-500/5"></div>
@@ -175,7 +153,7 @@ export default function LoginPage() {
           Don't have an account?{" "}
           <Link
             href="/register"
-            className="text-ocean-500 cursor-pointer font-semibold hover:text-ocean-600"
+            className="text-ocean-500 cursor-pointer"
           >
             Register Now
           </Link>

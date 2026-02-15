@@ -15,7 +15,7 @@ import { TransactionStatus } from "@/lib/api";
 import { useState } from "react";
 
 interface PaymentResultProps {
-  status: "success" | "failed" | "expired" | "refunded";
+  status: "success" | "failed" | "expired";
   transaction: TransactionStatus;
 }
 
@@ -42,8 +42,8 @@ export default function PaymentResult({
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
         className={`mb-10 flex h-24 w-24 items-center justify-center rounded-full ${
           isSuccess
-            ? "bg-green-500 text-smoke-200 shadow-lg shadow-green-500/30"
-            : "bg-red-500 text-smoke-200 shadow-lg shadow-red-500/30"
+            ? "bg-green-500 text-white shadow-lg shadow-green-500/30"
+            : "bg-red-500 text-white shadow-lg shadow-red-500/30"
         }`}
       >
         {isSuccess ? (
@@ -88,7 +88,7 @@ export default function PaymentResult({
               <DescriptionRounded />
             </div>
             <div>
-              <p className="mb-1 text-xs font-medium text-brand-500/40">
+              <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Invoice ID
               </p>
               <p className="text-sm md:text-base font-bold text-brand-500/90">
@@ -115,7 +115,7 @@ export default function PaymentResult({
               <SportsEsportsRounded />
             </div>
             <div>
-              <p className="mb-1 text-xs font-medium text-brand-500/40">
+              <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Game
               </p>
               <p className="text-sm md:text-base font-bold text-brand-500/90">
@@ -132,7 +132,7 @@ export default function PaymentResult({
               <DiamondRounded />
             </div>
             <div>
-              <p className="mb-1 text-xs font-medium text-brand-500/40">
+              <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Item Delivered
               </p>
               <p className="text-sm md:text-base font-bold text-brand-500/90">

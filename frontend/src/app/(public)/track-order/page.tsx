@@ -14,8 +14,6 @@ import {
   ReceiptRounded,
   PaymentsRounded,
   ChevronRightRounded,
-  ReplayRounded,
-  AccountBalanceWalletRounded,
 } from "@mui/icons-material";
 import Button from "@/components/ui/Button";
 
@@ -66,31 +64,20 @@ export default function TrackOrderPage() {
   // Revised Step Logic for UI based on common flows:
   // 1. Pending: Created -> Waiting Payment
   // 2. Processing: Paid -> sending to provider
-  // 3. Success: Done / Failed / Refunded
-  const getSteps = () => {
-    if (transaction?.status === "refunded" || transaction?.refund?.is_refunded) {
-      return [
-        { id: "pending", label: "Pending", icon: <PaymentsRounded /> },
-        { id: "processing", label: "Processing", icon: <AutorenewRounded /> },
-        { id: "refunded", label: "Refunded", icon: <ReplayRounded /> },
-      ];
-    }
-    return [
-      { id: "pending", label: "Pending", icon: <PaymentsRounded /> },
-      { id: "processing", label: "Processing", icon: <AutorenewRounded /> },
-      { id: "success", label: "Success", icon: <CheckCircleRounded /> },
-    ];
-  };
-
-  const steps = getSteps();
+  // 3. Success: Done
+  const steps = [
+    { id: "pending", label: "Pending", icon: <PaymentsRounded /> },
+    { id: "processing", label: "Processing", icon: <AutorenewRounded /> },
+    { id: "success", label: "Success", icon: <CheckCircleRounded /> },
+  ];
 
   const getCurrentStepIndex = () => {
     if (!transaction) return -1;
     const s = transaction.status;
-    if (s === "pending") return 0;
-    if (s === "processing") return 1;
+    if (s === "pending") return 0; // Highlight Step 1
+    if (s === "processing") return 1; // Highlight Step 2
     if (s === "success") return 3; // Finished
-    if (s === "refunded") return 3; // Finished (refunded)
+    // If failed or expired, we still want to show the final state, but as failed
     if (s === "failed" || s === "expired") return 2;
     return 0;
   };
@@ -125,7 +112,7 @@ export default function TrackOrderPage() {
             <h1 className="mb-6 md:mb-8 font-sans text-3xl font-bold tracking-tight text-brand-500/90 sm:text-4xl lg:text-6xl lg:leading-[1.1]">
               Track <span className="text-ocean-500">Your Order</span>
             </h1>
-            <p className="mb-12 max-w-xl text-center text-sm text-brand-500/40 sm:text-base">
+            <p className="mb-12 max-w-xl text-center text-sm tracking-wide text-brand-500/40 sm:text-base">
               Enter your invoice ID to see real-time status of your gaming
               top-up
             </p>
@@ -200,18 +187,11 @@ export default function TrackOrderPage() {
                     {/* Connection Line */}
                     <div className="absolute top-0 right-10 left-10 h-1 translate-y-[26px] px-10">
                       <motion.div
-                        className={`h-full ${
-                          transaction.status === "refunded" || transaction.refund?.is_refunded
-                            ? "bg-amber-500"
-                            : ["failed", "expired"].includes(transaction.status)
-                              ? "bg-red-500"
-                              : "bg-ocean-500"
-                        }`}
+                        className={`h-full ${["failed", "expired"].includes(transaction.status) ? "bg-red-500" : "bg-ocean-500"}`}
                         initial={{ width: "0%" }}
                         animate={{
                           width:
                             transaction.status === "success" ||
-                            transaction.status === "refunded" ||
                             ["failed", "expired"].includes(transaction.status)
                               ? "100%"
                               : transaction.status === "processing"
@@ -228,7 +208,6 @@ export default function TrackOrderPage() {
                       const isFailedStatus = ["failed", "expired"].includes(
                         status,
                       );
-                      const isRefundedStatus = status === "refunded" || transaction.refund?.is_refunded;
 
                       // Default Pending Style
                       let styles = {
@@ -240,18 +219,14 @@ export default function TrackOrderPage() {
 
                       const isCompleted =
                         idx < currentStep ||
-                        (idx === currentStep && (status === "success" || status === "refunded"));
+                        (idx === currentStep && status === "success");
                       const isCurrent =
-                        idx === currentStep && status !== "success" && status !== "refunded";
+                        idx === currentStep && status !== "success";
 
                       if (isCompleted) {
-                        if (isRefundedStatus && idx === 2) {
-                          styles.color = "text-amber-500";
-                          styles.bg = "bg-amber-50 border border-amber-300 text-amber-500";
-                        } else {
-                          styles.color = "text-ocean-500";
-                          styles.bg = "bg-ocean-50 border border-ocean-200 text-ocean-500";
-                        }
+                        styles.color = "text-ocean-500";
+                        styles.bg =
+                          "bg-ocean-50 border border-ocean-200 text-ocean-500";
                       } else if (isCurrent) {
                         if (isFailedStatus && idx === 2) {
                           styles.color = "text-red-500";
@@ -286,64 +261,6 @@ export default function TrackOrderPage() {
                       );
                     })}
                   </div>
-
-                  {/* Refund Banner */}
-                  {(transaction.status === "refunded" || transaction.refund?.is_refunded) && transaction.refund && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="mb-8 rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:p-8"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
-                          <AccountBalanceWalletRounded />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="mb-1 text-lg font-bold text-amber-700">
-                            Dana Telah Dikembalikan
-                          </h3>
-                          <p className="mb-3 text-sm text-amber-600/80">
-                            Transaksi ini telah di-refund. Dana telah dikreditkan ke saldo akun Anda.
-                          </p>
-                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div>
-                              <p className="text-xs font-medium text-amber-500/60">
-                                Jumlah Refund
-                              </p>
-                              <p className="text-lg font-bold text-amber-700">
-                                Rp. {formatPrice(transaction.refund.refund_amount ?? 0)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs font-medium text-amber-500/60">
-                                Metode Refund
-                              </p>
-                              <p className="text-sm font-bold capitalize text-amber-700">
-                                Saldo Akun
-                              </p>
-                            </div>
-                            {transaction.refund.refunded_at && (
-                              <div>
-                                <p className="text-xs font-medium text-amber-500/60">
-                                  Tanggal Refund
-                                </p>
-                                <p className="text-sm font-bold text-amber-700">
-                                  {new Date(transaction.refund.refunded_at).toLocaleDateString("id-ID", {
-                                    day: "numeric",
-                                    month: "long",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
 
                   {/* Order Card */}
                   <div className="mb-8 rounded-3xl border border-brand-500/5 bg-cloud-200 p-6 text-left sm:p-8">
@@ -382,7 +299,7 @@ export default function TrackOrderPage() {
 
                     <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                           Target Info
                         </p>
                         <div className="font-bold text-brand-500/90">
@@ -403,7 +320,7 @@ export default function TrackOrderPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                           Item Name
                         </p>
                         <div className="font-bold text-brand-500/90">
@@ -412,7 +329,7 @@ export default function TrackOrderPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                           Payment Method
                         </p>
                         <div className="font-bold text-brand-500/90 capitalize">
@@ -421,7 +338,7 @@ export default function TrackOrderPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className="mb-2 text-xs font-medium text-brand-500/40">
+                        <p className="mb-2 text-xs font-medium text-brand-500/40 uppercase">
                           Transaction Value
                         </p>
                         <div className="font-bold text-brand-500/90">

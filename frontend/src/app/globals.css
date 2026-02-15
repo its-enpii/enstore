@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
   /* Brand Navy color palette (based on #00171F) */
   --color-brand-50: #e6eaeb;
@@ -51,76 +49,19 @@
   --color-ocean-800: #00435a;
   --color-ocean-900: #00212d;
 
-  --shadow-enstore: 0 10px 40px -10px rgba(0, 23, 31, 0.08);
+  --shadow-enstore: 0 1px 16px 0 rgba(0, 23, 32, 0.04);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Core Dashboard Layout Classes from encore-ui */
-.layout-sidebar {
-  @apply fixed inset-y-0 left-0 -translate-x-full lg:translate-x-0 w-64 flex flex-col z-50 transition-all duration-300 ease-in-out border-r border-brand-500/10;
-}
-
-.sidebar-hidden .layout-sidebar {
-  @apply translate-x-0 lg:-translate-x-full;
-}
-
-.layout-content {
-  @apply lg:ml-64 flex flex-col min-h-screen transition-all duration-300 ease-in-out;
-}
-
-.sidebar-hidden .layout-content {
-  @apply lg:ml-0;
-}
-
-.nav-header {
-  @apply px-3.5 py-4 text-[10px] font-bold text-brand-500/20;
-}
-
-.nav-link {
-  @apply flex items-center gap-2 px-3.5 py-2.5 text-sm font-normal text-brand-500/60 rounded-xl hover:bg-cloud-200 transition-colors cursor-pointer;
-}
-
-.nav-link.active {
-  @apply font-bold text-ocean-500 bg-ocean-500/5;
-}
-
-.nav-icon {
-  @apply text-lg text-brand-500/20 mr-1;
-}
-
-.nav-link.active .nav-icon {
-  @apply text-ocean-500;
-}
-
-.nav-chevron {
-  @apply text-brand-500/20 transition-transform duration-300 ml-auto;
-}
-
-.nav-submenu {
-  @apply grid grid-rows-[0fr] transition-all duration-300 ease-in-out opacity-0;
-}
-
-.nav-submenu.show {
-  @apply grid grid-rows-[1fr] opacity-100;
-}
-
-.nav-submenu > div {
-  @apply overflow-hidden;
-}
-
-.nav-sub-link {
-  @apply block px-3.5 py-2.5 pl-9 text-sm text-brand-500/40 hover:text-ocean-500 hover:bg-cloud-100 rounded-xl transition-colors;
-}
-
-.nav-sub-link.active {
-  @apply text-ocean-500 font-bold bg-ocean-500/5;
-}
-
 /* Animations */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in-up {
@@ -134,6 +75,28 @@
   }
 }
 
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.05);
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.6s ease-out forwards;
 }
@@ -142,20 +105,31 @@
   animation: fade-in-up 0.6s ease-out forwards;
 }
 
-/* Custom Scrollbar for Sidebar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+.animate-slide-down {
+  animation: slide-down 0.5s ease-out forwards;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-cloud-300);
-  border-radius: 10px;
+/* Animation delays */
+.animation-delay-100 {
+  animation-delay: 100ms;
 }
 
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
 }
