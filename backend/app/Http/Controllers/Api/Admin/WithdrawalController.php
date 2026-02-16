@@ -101,18 +101,25 @@ class WithdrawalController extends Controller
                 Notification::create([
                     'user_id' => $withdrawal->user_id,
                     'title' => 'Penarikan Saldo Ditolak',
-                    'message' => "Mohon maaf, penarikan saldo {$withdrawal->reference_id} ditolak. Alasan: " . ($request->admin_note ?? 'Tidak disertakan'),
-                    'type' => 'danger'
+                    'message' => "Mohon maaf, penarikan saldo sebesar Rp " . number_format((float)$withdrawal->amount, 0, ',', '.') . " ditolak. Alasan: " . ($request->admin_note ?? 'Tidak disertakan'),
+                    'type' => 'error',
+                    'data' => [
+                        'reference_id' => $withdrawal->reference_id,
+                        'reason' => $request->admin_note
+                    ]
                 ]);
             }
 
-            // Handling Success notification
             if ($newStatus === 'completed' || $newStatus === 'approved') {
                 Notification::create([
                     'user_id' => $withdrawal->user_id,
                     'title' => 'Penarikan Saldo Berhasil',
-                    'message' => "Penarikan saldo {$withdrawal->reference_id} telah diproses/disetujui.",
-                    'type' => 'success'
+                    'message' => "Penarikan saldo sebesar Rp " . number_format((float)$withdrawal->amount, 0, ',', '.') . " telah diproses/disetujui.",
+                    'type' => 'success',
+                    'data' => [
+                        'reference_id' => $withdrawal->reference_id,
+                        'status' => $newStatus
+                    ]
                 ]);
             }
 

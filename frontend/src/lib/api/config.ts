@@ -103,7 +103,20 @@ export const ENDPOINTS = {
     /** POST - Postpaid inquiry */
     postpaidInquiry: "/customer/postpaid/inquiry",
     /** POST - Postpaid pay */
+    /** POST - Postpaid pay */
     postpaidPay: "/customer/postpaid/pay",
+
+    // Notifications
+    notifications: {
+      /** GET - List notifications */
+      list: "/notifications",
+      /** GET - Get unread count */
+      count: "/notifications/count",
+      /** POST - Mark as read */
+      markAsRead: (id: number | string) => `/notifications/read/${id}`,
+      /** POST - Mark all as read */
+      markAllAsRead: "/notifications/read-all",
+    },
   },
 
   // ----------------------------------------------------------

@@ -85,6 +85,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [AuthController::class, 'profile']);
     });
 
+    // Notifications (All authenticated users)
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\Customer\NotificationController::class, 'index']);
+        Route::get('/count', [App\Http\Controllers\Api\Customer\NotificationController::class, 'unreadCount']);
+        Route::post('/read/{id}', [App\Http\Controllers\Api\Customer\NotificationController::class, 'markAsRead']);
+        Route::post('/read-all', [App\Http\Controllers\Api\Customer\NotificationController::class, 'markAllAsRead']);
+    });
+
     // Admin only routes
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // Dashboard
@@ -225,5 +233,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/change-password', [App\Http\Controllers\Api\Customer\ProfileController::class, 'changePassword']);
             Route::delete('/', [App\Http\Controllers\Api\Customer\ProfileController::class, 'deleteAccount']);
         });
+
     });
 });

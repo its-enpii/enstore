@@ -340,6 +340,20 @@ class TransactionService
     if ($transaction->product_item_id && $transaction->productItem) {
       $transaction->productItem->incrementSold();
     }
+
+    // Create Notification for User
+    if ($transaction->user_id) {
+      Notification::create([
+        'user_id' => $transaction->user_id,
+        'title' => 'Transaksi Berhasil',
+        'message' => "Pembelian {$transaction->product_name} berhasil diproses.",
+        'type' => 'success',
+        'data' => [
+          'transaction_code' => $transaction->transaction_code,
+          'product_name' => $transaction->product_name,
+        ],
+      ]);
+    }
   }
 
   /**
@@ -360,6 +374,18 @@ class TransactionService
     // Auto-refund for balance payments when order fails at provider
     if ($autoRefund && $transaction->payment_method_type === 'balance' && $transaction->user_id) {
       $this->refundTransaction($transaction, 'Auto-refund: ' . ($reason ?? 'Transaction failed'));
+    } elseif ($transaction->user_id) {
+      // Create Notification for User (Failed)
+      Notification::create([
+        'user_id' => $transaction->user_id,
+        'title' => 'Transaksi Gagal',
+        'message' => "Pembelian {$transaction->product_name} gagal. Alasan: " . ($reason ?? 'Unknown error'),
+        'type' => 'error',
+        'data' => [
+          'transaction_code' => $transaction->transaction_code,
+          'reason' => $reason,
+        ],
+      ]);
     }
   }
 
