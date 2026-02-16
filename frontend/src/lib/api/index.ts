@@ -43,13 +43,7 @@ export {
   cancelTransaction,
 } from "./transactions";
 
-export {
-  login,
-  register,
-  logout,
-  getMe,
-  socialLogin,
-} from "./auth";
+export { login, register, logout, getMe, socialLogin } from "./auth";
 
 export type {
   PaymentChannel,
@@ -71,6 +65,8 @@ export {
   getProfile,
   updateProfile,
   changePassword,
+  postpaidInquiry,
+  postpaidPay,
 } from "./customer";
 
 export type {
@@ -82,6 +78,9 @@ export type {
   TopUpResponse,
   PurchaseBalanceRequest,
   CustomerProfile,
+  PostpaidInquiryRequest,
+  PostpaidInquiryResponse,
+  PostpaidPayRequest,
 } from "./customer";
 
 export interface LoginResponse {

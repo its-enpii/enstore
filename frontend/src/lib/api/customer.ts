@@ -150,6 +150,38 @@ export interface CustomerProfile {
 }
 
 // ----------------------------------------------------------
+// Types - Postpaid
+// ----------------------------------------------------------
+
+export interface PostpaidInquiryRequest {
+  sku: string;
+  customer_no: string;
+}
+
+export interface PostpaidInquiryResponse {
+  status: string;
+  message: string;
+  data: {
+    ref_id: string;
+    customer_no: string;
+    customer_name: string;
+    buyer_sku_code: string;
+    admin: number;
+    selling_price: number;
+    price: number;
+    desc: {
+      tagihan?: string;
+      item_name?: string;
+      [key: string]: any;
+    };
+  };
+}
+
+export interface PostpaidPayRequest {
+  ref_id: string; // From inquiry
+}
+
+// ----------------------------------------------------------
 // Balance API
 // ----------------------------------------------------------
 
@@ -160,7 +192,11 @@ export async function getBalance(): Promise<ApiResponse<BalanceData>> {
 export async function getBalanceMutations(
   limit = 50,
 ): Promise<ApiResponse<BalanceMutation[]>> {
-  return api.get<BalanceMutation[]>(ENDPOINTS.customer.balanceMutations, { limit }, true);
+  return api.get<BalanceMutation[]>(
+    ENDPOINTS.customer.balanceMutations,
+    { limit },
+    true,
+  );
 }
 
 // ----------------------------------------------------------
@@ -187,9 +223,11 @@ export async function getTransactionDetail(
   );
 }
 
-export async function customerPurchase(
-  data: { product_item_id: number; payment_method: string; customer_data: Record<string, string> },
-): Promise<ApiResponse<any>> {
+export async function customerPurchase(data: {
+  product_item_id: number;
+  payment_method: string;
+  customer_data: Record<string, string>;
+}): Promise<ApiResponse<any>> {
   return api.post(ENDPOINTS.customer.purchase, data, true);
 }
 
@@ -209,8 +247,30 @@ export async function createTopUp(
   return api.post<TopUpResponse>(ENDPOINTS.customer.topup, data, true);
 }
 
-export async function getCustomerPaymentChannels(): Promise<ApiResponse<any[]>> {
+export async function getCustomerPaymentChannels(): Promise<
+  ApiResponse<any[]>
+> {
   return api.get<any[]>(ENDPOINTS.customer.paymentChannels, undefined, true);
+}
+
+// ----------------------------------------------------------
+// Postpaid API
+// ----------------------------------------------------------
+
+export async function postpaidInquiry(
+  data: PostpaidInquiryRequest,
+): Promise<ApiResponse<PostpaidInquiryResponse>> {
+  return api.post<PostpaidInquiryResponse>(
+    ENDPOINTS.customer.postpaidInquiry,
+    data,
+    true,
+  );
+}
+
+export async function postpaidPay(
+  data: PostpaidPayRequest,
+): Promise<ApiResponse<any>> {
+  return api.post<any>(ENDPOINTS.customer.postpaidPay, data, true);
 }
 
 // ----------------------------------------------------------
@@ -227,8 +287,10 @@ export async function updateProfile(
   return api.put<CustomerProfile>(ENDPOINTS.customer.updateProfile, data, true);
 }
 
-export async function changePassword(
-  data: { current_password: string; new_password: string; new_password_confirmation: string },
-): Promise<ApiResponse<void>> {
+export async function changePassword(data: {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+}): Promise<ApiResponse<void>> {
   return api.post<void>(ENDPOINTS.customer.changePassword, data, true);
 }

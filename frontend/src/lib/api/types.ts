@@ -101,6 +101,7 @@ export interface ProductListResponse {
 export interface ProductFilters {
   search?: string;
   type?: string;
+  payment_type?: "prepaid" | "postpaid";
   is_active?: boolean;
   is_featured?: boolean;
   "category.slug"?: string;

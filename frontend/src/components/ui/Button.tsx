@@ -4,6 +4,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "dark" | "white";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
+  fullWidth?: boolean;
   children?: React.ReactNode;
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
@@ -14,6 +15,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   size = "md",
   isLoading = false,
+  fullWidth = false,
   children,
   icon,
   iconPosition = "left",
@@ -29,7 +31,8 @@ const Button: React.FC<ButtonProps> = ({
     primary:
       "bg-ocean-500 text-cloud-200 hover:bg-ocean-600 active:bg-ocean-700 hover:shadow-lg hover:shadow-ocean-500/20",
     dark: "bg-brand-500 text-cloud-200 hover:bg-brand-600 active:bg-brand-700",
-    white: "bg-white text-brand-500 hover:bg-smoke-200 active:bg-smoke-300 border border-brand-500/5",
+    white:
+      "bg-white text-brand-500 hover:bg-smoke-200 active:bg-smoke-300 border border-brand-500/5",
   };
 
   const sizeStyles = iconOnly
@@ -56,7 +59,7 @@ const Button: React.FC<ButtonProps> = ({
     lg: iconPosition === "left" ? "mr-2.5" : "ml-2.5",
   };
 
-  const buttonClasses = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
+  const buttonClasses = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${fullWidth ? "w-full" : ""} ${className}`;
 
   const renderIcon = (iconElement: React.ReactNode) => {
     if (!iconElement) return null;
