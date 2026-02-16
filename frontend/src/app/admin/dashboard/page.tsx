@@ -67,7 +67,7 @@ export default function AdminDashboard() {
     {
       title: "Revenue (MTD)",
       value: data
-        ? `Rp ${data.overview.total_revenue.toLocaleString("id-ID")}`
+        ? `Rp ${Number(data.overview.total_revenue ?? 0).toLocaleString("id-ID")}`
         : "Rp 0",
       icon: <TrendingUpRounded />,
       color: "bg-ocean-500",
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
     {
       title: "Total Transactions",
       value: data
-        ? data.overview.total_transactions.toLocaleString("id-ID")
+        ? Number(data.overview.total_transactions ?? 0).toLocaleString("id-ID")
         : "0",
       icon: <ShoppingCartRounded />,
       color: "bg-brand-500",
@@ -90,7 +90,9 @@ export default function AdminDashboard() {
     },
     {
       title: "Active Users",
-      value: data ? data.users.active_users.toLocaleString("id-ID") : "0",
+      value: data
+        ? Number(data.users.active_users ?? 0).toLocaleString("id-ID")
+        : "0",
       icon: <PeopleRounded />,
       color: "bg-ocean-500",
       text: "text-ocean-500",
@@ -101,7 +103,7 @@ export default function AdminDashboard() {
     {
       title: "Estimated Profit (MTD)",
       value: data
-        ? `Rp ${data.revenue.total_profit.toLocaleString("id-ID")}`
+        ? `Rp ${Number(data.revenue.total_profit ?? 0).toLocaleString("id-ID")}`
         : "Rp 0",
       icon: <AccountBalanceWalletRounded />,
       color: "bg-brand-500",
@@ -287,7 +289,7 @@ export default function AdminDashboard() {
                     Rp{" "}
                     {data
                       ? Math.round(
-                          data.revenue.total_revenue / 30,
+                          Number(data.revenue.total_revenue ?? 0) / 30,
                         ).toLocaleString("id-ID")
                       : "0"}
                   </p>
@@ -357,7 +359,9 @@ export default function AdminDashboard() {
                       </span>
                       <span className="text-xs font-bold text-brand-500/90">
                         Rp{" "}
-                        {data?.revenue.by_type.purchase.toLocaleString("id-ID")}
+                        {Number(
+                          data?.revenue.by_type.purchase ?? 0,
+                        ).toLocaleString("id-ID")}
                       </span>
                     </div>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-cloud-200">
@@ -374,7 +378,10 @@ export default function AdminDashboard() {
                         Top Up
                       </span>
                       <span className="text-xs font-bold text-brand-500/90">
-                        Rp {data?.revenue.by_type.topup.toLocaleString("id-ID")}
+                        Rp{" "}
+                        {Number(
+                          data?.revenue.by_type.topup ?? 0,
+                        ).toLocaleString("id-ID")}
                       </span>
                     </div>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-cloud-200">
@@ -429,7 +436,8 @@ export default function AdminDashboard() {
                       </div>
                       <div className="text-right">
                         <p className="text-xs font-bold text-brand-500/90">
-                          Rp {tr.total_price.toLocaleString("id-ID")}
+                          Rp{" "}
+                          {Number(tr.total_price ?? 0).toLocaleString("id-ID")}
                         </p>
                         <span
                           className={`rounded-full px-2 py-0.5 text-[8px] font-bold uppercase ${getStatusColor(tr.status)}`}
@@ -507,8 +515,9 @@ export default function AdminDashboard() {
                     </p>
                     <p className="text-2xl font-bold text-brand-500/90">
                       Rp{" "}
-                      {data?.revenue.total_profit.toLocaleString("id-ID") ||
-                        "0"}
+                      {Number(data?.revenue.total_profit ?? 0).toLocaleString(
+                        "id-ID",
+                      ) || "0"}
                     </p>
                   </div>
                 </div>
@@ -574,5 +583,3 @@ export default function AdminDashboard() {
     </DashboardLayout>
   );
 }
-
-

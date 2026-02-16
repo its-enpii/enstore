@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Services\SupabaseStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class SettingController extends Controller
 {
+    protected $supabaseStorage;
+
+    public function __construct(SupabaseStorageService $supabaseStorage)
+    {
+        $this->supabaseStorage = $supabaseStorage;
+    }
+
     /**
      * Get all settings
      *
@@ -74,8 +82,8 @@ class SettingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'key' => 'required|string|max:100',
-            'value' => 'required',
-            'type' => 'required|in:string,number,boolean,json',
+            'value' => $request->hasFile('value') ? 'nullable' : 'required',
+            'type' => 'required|in:string,number,boolean,json,image',
             'group' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'is_public' => 'boolean',
@@ -92,8 +100,24 @@ class SettingController extends Controller
         try {
             $data = $validator->validated();
 
-            // Convert value based on type
-            $data['value'] = $this->convertValue($data['value'], $data['type']);
+            // Handle File Upload for Branding (Logo)
+            if ($data['key'] === 'site_logo' && $request->hasFile('value')) {
+                // Delete old logo if exists
+                $existing = Setting::where('key', 'site_logo')->first();
+                if ($existing && $existing->value) {
+                    try {
+                        $this->supabaseStorage->delete($existing->value);
+                    } catch (\Exception $e) {
+                        // Continue even if delete fails
+                    }
+                }
+
+                // Upload new logo
+                $data['value'] = $this->supabaseStorage->upload('branding', $request->file('value'));
+            } else {
+                // Convert value based on type
+                $data['value'] = $this->convertValue($data['value'], $data['type']);
+            }
 
             $setting = Setting::updateOrCreate(
                 ['key' => $data['key']],

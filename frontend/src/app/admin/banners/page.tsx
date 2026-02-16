@@ -27,6 +27,7 @@ import DashboardButton from "@/components/dashboard/DashboardButton";
 import DashboardInput from "@/components/dashboard/DashboardInput";
 import DashboardSelect from "@/components/dashboard/DashboardSelect";
 import { api, ENDPOINTS } from "@/lib/api";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 export default function AdminBannersPage() {
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,16 @@ export default function AdminBannersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    id: number | null;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    id: null,
+    loading: false,
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -192,19 +203,29 @@ export default function AdminBannersPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus banner ini?")) return;
+  const handleDelete = (id: number) => {
+    setConfirmDelete({ isOpen: true, id, loading: false });
+  };
 
+  const processDelete = async () => {
+    if (!confirmDelete.id) return;
+    setConfirmDelete((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await api.delete(ENDPOINTS.admin.banners.delete(id), true);
+      const res = await api.delete(
+        ENDPOINTS.admin.banners.delete(confirmDelete.id),
+        true,
+      );
       if (res.success) {
         toast.success("Banner berhasil dihapus");
         fetchBanners();
+        setConfirmDelete({ isOpen: false, id: null, loading: false });
       } else {
         toast.error(res.message || "Gagal menghapus banner");
       }
     } catch (err) {
       toast.error("Terjadi kesalahan saat menghapus banner");
+    } finally {
+      setConfirmDelete((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -374,7 +395,7 @@ export default function AdminBannersPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2">
-                    <label className="mb-2 ml-4 block text-[10px] font-bold tracking-widest text-brand-500/30 uppercase">
+                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Banner Image
                     </label>
                     <div
@@ -528,6 +549,16 @@ export default function AdminBannersPage() {
           </div>
         )}
       </AnimatePresence>
+      <ConfirmationModal
+        isOpen={confirmDelete.isOpen}
+        onClose={() => setConfirmDelete((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={processDelete}
+        title="Delete Banner"
+        message="Apakah Anda yakin ingin menghapus banner ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus Banner"
+        loading={confirmDelete.loading}
+        type="danger"
+      />
     </DashboardLayout>
   );
 }

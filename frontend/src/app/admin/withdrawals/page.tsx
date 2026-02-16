@@ -120,7 +120,9 @@ export default function AdminWithdrawalsPage() {
       label: "USER",
       render: (user: any) => (
         <div className="flex flex-col">
-          <span className="text-sm font-bold text-brand-500/90">{user?.name}</span>
+          <span className="text-sm font-bold text-brand-500/90">
+            {user?.name}
+          </span>
           <span className="text-[10px] tracking-tighter text-brand-500/40 uppercase">
             {user?.email}
           </span>
@@ -132,7 +134,7 @@ export default function AdminWithdrawalsPage() {
       label: "AMOUNT",
       render: (val: string) => (
         <span className="font-bold text-ocean-500">
-          Rp {parseFloat(val).toLocaleString("id-ID")}
+          Rp {parseFloat(val ?? "0").toLocaleString("id-ID")}
         </span>
       ),
     },
@@ -292,7 +294,7 @@ export default function AdminWithdrawalsPage() {
                         sx={{ fontSize: 18 }}
                       />
                       <div>
-                        <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
+                        <p className="text-[10px] font-medium tracking-tighter text-brand-500/30 uppercase">
                           User
                         </p>
                         <p className="text-sm font-bold text-brand-500/90">
@@ -306,7 +308,7 @@ export default function AdminWithdrawalsPage() {
                         sx={{ fontSize: 18 }}
                       />
                       <div>
-                        <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
+                        <p className="text-[10px] font-medium tracking-tighter text-brand-500/30 uppercase">
                           Bank / E-Wallet
                         </p>
                         <p className="text-sm font-bold text-brand-500/90">
@@ -320,7 +322,7 @@ export default function AdminWithdrawalsPage() {
                         sx={{ fontSize: 18 }}
                       />
                       <div>
-                        <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
+                        <p className="text-[10px] font-medium tracking-tighter text-brand-500/30 uppercase">
                           Account Number
                         </p>
                         <p className="text-sm font-bold text-brand-500/90">
@@ -336,14 +338,14 @@ export default function AdminWithdrawalsPage() {
                         sx={{ fontSize: 18 }}
                       />
                       <div>
-                        <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
+                        <p className="text-[10px] font-medium tracking-tighter text-brand-500/30 uppercase">
                           Amount
                         </p>
                         <p className="text-sm font-bold text-ocean-500">
                           Rp{" "}
-                          {parseFloat(selectedWithdrawal.amount).toLocaleString(
-                            "id-ID",
-                          )}
+                          {parseFloat(
+                            selectedWithdrawal.amount ?? "0",
+                          ).toLocaleString("id-ID")}
                         </p>
                       </div>
                     </div>
@@ -353,7 +355,7 @@ export default function AdminWithdrawalsPage() {
                         sx={{ fontSize: 18 }}
                       />
                       <div>
-                        <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
+                        <p className="text-[10px] font-medium tracking-tighter text-brand-500/30 uppercase">
                           Account Name
                         </p>
                         <p className="text-sm font-bold text-brand-500/90">
@@ -367,7 +369,7 @@ export default function AdminWithdrawalsPage() {
                         sx={{ fontSize: 18 }}
                       />
                       <div>
-                        <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
+                        <p className="text-[10px] font-medium tracking-tighter text-brand-500/30 uppercase">
                           Date Requested
                         </p>
                         <p className="text-sm font-bold text-brand-500/90">

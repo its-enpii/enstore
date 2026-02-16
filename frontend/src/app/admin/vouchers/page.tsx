@@ -27,6 +27,7 @@ import DashboardButton from "@/components/dashboard/DashboardButton";
 import DashboardInput from "@/components/dashboard/DashboardInput";
 import DashboardSelect from "@/components/dashboard/DashboardSelect";
 import { api, ENDPOINTS } from "@/lib/api";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 export default function AdminVouchersPage() {
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,16 @@ export default function AdminVouchersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    id: number | null;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    id: null,
+    loading: false,
+  });
 
   const [formData, setFormData] = useState({
     code: "",
@@ -202,19 +213,29 @@ export default function AdminVouchersPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus voucher ini?")) return;
+  const handleDelete = (id: number) => {
+    setConfirmDelete({ isOpen: true, id, loading: false });
+  };
 
+  const processDelete = async () => {
+    if (!confirmDelete.id) return;
+    setConfirmDelete((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await api.delete(ENDPOINTS.admin.vouchers.delete(id), true);
+      const res = await api.delete(
+        ENDPOINTS.admin.vouchers.delete(confirmDelete.id),
+        true,
+      );
       if (res.success) {
         toast.success("Voucher berhasil dihapus");
         fetchVouchers();
+        setConfirmDelete({ isOpen: false, id: null, loading: false });
       } else {
         toast.error(res.message || "Gagal menghapus voucher");
       }
     } catch (err) {
       toast.error("Terjadi kesalahan saat menghapus voucher");
+    } finally {
+      setConfirmDelete((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -240,12 +261,12 @@ export default function AdminVouchersPage() {
         <div className="flex items-center gap-1">
           <span className="text-sm font-bold text-brand-500/90">
             {item.type === "percentage"
-              ? `${parseFloat(item.value)}%`
-              : `Rp ${parseInt(item.value).toLocaleString()}`}
+              ? `${parseFloat(item.value ?? 0)}%`
+              : `Rp ${parseInt(item.value ?? 0).toLocaleString()}`}
           </span>
           {item.type === "percentage" && item.max_discount && (
             <span className="text-[10px] text-brand-500/40">
-              (Max Rp {parseInt(item.max_discount).toLocaleString()})
+              (Max Rp {parseInt(item.max_discount ?? 0).toLocaleString()})
             </span>
           )}
         </div>
@@ -460,7 +481,7 @@ export default function AdminVouchersPage() {
                       required
                     />
                     <div className="space-y-2">
-                      <label className="mb-2 ml-4 block text-[10px] font-bold tracking-widest text-brand-500/30 uppercase">
+                      <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                         Product Restriction (Optional)
                       </label>
                       <DashboardSelect
@@ -644,11 +665,11 @@ export default function AdminVouchersPage() {
                   </div>
 
                   <div className="col-span-1 md:col-span-2 lg:col-span-1">
-                    <label className="mb-2 ml-4 block text-[10px] font-bold tracking-widest text-brand-500/30 uppercase">
+                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Description (Optional)
                     </label>
                     <textarea
-                      className="h-[100px] w-full resize-none rounded-xl border-2 border-transparent bg-smoke-200 p-4 text-sm font-bold text-brand-500/90 transition-all placeholder:text-brand-500/20 focus:border-ocean-500/50 focus:outline-hidden"
+                      className="h-[100px] w-full resize-none rounded-xl border border-brand-500/5 bg-smoke-200 p-4 text-sm text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
                       placeholder="Voucher terms and conditions..."
                       value={formData.description}
                       onChange={(e) =>
@@ -677,6 +698,16 @@ export default function AdminVouchersPage() {
           </div>
         )}
       </AnimatePresence>
+      <ConfirmationModal
+        isOpen={confirmDelete.isOpen}
+        onClose={() => setConfirmDelete((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={processDelete}
+        title="Delete Voucher"
+        message="Apakah Anda yakin ingin menghapus voucher ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus Voucher"
+        loading={confirmDelete.loading}
+        type="danger"
+      />
     </DashboardLayout>
   );
 }

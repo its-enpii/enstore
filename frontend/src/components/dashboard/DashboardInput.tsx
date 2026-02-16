@@ -15,7 +15,7 @@ interface DashboardInputProps extends React.InputHTMLAttributes<HTMLInputElement
 /**
  * Dashboard Input - follows Encore UI form element styling
  * with EnStore color palette (brand-500, ocean-500).
- * 
+ *
  * Key differences from public Input:
  * - rounded-xl (not rounded-full)
  * - bg-smoke-200 / dark:bg-brand-700 background
@@ -37,7 +37,7 @@ const DashboardInput = forwardRef<HTMLInputElement, DashboardInputProps>(
       id,
       ...props
     },
-    ref
+    ref,
   ) => {
     const generatedId = useId();
     const inputId = id || generatedId;
@@ -47,14 +47,14 @@ const DashboardInput = forwardRef<HTMLInputElement, DashboardInputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-brand-500/70 mb-2"
+            className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500/30 [&>svg]:w-5 [&>svg]:h-5">
+            <div className="absolute top-1/2 left-3.5 -translate-y-1/2 text-brand-500/30 [&>svg]:h-5 [&>svg]:w-5">
               {icon}
             </div>
           )}
@@ -62,27 +62,12 @@ const DashboardInput = forwardRef<HTMLInputElement, DashboardInputProps>(
             ref={ref}
             id={inputId}
             disabled={disabled}
-            className={`
-              w-full px-4 py-2.5
-              bg-smoke-200
-              border border-brand-500/10
-              rounded-xl
-              text-sm text-brand-500
-              placeholder:text-brand-500/30
-              focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500/50
-              outline-none
-              transition-all duration-200
-              disabled:opacity-50 disabled:cursor-not-allowed
-              ${icon ? "pl-11" : ""}
-              ${endIcon ? "pr-11" : ""}
-              ${error ? "border-red-500! focus:ring-red-500/30!" : ""}
-              ${className}
-            `}
+            className={`w-full rounded-xl border border-brand-500/10 bg-smoke-200 px-4 py-2.5 text-sm text-brand-500/90 transition-all duration-200 outline-none placeholder:text-brand-500/30 focus:border-ocean-500/50 focus:ring-2 focus:ring-ocean-500/30 disabled:cursor-not-allowed disabled:opacity-50 ${icon ? "pl-11" : ""} ${endIcon ? "pr-11" : ""} ${error ? "border-red-500! focus:ring-red-500/30!" : ""} ${className} `}
             {...props}
           />
           {endIcon && (
             <div
-              className={`absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-500/30 hover:text-brand-500/90 transition-colors [&>svg]:w-5 [&>svg]:h-5 ${onEndIconClick ? "cursor-pointer" : ""}`}
+              className={`absolute top-1/2 right-3.5 -translate-y-1/2 text-brand-500/30 transition-colors hover:text-brand-500/90 [&>svg]:h-5 [&>svg]:w-5 ${onEndIconClick ? "cursor-pointer" : ""}`}
               onClick={onEndIconClick}
             >
               {endIcon}
@@ -90,14 +75,14 @@ const DashboardInput = forwardRef<HTMLInputElement, DashboardInputProps>(
           )}
         </div>
         {error && (
-          <p className="mt-1.5 text-xs text-red-500 font-medium">{error}</p>
+          <p className="mt-1.5 text-xs font-medium text-red-500">{error}</p>
         )}
         {helperText && !error && (
           <p className="mt-1.5 text-xs text-brand-500/40">{helperText}</p>
         )}
       </div>
     );
-  }
+  },
 );
 
 DashboardInput.displayName = "DashboardInput";

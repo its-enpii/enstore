@@ -29,7 +29,7 @@ const DashboardSelect = forwardRef<HTMLSelectElement, DashboardSelectProps>(
       id,
       ...props
     },
-    ref
+    ref,
   ) => {
     const generatedId = useId();
     const selectId = id || generatedId;
@@ -39,14 +39,14 @@ const DashboardSelect = forwardRef<HTMLSelectElement, DashboardSelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-brand-500/70 mb-2"
+            className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500/30 [&>svg]:w-5 [&>svg]:h-5 pointer-events-none">
+            <div className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-brand-500/30 [&>svg]:h-5 [&>svg]:w-5">
               {icon}
             </div>
           )}
@@ -54,21 +54,7 @@ const DashboardSelect = forwardRef<HTMLSelectElement, DashboardSelectProps>(
             ref={ref}
             id={selectId}
             disabled={disabled}
-            className={`
-              w-full px-4 py-2.5
-              bg-smoke-200
-              border border-brand-500/10
-              rounded-xl
-              text-sm text-brand-500
-              focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500/50
-              outline-none
-              transition-all duration-200
-              cursor-pointer appearance-none
-              disabled:opacity-50 disabled:cursor-not-allowed
-              ${icon ? "pl-11" : ""}
-              ${error ? "border-red-500! focus:ring-red-500/30!" : ""}
-              ${className}
-            `}
+            className={`w-full cursor-pointer appearance-none rounded-xl border border-brand-500/10 bg-smoke-200 px-4 py-2.5 text-sm text-brand-500/90 transition-all duration-200 outline-none focus:border-ocean-500/50 focus:ring-2 focus:ring-ocean-500/30 disabled:cursor-not-allowed disabled:opacity-50 ${icon ? "pl-11" : ""} ${error ? "border-red-500! focus:ring-red-500/30!" : ""} ${className} `}
             {...props}
           >
             {placeholder && (
@@ -83,18 +69,28 @@ const DashboardSelect = forwardRef<HTMLSelectElement, DashboardSelectProps>(
             ))}
           </select>
           {/* Chevron icon */}
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-500/30 pointer-events-none">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <div className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-brand-500/30">
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </div>
         </div>
         {error && (
-          <p className="mt-1.5 text-xs text-red-500 font-medium">{error}</p>
+          <p className="mt-1.5 text-xs font-medium text-red-500">{error}</p>
         )}
       </div>
     );
-  }
+  },
 );
 
 DashboardSelect.displayName = "DashboardSelect";

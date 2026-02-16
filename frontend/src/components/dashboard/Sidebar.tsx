@@ -180,7 +180,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
                 badge: pendingCount > 0 ? String(pendingCount) : undefined,
               },
               {
-                title: "Categories & Products",
+                title: "Items",
                 icon: <GamepadOutlined />,
                 subItems: [
                   { title: "Categories", href: "/admin/categories" },
@@ -188,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
                 ],
               },
               {
-                title: "Users & Customers",
+                title: "Users",
                 href: "/admin/users",
                 icon: <PeopleOutlined />,
               },

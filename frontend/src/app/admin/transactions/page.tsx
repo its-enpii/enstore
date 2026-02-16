@@ -22,6 +22,7 @@ import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { api, ENDPOINTS } from "@/lib/api";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 // --- Types ---
 interface Transaction {
@@ -120,6 +121,18 @@ export default function AdminTransactionsPage() {
     status: "",
   });
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    id: number | null;
+    status: string;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    id: null,
+    status: "",
+    loading: false,
+  });
+
   // Fetch Transactions
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
@@ -177,26 +190,41 @@ export default function AdminTransactionsPage() {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
 
-  const handleUpdateStatus = async (id: number, status: string) => {
-    if (
-      !confirm(`Are you sure you want to mark this transaction as ${status}?`)
-    )
-      return;
+  const handleUpdateStatus = (id: number, status: string) => {
+    setConfirmModal({
+      isOpen: true,
+      id,
+      status,
+      loading: false,
+    });
+  };
 
+  const processUpdateStatus = async () => {
+    if (!confirmModal.id) return;
+
+    setConfirmModal((prev) => ({ ...prev, loading: true }));
     try {
       const res = await api.put(
-        ENDPOINTS.admin.transactions.updateStatus(id),
-        { status },
+        ENDPOINTS.admin.transactions.updateStatus(confirmModal.id),
+        { status: confirmModal.status },
         true,
       );
       if (res.success) {
-        toast.success(`Transaction marked as ${status}`);
+        toast.success(`Transaction marked as ${confirmModal.status}`);
         fetchTransactions();
+        setConfirmModal({
+          isOpen: false,
+          id: null,
+          status: "",
+          loading: false,
+        });
       } else {
         toast.error(res.message || "Failed to update transaction");
       }
     } catch (err: any) {
       toast.error(err.message || "An error occurred");
+    } finally {
+      setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -363,7 +391,8 @@ export default function AdminTransactionsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="text-sm font-bold text-brand-500/90">
-                          Rp {trx.total_price.toLocaleString("id-ID")}
+                          Rp{" "}
+                          {Number(trx.total_price ?? 0).toLocaleString("id-ID")}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -462,8 +491,17 @@ export default function AdminTransactionsPage() {
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={processUpdateStatus}
+        title="Update Transaction Status"
+        message={`Are you sure you want to mark this transaction as ${confirmModal.status}?`}
+        confirmLabel={`Mark as ${confirmModal.status}`}
+        loading={confirmModal.loading}
+        type={confirmModal.status === "failed" ? "danger" : "info"}
+      />
     </DashboardLayout>
   );
 }
-
-

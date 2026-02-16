@@ -187,7 +187,7 @@ export default function PaymentMethodReportPage() {
                           Total Revenue
                         </p>
                         <p className="mt-1 text-xl font-bold text-brand-500/90">
-                          Rp {totalRevenue.toLocaleString("id-ID")}
+                          Rp {(totalRevenue ?? 0).toLocaleString("id-ID")}
                         </p>
                       </div>
                     </div>
@@ -268,15 +268,17 @@ export default function PaymentMethodReportPage() {
                         <td className="py-4 text-right">
                           <span className="text-sm font-bold text-brand-500/60">
                             Rp{" "}
-                            {Number(row.average_transaction).toLocaleString(
-                              "id-ID",
-                            )}
+                            {Number(
+                              row.average_transaction ?? 0,
+                            ).toLocaleString("id-ID")}
                           </span>
                         </td>
                         <td className="py-4 pr-4 text-right">
                           <span className="text-sm font-bold text-ocean-500">
                             Rp{" "}
-                            {Number(row.total_revenue).toLocaleString("id-ID")}
+                            {Number(row.total_revenue ?? 0).toLocaleString(
+                              "id-ID",
+                            )}
                           </span>
                         </td>
                       </tr>

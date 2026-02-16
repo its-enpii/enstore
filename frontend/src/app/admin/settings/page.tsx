@@ -28,6 +28,9 @@ export default function AdminSettings() {
     site_logo: "",
   });
 
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingGeneral, setSavingGeneral] = useState(false);
@@ -63,11 +66,27 @@ export default function AdminSettings() {
           support_whatsapp: settingsMap.support_whatsapp || "081234567890",
           site_logo: settingsMap.site_logo || "",
         });
+
+        if (settingsMap.site_logo) {
+          setLogoPreview(settingsMap.site_logo);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch settings:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -96,13 +115,39 @@ export default function AdminSettings() {
     e.preventDefault();
     setSavingGeneral(true);
     try {
-      const promises = Object.entries(generalSettings).map(([key, value]) =>
-        api.post(ENDPOINTS.admin.settings.create, { key, value }, true),
-      );
+      const promises = Object.entries(generalSettings).map(([key, value]) => {
+        // Special handling for site_logo with file
+        if (key === "site_logo" && logoFile) {
+          const formData = new FormData();
+          formData.append("key", key);
+          formData.append("value", logoFile);
+          formData.append("type", "image");
+          formData.append("group", "general");
+          return api.upload(
+            ENDPOINTS.admin.settings.create,
+            formData,
+            "POST",
+            true,
+          );
+        }
+
+        // Standard string value
+        return api.post(
+          ENDPOINTS.admin.settings.create,
+          {
+            key,
+            value,
+            type: "string",
+            group: "general",
+          },
+          true,
+        );
+      });
 
       const results = await Promise.all(promises);
       if (results.every((r) => r.success)) {
         toast.success("General settings updated");
+        setLogoFile(null); // Reset file selection after success
       } else {
         toast.error("Some settings failed to update");
       }
@@ -138,12 +183,12 @@ export default function AdminSettings() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
           {/* Profit Margins Card */}
           <div className="space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
             <div className="flex items-center gap-4 border-b border-brand-500/5 pb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 text-ocean-500 shadow-sm">
-                <MonetizationOnRounded />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 text-brand-500/90 shadow-sm">
+                <MonetizationOnRounded className="text-ocean-500" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-brand-500/90">
@@ -158,7 +203,7 @@ export default function AdminSettings() {
             <form onSubmit={handleSave} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
+                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                     Retail Margin (%)
                   </label>
                   <div className="relative">
@@ -171,7 +216,7 @@ export default function AdminSettings() {
                           retail_margin: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
                       min="0"
                       step="0.1"
                     />
@@ -182,7 +227,7 @@ export default function AdminSettings() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
+                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                     Reseller Margin (%)
                   </label>
                   <div className="relative">
@@ -195,7 +240,7 @@ export default function AdminSettings() {
                           reseller_margin: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
                       min="0"
                       step="0.1"
                     />
@@ -209,7 +254,7 @@ export default function AdminSettings() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-ocean-500 py-3 font-bold text-white transition-all hover:bg-ocean-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 py-3 font-bold text-white transition-all hover:bg-brand-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -241,7 +286,7 @@ export default function AdminSettings() {
             <form onSubmit={handleSaveGeneral} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
+                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                     Site Name
                   </label>
                   <div className="relative">
@@ -254,7 +299,7 @@ export default function AdminSettings() {
                           site_name: e.target.value,
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
                       placeholder="EnStore"
                     />
                     <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -265,7 +310,7 @@ export default function AdminSettings() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
+                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Support Email
                     </label>
                     <div className="relative">
@@ -278,7 +323,7 @@ export default function AdminSettings() {
                             support_email: e.target.value,
                           })
                         }
-                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-xs font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
                         placeholder="support@mail.com"
                       />
                       <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -287,7 +332,7 @@ export default function AdminSettings() {
                     </div>
                   </div>
                   <div>
-                    <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
+                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       WhatsApp Number
                     </label>
                     <div className="relative">
@@ -300,7 +345,7 @@ export default function AdminSettings() {
                             support_whatsapp: e.target.value,
                           })
                         }
-                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-xs font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
                         placeholder="081234..."
                       />
                       <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -311,24 +356,37 @@ export default function AdminSettings() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
-                    Logo URL
+                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                    Site Logo
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={generalSettings.site_logo}
-                      onChange={(e) =>
-                        setGeneralSettings({
-                          ...generalSettings,
-                          site_logo: e.target.value,
-                        })
-                      }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
-                      placeholder="https://..."
-                    />
-                    <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
-                      <LinkRounded fontSize="small" />
+                  <div className="flex flex-col gap-4">
+                    {logoPreview && (
+                      <div className="group relative h-20 w-48 overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-300 shadow-inner">
+                        <img
+                          src={logoPreview}
+                          alt="Logo Preview"
+                          className="h-full w-full object-contain p-2"
+                        />
+                      </div>
+                    )}
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoChange}
+                        className="hidden"
+                        id="logo-upload"
+                      />
+                      <label
+                        htmlFor="logo-upload"
+                        className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-brand-500/20 bg-brand-500/5 px-4 py-3 text-sm font-bold text-brand-500/90 transition-all hover:border-ocean-500/30 hover:bg-smoke-200"
+                      >
+                        <LinkRounded
+                          fontSize="small"
+                          className="text-ocean-500"
+                        />
+                        {logoFile ? logoFile.name : "Select New Logo File"}
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -354,5 +412,3 @@ export default function AdminSettings() {
     </DashboardLayout>
   );
 }
-
-

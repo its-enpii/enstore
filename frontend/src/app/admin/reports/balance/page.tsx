@@ -148,7 +148,10 @@ export default function BalanceReportPage() {
                       Total Credit (In)
                     </p>
                     <h3 className="mt-1 text-xl font-bold text-brand-500/90">
-                      Rp {data?.summary.total_credit.toLocaleString("id-ID")}
+                      Rp{" "}
+                      {(data?.summary.total_credit ?? 0).toLocaleString(
+                        "id-ID",
+                      )}
                     </h3>
                     <p className="mt-1 text-[10px] font-bold tracking-tighter text-emerald-500 uppercase">
                       {data?.summary.credit_count} mutations
@@ -169,7 +172,10 @@ export default function BalanceReportPage() {
                       Total Debit (Out)
                     </p>
                     <h3 className="mt-1 text-xl font-bold text-brand-500/90">
-                      Rp {data?.summary.total_debit.toLocaleString("id-ID")}
+                      Rp{" "}
+                      {Number(data?.summary.total_debit ?? 0).toLocaleString(
+                        "id-ID",
+                      )}
                     </h3>
                     <p className="mt-1 text-[10px] font-bold tracking-tighter text-red-500 uppercase">
                       {data?.summary.debit_count} mutations
@@ -192,7 +198,10 @@ export default function BalanceReportPage() {
                     <h3
                       className={`mt-1 text-xl font-bold ${data && data.summary.net_balance >= 0 ? "text-brand-500/90" : "text-red-500"}`}
                     >
-                      Rp {data?.summary.net_balance.toLocaleString("id-ID")}
+                      Rp{" "}
+                      {Number(data?.summary.net_balance ?? 0).toLocaleString(
+                        "id-ID",
+                      )}
                     </h3>
                     <p className="mt-1 text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                       Platform balance delta
@@ -259,7 +268,9 @@ export default function BalanceReportPage() {
                             className={`text-sm font-bold ${row.type === "credit" ? "text-emerald-600" : "text-red-500"}`}
                           >
                             {row.type === "credit" ? "+" : "-"} Rp{" "}
-                            {row.total_amount.toLocaleString("id-ID")}
+                            {Number(row.total_amount ?? 0).toLocaleString(
+                              "id-ID",
+                            )}
                           </span>
                         </td>
                       </tr>

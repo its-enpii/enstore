@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { 
+import {
   SearchRounded,
   CategoryRounded,
   InfoRounded,
@@ -49,107 +49,130 @@ export default function AdminCategoriesPage() {
   }, [fetchCategories]);
 
   // Filtered Categories
-  const filteredCategories = categories.filter(cat => 
-    cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cat.slug.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = categories.filter(
+    (cat) =>
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cat.slug.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
     <DashboardLayout role="admin">
-       <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-             <div>
-                <h1 className="text-2xl font-bold text-brand-500/90">Categories 🏷️</h1>
-                <p className="text-brand-500/50 mt-1 font-bold">View product categories.</p>
-             </div>
-             {/* Add Button Removed: API not supported */}
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-brand-500/90">
+              Categories 🏷️
+            </h1>
+            <p className="mt-2 text-sm text-brand-500/40">
+              View product categories.
+            </p>
           </div>
+          {/* Add Button Removed: API not supported */}
+        </div>
 
-          {/* Info Banner */}
-          <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex items-start gap-3">
-              <InfoRounded className="text-blue-500 mt-0.5" />
-              <div>
-                  <p className="text-blue-700 font-bold text-sm">Read Only Access</p>
-                  <p className="text-blue-600/80 text-xs mt-1">
-                      Saat ini manajemen kategori (Create/Update/Delete) belum tersedia di API Backend. 
-                      Halaman ini hanya menampilkan daftar kategori yang ada.
-                  </p>
-              </div>
+        {/* Info Banner */}
+        <div className="flex items-start gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
+          <InfoRounded className="mt-0.5 text-blue-500" />
+          <div>
+            <p className="text-sm font-bold text-blue-700">Read Only Access</p>
+            <p className="mt-1 text-xs text-blue-600/80">
+              Saat ini manajemen kategori (Create/Update/Delete) belum tersedia
+              di API Backend. Halaman ini hanya menampilkan daftar kategori yang
+              ada.
+            </p>
           </div>
+        </div>
 
-          {/* Filter Bar (Separated) */}
-          <div className="bg-smoke-200 p-4 rounded-3xl border border-brand-500/5 flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                  <SearchRounded className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500/30" />
-                  <input
-                    type="text"
-                    placeholder="Search categories..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none transition-all font-bold text-brand-500/90 placeholder:text-brand-500/20"
-                  />
-              </div>
+        {/* Filter Bar (Separated) */}
+        <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
+          <div className="relative flex-1">
+            <SearchRounded className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30" />
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
+            />
           </div>
+        </div>
 
-          {/* Categories Table (Data Container) */}
-          <div className="bg-smoke-200 rounded-xl border border-brand-500/5 overflow-hidden shadow-sm">
-              {loading ? (
-                 <div className="p-12 text-center">
-                    <div className="inline-block w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-brand-500/40 font-bold">Loading categories...</p>
-                 </div>
-              ) : filteredCategories.length === 0 ? (
-                 <div className="p-20 text-center">
-                    <CategoryRounded className="text-brand-500/10 text-6xl mb-4" />
-                    <h3 className="text-xl font-bold text-brand-500/90">No Categories Found</h3>
-                    <p className="text-brand-500/40 mt-1">Try a different search.</p>
-                 </div>
-              ) : (
-                 <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-brand-500/5 border-b border-brand-500/5">
-                            <tr className="text-left">
-                                <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest pl-8">Name</th>
-                                <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Slug</th>
-                                <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Description</th>
-                                <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Products</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-brand-500/5">
-                            {filteredCategories.map(cat => (
-                                <tr key={cat.id} className="group hover:bg-smoke-200 transition-colors">
-                                    <td className="px-6 py-4 pl-8">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-ocean-500/10 text-ocean-500 flex items-center justify-center">
-                                                <CategoryRounded fontSize="small" />
-                                            </div>
-                                            <span className="font-bold text-brand-500/90">{cat.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="text-xs bg-brand-500/5 text-brand-500/40 px-2 py-0.5 rounded-md inline-block font-mono font-bold">
-                                            {cat.slug}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className="text-sm text-brand-500/60 line-clamp-1 max-w-[200px] font-medium">
-                                            {cat.description || '-'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className="text-sm font-bold text-brand-500/40">
-                                            {cat.products_count || 0} Items
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                 </div>
-              )}
-          </div>
-       </div>
+        {/* Categories Table (Data Container) */}
+        <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200 shadow-sm">
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="mb-4 inline-block h-10 w-10 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>
+              <p className="font-bold text-brand-500/40">
+                Loading categories...
+              </p>
+            </div>
+          ) : filteredCategories.length === 0 ? (
+            <div className="p-20 text-center">
+              <CategoryRounded className="mb-4 text-6xl text-brand-500/10" />
+              <h3 className="text-xl font-bold text-brand-500/90">
+                No Categories Found
+              </h3>
+              <p className="mt-1 text-brand-500/40">Try a different search.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b border-brand-500/5 bg-brand-500/5">
+                  <tr className="text-left">
+                    <th className="px-6 py-4 pl-8 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Name
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Slug
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Description
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Products
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-500/5">
+                  {filteredCategories.map((cat) => (
+                    <tr
+                      key={cat.id}
+                      className="group transition-colors hover:bg-smoke-200"
+                    >
+                      <td className="px-6 py-4 pl-8">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ocean-500/10 text-ocean-500">
+                            <CategoryRounded fontSize="small" />
+                          </div>
+                          <span className="font-bold text-brand-500/90">
+                            {cat.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="inline-block rounded-md bg-brand-500/5 px-2 py-0.5 font-mono text-xs font-bold text-brand-500/40">
+                          {cat.slug}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="line-clamp-1 max-w-[200px] text-sm font-medium text-brand-500/60">
+                          {cat.description || "-"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-bold text-brand-500/40">
+                          {cat.products_count || 0} Items
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </DashboardLayout>
   );
 }
