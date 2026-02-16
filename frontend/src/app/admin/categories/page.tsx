@@ -9,6 +9,7 @@ import {
 import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardInput from "@/components/dashboard/DashboardInput";
 import { api, ENDPOINTS } from "@/lib/api";
 import {
   ProductCategory as Category,
@@ -38,8 +39,14 @@ export default function AdminCategoriesPage() {
         true,
       );
       if (res.success) {
-        setCategories(res.data.data);
-        setPagination(res.data);
+        // Handle both paginated and raw array responses
+        const categoryData = Array.isArray(res.data)
+          ? res.data
+          : (res.data as any).data || [];
+        setCategories(categoryData);
+        if (!Array.isArray(res.data)) {
+          setPagination(res.data as any);
+        }
       }
     } catch (err) {
       console.error("Fetch categories failed:", err);
@@ -54,10 +61,10 @@ export default function AdminCategoriesPage() {
   }, [fetchCategories]);
 
   // Filtered Categories
-  const filteredCategories = categories.filter(
+  const filteredCategories = (categories || []).filter(
     (cat) =>
-      cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cat.slug.toLowerCase().includes(searchTerm.toLowerCase()),
+      cat.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cat.slug?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -91,16 +98,13 @@ export default function AdminCategoriesPage() {
 
         {/* Filter Bar (Separated) */}
         <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
-          <div className="relative flex-1">
-            <SearchRounded className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30" />
-            <input
-              type="text"
-              placeholder="Search categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-            />
-          </div>
+          <DashboardInput
+            fullWidth
+            placeholder="Search categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            icon={<SearchRounded />}
+          />
         </div>
 
         {/* Categories Table (Data Container) */}

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import {
   SearchRounded,
+  FilterListRounded,
   PersonAddRounded,
   GroupRounded,
   AdminPanelSettingsRounded,
@@ -22,6 +23,8 @@ import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
+import DashboardInput from "@/components/dashboard/DashboardInput";
+import DashboardSelect from "@/components/dashboard/DashboardSelect";
 import { api, ENDPOINTS } from "@/lib/api";
 import { User, LaravelPagination } from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -62,26 +65,21 @@ export default function AdminUsersPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.append("page", String(filters.page));
-      params.append("per_page", String(filters.per_page));
-      if (filters.search) params.append("search", filters.search);
-      if (filters.customer_type)
-        params.append("customer_type", filters.customer_type);
-
-      // Default to customer role to hide admins, unless specific role requested
-      params.append("role", filters.role || "customer");
-
-      const endpoint = `${ENDPOINTS.admin.users.list}?${params.toString()}`;
-      // Generic type
+      // Use params object
       const res = await api.get<LaravelPagination<User>>(
-        endpoint,
-        undefined,
+        ENDPOINTS.admin.users.list,
+        {
+          page: filters.page,
+          per_page: filters.per_page,
+          search: filters.search,
+          customer_type: filters.customer_type,
+          role: filters.role || "customer",
+        },
         true,
       );
 
       if (res.success) {
-        setUsers(res.data.data);
+        setUsers(res.data.data || []);
         setPagination(res.data);
       }
     } catch (err) {
@@ -155,21 +153,20 @@ export default function AdminUsersPage() {
 
         {/* Filter Bar */}
         <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
-          <form onSubmit={handleSearch} className="relative flex-1">
-            <SearchRounded className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30" />
-            <input
-              type="text"
+          <form onSubmit={handleSearch} className="flex-1">
+            <DashboardInput
+              fullWidth
               placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
+              icon={<SearchRounded />}
             />
           </form>
 
           <div className="flex gap-3">
-            {/* Replaced Role Filter with Customer Type Filter since we only show Customers */}
-            <select
-              className="rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
+            <DashboardSelect
+              className="w-48"
+              value={filters.customer_type}
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,
@@ -177,11 +174,13 @@ export default function AdminUsersPage() {
                   page: 1,
                 }))
               }
-            >
-              <option value="">All Types</option>
-              <option value="retail">Retail</option>
-              <option value="reseller">Reseller</option>
-            </select>
+              options={[
+                { value: "", label: "All Types" },
+                { value: "retail", label: "Retail" },
+                { value: "reseller", label: "Reseller" },
+              ]}
+              icon={<FilterListRounded fontSize="small" />}
+            />
           </div>
         </div>
 
@@ -336,6 +335,19 @@ export default function AdminUsersPage() {
                 >
                   <ChevronLeftRounded fontSize="small" />
                 </button>
+                {[...Array(pagination.last_page).keys()].map((idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handlePageChange(idx + 1)}
+                    className={`h-8 w-8 rounded-xl border text-xs font-bold transition-colors ${
+                      pagination.current_page === idx + 1
+                        ? "border-ocean-500 bg-ocean-500 text-white"
+                        : "border-transparent bg-transparent text-brand-500/60 hover:bg-smoke-200"
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
                 <button
                   onClick={() => handlePageChange(pagination.current_page + 1)}
                   disabled={pagination.current_page === pagination.last_page}

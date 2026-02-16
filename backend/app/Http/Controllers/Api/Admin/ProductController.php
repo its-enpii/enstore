@@ -116,6 +116,11 @@ class ProductController extends Controller
             $sortBy = $request->get('sort_by', 'sort_order');
             $sortOrder = $request->get('sort_order', 'asc');
             $query->orderBy($sortBy, $sortOrder);
+            
+            // Secondary sort for stability (CRITICAL for pagination)
+            if ($sortBy !== 'id') {
+                $query->orderBy('id', 'asc');
+            }
 
             // Paginate
             $perPage = (int) $request->get('per_page', 20);

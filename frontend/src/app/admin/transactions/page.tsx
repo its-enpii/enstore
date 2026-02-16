@@ -21,6 +21,9 @@ import {
 import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardButton from "@/components/dashboard/DashboardButton";
+import DashboardInput from "@/components/dashboard/DashboardInput";
+import DashboardSelect from "@/components/dashboard/DashboardSelect";
 import { api, ENDPOINTS } from "@/lib/api";
 import { Transaction, LaravelPagination } from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -104,23 +107,23 @@ export default function AdminTransactionsPage() {
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.append("page", String(filters.page));
-      params.append("per_page", String(filters.per_page));
-      if (filters.search) params.append("search", filters.search);
-      if (filters.status && filters.status !== "all")
-        params.append("status", filters.status);
-
-      const endpoint = `${ENDPOINTS.admin.transactions.list}?${params.toString()}`;
-      // Add generic type
+      // Use params object
       const res = await api.get<LaravelPagination<Transaction>>(
-        endpoint,
-        undefined,
+        ENDPOINTS.admin.transactions.list,
+        {
+          page: filters.page,
+          per_page: filters.per_page,
+          search: filters.search,
+          status:
+            filters.status && filters.status !== "all"
+              ? filters.status
+              : undefined,
+        },
         true,
       );
 
       if (res.success) {
-        setTransactions(res.data.data);
+        setTransactions(res.data.data || []);
         setPagination(res.data);
       }
     } catch (err) {
@@ -134,6 +137,17 @@ export default function AdminTransactionsPage() {
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
+
+  // Handle Search Input Change (Live Search)
+  useEffect(() => {
+    // ONLY update filters if searchTerm is actually different from current filters.search
+    if (searchTerm === filters.search) return;
+
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, page: 1, search: searchTerm }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm, filters.search]);
 
   // Handlers
   const handleSearch = (e: React.FormEvent) => {
@@ -211,14 +225,13 @@ export default function AdminTransactionsPage() {
         {/* Filter Bar */}
         <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
           {/* Search */}
-          <form onSubmit={handleSearch} className="relative flex-1">
-            <SearchRounded className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30" />
-            <input
-              type="text"
+          <form onSubmit={handleSearch} className="flex-1">
+            <DashboardInput
+              fullWidth
               placeholder="Search by code, product, or user..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
+              icon={<SearchRounded />}
             />
           </form>
 
@@ -241,16 +254,18 @@ export default function AdminTransactionsPage() {
 
           {/* Mobile Filter select */}
           <div className="md:hidden">
-            <select
+            <DashboardSelect
+              fullWidth
               value={statusFilter}
               onChange={(e) => handleStatusFilter(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 font-bold text-brand-500/90 outline-none"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="success">Success</option>
-              <option value="failed">Failed</option>
-            </select>
+              options={[
+                { value: "all", label: "All Status" },
+                { value: "pending", label: "Pending" },
+                { value: "success", label: "Success" },
+                { value: "failed", label: "Failed" },
+              ]}
+              icon={<FilterListRounded fontSize="small" />}
+            />
           </div>
         </div>
 

@@ -95,6 +95,11 @@ class TransactionController extends Controller
             $sortBy = $request->get('sort_by', 'created_at');
             $sortOrder = $request->get('sort_order', 'desc');
             $query->orderBy($sortBy, $sortOrder);
+            
+            // Secondary sort for stability (CRITICAL for pagination)
+            if ($sortBy !== 'id') {
+                $query->orderBy('id', 'desc');
+            }
 
             // Paginate
             $perPage = (int) $request->get('per_page', 20);

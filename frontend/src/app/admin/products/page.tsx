@@ -84,22 +84,19 @@ export default function AdminProductsPage() {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      // Build query string
-      const params = new URLSearchParams();
-      params.append("page", String(filters.page));
-      params.append("per_page", String(filters.per_page));
-      if (filters.search) params.append("search", filters.search);
-
-      const endpoint = `${ENDPOINTS.admin.products.list}?${params.toString()}`;
-      // Pass generic type to api.get to fix "unknown" type error
+      // Use params object
       const res = await api.get<LaravelPagination<Product>>(
-        endpoint,
-        undefined,
+        ENDPOINTS.admin.products.list,
+        {
+          page: filters.page,
+          per_page: filters.per_page,
+          search: filters.search,
+        },
         true,
       );
 
       if (res.success) {
-        setProducts(res.data.data);
+        setProducts(res.data.data || []);
         setPagination(res.data);
       }
     } catch (err) {
@@ -114,6 +111,17 @@ export default function AdminProductsPage() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  // Handle Search Input Change (Live Search)
+  useEffect(() => {
+    // ONLY update filters if searchTerm is actually different from current filters.search
+    if (searchTerm === filters.search) return;
+
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, page: 1, search: searchTerm }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm, filters.search]);
 
   // Handlers
   const handleSearch = (e: React.FormEvent) => {
@@ -204,21 +212,24 @@ export default function AdminProductsPage() {
 
         {/* Filter Bar */}
         <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
-          <DashboardInput
-            fullWidth
-            placeholder="Search product name, brand, or code..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            icon={<SearchRounded />}
-            className="flex-1"
-          />
+          <form onSubmit={handleSearch} className="flex-1">
+            <DashboardInput
+              fullWidth
+              placeholder="Search product name, brand, or code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              icon={<SearchRounded />}
+            />
+          </form>
 
           <div className="flex gap-3">
-            {/* Unused Input import removed to fix linting, using native input above */}
-            <button className="flex items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 font-bold text-brand-500/60 transition-colors hover:bg-brand-500/5 hover:text-brand-500/90">
-              <FilterListRounded fontSize="small" />
-              <span>Filters</span>
-            </button>
+            <DashboardButton
+              variant="secondary"
+              icon={<FilterListRounded fontSize="small" />}
+              className="bg-smoke-200"
+            >
+              Filters
+            </DashboardButton>
           </div>
         </div>
 
