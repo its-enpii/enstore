@@ -163,21 +163,21 @@ export default function CreateProductPage() {
     <DashboardLayout role="admin">
        <div className="max-w-5xl mx-auto space-y-6">
           <div className="flex items-center gap-4">
-             <button onClick={() => router.back()} className="p-2 rounded-xl text-brand-500/40 hover:bg-white hover:text-brand-500 transition-colors">
+             <button onClick={() => router.back()} className="p-2 rounded-xl text-brand-500/40 hover:bg-smoke-200 hover:text-brand-500/90 transition-colors">
                 <ArrowBackRounded />
              </button>
              <div>
-                <h1 className="text-2xl font-black text-brand-500">Add New Product</h1>
+                <h1 className="text-2xl font-bold text-brand-500/90">Add New Product</h1>
                 <p className="text-brand-500/50 font-bold">Create a new game service or voucher product.</p>
              </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-smoke-200 p-8 rounded-[32px] border border-brand-500/5 shadow-sm space-y-8">
+          <form onSubmit={handleSubmit} className="bg-smoke-200 p-8 rounded-xl border border-brand-500/5 shadow-sm space-y-8">
              
              {/* General Info */}
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
-                    <h3 className="text-lg font-black text-brand-500 border-b border-brand-500/5 pb-4">General Information</h3>
+                    <h3 className="text-lg font-bold text-brand-500/90 border-b border-brand-500/5 pb-4">General Information</h3>
                     
                     <div className="space-y-4">
                        <div>
@@ -209,7 +209,7 @@ export default function CreateProductPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <h3 className="text-lg font-black text-brand-500 border-b border-brand-500/5 pb-4">Configuration</h3>
+                    <h3 className="text-lg font-bold text-brand-500/90 border-b border-brand-500/5 pb-4">Configuration</h3>
                     
                     <div className="space-y-4">
                        <div className="grid grid-cols-2 gap-4">
@@ -220,7 +220,7 @@ export default function CreateProductPage() {
                                    name="category_id" 
                                    value={formData.category_id} 
                                    onChange={handleChange}
-                                   className="w-full px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none appearance-none"
+                                   className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none appearance-none"
                                    required
                                  >
                                     <option value="">Select Category</option>
@@ -237,7 +237,7 @@ export default function CreateProductPage() {
                                    name="type" 
                                    value={formData.type} 
                                    onChange={handleChange}
-                                   className="w-full px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none appearance-none"
+                                   className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none appearance-none"
                                  >
                                     <option value="game">Game Topup</option>
                                     <option value="pulsa">Pulsa</option>
@@ -258,7 +258,7 @@ export default function CreateProductPage() {
                                    name="payment_type" 
                                    value={formData.payment_type} 
                                    onChange={handleChange}
-                                   className="w-full px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none appearance-none"
+                                   className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none appearance-none"
                                  >
                                     <option value="prepaid">Prepaid (Instant)</option>
                                     <option value="postpaid">Postpaid (Bill)</option>
@@ -277,14 +277,14 @@ export default function CreateProductPage() {
                        </div>
 
                        <div className="flex gap-4 pt-2">
-                           <label className="flex items-center gap-2 cursor-pointer p-3 bg-white rounded-xl border border-brand-500/5 flex-1 hover:border-ocean-500/30 transition-colors">
+                           <label className="flex items-center gap-2 cursor-pointer p-3 bg-smoke-200 rounded-xl border border-brand-500/5 flex-1 hover:border-ocean-500/30 transition-colors">
                                <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleCheckbox} className="w-5 h-5 rounded text-ocean-500 focus:ring-ocean-500" />
-                               <span className="font-bold text-brand-500 text-sm">Active</span>
+                               <span className="font-bold text-brand-500/90 text-sm">Active</span>
                            </label>
                            
-                           <label className="flex items-center gap-2 cursor-pointer p-3 bg-white rounded-xl border border-brand-500/5 flex-1 hover:border-ocean-500/30 transition-colors">
+                           <label className="flex items-center gap-2 cursor-pointer p-3 bg-smoke-200 rounded-xl border border-brand-500/5 flex-1 hover:border-ocean-500/30 transition-colors">
                                <input type="checkbox" name="is_featured" checked={formData.is_featured} onChange={handleCheckbox} className="w-5 h-5 rounded text-ocean-500 focus:ring-ocean-500" />
-                               <span className="font-bold text-brand-500 text-sm">Featured</span>
+                               <span className="font-bold text-brand-500/90 text-sm">Featured</span>
                            </label>
                        </div>
                     </div>
@@ -295,7 +295,7 @@ export default function CreateProductPage() {
                 {/* Dynamic Input Fields */}
                 <div className="space-y-6">
                    <div className="flex items-center justify-between border-b border-brand-500/5 pb-4">
-                      <h3 className="text-lg font-black text-brand-500">Input Fields</h3>
+                      <h3 className="text-lg font-bold text-brand-500/90">Input Fields</h3>
                       <button type="button" onClick={addInputField} className="text-xs font-bold text-ocean-500 hover:bg-ocean-500/10 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
                           <AddRounded fontSize="small" /> Add Field
                       </button>
@@ -303,7 +303,7 @@ export default function CreateProductPage() {
                    
                    <div className="space-y-3">
                       {inputFields.map((field, idx) => (
-                         <div key={idx} className="bg-white p-4 rounded-xl border border-brand-500/5 space-y-3 relative group">
+                         <div key={idx} className="bg-smoke-200 p-4 rounded-xl border border-brand-500/5 space-y-3 relative group">
                              <div className="flex gap-3">
                                  <div className="flex-1">
                                     <input 
@@ -311,7 +311,7 @@ export default function CreateProductPage() {
                                        placeholder="Name (e.g. server_id)" 
                                        value={field.name}
                                        onChange={(e) => updateInputField(idx, 'name', e.target.value)}
-                                       className="w-full px-3 py-2 bg-smoke-200 rounded-lg text-sm font-bold text-brand-500 outline-none border border-transparent focus:border-ocean-500/20"
+                                       className="w-full px-3 py-2 bg-smoke-200 rounded-lg text-sm font-bold text-brand-500/90 outline-none border border-transparent focus:border-ocean-500/20"
                                     />
                                  </div>
                                  <div className="flex-1">
@@ -320,7 +320,7 @@ export default function CreateProductPage() {
                                        placeholder="Label (e.g. Server)" 
                                        value={field.label}
                                        onChange={(e) => updateInputField(idx, 'label', e.target.value)}
-                                       className="w-full px-3 py-2 bg-smoke-200 rounded-lg text-sm font-bold text-brand-500 outline-none border border-transparent focus:border-ocean-500/20"
+                                       className="w-full px-3 py-2 bg-smoke-200 rounded-lg text-sm font-bold text-brand-500/90 outline-none border border-transparent focus:border-ocean-500/20"
                                     />
                                  </div>
                              </div>
@@ -328,7 +328,7 @@ export default function CreateProductPage() {
                                  <select 
                                     value={field.type}
                                     onChange={(e) => updateInputField(idx, 'type', e.target.value)}
-                                    className="px-3 py-2 bg-smoke-200 rounded-lg text-sm font-bold text-brand-500 outline-none flex-1"
+                                    className="px-3 py-2 bg-smoke-200 rounded-lg text-sm font-bold text-brand-500/90 outline-none flex-1"
                                  >
                                     <option value="text">Text</option>
                                     <option value="number">Number</option>
@@ -367,17 +367,17 @@ export default function CreateProductPage() {
 
              {/* Images */}
              <div className="space-y-6 pt-4 border-t border-brand-500/5">
-                <h3 className="text-lg font-black text-brand-500">Visual Assets</h3>
+                <h3 className="text-lg font-bold text-brand-500/90">Visual Assets</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                    {/* Main Image */}
                    <div className="space-y-4">
                       <label className="text-xs font-bold uppercase text-brand-500/50">Cover Image</label>
                       <div className="flex items-center gap-4">
-                         <div className="w-24 h-24 bg-white rounded-xl overflow-hidden border border-brand-500/10 flex items-center justify-center">
+                         <div className="w-24 h-24 bg-smoke-200 rounded-xl overflow-hidden border border-brand-500/10 flex items-center justify-center">
                             {imagePreview ? <img src={imagePreview} className="w-full h-full object-cover" /> : <ImageRounded className="text-brand-500/20" />}
                          </div>
                          <div className="flex-1">
-                            <input type="file" onChange={(e) => handleImageChange(e, 'image')} accept="image/*" className="text-sm text-brand-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-ocean-500/10 file:text-ocean-500 hover:file:bg-ocean-500/20 cursor-pointer w-full" />
+                            <input type="file" onChange={(e) => handleImageChange(e, 'image')} accept="image/*" className="text-sm text-brand-500/90 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-ocean-500/10 file:text-ocean-500 hover:file:bg-ocean-500/20 cursor-pointer w-full" />
                          </div>
                       </div>
                    </div>
@@ -386,11 +386,11 @@ export default function CreateProductPage() {
                    <div className="space-y-4">
                       <label className="text-xs font-bold uppercase text-brand-500/50">Icon / Logo</label>
                       <div className="flex items-center gap-4">
-                         <div className="w-24 h-24 bg-white rounded-xl overflow-hidden border border-brand-500/10 flex items-center justify-center">
+                         <div className="w-24 h-24 bg-smoke-200 rounded-xl overflow-hidden border border-brand-500/10 flex items-center justify-center">
                             {iconPreview ? <img src={iconPreview} className="w-full h-full object-cover" /> : <ImageRounded className="text-brand-500/20" />}
                          </div>
                          <div className="flex-1">
-                            <input type="file" onChange={(e) => handleImageChange(e, 'icon')} accept="image/*" className="text-sm text-brand-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-ocean-500/10 file:text-ocean-500 hover:file:bg-ocean-500/20 cursor-pointer w-full" />
+                            <input type="file" onChange={(e) => handleImageChange(e, 'icon')} accept="image/*" className="text-sm text-brand-500/90 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-ocean-500/10 file:text-ocean-500 hover:file:bg-ocean-500/20 cursor-pointer w-full" />
                          </div>
                       </div>
                    </div>

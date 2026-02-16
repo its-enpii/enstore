@@ -1,11 +1,17 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { SearchRounded, MenuRounded, CloseRounded, ImageNotSupportedRounded, PersonRounded } from "@mui/icons-material";
+import {
+  SearchRounded,
+  MenuRounded,
+  CloseRounded,
+  ImageNotSupportedRounded,
+  PersonRounded,
+} from "@mui/icons-material";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from "next/navigation";
 
 import Button from "../ui/Button";
 import Input from "../ui/Input";
@@ -13,13 +19,20 @@ import { getProducts, getMe } from "@/lib/api";
 import type { Product } from "@/lib/api/types";
 
 const navLinks = [
-  { href: "/", label: "Home"},
-  { href: "/services", label: "Services"},
-  { href: "/track-order", label: "Track Order"},
-  { href: "/help", label: "Help"},
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/about", label: "About Us" },
+  { href: "/track-order", label: "Track Order" },
+  { href: "/help", label: "Help" },
 ];
 
-function SearchBar({ mobile = false, onSearchSelect }: { mobile?: boolean; onSearchSelect?: () => void }) {
+function SearchBar({
+  mobile = false,
+  onSearchSelect,
+}: {
+  mobile?: boolean;
+  onSearchSelect?: () => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState("");
@@ -42,18 +55,18 @@ function SearchBar({ mobile = false, onSearchSelect }: { mobile?: boolean; onSea
           if (res.success) {
             setResults(res.data.products);
           } else {
-             setResults([]);
+            setResults([]);
           }
         } catch (error) {
-           console.error("Search error", error);
-           setResults([]);
+          console.error("Search error", error);
+          setResults([]);
         } finally {
           setLoading(false);
         }
       } else {
         setResults([]);
       }
-    }, 500); 
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -61,7 +74,10 @@ function SearchBar({ mobile = false, onSearchSelect }: { mobile?: boolean; onSea
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsFocused(false);
       }
     };
@@ -78,72 +94,79 @@ function SearchBar({ mobile = false, onSearchSelect }: { mobile?: boolean; onSea
   };
 
   return (
-    <div ref={containerRef} className={`relative ${mobile ? "w-full" : "w-64 lg:w-80"}`}>
-        <Input
-            type="search"
-            icon={<SearchRounded />}
-            iconPosition="left"
-            placeholder="Search games..."
-            inputSize="sm"
-            fullWidth={true}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onClick={(e) => e.currentTarget.select()}
-            className="search-input"
-        />
-        
-        <AnimatePresence>
-            {isFocused && (query.trim().length >= 2) && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-brand-500/5 bg-white p-2 shadow-xl z-50 overflow-hidden"
-                >
-                    {loading ? (
-                        <div className="flex items-center justify-center p-4 text-sm text-brand-500/40">
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500/20 border-t-ocean-500 mr-2"></div>
-                            Searching...
+    <div
+      ref={containerRef}
+      className={`relative ${mobile ? "w-full" : "w-64 lg:w-80"}`}
+    >
+      <Input
+        type="search"
+        icon={<SearchRounded />}
+        iconPosition="left"
+        placeholder="Search games..."
+        inputSize="sm"
+        fullWidth={true}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onClick={(e) => e.currentTarget.select()}
+        className="search-input"
+      />
+
+      <AnimatePresence>
+        {isFocused && query.trim().length >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 p-2 shadow-xl"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center p-4 text-sm text-brand-500/40">
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-brand-500/20 border-t-ocean-500"></div>
+                Searching...
+              </div>
+            ) : results.length > 0 ? (
+              <div className="custom-scrollbar flex max-h-60 flex-col gap-1 overflow-y-auto">
+                {results.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => handleSelect(product.slug)}
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-smoke-200"
+                  >
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="40px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-brand-500/20">
+                          <ImageNotSupportedRounded fontSize="small" />
                         </div>
-                    ) : results.length > 0 ? (
-                        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto custom-scrollbar">
-                            {results.map((product) => (
-                                <button
-                                    key={product.id}
-                                    onClick={() => handleSelect(product.slug)}
-                                    className="flex cursor-pointer items-center gap-3 rounded-xl p-2 text-left hover:bg-smoke-200 transition-colors w-full"
-                                >
-                                    <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100 shrink-0">
-                                        {product.image ? (
-                                           <Image 
-                                            src={product.image} 
-                                            alt={product.name} 
-                                            fill 
-                                            className="object-cover"
-                                            sizes="40px"
-                                           /> 
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center text-brand-500/20">
-                                                <ImageNotSupportedRounded fontSize="small" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="truncate text-sm font-semibold text-brand-500">{product.name}</p>
-                                        <p className="truncate text-xs text-brand-500/50">{product.brand}</p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="p-4 text-center text-sm text-brand-500/40">
-                            No results found for "{query}"
-                        </div>
-                    )}
-                </motion.div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-brand-500/90">
+                        {product.name}
+                      </p>
+                      <p className="truncate text-xs text-brand-500/50">
+                        {product.brand}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 text-center text-sm text-brand-500/40">
+                No results found for "{query}"
+              </div>
             )}
-        </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -180,18 +203,19 @@ export function Header() {
 
     // Listen for storage events (login/logout from other tabs or components)
     const handleStorageChange = () => {
-        checkAuth();
+      checkAuth();
     };
-    
+
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const getDashboardLink = () => {
-      if (!user) return "/login";
-      if (user.role === 'admin') return "/admin/dashboard";
-      if (user.role === 'customer' && user.customer_type === 'reseller') return "/reseller/dashboard";
-      return "/dashboard";
+    if (!user) return "/login";
+    if (user.role === "admin") return "/admin/dashboard";
+    if (user.role === "customer" && user.customer_type === "reseller")
+      return "/reseller/dashboard";
+    return "/dashboard";
   };
 
   return (
@@ -206,12 +230,12 @@ export function Header() {
           {/* Logo */}
           <Link href="/">
             <motion.div
-                className="text-2xl font-extrabold text-brand-500/90 sm:text-3xl cursor-pointer"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+              className="cursor-pointer text-2xl font-extrabold text-brand-500/90 sm:text-3xl"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-                En<span className="text-ocean-500">Store</span>
+              En<span className="text-ocean-500">Store</span>
             </motion.div>
           </Link>
 
@@ -249,7 +273,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <motion.div
-            className="hidden flex-1 items-center justify-between gap-6 lg:flex lg:ml-6"
+            className="hidden flex-1 items-center justify-between gap-6 lg:ml-6 lg:flex"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -266,7 +290,8 @@ export function Header() {
                   <Link
                     href={link.href}
                     className={`block rounded-full px-6 py-3 text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                      ((pathname.includes(link.href) && link.href !== '/') || pathname === link.href)
+                      (pathname.includes(link.href) && link.href !== "/") ||
+                      pathname === link.href
                         ? "border border-brand-500/5 bg-smoke-200 text-ocean-500"
                         : "text-brand-500/40 hover:text-ocean-500"
                     }`}
@@ -282,19 +307,30 @@ export function Header() {
 
               {user ? (
                 <Link href={getDashboardLink()}>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button variant="primary" size="sm" className="w-fit" icon={<PersonRounded/>}>
-                        Dashboard
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="w-fit"
+                      icon={<PersonRounded />}
+                    >
+                      Dashboard
                     </Button>
-                    </motion.div>
+                  </motion.div>
                 </Link>
               ) : (
                 <Link href="/login">
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
                     <Button variant="dark" size="sm" className="w-fit">
-                        Sign In
+                      Sign In
                     </Button>
-                    </motion.div>
+                  </motion.div>
                 </Link>
               )}
             </div>
@@ -343,17 +379,25 @@ export function Header() {
                 <SearchBar mobile onSearchSelect={() => setIsMenuOpen(false)} />
 
                 {user ? (
-                    <Link href={getDashboardLink()} onClick={() => setIsMenuOpen(false)}>
-                        <Button variant="primary" size="sm" className="w-full" icon={<PersonRounded/>}>
-                            Dashboard
-                        </Button>
-                    </Link>
+                  <Link
+                    href={getDashboardLink()}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      icon={<PersonRounded />}
+                    >
+                      Dashboard
+                    </Button>
+                  </Link>
                 ) : (
-                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                        <Button variant="dark" size="sm" className="w-full">
-                            Sign In
-                        </Button>
-                    </Link>
+                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="dark" size="sm" className="w-full">
+                      Sign In
+                    </Button>
+                  </Link>
                 )}
               </motion.div>
             </motion.div>

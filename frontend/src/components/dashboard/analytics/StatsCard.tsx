@@ -18,19 +18,19 @@ const StatsCard: React.FC<StatsCardProps> = ({
   value,
   icon: Icon,
   trend,
-  color = "text-brand-500",
+  color = "text-brand-500/90",
   className = "",
 }) => {
   return (
     <div
-      className={`rounded-2xl border border-brand-500/5 bg-white p-6 shadow-sm transition-all hover:shadow-md ${className}`}
+      className={`rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-calm transition-all hover:shadow-md ${className}`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-bold tracking-wider text-brand-500/40 uppercase">
+          <p className="text-xs font-semibold tracking-wider text-brand-500/60 uppercase">
             {title}
           </p>
-          <h3 className="mt-2 text-2xl font-black text-brand-500">{value}</h3>
+          <h3 className="mt-2 text-2xl font-bold text-brand-500/90">{value}</h3>
           {trend && (
             <div
               className={`mt-2 flex items-center text-xs font-bold ${trend.isPositive ? "text-green-500" : "text-red-500"}`}

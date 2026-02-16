@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black text-brand-500">Analytics</h1>
+        <h1 className="text-2xl font-bold text-brand-500/90">Analytics</h1>
         <div className="text-sm font-medium text-brand-500/50">
           Overview for this month
         </div>
@@ -111,9 +111,9 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Chart */}
-        <div className="rounded-2xl border border-brand-500/10 bg-white p-6 shadow-sm lg:col-span-2">
+        <div className="rounded-2xl border border-brand-500/10 bg-smoke-200 p-6 shadow-sm lg:col-span-2">
           <div className="mb-6 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 font-bold text-brand-500">
+            <h3 className="flex items-center gap-2 font-bold text-brand-500/90">
               <BarChart className="text-ocean-500" />
               Spending Trend
             </h3>

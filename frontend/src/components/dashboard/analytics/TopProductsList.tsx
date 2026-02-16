@@ -18,8 +18,8 @@ const TopProductsList: React.FC<TopProductsListProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="rounded-2xl border border-brand-500/10 bg-white p-6 shadow-sm">
-        <h3 className="mb-6 font-bold text-brand-500">Top Products</h3>
+      <div className="rounded-xl border border-brand-500/10 bg-smoke-200 p-6 shadow-calm">
+        <h3 className="mb-6 font-bold text-brand-500/90">Top Products</h3>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
@@ -36,9 +36,9 @@ const TopProductsList: React.FC<TopProductsListProps> = ({
   }
 
   return (
-    <div className="rounded-2xl border border-brand-500/10 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-brand-500/10 bg-smoke-200 p-6 shadow-calm">
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="flex items-center gap-2 font-bold text-brand-500">
+        <h3 className="flex items-center gap-2 font-bold text-brand-500/90">
           <TrendingUp className="text-ocean-500" />
           Top Products
         </h3>
@@ -61,7 +61,7 @@ const TopProductsList: React.FC<TopProductsListProps> = ({
                   #{index + 1}
                 </div>
                 <div className="truncate">
-                  <p className="truncate text-sm font-bold text-brand-500 transition-colors group-hover:text-ocean-500">
+                  <p className="truncate text-sm font-bold text-brand-500/90 transition-colors group-hover:text-ocean-500">
                     {product.product_name}
                   </p>
                   <p className="text-xs text-brand-500/40">
@@ -70,7 +70,7 @@ const TopProductsList: React.FC<TopProductsListProps> = ({
                 </div>
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-sm font-bold text-brand-500">
+                <p className="text-sm font-bold text-brand-500/90">
                   Rp {Number(product.total_spent).toLocaleString("id-ID")}
                 </p>
               </div>

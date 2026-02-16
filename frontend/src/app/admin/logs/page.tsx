@@ -63,7 +63,7 @@ export default function AdminActivityLogs() {
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-brand-500 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-brand-500/90 flex items-center gap-2">
               <HistoryRounded className="text-ocean-500" /> Activity Logs
             </h1>
             <p className="text-brand-500/50 mt-1 font-bold">Monitor admin and system activities.</p>
@@ -88,19 +88,19 @@ export default function AdminActivityLogs() {
                 placeholder="Search logs..." 
                 value={params.search}
                 onChange={(e) => setParams(prev => ({ ...prev, search: e.target.value, page: 1 }))}
-                className="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl text-sm font-bold text-brand-500 outline-none border border-transparent focus:border-ocean-500/20 focus:ring-4 focus:ring-ocean-500/5 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-smoke-200 rounded-xl text-sm font-bold text-brand-500/90 outline-none border border-transparent focus:border-ocean-500/20 focus:ring-4 focus:ring-ocean-500/5 transition-all"
               />
               <SearchRounded className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-500/30" fontSize="small" />
            </div>
            <div className="flex gap-2">
-              <button className="px-4 py-2 bg-white rounded-xl text-brand-500/60 hover:text-ocean-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2 border border-transparent hover:border-brand-500/5 transition-all">
+              <button className="px-4 py-2 bg-smoke-200 rounded-xl text-brand-500/60 hover:text-ocean-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2 border border-transparent hover:border-brand-500/5 transition-all">
                  <FilterListRounded fontSize="small" /> Filters
               </button>
            </div>
         </div>
 
         {/* Logs Table */}
-        <div className="bg-smoke-200 rounded-[32px] border border-brand-500/5 overflow-hidden">
+        <div className="bg-smoke-200 rounded-xl border border-brand-500/5 overflow-hidden">
            {loading ? (
               <div className="p-12 flex justify-center">
                  <div className="w-8 h-8 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin"></div>
@@ -119,26 +119,26 @@ export default function AdminActivityLogs() {
                  <tbody className="divide-y divide-brand-500/5">
                     {logs.length > 0 ? (
                        logs.map((log: any) => (
-                          <tr key={log.id} className="hover:bg-white/50 transition-colors group">
+                          <tr key={log.id} className="hover:bg-smoke-200/50 transition-colors group">
                              <td className="px-6 py-4">
                                 <p className="text-xs font-bold text-brand-500/70 opacity-0 group-hover:opacity-100 transition-opacity">
                                    {new Date(log.created_at).toLocaleDateString('id-ID')}
                                 </p>
-                                <p className="text-sm font-black text-brand-500">
+                                <p className="text-sm font-bold text-brand-500/90">
                                    {new Date(log.created_at).toLocaleTimeString('id-ID')}
                                 </p>
                              </td>
                              <td className="px-6 py-4">
-                                <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-ocean-500/10 text-ocean-500`}>
+                                <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-ocean-500/10 text-ocean-500`}>
                                    {log.action}
                                 </span>
                              </td>
                              <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
-                                   <div className="w-6 h-6 rounded-full bg-brand-500/10 flex items-center justify-center text-[10px] font-bold text-brand-500">
+                                   <div className="w-6 h-6 rounded-full bg-brand-500/10 flex items-center justify-center text-[10px] font-bold text-brand-500/90">
                                       {log.user?.name?.charAt(0) || "?"}
                                    </div>
-                                   <p className="text-sm font-bold text-brand-500">{log.user?.name || "System"}</p>
+                                   <p className="text-sm font-bold text-brand-500/90">{log.user?.name || "System"}</p>
                                 </div>
                              </td>
                              <td className="px-6 py-4">

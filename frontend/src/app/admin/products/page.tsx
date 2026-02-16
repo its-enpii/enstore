@@ -177,7 +177,7 @@ export default function AdminProductsPage() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-brand-500">Product Management 🎮</h1>
+            <h1 className="text-2xl font-bold text-brand-500/90">Product Management 🎮</h1>
             <p className="text-brand-500/50 mt-1 font-bold">Manage game services, vouchers, and product catalogs.</p>
           </div>
           
@@ -188,7 +188,7 @@ export default function AdminProductsPage() {
                 onClick={handleSyncDigiflazz}
                 loading={syncing}
                 disabled={syncing}
-                className="bg-white"
+                className="bg-smoke-200"
              >
                 Sync Digiflazz
              </DashboardButton>
@@ -209,13 +209,13 @@ export default function AdminProductsPage() {
               placeholder="Search product name, brand, or code..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none transition-all font-bold text-brand-500 placeholder:text-brand-500/20"
+              className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none transition-all font-bold text-brand-500/90 placeholder:text-brand-500/20"
             />
           </form>
           
           <div className="flex gap-3">
              {/* Unused Input import removed to fix linting, using native input above */}
-             <button className="px-4 py-3 bg-white rounded-xl border border-brand-500/5 text-brand-500/60 font-bold hover:bg-brand-500/5 hover:text-brand-500 transition-colors flex items-center gap-2">
+             <button className="px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 text-brand-500/60 font-bold hover:bg-brand-500/5 hover:text-brand-500/90 transition-colors flex items-center gap-2">
                 <FilterListRounded fontSize="small" />
                 <span>Filters</span>
              </button>
@@ -223,7 +223,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Products Table */}
-        <div className="bg-smoke-200 rounded-[32px] border border-brand-500/5 overflow-hidden shadow-sm">
+        <div className="bg-smoke-200 rounded-xl border border-brand-500/5 overflow-hidden shadow-sm">
           {loading ? (
              <div className="p-12 text-center">
                 <div className="inline-block w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -232,7 +232,7 @@ export default function AdminProductsPage() {
           ) : products.length === 0 ? (
              <div className="p-20 text-center">
                 <GamepadRounded className="text-brand-500/10 text-6xl mb-4" />
-                <h3 className="text-xl font-bold text-brand-500">No Products Found</h3>
+                <h3 className="text-xl font-bold text-brand-500/90">No Products Found</h3>
                 <p className="text-brand-500/40 mt-1">Try adjusting your search or add a new product.</p>
              </div>
           ) : (
@@ -240,12 +240,12 @@ export default function AdminProductsPage() {
               <table className="w-full">
                 <thead className="bg-brand-500/5 border-b border-brand-500/5">
                   <tr className="text-left">
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest pl-8">Product Name</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Type</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Brand</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Category</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Status</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-right pr-8">Actions</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest pl-8">Product Name</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Type</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Brand</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Category</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-right pr-8">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-500/5">
@@ -254,7 +254,7 @@ export default function AdminProductsPage() {
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       key={product.id} 
-                      className="group hover:bg-white transition-colors cursor-default"
+                      className="group hover:bg-smoke-200 transition-colors cursor-default"
                     >
                       <td className="px-6 py-4 pl-8">
                         <div className="flex items-center gap-4">
@@ -266,7 +266,7 @@ export default function AdminProductsPage() {
                             )}
                           </div>
                           <div>
-                            <div className="font-bold text-brand-500">{product.name}</div>
+                            <div className="font-bold text-brand-500/90">{product.name}</div>
                             <div className="text-[10px] bg-brand-500/5 text-brand-500/40 px-2 py-0.5 rounded-md inline-block mt-1 font-bold">
                                 {product.slug}
                             </div>
@@ -280,7 +280,7 @@ export default function AdminProductsPage() {
                          </div>
                       </td>
                       <td className="px-6 py-4">
-                         <span className="font-bold text-brand-500">{product.brand}</span>
+                         <span className="font-bold text-brand-500/90">{product.brand}</span>
                       </td>
                       <td className="px-6 py-4">
                          <span className="text-sm font-bold text-brand-500/60">{product.category?.name || '-'}</span>
@@ -326,7 +326,7 @@ export default function AdminProductsPage() {
                   <button 
                     onClick={() => handlePageChange(meta.current_page - 1)}
                     disabled={meta.current_page === 1}
-                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500"
+                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-smoke-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500/90"
                   >
                      <ChevronLeftRounded fontSize="small" />
                   </button>
@@ -340,7 +340,7 @@ export default function AdminProductsPage() {
                             className={`w-8 h-8 rounded-xl font-bold text-xs transition-colors border ${
                                 meta.current_page === idx + 1 
                                 ? 'bg-ocean-500 border-ocean-500 text-white' 
-                                : 'bg-transparent border-transparent hover:bg-white text-brand-500/60'
+                                : 'bg-transparent border-transparent hover:bg-smoke-200 text-brand-500/60'
                             }`}
                         >
                             {idx + 1}
@@ -350,7 +350,7 @@ export default function AdminProductsPage() {
                   <button 
                     onClick={() => handlePageChange(meta.current_page + 1)}
                     disabled={meta.current_page === meta.last_page}
-                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500"
+                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-smoke-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500/90"
                   >
                      <ChevronRightRounded fontSize="small" />
                   </button>

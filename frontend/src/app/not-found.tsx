@@ -22,12 +22,12 @@ export default function NotFound() {
             <WarningAmberRounded className="text-[120px] text-brand-500/10" />
           </motion.div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-8xl font-black text-brand-500">404</h1>
+            <h1 className="text-8xl font-bold text-brand-500/90">404</h1>
           </div>
         </div>
 
         <div className="space-y-3">
-          <h2 className="text-2xl font-black text-brand-500">
+          <h2 className="text-2xl font-bold text-brand-500/90">
             Halaman Tidak Ditemukan 🏜️
           </h2>
           <p className="font-bold text-brand-500/40">
@@ -48,7 +48,7 @@ export default function NotFound() {
           </Link>
           <button
             onClick={() => window.history.back()}
-            className="w-full rounded-full px-6 py-3 font-bold text-brand-500/60 transition-colors hover:text-brand-500 sm:w-auto"
+            className="w-full rounded-full px-6 py-3 font-bold text-brand-500/60 transition-colors hover:text-brand-500/90 sm:w-auto"
           >
             Kembali
           </button>

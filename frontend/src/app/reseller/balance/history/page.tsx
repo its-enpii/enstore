@@ -60,7 +60,7 @@ export default function BalanceHistoryPage() {
       label: "Description",
       render: (row) => (
         <div>
-          <p className="text-sm font-bold text-brand-500 dark:text-smoke-200">{row.description}</p>
+          <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{row.description}</p>
           {row.transaction && (
             <p className="text-[10px] text-ocean-500 font-bold mt-0.5">{row.transaction.transaction_code}</p>
           )}
@@ -72,7 +72,7 @@ export default function BalanceHistoryPage() {
       label: "Amount",
       align: "right",
       render: (row) => (
-        <span className={`text-sm font-black ${row.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
+        <span className={`text-sm font-bold ${row.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
           {row.type === "credit" ? "+" : "-"}{formatCurrency(row.amount)}
         </span>
       ),
@@ -117,10 +117,10 @@ export default function BalanceHistoryPage() {
             <button
               key={type}
               onClick={() => setTypeFilter(type)}
-              className={`px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-colors ${
+              className={`px-4 py-2.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-colors ${
                 typeFilter === type
                   ? "bg-ocean-500 text-smoke-200"
-                  : "bg-smoke-200 dark:bg-brand-800 text-brand-500/40 border border-brand-500/5 hover:text-brand-500"
+                  : "bg-smoke-200 dark:bg-brand-800 text-brand-500/40 border border-brand-500/5 hover:text-brand-500/90"
               }`}
             >
               {type || "All"} {type === "credit" ? "↓" : type === "debit" ? "↑" : ""}

@@ -56,16 +56,16 @@ export default function CreateUserPage() {
     <DashboardLayout role="admin">
        <div className="max-w-2xl mx-auto space-y-6">
           <div className="flex items-center gap-4">
-             <button onClick={() => router.back()} className="p-2 rounded-xl text-brand-500/40 hover:bg-white hover:text-brand-500 transition-colors">
+             <button onClick={() => router.back()} className="p-2 rounded-xl text-brand-500/40 hover:bg-smoke-200 hover:text-brand-500/90 transition-colors">
                 <ArrowBackRounded />
              </button>
              <div>
-                <h1 className="text-2xl font-black text-brand-500">Add New User</h1>
+                <h1 className="text-2xl font-bold text-brand-500/90">Add New User</h1>
                 <p className="text-brand-500/50 font-bold">Create a new system user or customer.</p>
              </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-smoke-200 p-8 rounded-[32px] border border-brand-500/5 shadow-sm space-y-6">
+          <form onSubmit={handleSubmit} className="bg-smoke-200 p-8 rounded-xl border border-brand-500/5 shadow-sm space-y-6">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                    <label className="text-xs font-bold uppercase text-brand-500/50">Full Name</label>
@@ -89,7 +89,7 @@ export default function CreateUserPage() {
                  <div className="space-y-2">
                     <label className="text-xs font-bold uppercase text-brand-500/50">Role</label>
                     <div className="relative">
-                       <select name="role" value={formData.role} onChange={handleChange} className="w-full px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none">
+                       <select name="role" value={formData.role} onChange={handleChange} className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none">
                           <option value="customer">Customer</option>
                           <option value="admin">Admin</option>
                        </select>
@@ -100,7 +100,7 @@ export default function CreateUserPage() {
                     <div className="space-y-2">
                         <label className="text-xs font-bold uppercase text-brand-500/50">Customer Type</label>
                         <div className="relative">
-                           <select name="customer_type" value={formData.customer_type} onChange={handleChange} className="w-full px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none">
+                           <select name="customer_type" value={formData.customer_type} onChange={handleChange} className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none">
                               <option value="retail">Retail</option>
                               <option value="reseller">Reseller</option>
                            </select>
@@ -111,7 +111,7 @@ export default function CreateUserPage() {
                  <div className="space-y-2">
                     <label className="text-xs font-bold uppercase text-brand-500/50">Status</label>
                     <div className="relative">
-                       <select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none">
+                       <select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none">
                           <option value="active">Active</option>
                           <option value="inactive">Inactive</option>
                           <option value="suspended">Suspended</option>

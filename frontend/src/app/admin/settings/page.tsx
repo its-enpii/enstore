@@ -129,10 +129,10 @@ export default function AdminSettings() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="flex items-center gap-2 text-2xl font-black text-brand-500">
+            <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-500/90">
               <SettingsRounded className="text-ocean-500" /> Platform Settings
             </h1>
-            <p className="mt-1 font-bold text-brand-500/50">
+            <p className="mt-2 text-sm text-brand-500/40">
               Manage global application configurations.
             </p>
           </div>
@@ -140,13 +140,13 @@ export default function AdminSettings() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* Profit Margins Card */}
-          <div className="space-y-6 rounded-[32px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+          <div className="space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
             <div className="flex items-center gap-4 border-b border-brand-500/5 pb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-ocean-500 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 text-ocean-500 shadow-sm">
                 <MonetizationOnRounded />
               </div>
               <div>
-                <h3 className="text-lg font-black text-brand-500">
+                <h3 className="text-lg font-bold text-brand-500/90">
                   Global Profit Margins
                 </h3>
                 <p className="text-xs font-bold tracking-widest text-brand-500/40 uppercase">
@@ -171,7 +171,7 @@ export default function AdminSettings() {
                           retail_margin: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 font-bold text-brand-500 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
                       min="0"
                       step="0.1"
                     />
@@ -195,7 +195,7 @@ export default function AdminSettings() {
                           reseller_margin: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 font-bold text-brand-500 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
                       min="0"
                       step="0.1"
                     />
@@ -223,13 +223,13 @@ export default function AdminSettings() {
           </div>
 
           {/* General Settings Card */}
-          <div className="space-y-6 rounded-[32px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+          <div className="space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
             <div className="flex items-center gap-4 border-b border-brand-500/5 pb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-500 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 text-brand-500/90 shadow-sm">
                 <SettingsRounded className="text-ocean-500" />
               </div>
               <div>
-                <h3 className="text-lg font-black text-brand-500">
+                <h3 className="text-lg font-bold text-brand-500/90">
                   General Configuration
                 </h3>
                 <p className="text-xs font-bold tracking-widest text-brand-500/40 uppercase">
@@ -254,7 +254,7 @@ export default function AdminSettings() {
                           site_name: e.target.value,
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 font-bold text-brand-500 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
                       placeholder="EnStore"
                     />
                     <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -278,7 +278,7 @@ export default function AdminSettings() {
                             support_email: e.target.value,
                           })
                         }
-                        className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 text-xs font-bold text-brand-500 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-xs font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
                         placeholder="support@mail.com"
                       />
                       <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -300,7 +300,7 @@ export default function AdminSettings() {
                             support_whatsapp: e.target.value,
                           })
                         }
-                        className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 text-xs font-bold text-brand-500 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-xs font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
                         placeholder="081234..."
                       />
                       <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -324,7 +324,7 @@ export default function AdminSettings() {
                           site_logo: e.target.value,
                         })
                       }
-                      className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 font-bold text-brand-500 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
+                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none focus:border-ocean-500/30 focus:ring-4 focus:ring-ocean-500/10"
                       placeholder="https://..."
                     />
                     <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
@@ -354,3 +354,5 @@ export default function AdminSettings() {
     </DashboardLayout>
   );
 }
+
+

@@ -83,7 +83,7 @@ export default function AdminDashboard() {
         : "0",
       icon: <ShoppingCartRounded />,
       color: "bg-brand-500",
-      text: "text-brand-500",
+      text: "text-brand-500/90",
       bg_light: "bg-brand-500/10",
       growth: data?.overview.transaction_growth || 0,
       progress: 62,
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
         : "Rp 0",
       icon: <AccountBalanceWalletRounded />,
       color: "bg-brand-500",
-      text: "text-brand-500",
+      text: "text-brand-500/90",
       bg_light: "bg-brand-500/10",
       growth: 8,
       progress: 92,
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
       title: `${data?.transactions.pending || 0} Pending Transactions`,
       type: "warning",
       icon: <PendingActionsRounded fontSize="small" />,
-      color: "text-brand-500",
+      color: "text-brand-500/90",
       bg: "bg-brand-500/5",
       border: "border-brand-500/10",
     },
@@ -154,7 +154,7 @@ export default function AdminDashboard() {
       case "success":
         return "bg-emerald-500/10 text-emerald-500";
       case "pending":
-        return "bg-brand-500/10 text-brand-500";
+        return "bg-brand-500/10 text-brand-500/90";
       case "failed":
         return "bg-red-500/10 text-red-500";
       default:
@@ -168,10 +168,10 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="text-2xl font-black text-brand-500">
+            <h1 className="text-2xl font-bold text-brand-500/90">
               Admin Overview 🛡️
             </h1>
-            <p className="mt-1 font-bold text-brand-500/50">
+            <p className="mt-2 text-sm text-brand-500/40">
               Control center for Enstore platform management.
             </p>
           </div>
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="group rounded-[32px] border border-brand-500/5 bg-smoke-200 p-6 shadow-sm transition-all duration-300 hover:border-ocean-500/20 hover:shadow-md"
+              className="group rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm transition-all duration-300 hover:border-ocean-500/20 hover:shadow-md"
             >
               <div className="mb-4 flex items-center justify-between">
                 <div
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
                   {stat.icon}
                 </div>
                 <div
-                  className={`flex items-center gap-1 text-[10px] font-black ${stat.growth >= 0 ? "text-emerald-500" : "text-red-500"} uppercase`}
+                  className={`flex items-center gap-1 text-[10px] font-bold ${stat.growth >= 0 ? "text-emerald-500" : "text-red-500"} uppercase`}
                 >
                   <NorthEastRounded
                     fontSize="inherit"
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
               <p className="text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                 {stat.title}
               </p>
-              <h3 className="mt-1 text-2xl font-black text-brand-500">
+              <h3 className="mt-1 text-2xl font-bold text-brand-500/90">
                 {stat.value}
               </h3>
 
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-brand-500">
+              <h2 className="text-lg font-bold text-brand-500/90">
                 Revenue & Sales Performance
               </h2>
               <Link
@@ -277,13 +277,13 @@ export default function AdminDashboard() {
                 Detailed Report
               </Link>
             </div>
-            <div className="rounded-[40px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+            <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
               <div className="mb-8 flex items-center gap-6">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-brand-500/40 uppercase">
                     Avg. Daily Revenue
                   </p>
-                  <p className="text-xl font-black text-brand-500">
+                  <p className="text-xl font-bold text-brand-500/90">
                     Rp{" "}
                     {data
                       ? Math.round(
@@ -297,7 +297,7 @@ export default function AdminDashboard() {
                   <p className="text-[10px] font-bold tracking-widest text-brand-500/40 uppercase">
                     Success Rate
                   </p>
-                  <p className="text-xl font-black text-emerald-500">
+                  <p className="text-xl font-bold text-emerald-500">
                     {data?.overview.success_rate || 0}%
                   </p>
                 </div>
@@ -313,10 +313,10 @@ export default function AdminDashboard() {
 
           {/* Quick Stats Sidebar */}
           <div className="space-y-4">
-            <h2 className="text-lg font-black text-brand-500">
+            <h2 className="text-lg font-bold text-brand-500/90">
               Sales Distribution
             </h2>
-            <div className="h-full rounded-[40px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+            <div className="h-full rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
               <div className="space-y-6">
                 {data?.charts.status_distribution &&
                   Object.entries(data.charts.status_distribution).map(
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
                             {status}
                           </span>
                         </div>
-                        <span className="text-sm font-black text-brand-500">
+                        <span className="text-sm font-bold text-brand-500/90">
                           {count}
                         </span>
                       </div>
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                       <span className="text-xs font-bold text-ocean-500">
                         Purchase
                       </span>
-                      <span className="text-xs font-black text-brand-500">
+                      <span className="text-xs font-bold text-brand-500/90">
                         Rp{" "}
                         {data?.revenue.by_type.purchase.toLocaleString("id-ID")}
                       </span>
@@ -373,7 +373,7 @@ export default function AdminDashboard() {
                       <span className="text-xs font-bold text-brand-500/60">
                         Top Up
                       </span>
-                      <span className="text-xs font-black text-brand-500">
+                      <span className="text-xs font-bold text-brand-500/90">
                         Rp {data?.revenue.by_type.topup.toLocaleString("id-ID")}
                       </span>
                     </div>
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
           {/* Section 1: Recent Transactions Area */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-brand-500">
+              <h2 className="text-lg font-bold text-brand-500/90">
                 Live Transactions
               </h2>
               <Link
@@ -406,7 +406,7 @@ export default function AdminDashboard() {
                 View All
               </Link>
             </div>
-            <div className="overflow-hidden rounded-[32px] border border-brand-500/5 bg-smoke-200">
+            <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200">
               <div className="divide-y divide-brand-500/5">
                 {recentTransactions.length > 0 ? (
                   recentTransactions.map((tr, idx) => (
@@ -415,11 +415,11 @@ export default function AdminDashboard() {
                       className="flex items-center justify-between p-4 transition-colors hover:bg-cloud-200"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-xs font-black text-brand-500 shadow-sm">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-smoke-200 text-xs font-bold text-brand-500/90 shadow-sm">
                           {tr.transaction_code.slice(-3).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-xs font-black text-brand-500">
+                          <p className="text-xs font-bold text-brand-500/90">
                             {tr.product_name}
                           </p>
                           <p className="text-[10px] font-bold text-brand-500/40">
@@ -428,11 +428,11 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-black text-brand-500">
+                        <p className="text-xs font-bold text-brand-500/90">
                           Rp {tr.total_price.toLocaleString("id-ID")}
                         </p>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[8px] font-black uppercase ${getStatusColor(tr.status)}`}
+                          className={`rounded-full px-2 py-0.5 text-[8px] font-bold uppercase ${getStatusColor(tr.status)}`}
                         >
                           {tr.status}
                         </span>
@@ -454,7 +454,7 @@ export default function AdminDashboard() {
           {/* Section 2: Best Products & Profit */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-brand-500">
+              <h2 className="text-lg font-bold text-brand-500/90">
                 Product Performance
               </h2>
               <Link
@@ -464,13 +464,13 @@ export default function AdminDashboard() {
                 Management
               </Link>
             </div>
-            <div className="rounded-[32px] border border-brand-500/5 bg-smoke-200 p-8">
+            <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-8">
               <div className="space-y-6">
                 {data?.products.top_selling.length > 0 ? (
                   data.products.top_selling.map((item: any, idx: number) => (
                     <div key={idx} className="space-y-2">
                       <div className="flex justify-between">
-                        <p className="text-xs font-bold text-brand-500">
+                        <p className="text-xs font-bold text-brand-500/90">
                           {item.name}
                         </p>
                         <p className="text-xs font-bold text-brand-500/40">
@@ -505,7 +505,7 @@ export default function AdminDashboard() {
                     <p className="text-[10px] font-bold tracking-widest text-ocean-500 uppercase">
                       Estimated Profit (MTD)
                     </p>
-                    <p className="text-2xl font-black text-brand-500">
+                    <p className="text-2xl font-bold text-brand-500/90">
                       Rp{" "}
                       {data?.revenue.total_profit.toLocaleString("id-ID") ||
                         "0"}
@@ -519,7 +519,7 @@ export default function AdminDashboard() {
           {/* Recent Activity Section */}
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-brand-500">
+              <h2 className="text-lg font-bold text-brand-500/90">
                 System Activity Logs
               </h2>
               <Link
@@ -529,7 +529,7 @@ export default function AdminDashboard() {
                 Full Logs
               </Link>
             </div>
-            <div className="overflow-hidden rounded-[32px] border border-brand-500/5 bg-smoke-200">
+            <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200">
               <div className="divide-y divide-brand-500/5">
                 {recentActivities.length > 0 ? (
                   recentActivities.map((log) => (
@@ -537,11 +537,11 @@ export default function AdminDashboard() {
                       key={log.id}
                       className="flex items-center gap-4 p-4 transition-colors hover:bg-cloud-200"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-ocean-500 shadow-sm">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-smoke-200 text-ocean-500 shadow-sm">
                         <NotificationsActiveRounded fontSize="small" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-black text-brand-500">
+                        <p className="text-xs font-bold text-brand-500/90">
                           {log.description}
                         </p>
                         <div className="mt-0.5 flex items-center gap-2">
@@ -556,7 +556,7 @@ export default function AdminDashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-[10px] font-black text-brand-500/30 uppercase italic">
+                      <div className="text-[10px] font-bold text-brand-500/30 uppercase italic">
                         {log.user?.name || "System"}
                       </div>
                     </div>
@@ -574,3 +574,5 @@ export default function AdminDashboard() {
     </DashboardLayout>
   );
 }
+
+

@@ -162,10 +162,10 @@ function SettingsContent() {
             <button
               key={t.id}
               onClick={() => setTab(t.id as any)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
                 tab === t.id
                   ? "bg-ocean-500 text-smoke-200 shadow-lg shadow-ocean-500/20"
-                  : "text-brand-500/40 hover:text-brand-500 hover:bg-brand-500/5"
+                  : "text-brand-500/40 hover:text-brand-500/90 hover:bg-brand-500/5"
               }`}
             >
               {t.icon}
@@ -199,7 +199,7 @@ function SettingsContent() {
         </AnimatePresence>
 
         {loading ? (
-          <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-8 animate-pulse space-y-6">
+          <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8 animate-pulse space-y-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-14 bg-brand-500/5 rounded-2xl" />
             ))}
@@ -210,15 +210,15 @@ function SettingsContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             onSubmit={handleProfileSave}
-            className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-7 space-y-6"
+            className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7 space-y-6"
           >
             {/* Account Info */}
             <div className="flex items-center gap-4 pb-6 border-b border-brand-500/5">
-              <div className="w-16 h-16 rounded-2xl bg-ocean-500 text-smoke-200 flex items-center justify-center text-2xl font-black">
+              <div className="w-16 h-16 rounded-2xl bg-ocean-500 text-smoke-200 flex items-center justify-center text-2xl font-bold">
                 {firstName?.charAt(0).toUpperCase() || "U"}
               </div>
               <div>
-                <h3 className="font-black text-brand-500 dark:text-smoke-200">{firstName} {lastName}</h3>
+                <h3 className="font-bold text-brand-500/90 dark:text-smoke-200">{firstName} {lastName}</h3>
                 <div className="flex items-center gap-2 mt-1">
                   <StatusBadge status={profile?.status || "active"} />
                   <StatusBadge status="info" label={profile?.customer_type || "reseller"} />
@@ -282,13 +282,13 @@ function SettingsContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             onSubmit={handlePasswordChange}
-            className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-7 space-y-6 max-w-xl"
+            className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7 space-y-6 max-w-xl"
           >
             <div className="flex items-center gap-3 pb-4 border-b border-brand-500/5">
-              <div className="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-500">
+              <div className="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-500/90">
                 <LockRounded />
               </div>
-              <h3 className="text-sm font-black text-brand-500 dark:text-smoke-200 uppercase tracking-widest">
+              <h3 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest">
                 Change Password
               </h3>
             </div>

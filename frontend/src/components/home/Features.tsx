@@ -62,7 +62,7 @@ export function Features() {
               transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <motion.div
-                className="group relative h-full overflow-hidden rounded-3xl bg-cloud-200 p-6 transition-shadow duration-300 hover:shadow-xl hover:shadow-ocean-500/5 sm:rounded-[40px] sm:p-8"
+                className="group relative h-full overflow-hidden rounded-3xl bg-cloud-200 p-6 transition-shadow duration-300 hover:shadow-xl hover:shadow-ocean-500/5 sm:rounded-xl sm:p-8"
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
               >

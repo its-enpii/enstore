@@ -27,12 +27,12 @@ export default function FavoritesPage() {
            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mx-auto max-w-md text-center bg-white dark:bg-brand-800 rounded-[40px] p-8 md:p-12 border border-brand-500/5 shadow-xl shadow-brand-500/5"
+              className="mx-auto max-w-md text-center bg-smoke-200 dark:bg-brand-800 rounded-xl p-8 md:p-12 border border-brand-500/5 shadow-xl shadow-brand-500/5"
            >
               <div className="w-20 h-20 bg-brand-500/5 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-500/30">
                  <FavoriteRounded sx={{ fontSize: 40 }} />
               </div>
-              <h3 className="text-xl font-bold text-brand-500 dark:text-smoke-200 mb-2">No favorites yet</h3>
+              <h3 className="text-xl font-bold text-brand-500/90 dark:text-smoke-200 mb-2">No favorites yet</h3>
               <p className="text-brand-500/40 mb-8 leading-relaxed">
                  Start exploring our services and save your favorite games or vouchers for quick access.
               </p>

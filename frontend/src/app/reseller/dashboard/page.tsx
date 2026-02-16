@@ -108,7 +108,7 @@ export default function ResellerDashboard() {
         actions={
           <Link
             href="/reseller/topup"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-ocean-500 hover:bg-ocean-600 text-smoke-200 font-black text-xs rounded-2xl transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-ocean-500 hover:bg-ocean-600 text-smoke-200 font-bold text-xs rounded-2xl transition-all"
           >
             <AddRounded fontSize="small" />
             <span>Top Up Balance</span>
@@ -127,14 +127,14 @@ export default function ResellerDashboard() {
         {/* Main Content: Recent Orders */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-brand-500 dark:text-smoke-200">Recent Sales</h2>
+            <h2 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">Recent Sales</h2>
             <Link href="/reseller/transactions" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1">
               View All <ChevronRightRounded fontSize="small" />
             </Link>
           </div>
 
           {loading ? (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-8 space-y-4">
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8 space-y-4">
               {[1,2,3].map(i => (
                 <div key={i} className="animate-pulse flex items-center gap-4">
                   <div className="w-10 h-10 bg-brand-500/5 rounded-xl" />
@@ -147,7 +147,7 @@ export default function ResellerDashboard() {
               ))}
             </div>
           ) : recentOrders.length > 0 ? (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 divide-y divide-brand-500/5">
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 divide-y divide-brand-500/5">
               {recentOrders.map((order) => (
                 <Link
                   key={order.id}
@@ -158,13 +158,13 @@ export default function ResellerDashboard() {
                     <ShoppingCartRounded fontSize="small" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-brand-500 dark:text-smoke-200 truncate">{order.product_name}</p>
+                    <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 truncate">{order.product_name}</p>
                     <p className="text-[10px] font-bold text-brand-500/30 mt-0.5">
                       {order.transaction_code} • {formatDate(order.created_at)}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-black text-brand-500 dark:text-smoke-200">{formatCurrency(order.total_price)}</p>
+                    <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{formatCurrency(order.total_price)}</p>
                     <StatusBadge status={order.status} size="sm" />
                   </div>
                 </Link>
@@ -187,8 +187,8 @@ export default function ResellerDashboard() {
           />
 
           {/* Recent Mutations */}
-          <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-6">
-            <h3 className="text-xs font-black text-brand-500 dark:text-smoke-200 mb-5">Balance Mutations</h3>
+          <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-6">
+            <h3 className="text-xs font-bold text-brand-500/90 dark:text-smoke-200 mb-5">Balance Mutations</h3>
 
             {mutations.length > 0 ? (
               <div className="space-y-3">
@@ -198,10 +198,10 @@ export default function ResellerDashboard() {
                       {mut.type === "credit" ? <SouthWestRounded fontSize="small" /> : <NorthEastRounded fontSize="small" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-brand-500 dark:text-smoke-300 truncate">{mut.description}</p>
+                      <p className="text-xs font-bold text-brand-500/90 dark:text-smoke-300 truncate">{mut.description}</p>
                       <p className="text-[10px] text-brand-500/30 font-bold">{formatDate(mut.created_at)}</p>
                     </div>
-                    <span className={`text-xs font-black ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
+                    <span className={`text-xs font-bold ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
                       {mut.type === "credit" ? "+" : "-"}{formatCurrency(mut.amount)}
                     </span>
                   </div>
@@ -215,7 +215,7 @@ export default function ResellerDashboard() {
 
             <Link
               href="/reseller/balance/history"
-              className="block w-full mt-5 py-3 text-[10px] font-black text-brand-500/40 dark:text-brand-500/50 border border-brand-500/5 rounded-2xl hover:bg-cloud-200 dark:hover:bg-brand-700/30 transition-colors text-center"
+              className="block w-full mt-5 py-3 text-[10px] font-bold text-brand-500/40 dark:text-brand-500/50 border border-brand-500/5 rounded-2xl hover:bg-cloud-200 dark:hover:bg-brand-700/30 transition-colors text-center"
             >
               View Full History
             </Link>

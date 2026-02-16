@@ -51,7 +51,7 @@ const ProductCard = ({
         className="block h-full"
       >
         <motion.div
-          className="group relative h-full cursor-pointer overflow-hidden rounded-2xl bg-smoke-200 p-2 shadow-enstore sm:rounded-3xl sm:p-3 lg:rounded-[40px] lg:p-4 hover:shadow-xl transition-shadow duration-300"
+          className="group relative h-full cursor-pointer overflow-hidden rounded-2xl bg-smoke-200 p-2 shadow-enstore sm:rounded-3xl sm:p-3 lg:rounded-xl lg:p-4 hover:shadow-xl transition-shadow duration-300"
           whileHover={{ y: -8, scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
@@ -60,7 +60,7 @@ const ProductCard = ({
             <div className="absolute top-4 right-4 z-10">
               <motion.button
                 onClick={handleFavoriteClick}
-                className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors shadow-lg"
+                className="w-8 h-8 rounded-full bg-smoke-200/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-smoke-200 hover:text-red-500 transition-colors shadow-lg"
                 whileTap={{ scale: 0.8 }}
                 whileHover={{ scale: 1.1 }}
               >

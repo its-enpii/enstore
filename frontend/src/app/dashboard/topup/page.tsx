@@ -109,17 +109,17 @@ export default function TopUpPage() {
           ]}
         />
 
-        <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-8 space-y-8">
+        <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8 space-y-8">
            {/* Amount Section */}
            <div>
-              <label className="block text-sm font-bold text-brand-500 mb-3 ml-1">Top Up Amount (IDR)</label>
+              <label className="block text-sm font-bold text-brand-500/90 mb-3 ml-1">Top Up Amount (IDR)</label>
               <div className="relative">
-                 <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-brand-500/30 text-lg">Rp</span>
+                 <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-brand-500/30 text-lg">Rp</span>
                  <input 
                     type="number" 
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className="w-full pl-12 pr-4 py-4 bg-white dark:bg-brand-900/50 rounded-2xl border-2 border-transparent focus:border-ocean-500 outline-none font-black text-2xl text-brand-500 transition-all placeholder:text-brand-500/10"
+                    className="w-full pl-12 pr-4 py-4 bg-smoke-200 dark:bg-brand-900/50 rounded-2xl border-2 border-transparent focus:border-ocean-500 outline-none font-bold text-2xl text-brand-500/90 transition-all placeholder:text-brand-500/10"
                     placeholder="0"
                     min={10000}
                  />
@@ -133,7 +133,7 @@ export default function TopUpPage() {
                        className={`py-2 px-2 rounded-xl text-xs font-bold transition-all border ${
                           amount === val 
                              ? "bg-ocean-500 text-white border-ocean-500 shadow-lg shadow-ocean-500/20" 
-                             : "bg-white dark:bg-brand-900/50 text-brand-500 border-brand-500/10 hover:border-ocean-500 hover:text-ocean-500"
+                             : "bg-smoke-200 dark:bg-brand-900/50 text-brand-500/90 border-brand-500/10 hover:border-ocean-500 hover:text-ocean-500"
                        }`}
                     >
                        {formatCurrency(val)}
@@ -144,14 +144,14 @@ export default function TopUpPage() {
 
            {/* Payment Method Section */}
            <div>
-              <label className="block text-sm font-bold text-brand-500 mb-6 ml-1 opacity-40 uppercase tracking-widest">Select Payment Method</label>
+              <label className="block text-sm font-bold text-brand-500/90 mb-6 ml-1 opacity-40 uppercase tracking-widest">Select Payment Method</label>
               {loadingChannels ? (
                  <div className="h-40 bg-brand-500/5 rounded-2xl animate-pulse" />
               ) : (
                  <div className="space-y-8">
                     {Object.entries(groupedChannels).map(([groupName , channels ]) => (
                        <div key={groupName} className="space-y-4">
-                          <h4 className="text-[10px] font-black text-brand-500/30 uppercase tracking-[0.2em] ml-1 flex items-center gap-3">
+                          <h4 className="text-[10px] font-bold text-brand-500/30 uppercase tracking-[0.2em] ml-1 flex items-center gap-3">
                              {groupName}
                              <div className="flex-1 h-px bg-brand-500/5"></div>
                           </h4>
@@ -163,15 +163,15 @@ export default function TopUpPage() {
                                    className={`relative cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center gap-4 ${
                                       selectedMethod === channel.code
                                          ? "border-ocean-500 bg-ocean-500/5"
-                                         : "border-brand-500/5 bg-white dark:bg-brand-900/50 hover:border-ocean-500/30"
+                                         : "border-brand-500/5 bg-smoke-200 dark:bg-brand-900/50 hover:border-ocean-500/30"
                                    }`}
                                 >
-                                   <div className="w-12 h-12 rounded-xl bg-white p-2 flex items-center justify-center border border-brand-500/5 shadow-sm">
+                                   <div className="w-12 h-12 rounded-xl bg-smoke-200 p-2 flex items-center justify-center border border-brand-500/5 shadow-sm">
                                       {/* Ideally use channel.icon_url */}
                                       <PaymentRounded className="text-brand-500/20" /> 
                                    </div>
                                    <div>
-                                      <p className="font-bold text-sm text-brand-500">{channel.name}</p>
+                                      <p className="font-bold text-sm text-brand-500/90">{channel.name}</p>
                                       <p className="text-[10px] text-brand-500/40 font-bold uppercase tracking-wider">{channel.group}</p>
                                    </div>
                                    {selectedMethod === channel.code && (
@@ -186,7 +186,7 @@ export default function TopUpPage() {
                     ))}
                     
                     {paymentChannels.length === 0 && (
-                        <div className="text-center py-10 text-brand-500/40 bg-brand-500/5 rounded-[28px] border-2 border-dashed border-brand-500/10">
+                        <div className="text-center py-10 text-brand-500/40 bg-brand-500/5 rounded-xl border-2 border-dashed border-brand-500/10">
                             No payment channels available.
                         </div>
                     )}
@@ -198,7 +198,7 @@ export default function TopUpPage() {
            <div className="pt-6 border-t border-brand-500/5">
               <div className="flex justify-between items-center mb-6">
                  <span className="font-bold text-brand-500/60">Total Payment</span>
-                 <span className="font-black text-2xl text-ocean-500">Rp {formatCurrency(Number(amount) || 0)}</span>
+                 <span className="font-bold text-2xl text-ocean-500">Rp {formatCurrency(Number(amount) || 0)}</span>
               </div>
               
               <DashboardButton

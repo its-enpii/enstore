@@ -224,7 +224,7 @@ export default function AdminVouchersPage() {
       label: "CODE",
       render: (val: string) => (
         <div className="flex flex-col">
-          <span className="text-sm font-black tracking-wider text-ocean-500">
+          <span className="text-sm font-bold tracking-wider text-ocean-500">
             {val}
           </span>
           <span className="line-clamp-1 text-[10px] font-bold tracking-tight text-brand-500/40 uppercase">
@@ -238,7 +238,7 @@ export default function AdminVouchersPage() {
       label: "DISCOUNT",
       render: (_: string, item: any) => (
         <div className="flex items-center gap-1">
-          <span className="text-sm font-bold text-brand-500">
+          <span className="text-sm font-bold text-brand-500/90">
             {item.type === "percentage"
               ? `${parseFloat(item.value)}%`
               : `Rp ${parseInt(item.value).toLocaleString()}`}
@@ -256,7 +256,7 @@ export default function AdminVouchersPage() {
       label: "PRODUCT",
       render: (val: any) => (
         <span
-          className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${val ? "bg-ocean-500/10 text-ocean-500" : "bg-brand-500/5 text-brand-500/40"}`}
+          className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${val ? "bg-ocean-500/10 text-ocean-500" : "bg-brand-500/5 text-brand-500/40"}`}
         >
           {val ? val.name : "ALL PRODUCTS"}
         </span>
@@ -266,7 +266,7 @@ export default function AdminVouchersPage() {
       key: "customer_type",
       label: "TARGET",
       render: (val: string) => (
-        <span className="text-[10px] font-black text-brand-500/60 uppercase">
+        <span className="text-[10px] font-bold text-brand-500/60 uppercase">
           {val}
         </span>
       ),
@@ -350,7 +350,7 @@ export default function AdminVouchersPage() {
         />
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 rounded-[32px] border border-brand-500/5 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
           <div className="min-w-[300px] flex-1">
             <DashboardInput
               placeholder="Search by code or name..."
@@ -416,17 +416,17 @@ export default function AdminVouchersPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative max-h-[95vh] w-full max-w-4xl overflow-hidden overflow-y-auto rounded-[40px] bg-white shadow-2xl"
+              className="relative max-h-[95vh] w-full max-w-4xl overflow-hidden overflow-y-auto rounded-xl bg-smoke-200 shadow-2xl"
             >
               <form onSubmit={handleSubmit} className="p-10">
                 <div className="mb-8 flex items-center justify-between">
-                  <h3 className="text-2xl font-black text-brand-500">
+                  <h3 className="text-2xl font-bold text-brand-500/90">
                     {editingVoucher ? "Edit Voucher" : "Create New Voucher"}
                   </h3>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500/90"
                   >
                     <CloseRounded />
                   </button>
@@ -460,7 +460,7 @@ export default function AdminVouchersPage() {
                       required
                     />
                     <div className="space-y-2">
-                      <label className="mb-2 ml-4 block text-[10px] font-black tracking-widest text-brand-500/30 uppercase">
+                      <label className="mb-2 ml-4 block text-[10px] font-bold tracking-widest text-brand-500/30 uppercase">
                         Product Restriction (Optional)
                       </label>
                       <DashboardSelect
@@ -644,11 +644,11 @@ export default function AdminVouchersPage() {
                   </div>
 
                   <div className="col-span-1 md:col-span-2 lg:col-span-1">
-                    <label className="mb-2 ml-4 block text-[10px] font-black tracking-widest text-brand-500/30 uppercase">
+                    <label className="mb-2 ml-4 block text-[10px] font-bold tracking-widest text-brand-500/30 uppercase">
                       Description (Optional)
                     </label>
                     <textarea
-                      className="h-[100px] w-full resize-none rounded-[32px] border-2 border-transparent bg-smoke-200 p-4 text-sm font-bold text-brand-500 transition-all placeholder:text-brand-500/20 focus:border-ocean-500/50 focus:outline-hidden"
+                      className="h-[100px] w-full resize-none rounded-xl border-2 border-transparent bg-smoke-200 p-4 text-sm font-bold text-brand-500/90 transition-all placeholder:text-brand-500/20 focus:border-ocean-500/50 focus:outline-hidden"
                       placeholder="Voucher terms and conditions..."
                       value={formData.description}
                       onChange={(e) =>

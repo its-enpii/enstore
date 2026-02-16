@@ -63,7 +63,7 @@ export default function ResellerPriceListPage() {
           actions={
             <div className="bg-ocean-500/10 px-4 py-2.5 rounded-2xl flex items-center gap-3">
               <TrendingDownRounded className="text-ocean-500" fontSize="small" />
-              <span className="text-xs font-black text-ocean-500 uppercase tracking-widest">VIP Discount Active</span>
+              <span className="text-xs font-bold text-ocean-500 uppercase tracking-widest">VIP Discount Active</span>
             </div>
           }
         />
@@ -97,7 +97,7 @@ export default function ResellerPriceListPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className="h-48 bg-smoke-200 dark:bg-brand-800 animate-pulse rounded-[28px]" />
+                  <div key={i} className="h-48 bg-smoke-200 dark:bg-brand-800 animate-pulse rounded-xl" />
               ))}
           </div>
         ) : (
@@ -109,7 +109,7 @@ export default function ResellerPriceListPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.05 }}
-                className="group bg-smoke-200 dark:bg-brand-800 rounded-[28px] p-6 border border-brand-500/5 hover:border-ocean-500/20 transition-all duration-300"
+                className="group bg-smoke-200 dark:bg-brand-800 rounded-xl p-6 border border-brand-500/5 hover:border-ocean-500/20 transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-4">
@@ -121,12 +121,12 @@ export default function ResellerPriceListPage() {
                           )}
                       </div>
                       <div>
-                          <h3 className="font-black text-brand-500 dark:text-smoke-200 leading-tight">{product.name}</h3>
+                          <h3 className="font-bold text-brand-500/90 dark:text-smoke-200 leading-tight">{product.name}</h3>
                           <span className="text-[10px] font-bold text-brand-500/30 uppercase tracking-widest">{product.brand || 'Game'}</span>
                       </div>
                   </div>
                   {product.is_featured && (
-                      <span className="bg-ocean-500/10 text-ocean-500 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest">Hot</span>
+                      <span className="bg-ocean-500/10 text-ocean-500 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest">Hot</span>
                   )}
                 </div>
 
@@ -134,7 +134,7 @@ export default function ResellerPriceListPage() {
                   {product.items?.slice(0, 3).map(item => (
                     <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl bg-cloud-200/60 dark:bg-brand-700/20 border border-transparent hover:border-brand-500/5 transition-all">
                       <span className="text-xs font-bold text-brand-500/60 dark:text-smoke-300">{item.name}</span>
-                      <span className="text-sm font-black text-ocean-500">
+                      <span className="text-sm font-bold text-ocean-500">
                           Rp {new Intl.NumberFormat('id-ID').format(item.price)}
                       </span>
                     </div>
@@ -167,11 +167,11 @@ export default function ResellerPriceListPage() {
 
         {/* Empty State */}
         {!loading && filteredProducts.length === 0 && (
-          <div className="py-20 text-center bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-dashed border-brand-500/10">
+          <div className="py-20 text-center bg-smoke-200 dark:bg-brand-800 rounded-xl border border-dashed border-brand-500/10">
               <div className="w-20 h-20 bg-brand-500/5 rounded-3xl flex items-center justify-center mx-auto mb-4">
                   <SearchRounded className="text-brand-500/15" fontSize="large" />
               </div>
-              <h3 className="text-sm font-black text-brand-500/40 uppercase tracking-widest">No products found</h3>
+              <h3 className="text-sm font-bold text-brand-500/40 uppercase tracking-widest">No products found</h3>
               <p className="text-xs text-brand-500/25 mt-2">Try adjusting your search or category filters.</p>
           </div>
         )}

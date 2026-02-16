@@ -49,21 +49,21 @@ export default function UsersReport() {
        <div className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
              <div>
-                <h1 className="text-2xl font-black text-brand-500 flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-brand-500/90 flex items-center gap-2">
                     <GroupRounded className="text-ocean-500" /> User Activity Report
                 </h1>
                 <p className="text-brand-500/50 mt-1 font-bold">Top users by transaction volume and spending.</p>
              </div>
              
              <div className="flex flex-wrap gap-2 items-center">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-brand-500/10">
+                <div className="flex items-center gap-2 bg-smoke-200 px-3 py-2 rounded-xl border border-brand-500/10">
                     <DateRangeRounded className="text-brand-500/40" fontSize="small" />
                     <input 
                         type="date" 
                         name="start"
                         value={dateRange.start}
                         onChange={handleDateChange}
-                        className="text-xs font-bold text-brand-500 outline-none w-24"
+                        className="text-xs font-bold text-brand-500/90 outline-none w-24"
                     />
                     <span className="text-brand-500/30 font-bold">-</span>
                     <input 
@@ -71,14 +71,14 @@ export default function UsersReport() {
                         name="end"
                         value={dateRange.end}
                         onChange={handleDateChange}
-                        className="text-xs font-bold text-brand-500 outline-none w-24"
+                        className="text-xs font-bold text-brand-500/90 outline-none w-24"
                     />
                 </div>
                 {/* Export button could be added here */}
              </div>
           </div>
           
-          <div className="bg-smoke-200 rounded-[32px] border border-brand-500/5 overflow-hidden shadow-sm">
+          <div className="bg-smoke-200 rounded-xl border border-brand-500/5 overflow-hidden shadow-sm">
              {loading ? (
                 <div className="p-12 text-center">
                    <div className="inline-block w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -87,7 +87,7 @@ export default function UsersReport() {
              ) : data.length === 0 ? (
                 <div className="p-20 text-center">
                    <GroupRounded className="text-brand-500/10 text-6xl mb-4" />
-                   <h3 className="text-xl font-bold text-brand-500">No Data Found</h3>
+                   <h3 className="text-xl font-bold text-brand-500/90">No Data Found</h3>
                    <p className="text-brand-500/40 mt-1">Try adjusting the date range.</p>
                 </div>
              ) : (
@@ -95,18 +95,18 @@ export default function UsersReport() {
                    <table className="w-full">
                        <thead className="bg-brand-500/5 border-b border-brand-500/5">
                            <tr className="text-left">
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest pl-8">User Details</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Type</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-center">Transactions</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-right pr-8">Total Spent</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest pl-8">User Details</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Type</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-center">Transactions</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-right pr-8">Total Spent</th>
                            </tr>
                        </thead>
                        <tbody className="divide-y divide-brand-500/5">
                            {data.map((user: any, idx: number) => (
-                               <tr key={idx} className="group hover:bg-white transition-colors">
+                               <tr key={idx} className="group hover:bg-smoke-200 transition-colors">
                                    <td className="px-6 py-4 pl-8">
                                        <div>
-                                           <div className="font-bold text-brand-500">{user.name}</div>
+                                           <div className="font-bold text-brand-500/90">{user.name}</div>
                                            <div className="text-xs text-brand-500/40">{user.email}</div>
                                        </div>
                                    </td>
@@ -116,12 +116,12 @@ export default function UsersReport() {
                                        </span>
                                    </td>
                                    <td className="px-6 py-4 text-center">
-                                       <span className="font-bold text-brand-500">
+                                       <span className="font-bold text-brand-500/90">
                                            {user.total_transactions}
                                        </span>
                                    </td>
                                    <td className="px-6 py-4 text-right pr-8">
-                                       <span className="font-black text-ocean-500">
+                                       <span className="font-bold text-ocean-500">
                                            Rp {Number(user.total_spent || 0).toLocaleString('id-ID')}
                                        </span>
                                    </td>

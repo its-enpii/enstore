@@ -92,11 +92,11 @@ export default function AdminProfilePage() {
         <DashboardLayout role="admin">
             <div className="max-w-4xl mx-auto space-y-6">
                 <div>
-                    <h1 className="text-2xl font-black text-brand-500">Admin Profile 🛡️</h1>
+                    <h1 className="text-2xl font-bold text-brand-500/90">Admin Profile 🛡️</h1>
                     <p className="text-brand-500/50 mt-1 font-bold">Manage your account information.</p>
                 </div>
 
-                <div className="bg-white rounded-[32px] border border-brand-500/5 p-8 shadow-sm">
+                <div className="bg-smoke-200 rounded-xl border border-brand-500/5 p-8 shadow-sm">
                     {loading ? (
                         <div className="flex justify-center p-12">
                             <div className="w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin"></div>
@@ -113,7 +113,7 @@ export default function AdminProfilePage() {
                                             name="name"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500"
+                                            className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500/90"
                                             placeholder="Enter your name"
                                             required
                                         />
@@ -129,7 +129,7 @@ export default function AdminProfilePage() {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500"
+                                            className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500/90"
                                             placeholder="Enter your email"
                                             required
                                         />
@@ -145,7 +145,7 @@ export default function AdminProfilePage() {
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500"
+                                            className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500/90"
                                             placeholder="Enter your phone"
                                             required
                                         />
@@ -156,7 +156,7 @@ export default function AdminProfilePage() {
                             <hr className="border-brand-500/5" />
 
                             <div className="space-y-4">
-                                <h3 className="font-black text-brand-500 flex items-center gap-2">
+                                <h3 className="font-bold text-brand-500/90 flex items-center gap-2">
                                     <LockRounded className="text-ocean-500" />
                                     Change Password
                                 </h3>
@@ -170,7 +170,7 @@ export default function AdminProfilePage() {
                                             name="password"
                                             value={formData.password}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500"
+                                            className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500/90"
                                             placeholder="New password"
                                         />
                                     </div>
@@ -181,7 +181,7 @@ export default function AdminProfilePage() {
                                             name="password_confirmation"
                                             value={formData.password_confirmation}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500"
+                                            className="w-full px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none font-bold text-brand-500/90"
                                             placeholder="Confirm new password"
                                         />
                                     </div>

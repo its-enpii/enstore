@@ -90,8 +90,8 @@ export default function WalletPage() {
 
         {loading ? (
           <div className="grid gap-6 md:grid-cols-3 animate-pulse">
-            <div className="h-40 bg-brand-500/5 rounded-[28px] md:col-span-2" />
-            <div className="h-40 bg-brand-500/5 rounded-[28px]" />
+            <div className="h-40 bg-brand-500/5 rounded-xl md:col-span-2" />
+            <div className="h-40 bg-brand-500/5 rounded-xl" />
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
@@ -99,7 +99,7 @@ export default function WalletPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:col-span-2 relative overflow-hidden bg-linear-to-br from-ocean-500 to-ocean-700 rounded-[28px] p-8 text-white shadow-xl shadow-ocean-500/20"
+              className="md:col-span-2 relative overflow-hidden bg-linear-to-br from-ocean-500 to-ocean-700 rounded-xl p-8 text-white shadow-xl shadow-ocean-500/20"
             >
               <div className="absolute top-0 right-0 p-8 opacity-10">
                 <AccountBalanceWalletRounded sx={{ fontSize: 180 }} />
@@ -108,15 +108,15 @@ export default function WalletPage() {
               <div className="relative z-10 flex flex-col h-full justify-between">
                 <div>
                   <p className="text-ocean-100 font-medium mb-1">Total Balance</p>
-                  <h2 className="text-4xl font-black tracking-tight text-white mb-2">
+                  <h2 className="text-4xl font-bold tracking-tight text-white mb-2">
                     {formatCurrency(balance?.balance || 0)}
                   </h2>
                   <div className="flex gap-4 mt-4">
-                     <span className="flex items-center gap-1.5 text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                     <span className="flex items-center gap-1.5 text-xs bg-smoke-200/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
                         <PaidRounded style={{ fontSize: 14 }} className="text-emerald-300" />
                         Available: <span className="font-bold">{formatCurrency(balance?.available_balance || 0)}</span>
                      </span>
-                     <span className="flex items-center gap-1.5 text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                     <span className="flex items-center gap-1.5 text-xs bg-smoke-200/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
                         <HourglassEmptyRounded style={{ fontSize: 14 }} className="text-amber-300" />
                         Hold: <span className="font-bold">{formatCurrency(balance?.hold_amount || 0)}</span>
                      </span>
@@ -125,7 +125,7 @@ export default function WalletPage() {
 
                 <div className="flex gap-3 mt-8">
                   <Link href="/dashboard/topup" className="flex-1">
-                    <button className="w-full bg-white text-ocean-600 font-bold py-3 px-4 rounded-xl hover:bg-ocean-50 transition-colors flex items-center justify-center gap-2">
+                    <button className="w-full bg-smoke-200 text-ocean-600 font-bold py-3 px-4 rounded-xl hover:bg-ocean-50 transition-colors flex items-center justify-center gap-2">
                       <AddCardRounded fontSize="small" /> Top Up
                     </button>
                   </Link>
@@ -143,10 +143,10 @@ export default function WalletPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-6 flex flex-col justify-between"
+              className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-6 flex flex-col justify-between"
             >
                <div>
-                  <h3 className="font-bold text-lg text-brand-500 dark:text-smoke-200 mb-4">Quick Stats</h3>
+                  <h3 className="font-bold text-lg text-brand-500/90 dark:text-smoke-200 mb-4">Quick Stats</h3>
                   <div className="space-y-4">
                      <div className="flex items-center justify-between p-3 bg-brand-500/5 rounded-xl">
                         <div className="flex items-center gap-3">
@@ -155,7 +155,7 @@ export default function WalletPage() {
                            </div>
                            <span className="text-sm font-medium text-brand-500/70">Income This Month</span>
                         </div>
-                        <span className="font-bold text-brand-500 dark:text-smoke-200 text-sm">Rp 0</span>
+                        <span className="font-bold text-brand-500/90 dark:text-smoke-200 text-sm">Rp 0</span>
                      </div>
                      <div className="flex items-center justify-between p-3 bg-brand-500/5 rounded-xl">
                         <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function WalletPage() {
                            </div>
                            <span className="text-sm font-medium text-brand-500/70">Expense This Month</span>
                         </div>
-                        <span className="font-bold text-brand-500 dark:text-smoke-200 text-sm">Rp 0</span>
+                        <span className="font-bold text-brand-500/90 dark:text-smoke-200 text-sm">Rp 0</span>
                      </div>
                   </div>
                </div>
@@ -183,10 +183,10 @@ export default function WalletPage() {
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
            transition={{ delay: 0.2 }}
-           className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-8"
+           className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8"
         >
            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-black text-xl text-brand-500 dark:text-smoke-200">Recent Activity</h3>
+              <h3 className="font-bold text-xl text-brand-500/90 dark:text-smoke-200">Recent Activity</h3>
               <Link href="/dashboard/balance/history" className="text-sm font-bold text-ocean-500 hover:text-ocean-600">
                  See All
               </Link>
@@ -204,18 +204,18 @@ export default function WalletPage() {
            ) : (
               <div className="space-y-4">
                 {mutations.map((mutation) => (
-                  <div key={mutation.id} className="flex items-center justify-between p-4 bg-white dark:bg-brand-900/50 rounded-2xl border border-brand-500/5 hover:border-ocean-500/30 transition-all group">
+                  <div key={mutation.id} className="flex items-center justify-between p-4 bg-smoke-200 dark:bg-brand-900/50 rounded-2xl border border-brand-500/5 hover:border-ocean-500/30 transition-all group">
                     <div className="flex items-center gap-4">
                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${mutation.type === 'credit' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
                           {mutation.type === 'credit' ? <TrendingUpRounded /> : <TrendingDownRounded />}
                        </div>
                        <div>
-                          <p className="font-bold text-brand-500 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{mutation.description}</p>
+                          <p className="font-bold text-brand-500/90 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{mutation.description}</p>
                           <p className="text-xs text-brand-500/40 font-medium">{formatDate(mutation.created_at)}</p>
                        </div>
                     </div>
                     <div className="text-right">
-                       <p className={`font-black ${mutation.type === 'credit' ? 'text-emerald-500' : 'text-red-500'}`}>
+                       <p className={`font-bold ${mutation.type === 'credit' ? 'text-emerald-500' : 'text-red-500'}`}>
                           {mutation.type === 'credit' ? '+' : '-'}{formatCurrency(mutation.amount)}
                        </p>
                        <p className="text-[10px] text-brand-500/30 font-bold mt-0.5">Balance: {formatCurrency(mutation.balance_after)}</p>

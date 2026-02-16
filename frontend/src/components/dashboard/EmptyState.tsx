@@ -20,12 +20,12 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="rounded-[32px] border border-dashed border-brand-500/10 bg-cloud-200/50 px-8 py-16 text-center"
+      className="rounded-xl border border-dashed border-brand-500/10 bg-cloud-200/50 px-8 py-16 text-center"
     >
       <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-500/5 text-brand-500/15">
         {icon}
       </div>
-      <h3 className="text-sm font-black text-brand-500/40">{title}</h3>
+      <h3 className="text-sm font-bold text-brand-500/40">{title}</h3>
       {description && (
         <p className="mx-auto mt-2 max-w-sm text-xs text-brand-500/30">
           {description}

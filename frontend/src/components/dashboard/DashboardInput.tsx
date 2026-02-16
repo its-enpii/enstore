@@ -82,7 +82,7 @@ const DashboardInput = forwardRef<HTMLInputElement, DashboardInputProps>(
           />
           {endIcon && (
             <div
-              className={`absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-500/30 hover:text-brand-500 transition-colors [&>svg]:w-5 [&>svg]:h-5 ${onEndIconClick ? "cursor-pointer" : ""}`}
+              className={`absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-500/30 hover:text-brand-500/90 transition-colors [&>svg]:w-5 [&>svg]:h-5 ${onEndIconClick ? "cursor-pointer" : ""}`}
               onClick={onEndIconClick}
             >
               {endIcon}

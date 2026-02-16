@@ -31,7 +31,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
   if (!data || data.length === 0) {
     return (
       <div
-        className="flex w-full items-center justify-center rounded-xl bg-gray-50 text-sm font-medium text-gray-400 dark:bg-gray-800/50"
+        className="flex w-full items-center justify-center rounded-xl bg-smoke-200 text-sm font-medium text-brand-500/40"
         style={{ height }}
       >
         No data available

@@ -227,14 +227,14 @@ export default function AdminBannersPage() {
       key: "title",
       label: "TITLE",
       render: (val: string) => (
-        <span className="text-sm font-bold text-brand-500">{val}</span>
+        <span className="text-sm font-bold text-brand-500/90">{val}</span>
       ),
     },
     {
       key: "type",
       label: "TYPE",
       render: (val: string) => (
-        <span className="rounded-full bg-ocean-500/10 px-2 py-1 text-[10px] font-black text-ocean-500 uppercase">
+        <span className="rounded-full bg-ocean-500/10 px-2 py-1 text-[10px] font-bold text-ocean-500 uppercase">
           {val}
         </span>
       ),
@@ -302,7 +302,7 @@ export default function AdminBannersPage() {
         />
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 rounded-[32px] border border-brand-500/5 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
           <div className="min-w-[300px] flex-1">
             <DashboardInput
               placeholder="Search by title..."
@@ -356,17 +356,17 @@ export default function AdminBannersPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative max-h-[90vh] w-full max-w-2xl overflow-hidden overflow-y-auto rounded-[40px] bg-white shadow-2xl"
+              className="relative max-h-[90vh] w-full max-w-2xl overflow-hidden overflow-y-auto rounded-xl bg-smoke-200 shadow-2xl"
             >
               <form onSubmit={handleSubmit} className="p-8">
                 <div className="mb-8 flex items-center justify-between">
-                  <h3 className="text-xl font-black text-brand-500">
+                  <h3 className="text-xl font-bold text-brand-500/90">
                     {editingBanner ? "Edit Banner" : "Create New Banner"}
                   </h3>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500/90"
                   >
                     <CloseRounded />
                   </button>
@@ -374,7 +374,7 @@ export default function AdminBannersPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2">
-                    <label className="mb-2 ml-4 block text-[10px] font-black tracking-widest text-brand-500/30 uppercase">
+                    <label className="mb-2 ml-4 block text-[10px] font-bold tracking-widest text-brand-500/30 uppercase">
                       Banner Image
                     </label>
                     <div

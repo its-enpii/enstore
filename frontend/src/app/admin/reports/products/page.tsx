@@ -49,21 +49,21 @@ export default function ProductsReport() {
        <div className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
              <div>
-                <h1 className="text-2xl font-black text-brand-500 flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-brand-500/90 flex items-center gap-2">
                    <Inventory2Rounded className="text-ocean-500" /> Product Performance
                 </h1>
                 <p className="text-brand-500/50 mt-1 font-bold">Top selling products and revenue analysis.</p>
              </div>
              
              <div className="flex flex-wrap gap-2 items-center">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-brand-500/10">
+                <div className="flex items-center gap-2 bg-smoke-200 px-3 py-2 rounded-xl border border-brand-500/10">
                     <DateRangeRounded className="text-brand-500/40" fontSize="small" />
                     <input 
                         type="date" 
                         name="start"
                         value={dateRange.start}
                         onChange={handleDateChange}
-                        className="text-xs font-bold text-brand-500 outline-none w-24"
+                        className="text-xs font-bold text-brand-500/90 outline-none w-24"
                     />
                     <span className="text-brand-500/30 font-bold">-</span>
                     <input 
@@ -71,13 +71,13 @@ export default function ProductsReport() {
                         name="end"
                         value={dateRange.end}
                         onChange={handleDateChange}
-                        className="text-xs font-bold text-brand-500 outline-none w-24"
+                        className="text-xs font-bold text-brand-500/90 outline-none w-24"
                     />
                 </div>
              </div>
           </div>
           
-          <div className="bg-smoke-200 rounded-[32px] border border-brand-500/5 overflow-hidden shadow-sm">
+          <div className="bg-smoke-200 rounded-xl border border-brand-500/5 overflow-hidden shadow-sm">
              {loading ? (
                 <div className="p-12 text-center">
                    <div className="inline-block w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -86,7 +86,7 @@ export default function ProductsReport() {
              ) : data.length === 0 ? (
                 <div className="p-20 text-center">
                    <Inventory2Rounded className="text-brand-500/10 text-6xl mb-4" />
-                   <h3 className="text-xl font-bold text-brand-500">No Sales Data</h3>
+                   <h3 className="text-xl font-bold text-brand-500/90">No Sales Data</h3>
                    <p className="text-brand-500/40 mt-1">Try adjusting the date range.</p>
                 </div>
              ) : (
@@ -94,18 +94,18 @@ export default function ProductsReport() {
                    <table className="w-full">
                        <thead className="bg-brand-500/5 border-b border-brand-500/5">
                            <tr className="text-left">
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest pl-8">Product Name</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Code</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-center">Sold</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-right">Revenue</th>
-                               <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-right pr-8">Profit</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest pl-8">Product Name</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Code</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-center">Sold</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-right">Revenue</th>
+                               <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-right pr-8">Profit</th>
                            </tr>
                        </thead>
                        <tbody className="divide-y divide-brand-500/5">
                            {data.map((item: any, idx: number) => (
-                               <tr key={idx} className="group hover:bg-white transition-colors">
+                               <tr key={idx} className="group hover:bg-smoke-200 transition-colors">
                                    <td className="px-6 py-4 pl-8">
-                                       <div className="font-bold text-brand-500">{item.name}</div>
+                                       <div className="font-bold text-brand-500/90">{item.name}</div>
                                    </td>
                                    <td className="px-6 py-4">
                                        <span className="bg-brand-500/5 text-brand-500/50 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-wide">
@@ -113,17 +113,17 @@ export default function ProductsReport() {
                                        </span>
                                    </td>
                                    <td className="px-6 py-4 text-center">
-                                       <span className="font-bold text-brand-500">
+                                       <span className="font-bold text-brand-500/90">
                                            {item.total_sales}
                                        </span>
                                    </td>
                                    <td className="px-6 py-4 text-right">
-                                       <span className="font-bold text-brand-500">
+                                       <span className="font-bold text-brand-500/90">
                                            Rp {Number(item.total_revenue || 0).toLocaleString('id-ID')}
                                        </span>
                                    </td>
                                    <td className="px-6 py-4 text-right pr-8">
-                                       <span className="font-black text-emerald-500">
+                                       <span className="font-bold text-emerald-500">
                                            Rp {Number(item.total_profit || 0).toLocaleString('id-ID')}
                                        </span>
                                    </td>

@@ -79,7 +79,7 @@ export default function TransactionsPage() {
       label: "Transaction",
       render: (row) => (
         <Link href={`/dashboard/transactions/${row.transaction_code}`} className="group">
-          <p className="text-sm font-bold text-brand-500 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{row.transaction_code}</p>
+          <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{row.transaction_code}</p>
           <p className="text-[10px] text-brand-500/30 font-bold mt-0.5">{formatDate(row.created_at)} • {formatTime(row.created_at)}</p>
         </Link>
       ),
@@ -88,7 +88,7 @@ export default function TransactionsPage() {
       key: "product_name",
       label: "Product",
       render: (row) => (
-        <p className="text-sm font-bold text-brand-500 dark:text-smoke-300 truncate max-w-[200px]">{row.product_name}</p>
+        <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-300 truncate max-w-[200px]">{row.product_name}</p>
       ),
     },
     {
@@ -104,7 +104,7 @@ export default function TransactionsPage() {
       label: "Amount",
       align: "right",
       render: (row) => (
-        <span className="text-sm font-black text-brand-500 dark:text-smoke-200">{formatCurrency(row.total_price)}</span>
+        <span className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{formatCurrency(row.total_price)}</span>
       ),
     },
     {
@@ -163,13 +163,13 @@ export default function TransactionsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by code or product..."
-              className="w-full pl-11 pr-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-sm font-bold text-brand-500 placeholder:text-brand-500/30 focus:outline-none focus:border-ocean-500/30 transition-colors"
+              className="w-full pl-11 pr-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-sm font-bold text-brand-500/90 placeholder:text-brand-500/30 focus:outline-none focus:border-ocean-500/30 transition-colors"
             />
           </form>
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setFilters(f => ({ ...f, page: 1 })); }}
-            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-black text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
+            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-bold text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
           >
             <option value="">All Status</option>
             {statusOptions.filter(Boolean).map(s => (
@@ -179,7 +179,7 @@ export default function TransactionsPage() {
           <select
             value={typeFilter}
             onChange={(e) => { setTypeFilter(e.target.value); setFilters(f => ({ ...f, page: 1 })); }}
-            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-black text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
+            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-bold text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
           >
             <option value="">All Types</option>
             {typeOptions.filter(Boolean).map(t => (

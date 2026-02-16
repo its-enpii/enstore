@@ -112,7 +112,7 @@ export default function AdminWithdrawalsPage() {
       key: "reference_id",
       label: "REF ID",
       render: (val: string) => (
-        <span className="font-black text-brand-500">{val}</span>
+        <span className="font-bold text-brand-500/90">{val}</span>
       ),
     },
     {
@@ -120,7 +120,7 @@ export default function AdminWithdrawalsPage() {
       label: "USER",
       render: (user: any) => (
         <div className="flex flex-col">
-          <span className="text-sm font-bold text-brand-500">{user?.name}</span>
+          <span className="text-sm font-bold text-brand-500/90">{user?.name}</span>
           <span className="text-[10px] tracking-tighter text-brand-500/40 uppercase">
             {user?.email}
           </span>
@@ -131,7 +131,7 @@ export default function AdminWithdrawalsPage() {
       key: "amount",
       label: "AMOUNT",
       render: (val: string) => (
-        <span className="font-black text-ocean-500">
+        <span className="font-bold text-ocean-500">
           Rp {parseFloat(val).toLocaleString("id-ID")}
         </span>
       ),
@@ -203,7 +203,7 @@ export default function AdminWithdrawalsPage() {
         />
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 rounded-[32px] border border-brand-500/5 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
           <div className="min-w-[300px] flex-1">
             <DashboardInput
               placeholder="Search by User or Ref ID..."
@@ -259,7 +259,7 @@ export default function AdminWithdrawalsPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl overflow-hidden rounded-[40px] bg-white shadow-2xl"
+              className="relative w-full max-w-xl overflow-hidden rounded-xl bg-smoke-200 shadow-2xl"
             >
               <div className="p-8">
                 <div className="mb-8 flex items-center justify-between">
@@ -268,7 +268,7 @@ export default function AdminWithdrawalsPage() {
                       <VisibilityRounded />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-brand-500">
+                      <h3 className="text-xl font-bold text-brand-500/90">
                         Withdrawal Detail
                       </h3>
                       <p className="text-xs font-bold tracking-widest text-brand-500/40 uppercase">
@@ -278,7 +278,7 @@ export default function AdminWithdrawalsPage() {
                   </div>
                   <button
                     onClick={() => setSelectedWithdrawal(null)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500/90"
                   >
                     <CloseRounded />
                   </button>
@@ -295,7 +295,7 @@ export default function AdminWithdrawalsPage() {
                         <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                           User
                         </p>
-                        <p className="text-sm font-black text-brand-500">
+                        <p className="text-sm font-bold text-brand-500/90">
                           {selectedWithdrawal.user?.name}
                         </p>
                       </div>
@@ -309,7 +309,7 @@ export default function AdminWithdrawalsPage() {
                         <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                           Bank / E-Wallet
                         </p>
-                        <p className="text-sm font-black text-brand-500">
+                        <p className="text-sm font-bold text-brand-500/90">
                           {selectedWithdrawal.payment_method}
                         </p>
                       </div>
@@ -323,7 +323,7 @@ export default function AdminWithdrawalsPage() {
                         <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                           Account Number
                         </p>
-                        <p className="text-sm font-black text-brand-500">
+                        <p className="text-sm font-bold text-brand-500/90">
                           {selectedWithdrawal.account_number}
                         </p>
                       </div>
@@ -339,7 +339,7 @@ export default function AdminWithdrawalsPage() {
                         <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                           Amount
                         </p>
-                        <p className="text-sm font-black text-ocean-500">
+                        <p className="text-sm font-bold text-ocean-500">
                           Rp{" "}
                           {parseFloat(selectedWithdrawal.amount).toLocaleString(
                             "id-ID",
@@ -356,7 +356,7 @@ export default function AdminWithdrawalsPage() {
                         <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                           Account Name
                         </p>
-                        <p className="text-sm font-black text-brand-500">
+                        <p className="text-sm font-bold text-brand-500/90">
                           {selectedWithdrawal.account_name}
                         </p>
                       </div>
@@ -370,7 +370,7 @@ export default function AdminWithdrawalsPage() {
                         <p className="text-[10px] font-bold tracking-tighter text-brand-500/30 uppercase">
                           Date Requested
                         </p>
-                        <p className="text-sm font-black text-brand-500">
+                        <p className="text-sm font-bold text-brand-500/90">
                           {new Date(
                             selectedWithdrawal.created_at,
                           ).toLocaleString("id-ID")}

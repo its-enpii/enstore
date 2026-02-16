@@ -40,7 +40,7 @@ export default function CustomerDashboard() {
           actions={
             <Link 
               href="/services"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-ocean-500 hover:bg-ocean-600 text-smoke-200 font-black text-xs rounded-2xl transition-all shadow-lg shadow-ocean-500/10"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-ocean-500 hover:bg-ocean-600 text-smoke-200 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-ocean-500/10"
             >
               <ShoppingCartRounded fontSize="small" />
               <span>New Purchase</span>
@@ -59,7 +59,7 @@ export default function CustomerDashboard() {
           {/* Recent Transactions */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-black text-brand-500 dark:text-smoke-200">Recent Transactions</h2>
+              <h2 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">Recent Transactions</h2>
               <Link href="/dashboard/transactions" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1">
                 View All <ChevronRightRounded fontSize="small" />
               </Link>
@@ -71,7 +71,7 @@ export default function CustomerDashboard() {
               description="When you make a purchase, it will show up here."
               action={
                 <Link href="/services">
-                  <button className="px-6 py-2 bg-ocean-500 text-smoke-200 rounded-xl text-xs font-black shadow-lg shadow-ocean-500/20">
+                  <button className="px-6 py-2 bg-ocean-500 text-smoke-200 rounded-xl text-xs font-bold shadow-lg shadow-ocean-500/20">
                     Find Games
                   </button>
                 </Link>
@@ -89,13 +89,13 @@ export default function CustomerDashboard() {
             />
 
             {/* Special Promo */}
-            <div className="bg-linear-to-br from-ocean-500 to-brand-500 rounded-[28px] p-6 text-smoke-200 relative overflow-hidden group">
+            <div className="bg-linear-to-br from-ocean-500 to-brand-500 rounded-xl p-6 text-smoke-200 relative overflow-hidden group">
               <div className="relative z-10">
                 <span className="bg-smoke-200/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold">Flash Sale</span>
                 <h3 className="text-xl font-bold mt-3">Get 20% Cashback</h3>
                 <p className="text-smoke-200/60 text-sm mt-1 mb-6">On your first Mobile Legends diamond purchase!</p>
                 <Link href="/services">
-                <button className="w-full py-2.5 bg-smoke-200 text-brand-500 font-bold rounded-xl hover:bg-cloud-200 transition-colors">
+                <button className="w-full py-2.5 bg-smoke-200 text-brand-500/90 font-bold rounded-xl hover:bg-cloud-200 transition-colors">
                   Claim Now
                 </button>
                 </Link>
@@ -104,13 +104,13 @@ export default function CustomerDashboard() {
             </div>
 
             {/* Refer & Earn */}
-            {/* <div className="bg-smoke-200 dark:bg-brand-800 p-6 rounded-[28px] border border-brand-500/5">
+            {/* <div className="bg-smoke-200 dark:bg-brand-800 p-6 rounded-xl border border-brand-500/5">
                <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-ocean-500/10 rounded-xl flex items-center justify-center text-ocean-500">
                     <LocalOfferRounded />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-brand-500 dark:text-smoke-200">Refer & Earn</h3>
+                    <h3 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">Refer & Earn</h3>
                     <p className="text-xs text-brand-500/30">Invite friends to get balance</p>
                   </div>
                </div>

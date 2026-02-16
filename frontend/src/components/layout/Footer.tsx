@@ -20,7 +20,7 @@ export function Footer() {
     {
       title: "Company",
       links: [
-        { href: "#", label: "About Us" },
+        { href: "/about", label: "About Us" },
         { href: "#", label: "Careers" },
         { href: "#", label: "Press" },
         { href: "/help", label: "Contact" },
@@ -58,7 +58,8 @@ export function Footer() {
               En<span className="text-ocean-500">Store</span>
             </div>
             <p className="mb-8 max-w-sm text-sm leading-relaxed text-brand-500/40 sm:mb-10 sm:text-base">
-              The professional choice for gaming top-ups and digital payments. Secure, fast, and reliable.
+              The professional choice for gaming top-ups and digital payments.
+              Secure, fast, and reliable.
             </p>
 
             <div className="flex gap-3 sm:gap-4">
@@ -94,7 +95,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="inline-block transition-all duration-300 hover:text-ocean-500 hover:translate-x-1"
+                      className="inline-block transition-all duration-300 hover:translate-x-1 hover:text-ocean-500"
                     >
                       {link.label}
                     </Link>

@@ -143,7 +143,7 @@ export default function AdminUsersPage() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-brand-500">User Management 👥</h1>
+            <h1 className="text-2xl font-bold text-brand-500/90">User Management 👥</h1>
             <p className="text-brand-500/50 mt-1 font-bold">Manage customers, resellers, and their balances.</p>
           </div>
           
@@ -165,14 +165,14 @@ export default function AdminUsersPage() {
               placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none transition-all font-bold text-brand-500 placeholder:text-brand-500/20"
+              className="w-full pl-12 pr-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 outline-none transition-all font-bold text-brand-500/90 placeholder:text-brand-500/20"
             />
           </form>
           
           <div className="flex gap-3">
              {/* Replaced Role Filter with Customer Type Filter since we only show Customers */}
              <select 
-               className="px-4 py-3 bg-white rounded-xl border border-brand-500/5 font-bold text-brand-500 outline-none"
+               className="px-4 py-3 bg-smoke-200 rounded-xl border border-brand-500/5 font-bold text-brand-500/90 outline-none"
                onChange={(e) => setFilters(prev => ({ ...prev, customer_type: e.target.value, page: 1 }))}
              >
                 <option value="">All Types</option>
@@ -183,7 +183,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-smoke-200 rounded-[32px] border border-brand-500/5 overflow-hidden shadow-sm">
+        <div className="bg-smoke-200 rounded-xl border border-brand-500/5 overflow-hidden shadow-sm">
           {loading ? (
              <div className="p-12 text-center">
                 <div className="inline-block w-10 h-10 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -192,7 +192,7 @@ export default function AdminUsersPage() {
           ) : users.length === 0 ? (
              <div className="p-20 text-center">
                 <GroupRounded className="text-brand-500/10 text-6xl mb-4" />
-                <h3 className="text-xl font-bold text-brand-500">No Users Found</h3>
+                <h3 className="text-xl font-bold text-brand-500/90">No Users Found</h3>
                 <p className="text-brand-500/40 mt-1">Try adding a new user.</p>
              </div>
           ) : (
@@ -200,12 +200,12 @@ export default function AdminUsersPage() {
               <table className="w-full">
                 <thead className="bg-brand-500/5 border-b border-brand-500/5">
                   <tr className="text-left">
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest pl-8">User Details</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Role</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest">Type</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-right">Balance</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-center">Status</th>
-                    <th className="px-6 py-4 text-xs font-black text-brand-500/40 uppercase tracking-widest text-right pr-8">Actions</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest pl-8">User Details</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Role</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest">Type</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-right">Balance</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-center">Status</th>
+                    <th className="px-6 py-4 text-xs font-bold text-brand-500/40 uppercase tracking-widest text-right pr-8">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-500/5">
@@ -214,11 +214,11 @@ export default function AdminUsersPage() {
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       key={user.id} 
-                      className="group hover:bg-white transition-colors cursor-default"
+                      className="group hover:bg-smoke-200 transition-colors cursor-default"
                     >
                       <td className="px-6 py-4 pl-8">
                         <div>
-                           <div className="font-bold text-brand-500">{user.name}</div>
+                           <div className="font-bold text-brand-500/90">{user.name}</div>
                            <div className="text-xs text-brand-500/40">{user.email}</div>
                            {user.phone && <div className="text-xs text-brand-500/40">{user.phone}</div>}
                         </div>
@@ -238,7 +238,7 @@ export default function AdminUsersPage() {
                          <span className="font-bold text-sm text-brand-500/60 capitalize">{user.customer_type}</span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                         <div className="font-bold text-brand-500 flex items-center justify-end gap-1">
+                         <div className="font-bold text-brand-500/90 flex items-center justify-end gap-1">
                             <AccountBalanceWalletRounded style={{ fontSize: 14 }} className="text-brand-500/30" />
                             <span>Rp {user.balance?.balance ? user.balance.balance.toLocaleString('id-ID') : '0'}</span>
                          </div>
@@ -285,14 +285,14 @@ export default function AdminUsersPage() {
                   <button 
                     onClick={() => handlePageChange(meta.current_page - 1)}
                     disabled={meta.current_page === 1}
-                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500"
+                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-smoke-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500/90"
                   >
                      <ChevronLeftRounded fontSize="small" />
                   </button>
                   <button 
                     onClick={() => handlePageChange(meta.current_page + 1)}
                     disabled={meta.current_page === meta.last_page}
-                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500"
+                    className="p-2 rounded-xl border border-brand-500/10 hover:bg-smoke-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-brand-500/90"
                   >
                      <ChevronRightRounded fontSize="small" />
                   </button>

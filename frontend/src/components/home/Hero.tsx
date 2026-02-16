@@ -157,7 +157,7 @@ export function Hero() {
                 variant="white"
                 size="lg"
                 icon={<PlayArrowRounded />}
-                className="w-full border border-brand-500/10 hover:bg-white sm:w-auto"
+                className="w-full border border-brand-500/10 hover:bg-smoke-200 sm:w-auto"
               >
                 How it works
               </Button>

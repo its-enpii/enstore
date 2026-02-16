@@ -65,7 +65,7 @@ export default function PaymentMethodReportPage() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-brand-500">Payment Stats 🧾</h1>
+            <h1 className="text-2xl font-bold text-brand-500/90">Payment Stats 🧾</h1>
             <p className="text-brand-500/50 mt-1 font-bold">Analysis of payment methods performance.</p>
           </div>
           
@@ -75,14 +75,14 @@ export default function PaymentMethodReportPage() {
                   type="date" 
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-transparent border-none text-xs font-black text-brand-500 outline-none p-2"
+                  className="bg-transparent border-none text-xs font-bold text-brand-500/90 outline-none p-2"
                 />
-                <span className="text-brand-500/20 text-xs font-black px-1">-</span>
+                <span className="text-brand-500/20 text-xs font-bold px-1">-</span>
                 <input 
                   type="date" 
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-transparent border-none text-xs font-black text-brand-500 outline-none p-2"
+                  className="bg-transparent border-none text-xs font-bold text-brand-500/90 outline-none p-2"
                 />
              </div>
              <button 
@@ -101,18 +101,18 @@ export default function PaymentMethodReportPage() {
         ) : error ? (
            <div className="bg-red-500/10 border border-red-500/20 p-8 rounded-3xl text-center">
              <p className="text-red-500 font-bold">{error}</p>
-             <button onClick={fetchReport} className="mt-4 text-sm font-black text-ocean-500 uppercase">Coba Lagi</button>
+             <button onClick={fetchReport} className="mt-4 text-sm font-bold text-ocean-500 uppercase">Coba Lagi</button>
           </div>
         ) : (
           <div className="space-y-8">
             {/* Visual Charts / Bars Section */}
-            <div className="bg-smoke-200 p-8 rounded-[32px] border border-brand-500/5">
+            <div className="bg-smoke-200 p-8 rounded-xl border border-brand-500/5">
                 <div className="flex items-center gap-3 mb-8">
-                   <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-brand-500 shadow-sm border border-brand-500/5">
+                   <div className="w-10 h-10 bg-smoke-200 rounded-xl flex items-center justify-center text-brand-500/90 shadow-sm border border-brand-500/5">
                       <DonutLargeRounded fontSize="small" />
                    </div>
                    <div>
-                      <h3 className="text-lg font-black text-brand-500">Method Popularity</h3>
+                      <h3 className="text-lg font-bold text-brand-500/90">Method Popularity</h3>
                       <p className="text-xs font-bold text-brand-500/30 uppercase tracking-widest">Revenue share by method</p>
                    </div>
                 </div>
@@ -124,7 +124,7 @@ export default function PaymentMethodReportPage() {
                         return (
                           <div key={idx} className="space-y-2">
                              <div className="flex justify-between items-end">
-                                <span className="text-sm font-black text-brand-500 uppercase">{method.payment_method}</span>
+                                <span className="text-sm font-bold text-brand-500/90 uppercase">{method.payment_method}</span>
                                 <span className="text-xs font-bold text-brand-500/40">{percentage.toFixed(1)}%</span>
                              </div>
                              <div className="h-2 w-full bg-cloud-200 rounded-full overflow-hidden">
@@ -141,24 +141,24 @@ export default function PaymentMethodReportPage() {
                       )}
                    </div>
 
-                   <div className="bg-white/50 p-6 rounded-3xl border border-brand-500/5 flex flex-col justify-center">
+                   <div className="bg-smoke-200/50 p-6 rounded-3xl border border-brand-500/5 flex flex-col justify-center">
                       <div className="space-y-6">
                          <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-ocean-500/10 text-ocean-500 rounded-xl flex items-center justify-center">
                                <TrendingUpRounded />
                             </div>
                             <div>
-                               <p className="text-[10px] font-black text-brand-500/40 uppercase tracking-widest leading-none">Total Revenue</p>
-                               <p className="text-xl font-black text-brand-500 mt-1">Rp {totalRevenue.toLocaleString('id-ID')}</p>
+                               <p className="text-[10px] font-bold text-brand-500/40 uppercase tracking-widest leading-none">Total Revenue</p>
+                               <p className="text-xl font-bold text-brand-500/90 mt-1">Rp {totalRevenue.toLocaleString('id-ID')}</p>
                             </div>
                          </div>
                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-brand-500/10 text-brand-500 rounded-xl flex items-center justify-center">
+                            <div className="w-10 h-10 bg-brand-500/10 text-brand-500/90 rounded-xl flex items-center justify-center">
                                <PaymentsRounded />
                             </div>
                             <div>
-                               <p className="text-[10px] font-black text-brand-500/40 uppercase tracking-widest leading-none">Total Admin Fees</p>
-                               <p className="text-xl font-black text-brand-500 mt-1">
+                               <p className="text-[10px] font-bold text-brand-500/40 uppercase tracking-widest leading-none">Total Admin Fees</p>
+                               <p className="text-xl font-bold text-brand-500/90 mt-1">
                                  Rp {data.reduce((acc, curr) => acc + Number(curr.total_fees), 0).toLocaleString('id-ID')}
                                </p>
                             </div>
@@ -169,13 +169,13 @@ export default function PaymentMethodReportPage() {
             </div>
 
             {/* Detailed Table */}
-            <div className="bg-smoke-200 p-8 rounded-[32px] border border-brand-500/5">
+            <div className="bg-smoke-200 p-8 rounded-xl border border-brand-500/5">
                 <div className="flex items-center gap-3 mb-8">
-                   <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-brand-500 shadow-sm border border-brand-500/5">
+                   <div className="w-10 h-10 bg-smoke-200 rounded-xl flex items-center justify-center text-brand-500/90 shadow-sm border border-brand-500/5">
                       <AssessmentRounded fontSize="small" />
                    </div>
                    <div>
-                      <h3 className="text-lg font-black text-brand-500">Method Breakdown</h3>
+                      <h3 className="text-lg font-bold text-brand-500/90">Method Breakdown</h3>
                       <p className="text-xs font-bold text-brand-500/30 uppercase tracking-widest">Transaction & Profit metrics</p>
                    </div>
                 </div>
@@ -184,17 +184,17 @@ export default function PaymentMethodReportPage() {
                    <table className="w-full">
                       <thead>
                          <tr className="text-left border-b border-brand-500/5">
-                            <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-brand-500/30 pl-4">Method Name</th>
-                            <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-brand-500/30 text-center">Transactions</th>
-                            <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-brand-500/30 text-right">Avg Transaction</th>
-                            <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-brand-500/30 text-right pr-4">Total Revenue</th>
+                            <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-brand-500/30 pl-4">Method Name</th>
+                            <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-brand-500/30 text-center">Transactions</th>
+                            <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-brand-500/30 text-right">Avg Transaction</th>
+                            <th className="pb-4 text-[10px] font-bold uppercase tracking-widest text-brand-500/30 text-right pr-4">Total Revenue</th>
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-brand-500/5">
                          {data.map((row, idx) => (
-                            <tr key={idx} className="group hover:bg-white/50 transition-colors">
+                            <tr key={idx} className="group hover:bg-smoke-200/50 transition-colors">
                                <td className="py-4 pl-4">
-                                  <span className="text-sm font-black text-brand-500 uppercase">{row.payment_method}</span>
+                                  <span className="text-sm font-bold text-brand-500/90 uppercase">{row.payment_method}</span>
                                </td>
                                <td className="py-4 text-center">
                                   <span className="text-sm font-bold text-brand-500/60">{row.total_transactions}</span>
@@ -203,7 +203,7 @@ export default function PaymentMethodReportPage() {
                                   <span className="text-sm font-bold text-brand-500/60">Rp {Number(row.average_transaction).toLocaleString('id-ID')}</span>
                                </td>
                                <td className="py-4 text-right pr-4">
-                                  <span className="text-sm font-black text-ocean-500">Rp {Number(row.total_revenue).toLocaleString('id-ID')}</span>
+                                  <span className="text-sm font-bold text-ocean-500">Rp {Number(row.total_revenue).toLocaleString('id-ID')}</span>
                                </td>
                             </tr>
                          ))}

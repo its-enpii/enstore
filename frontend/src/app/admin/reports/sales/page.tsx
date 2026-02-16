@@ -50,14 +50,14 @@ export default function SalesReport() {
     <DashboardLayout role="admin">
        <div className="space-y-6">
           <div className="flex items-center justify-between">
-             <h1 className="text-2xl font-black text-brand-500 flex items-center gap-2">
+             <h1 className="text-2xl font-bold text-brand-500/90 flex items-center gap-2">
                 <AssessmentRounded className="text-ocean-500" /> Sales Report
              </h1>
              <div className="flex gap-2">
                 <select 
                   value={period} 
                   onChange={(e) => setPeriod(e.target.value)}
-                  className="bg-white border border-brand-500/10 rounded-xl px-4 py-2 text-sm font-bold text-brand-500 outline-none"
+                  className="bg-smoke-200 border border-brand-500/10 rounded-xl px-4 py-2 text-sm font-bold text-brand-500/90 outline-none"
                 >
                    <option value="day">Today</option>
                    <option value="week">This Week</option>
@@ -74,7 +74,7 @@ export default function SalesReport() {
                 <div className="w-8 h-8 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin"></div>
              </div>
           ) : error ? (
-             <div className="bg-red-500/10 p-8 rounded-[32px] border border-red-500/20 text-center">
+             <div className="bg-red-500/10 p-8 rounded-xl border border-red-500/20 text-center">
                 <p className="text-red-500 font-bold mb-4">{error}</p>
                 <button 
                   onClick={fetchReport}
@@ -84,24 +84,24 @@ export default function SalesReport() {
                 </button>
              </div>
           ) : (
-             <div className="bg-smoke-200 p-8 rounded-[32px] border border-brand-500/5">
+             <div className="bg-smoke-200 p-8 rounded-xl border border-brand-500/5">
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                   <div className="bg-white p-4 rounded-xl border border-brand-500/5">
+                   <div className="bg-smoke-200 p-4 rounded-xl border border-brand-500/5">
                       <p className="text-xs font-bold text-brand-500/40 uppercase">Total Revenue</p>
-                      <p className="text-xl font-black text-ocean-500">Rp {(data?.summary?.total_revenue || 0).toLocaleString('id-ID')}</p>
+                      <p className="text-xl font-bold text-ocean-500">Rp {(data?.summary?.total_revenue || 0).toLocaleString('id-ID')}</p>
                    </div>
-                   <div className="bg-white p-4 rounded-xl border border-brand-500/5">
+                   <div className="bg-smoke-200 p-4 rounded-xl border border-brand-500/5">
                       <p className="text-xs font-bold text-brand-500/40 uppercase">Total Profit</p>
-                      <p className="text-xl font-black text-emerald-500">Rp {(data?.summary?.total_profit || 0).toLocaleString('id-ID')}</p>
+                      <p className="text-xl font-bold text-emerald-500">Rp {(data?.summary?.total_profit || 0).toLocaleString('id-ID')}</p>
                    </div>
-                   <div className="bg-white p-4 rounded-xl border border-brand-500/5">
+                   <div className="bg-smoke-200 p-4 rounded-xl border border-brand-500/5">
                       <p className="text-xs font-bold text-brand-500/40 uppercase">Transactions</p>
-                      <p className="text-xl font-black text-brand-500">{data?.summary?.total_transactions || 0}</p>
+                      <p className="text-xl font-bold text-brand-500/90">{data?.summary?.total_transactions || 0}</p>
                    </div>
-                   <div className="bg-white p-4 rounded-xl border border-brand-500/5">
+                   <div className="bg-smoke-200 p-4 rounded-xl border border-brand-500/5">
                       <p className="text-xs font-bold text-brand-500/40 uppercase">Avg. Transaction</p>
-                      <p className="text-xl font-black text-brand-500">Rp {(data?.summary?.average_transaction || 0).toLocaleString('id-ID')}</p>
+                      <p className="text-xl font-bold text-brand-500/90">Rp {(data?.summary?.average_transaction || 0).toLocaleString('id-ID')}</p>
                    </div>
                 </div>
 
@@ -118,9 +118,9 @@ export default function SalesReport() {
                    <tbody className="divide-y divide-brand-500/5">
                       {data?.details?.length > 0 ? (
                         data.details.map((item: any, idx: number) => (
-                         <tr key={idx} className="hover:bg-white/50">
-                            <td className="px-4 py-3 text-sm font-bold text-brand-500">{item.period}</td>
-                            <td className="px-4 py-3 text-sm font-bold text-brand-500">{item.total_transactions}</td>
+                         <tr key={idx} className="hover:bg-smoke-200/50">
+                            <td className="px-4 py-3 text-sm font-bold text-brand-500/90">{item.period}</td>
+                            <td className="px-4 py-3 text-sm font-bold text-brand-500/90">{item.total_transactions}</td>
                             <td className="px-4 py-3 text-sm font-bold text-ocean-500">Rp {(item.total_revenue || 0).toLocaleString('id-ID')}</td>
                             <td className="px-4 py-3 text-sm font-bold text-emerald-500">Rp {(item.total_profit || 0).toLocaleString('id-ID')}</td>
                          </tr>

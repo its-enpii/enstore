@@ -32,7 +32,7 @@ const Button: React.FC<ButtonProps> = ({
       "bg-ocean-500 text-cloud-200 hover:bg-ocean-600 active:bg-ocean-700 hover:shadow-lg hover:shadow-ocean-500/20",
     dark: "bg-brand-500 text-cloud-200 hover:bg-brand-600 active:bg-brand-700",
     white:
-      "bg-white text-brand-500 hover:bg-smoke-200 active:bg-smoke-300 border border-brand-500/5",
+      "bg-smoke-200 text-brand-500/90 hover:bg-smoke-200 active:bg-smoke-300 border border-brand-500/5",
   };
 
   const sizeStyles = iconOnly

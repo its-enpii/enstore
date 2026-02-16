@@ -211,10 +211,10 @@ export default function AdminTransactionsPage() {
         {/* Header Section */}
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="text-2xl font-black text-brand-500">
+            <h1 className="text-2xl font-bold text-brand-500/90">
               Transactions 🧾
             </h1>
-            <p className="mt-1 font-bold text-brand-500/50">
+            <p className="mt-2 text-sm text-brand-500/40">
               Monitor all purchases, topups, and refund requests.
             </p>
           </div>
@@ -230,12 +230,12 @@ export default function AdminTransactionsPage() {
               placeholder="Search by code, product, or user..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-white py-3 pr-4 pl-12 font-bold text-brand-500 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
+              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 font-bold text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
             />
           </form>
 
           {/* Status Tabs (Desktop) */}
-          <div className="hidden rounded-xl border border-brand-500/5 bg-white p-1 md:flex">
+          <div className="hidden rounded-xl border border-brand-500/5 bg-smoke-200 p-1 md:flex">
             {["all", "pending", "success", "failed"].map((status) => (
               <button
                 key={status}
@@ -243,7 +243,7 @@ export default function AdminTransactionsPage() {
                 className={`rounded-lg px-4 py-2 text-xs font-bold uppercase transition-all ${
                   statusFilter === status
                     ? "bg-ocean-500 text-white shadow-lg shadow-ocean-500/20"
-                    : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500"
+                    : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500/90"
                 }`}
               >
                 {status}
@@ -256,7 +256,7 @@ export default function AdminTransactionsPage() {
             <select
               value={statusFilter}
               onChange={(e) => handleStatusFilter(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-white px-4 py-3 font-bold text-brand-500 outline-none"
+              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 font-bold text-brand-500/90 outline-none"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -267,7 +267,7 @@ export default function AdminTransactionsPage() {
         </div>
 
         {/* Transactions Table */}
-        <div className="overflow-hidden rounded-[32px] border border-brand-500/5 bg-smoke-200 shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200 shadow-sm">
           {loading ? (
             <div className="p-12 text-center">
               <div className="mb-4 inline-block h-10 w-10 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>
@@ -278,7 +278,7 @@ export default function AdminTransactionsPage() {
           ) : transactions.length === 0 ? (
             <div className="p-20 text-center">
               <ReceiptLongRounded className="mb-4 text-6xl text-brand-500/10" />
-              <h3 className="text-xl font-bold text-brand-500">
+              <h3 className="text-xl font-bold text-brand-500/90">
                 No Transactions Found
               </h3>
               <p className="mt-1 text-brand-500/40">
@@ -290,22 +290,22 @@ export default function AdminTransactionsPage() {
               <table className="w-full">
                 <thead className="border-b border-brand-500/5 bg-brand-500/5">
                   <tr className="text-left">
-                    <th className="px-6 py-4 pl-8 text-xs font-black tracking-widest text-brand-500/40 uppercase">
+                    <th className="px-6 py-4 pl-8 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Date & Code
                     </th>
-                    <th className="px-6 py-4 text-xs font-black tracking-widest text-brand-500/40 uppercase">
+                    <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       User
                     </th>
-                    <th className="px-6 py-4 text-xs font-black tracking-widest text-brand-500/40 uppercase">
+                    <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Product
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-black tracking-widest text-brand-500/40 uppercase">
+                    <th className="px-6 py-4 text-right text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Amount
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-black tracking-widest text-brand-500/40 uppercase">
+                    <th className="px-6 py-4 text-center text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Status
                     </th>
-                    <th className="px-6 py-4 pr-8 text-right text-xs font-black tracking-widest text-brand-500/40 uppercase">
+                    <th className="px-6 py-4 pr-8 text-right text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Action
                     </th>
                   </tr>
@@ -316,11 +316,11 @@ export default function AdminTransactionsPage() {
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       key={trx.id}
-                      className="group cursor-default transition-colors hover:bg-white"
+                      className="group cursor-default transition-colors hover:bg-smoke-200"
                     >
                       <td className="px-6 py-4 pl-8">
                         <div>
-                          <div className="text-xs font-bold text-brand-500">
+                          <div className="text-xs font-bold text-brand-500/90">
                             {new Date(trx.created_at).toLocaleString("id-ID", {
                               day: "2-digit",
                               month: "short",
@@ -337,7 +337,7 @@ export default function AdminTransactionsPage() {
                       <td className="px-6 py-4">
                         {trx.user ? (
                           <div>
-                            <div className="text-sm font-bold text-brand-500">
+                            <div className="text-sm font-bold text-brand-500/90">
                               {trx.user.name}
                             </div>
                             <div className="text-xs text-brand-500/40">
@@ -352,7 +352,7 @@ export default function AdminTransactionsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div
-                          className="max-w-[200px] truncate text-sm font-bold text-brand-500"
+                          className="max-w-[200px] truncate text-sm font-bold text-brand-500/90"
                           title={trx.product_name}
                         >
                           {trx.product_name}
@@ -362,7 +362,7 @@ export default function AdminTransactionsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="text-sm font-black text-brand-500">
+                        <div className="text-sm font-bold text-brand-500/90">
                           Rp {trx.total_price.toLocaleString("id-ID")}
                         </div>
                       </td>
@@ -374,7 +374,7 @@ export default function AdminTransactionsPage() {
                           {/* Quick Actions for Pending/Processing */}
                           {(trx.status === "pending" ||
                             trx.status === "processing") && (
-                            <div className="mr-2 flex items-center gap-1 rounded-xl border border-brand-500/5 bg-white p-1 shadow-sm">
+                            <div className="mr-2 flex items-center gap-1 rounded-xl border border-brand-500/5 bg-smoke-200 p-1 shadow-sm">
                               <button
                                 onClick={() =>
                                   handleUpdateStatus(trx.id, "success")
@@ -402,7 +402,7 @@ export default function AdminTransactionsPage() {
                               onClick={() =>
                                 handleUpdateStatus(trx.id, "refunded")
                               }
-                              className="rounded-xl border border-brand-500/5 bg-white p-2 text-purple-500 shadow-sm transition-colors hover:bg-purple-500/10"
+                              className="rounded-xl border border-brand-500/5 bg-smoke-200 p-2 text-purple-500 shadow-sm transition-colors hover:bg-purple-500/10"
                               title="Process Refund"
                             >
                               <SettingsBackupRestoreRounded fontSize="small" />
@@ -413,7 +413,7 @@ export default function AdminTransactionsPage() {
                             onClick={() =>
                               copyToClipboard(trx.transaction_code)
                             }
-                            className="rounded-xl p-2 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500"
+                            className="rounded-xl p-2 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500/90"
                             title="Copy Code"
                           >
                             <ContentCopyRounded fontSize="small" />
@@ -421,7 +421,7 @@ export default function AdminTransactionsPage() {
 
                           <Link href={`/admin/transactions/${trx.id}`}>
                             <button
-                              className="rounded-xl border border-brand-500/5 bg-white p-2 text-ocean-500 shadow-sm transition-colors hover:bg-ocean-500/10"
+                              className="rounded-xl border border-brand-500/5 bg-smoke-200 p-2 text-ocean-500 shadow-sm transition-colors hover:bg-ocean-500/10"
                               title="View Detail"
                             >
                               <VisibilityRounded fontSize="small" />
@@ -446,14 +446,14 @@ export default function AdminTransactionsPage() {
                 <button
                   onClick={() => handlePageChange(meta.current_page - 1)}
                   disabled={meta.current_page === 1}
-                  className="rounded-xl border border-brand-500/10 p-2 text-brand-500 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeftRounded fontSize="small" />
                 </button>
                 <button
                   onClick={() => handlePageChange(meta.current_page + 1)}
                   disabled={meta.current_page === meta.last_page}
-                  className="rounded-xl border border-brand-500/10 p-2 text-brand-500 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronRightRounded fontSize="small" />
                 </button>
@@ -465,3 +465,5 @@ export default function AdminTransactionsPage() {
     </DashboardLayout>
   );
 }
+
+

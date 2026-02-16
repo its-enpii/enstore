@@ -44,7 +44,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-black text-brand-500">
+        <h1 className="text-2xl font-bold text-brand-500/90">
           {title} {emoji && <span>{emoji}</span>}
         </h1>
         {description && (

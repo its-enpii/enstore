@@ -1,35 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  DashboardRounded,
-  ShoppingCartRounded,
-  PeopleRounded,
-  SettingsRounded,
-  LogoutRounded,
-  AccountBalanceWalletRounded,
-  HistoryRounded,
-  LocalOfferRounded,
-  PaymentRounded,
-  ViewCarouselRounded,
-  CloseRounded,
-  KeyboardArrowRightRounded,
-  GamepadRounded,
-  ReceiptLongRounded,
-  AdminPanelSettingsRounded,
-  ContactSupportRounded,
-  StorefrontRounded,
-  FavoriteRounded,
-  AutoGraphRounded,
-  MonetizationOnRounded,
-  ConfirmationNumberRounded,
+  DashboardRounded, // Solid for Dashboard
+  DashboardOutlined,
+  SettingsOutlined,
+  LogoutOutlined,
+  AccountBalanceWalletOutlined,
+  HistoryOutlined,
+  LocalOfferOutlined,
+  ViewCarouselOutlined,
+  CloseOutlined,
+  KeyboardArrowRightOutlined,
+  GamepadOutlined,
+  ReceiptLongOutlined,
+  PeopleOutlined,
+  MonetizationOnOutlined,
+  ConfirmationNumberOutlined,
+  StorefrontOutlined,
+  AutoGraphOutlined,
+  ContactSupportOutlined,
+  Inventory2Outlined,
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import DashboardConfirmDialog from "./DashboardConfirmDialog";
 import { api, ENDPOINTS } from "@/lib/api";
-import { useEffect } from "react";
 
 interface MenuItem {
   title: string;
@@ -47,9 +44,10 @@ interface MenuSection {
 interface SidebarProps {
   role: "admin" | "retail" | "reseller";
   onClose?: () => void;
+  isOpen?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
   const pathname = usePathname();
   const { logout } = useAuth();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
@@ -115,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
     role === "admin"
       ? [
           {
-            header: "Main Menu",
+            header: "DASHBOARD",
             items: [
               {
                 title: "Dashboard",
@@ -124,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
               },
               {
                 title: "Analytics",
-                icon: <AutoGraphRounded />,
+                icon: <AutoGraphOutlined />,
                 subItems: [
                   { title: "Sales Reports", href: "/admin/reports/sales" },
                   { title: "User Growth", href: "/admin/reports/users" },
@@ -136,17 +134,17 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
             ],
           },
           {
-            header: "Management",
+            header: "MANAGEMENT",
             items: [
               {
                 title: "Transactions",
                 href: "/admin/transactions",
-                icon: <ReceiptLongRounded />,
+                icon: <ReceiptLongOutlined />,
                 badge: pendingCount > 0 ? String(pendingCount) : undefined,
               },
               {
                 title: "Categories & Products",
-                icon: <GamepadRounded />,
+                icon: <GamepadOutlined />,
                 subItems: [
                   { title: "Categories", href: "/admin/categories" },
                   { title: "Products/Games", href: "/admin/products" },
@@ -155,37 +153,37 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
               {
                 title: "Users & Customers",
                 href: "/admin/users",
-                icon: <PeopleRounded />,
+                icon: <PeopleOutlined />,
               },
               {
                 title: "Withdrawal Requests",
                 href: "/admin/withdrawals",
-                icon: <MonetizationOnRounded />,
+                icon: <MonetizationOnOutlined />,
               },
               {
                 title: "Voucher Management",
                 href: "/admin/vouchers",
-                icon: <ConfirmationNumberRounded />,
+                icon: <ConfirmationNumberOutlined />,
               },
             ],
           },
           {
-            header: "System & UI",
+            header: "SYSTEM & UI",
             items: [
               {
                 title: "Platform Settings",
                 href: "/admin/settings",
-                icon: <SettingsRounded />,
+                icon: <SettingsOutlined />,
               },
               {
                 title: "Banner Management",
                 href: "/admin/banners",
-                icon: <ViewCarouselRounded />,
+                icon: <ViewCarouselOutlined />,
               },
               {
                 title: "Activity Logs",
                 href: "/admin/logs",
-                icon: <HistoryRounded />,
+                icon: <HistoryOutlined />,
               },
             ],
           },
@@ -193,7 +191,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
       : role === "reseller"
         ? [
             {
-              header: "Reseller Panel",
+              header: "DASHBOARD",
               items: [
                 {
                   title: "Dashboard",
@@ -202,53 +200,53 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                 },
                 {
                   title: "My Wallet",
-                  icon: <AccountBalanceWalletRounded />,
+                  icon: <AccountBalanceWalletOutlined />,
                   subItems: walletSubItems,
                 },
               ],
             },
             {
-              header: "Purchase & Sales",
+              header: "MANAGEMENT",
               items: [
                 {
                   title: "Game Services",
                   href: "/services",
-                  icon: <StorefrontRounded />,
+                  icon: <StorefrontOutlined />,
                   badge: "VIP",
                 },
                 {
                   title: "Postpaid Service",
                   href: "/reseller/postpaid",
-                  icon: <ReceiptLongRounded />,
+                  icon: <ReceiptLongOutlined />,
                   badge: "Pay",
                 },
                 {
                   title: "Transaction History",
                   href: "/reseller/transactions",
-                  icon: <ReceiptLongRounded />,
+                  icon: <ReceiptLongOutlined />,
                 },
                 {
                   title: "Special Price List",
                   href: "/reseller/prices",
-                  icon: <LocalOfferRounded />,
+                  icon: <LocalOfferOutlined />,
                   badge: "Special",
                 },
               ],
             },
             {
-              header: "Account",
+              header: "ACCOUNT",
               items: [
                 {
                   title: "My Profile",
                   href: "/reseller/profile",
-                  icon: <PeopleRounded />,
+                  icon: <PeopleOutlined />,
                 },
               ],
             },
           ]
         : [
             {
-              header: "Customer Menu",
+              header: "DASHBOARD",
               items: [
                 {
                   title: "Dashboard",
@@ -257,39 +255,39 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                 },
                 {
                   title: "My Wallet",
-                  icon: <AccountBalanceWalletRounded />,
+                  icon: <AccountBalanceWalletOutlined />,
                   subItems: walletSubItems,
                 },
               ],
             },
             {
-              header: "Shopping",
+              header: "MANAGEMENT",
               items: [
                 {
                   title: "Game Services",
                   href: "/services",
-                  icon: <StorefrontRounded />,
+                  icon: <StorefrontOutlined />,
                 },
                 {
                   title: "Postpaid Service",
                   href: "/dashboard/postpaid",
-                  icon: <ReceiptLongRounded />,
+                  icon: <ReceiptLongOutlined />,
                   badge: "Pay",
                 },
                 {
                   title: "Transaction History",
                   href: "/dashboard/transactions",
-                  icon: <ReceiptLongRounded />,
+                  icon: <ReceiptLongOutlined />,
                 },
               ],
             },
             {
-              header: "Account",
+              header: "ACCOUNT",
               items: [
                 {
                   title: "My Profile",
                   href: "/dashboard/profile",
-                  icon: <PeopleRounded />,
+                  icon: <PeopleOutlined />,
                 },
               ],
             },
@@ -297,153 +295,140 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
 
   return (
     <>
-      <div className="flex h-16 shrink-0 items-center border-b border-slate-100 px-6">
-        <div className="flex items-center gap-3 text-xl font-bold tracking-tight text-ocean-500">
-          <div className="flex h-10 w-10 rotate-3 items-center justify-center rounded-2xl bg-linear-to-br from-ocean-400 to-ocean-600 text-smoke-200 shadow-lg shadow-ocean-500/20">
-            <GamepadRounded fontSize="medium" />
+      {/* Mobile Overlay */}
+      <div
+        className={`fixed inset-0 z-20 bg-brand-500/20 backdrop-blur-sm transition-opacity lg:hidden ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        onClick={onClose}
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-brand-500/5 bg-smoke-200 shadow-calm transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="flex h-full flex-col">
+          {/* Brand */}
+          <div className="flex h-16 items-center border-b border-brand-500/5 px-6">
+            <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-ocean-500">
+              <GamepadOutlined className="text-2xl" />
+              <span>Encore</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="ml-auto text-brand-500/30 hover:text-brand-500/90 lg:hidden"
+            >
+              <CloseOutlined className="text-2xl" />
+            </button>
           </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-2xl font-black tracking-tighter text-brand-500">
-              ENSTORE
-            </span>
-            <span className="text-[10px] font-bold text-brand-500/40">
-              Platform
-            </span>
+
+          {/* Navigation */}
+          <div className="custom-scrollbar flex-1 overflow-y-auto py-2">
+            <nav className="px-2">
+              <ul className="nav">
+                {menuSections.map((section, idx) => (
+                  <React.Fragment key={idx}>
+                    <li className="nav-header">{section.header}</li>
+
+                    {section.items.map((item, itemIdx) => {
+                      const hasSubItems =
+                        item.subItems && item.subItems.length > 0;
+                      const isOpen = openMenus[item.title];
+                      const isActive = item.href
+                        ? item.href === "/dashboard"
+                          ? pathname === "/dashboard"
+                          : item.href === "/"
+                            ? pathname === "/"
+                            : pathname.startsWith(item.href)
+                        : hasSubItems &&
+                          item.subItems?.some((sub) => pathname === sub.href);
+
+                      // Auto-open if active
+                      useEffect(() => {
+                        if (isActive && hasSubItems && !openMenus[item.title]) {
+                          setOpenMenus((prev) => ({
+                            ...prev,
+                            [item.title]: true,
+                          }));
+                        }
+                      }, [isActive, hasSubItems, item.title]);
+
+                      const linkClasses = `nav-link ${isActive ? "active" : ""}`;
+
+                      return (
+                        <li
+                          key={itemIdx}
+                          className={`nav-item ${hasSubItems ? "dropdown" : ""}`}
+                        >
+                          {hasSubItems ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => toggleMenu(item.title)}
+                                className={`${linkClasses} w-full`}
+                              >
+                                <span className="nav-icon">{item.icon}</span>
+                                <span className="text-left">{item.title}</span>
+                                <KeyboardArrowRightOutlined className="nav-chevron" />
+                              </button>
+                              <ul
+                                className={`nav-submenu ${isOpen ? "show" : ""}`}
+                              >
+                                <div className="mt-1 space-y-1">
+                                  {item.subItems?.map((sub, sIdx) => {
+                                    const isSubActive = pathname === sub.href;
+                                    return (
+                                      <li key={sIdx} className="nav-item">
+                                        <Link
+                                          href={sub.href}
+                                          className={`nav-sub-link ${isSubActive ? "active" : ""}`}
+                                        >
+                                          <span>{sub.title}</span>
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
+                                </div>
+                              </ul>
+                            </>
+                          ) : (
+                            <Link
+                              href={item.href || "#"}
+                              className={linkClasses}
+                            >
+                              <span className="nav-icon">{item.icon}</span>
+                              <span>{item.title}</span>
+                              {item.badge && (
+                                <span
+                                  className={`ml-auto rounded px-1.5 py-0.5 text-[10px] font-bold text-white ${
+                                    item.badge === "VIP"
+                                      ? "bg-ocean-500"
+                                      : "bg-emerald-500"
+                                  }`}
+                                >
+                                  {item.badge}
+                                </span>
+                              )}
+                            </Link>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
+              </ul>
+            </nav>
+          </div>
+
+          {/* Sidebar Footer */}
+          <div className="mt-auto border-t border-brand-500/5 p-4">
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="nav-link w-full text-red-600! hover:bg-red-50!"
+            >
+              <LogoutOutlined className="nav-icon text-red-600!" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="ml-auto rounded-xl bg-cloud-200 p-2 text-brand-500/40 hover:text-brand-500 lg:hidden"
-        >
-          <CloseRounded fontSize="small" />
-        </button>
-      </div>
-
-      <div className="custom-scrollbar flex-1 overflow-y-auto">
-        <nav className="px-3 py-6">
-          <ul className="space-y-6">
-            {menuSections.map((section, idx) => (
-              <li key={idx} className="space-y-2">
-                <div className="mt-2 px-3.5 py-2.5 text-xs font-bold tracking-wide text-slate-700 uppercase">
-                  {section.header}
-                </div>
-                <ul className="space-y-1">
-                  {section.items.map((item, itemIdx) => {
-                    const hasSubItems =
-                      item.subItems && item.subItems.length > 0;
-                    const isOpen = openMenus[item.title];
-                    const isActive = item.href
-                      ? item.href === "/dashboard"
-                        ? pathname === "/dashboard"
-                        : item.href === "/"
-                          ? pathname === "/"
-                          : pathname.startsWith(item.href)
-                      : hasSubItems &&
-                        item.subItems?.some((sub) => pathname === sub.href);
-
-                    if (
-                      hasSubItems &&
-                      item.subItems?.some((sub) => pathname === sub.href) &&
-                      !isOpen
-                    ) {
-                      setOpenMenus((prev) => ({ ...prev, [item.title]: true }));
-                    }
-
-                    // Encore UI Style Mappings
-                    const linkBaseClass =
-                      "w-full text-left flex items-center gap-2 px-3.5 py-2.5 text-sm font-normal rounded-xl hover:bg-slate-100 transition-colors cursor-pointer group";
-                    const linkActiveClass =
-                      "bg-transparent font-bold text-ocean-500";
-                    const linkInactiveClass = "text-slate-700";
-
-                    const iconClass = `text-lg mr-1.5 transition-colors duration-200 ${isActive || isOpen ? "text-ocean-500" : "text-slate-500 group-hover:text-slate-700"}`;
-                    const chevronClass = `ml-auto text-sm transition-transform duration-200 ${isOpen ? "rotate-90" : ""} ${isActive || isOpen ? "text-ocean-500" : "text-slate-400"}`;
-
-                    return (
-                      <li key={itemIdx}>
-                        {hasSubItems ? (
-                          <>
-                            <button
-                              onClick={() => toggleMenu(item.title)}
-                              className={`${linkBaseClass} ${isActive || isOpen ? linkActiveClass : linkInactiveClass}`}
-                            >
-                              <span className={iconClass}>{item.icon}</span>
-                              <span className="flex-1">{item.title}</span>
-                              <KeyboardArrowRightRounded
-                                className={chevronClass}
-                                fontSize="inherit"
-                              />
-                            </button>
-                            <ul
-                              className={`grid overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-                            >
-                              <div className="min-h-0">
-                                {item.subItems?.map((sub, sIdx) => {
-                                  const isSubActive = pathname === sub.href;
-                                  return (
-                                    <li key={sIdx}>
-                                      <Link
-                                        href={sub.href}
-                                        className={`block rounded-xl px-3.5 py-2.5 pl-9 text-sm transition-colors ${
-                                          isSubActive
-                                            ? "font-medium text-ocean-500"
-                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                        }`}
-                                      >
-                                        {sub.title}
-                                      </Link>
-                                    </li>
-                                  );
-                                })}
-                              </div>
-                            </ul>
-                          </>
-                        ) : (
-                          <Link
-                            href={item.href || "#"}
-                            className={`${linkBaseClass} ${isActive ? linkActiveClass : linkInactiveClass}`}
-                          >
-                            <span className={iconClass}>{item.icon}</span>
-                            <span className="flex-1">{item.title}</span>
-                            {item.badge && (
-                              <span
-                                className={`rounded-lg px-2 py-0.5 text-[10px] font-bold text-white ${item.badge === "VIP" ? "bg-ocean-500" : "bg-brand-500"}`}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                          </Link>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-
-      <div className="space-y-2 border-t border-slate-100 p-4">
-        <Link
-          href="/help"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-100"
-        >
-          <ContactSupportRounded
-            className="text-lg text-slate-400"
-            fontSize="inherit"
-          />
-          <span className="font-medium">Help center</span>
-        </Link>
-
-        <button
-          onClick={() => setShowLogoutConfirm(true)}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
-        >
-          <LogoutRounded className="text-lg" fontSize="inherit" />
-          <span className="font-medium">Logout</span>
-        </button>
-      </div>
+      </aside>
 
       <DashboardConfirmDialog
         isOpen={showLogoutConfirm}

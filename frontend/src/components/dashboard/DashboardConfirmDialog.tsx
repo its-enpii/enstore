@@ -34,12 +34,12 @@ const DashboardConfirmDialog: React.FC<DashboardConfirmDialogProps> = ({
   useEffect(() => {
     setMounted(true);
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -63,20 +63,26 @@ const DashboardConfirmDialog: React.FC<DashboardConfirmDialogProps> = ({
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-            className="relative w-full max-w-sm bg-white rounded-[32px] border border-brand-500/10 shadow-2xl p-8 overflow-hidden"
+            className="relative w-full max-w-sm overflow-hidden rounded-xl border border-brand-500/10 bg-smoke-200 p-8 shadow-2xl"
           >
             {/* Background Decoration */}
-            <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl opacity-20 ${
-                variant === 'danger' ? 'bg-red-500' : 'bg-ocean-500'
-            }`}></div>
+            <div
+              className={`absolute -top-24 -right-24 h-48 w-48 rounded-full opacity-20 blur-3xl ${
+                variant === "danger" ? "bg-red-500" : "bg-ocean-500"
+              }`}
+            ></div>
 
             <div className="relative flex flex-col items-center text-center">
               {/* Icon Section */}
-              <div className={`w-20 h-20 rounded-[28px] flex items-center justify-center mb-6 shadow-xl ${
-                variant === "danger" ? "bg-red-500 text-white shadow-red-500/20" : 
-                variant === "warning" ? "bg-amber-500 text-white shadow-amber-500/20" : 
-                "bg-ocean-500 text-white shadow-ocean-500/20"
-              }`}>
+              <div
+                className={`mb-6 flex h-20 w-20 items-center justify-center rounded-xl shadow-xl ${
+                  variant === "danger"
+                    ? "bg-red-500 text-smoke-200 shadow-red-500/20"
+                    : variant === "warning"
+                      ? "bg-amber-500 text-smoke-200 shadow-amber-500/20"
+                      : "bg-ocean-500 text-smoke-200 shadow-ocean-500/20"
+                }`}
+              >
                 {title.toLowerCase().includes("logout") ? (
                   <LogoutRounded fontSize="large" />
                 ) : (
@@ -85,10 +91,10 @@ const DashboardConfirmDialog: React.FC<DashboardConfirmDialogProps> = ({
               </div>
 
               {/* Text Content */}
-              <h3 className="text-2xl font-black text-brand-500 mb-3 tracking-tight">
+              <h3 className="mb-3 text-2xl font-bold tracking-tight text-brand-500/90">
                 {title}
               </h3>
-              <p className="text-sm font-bold text-brand-500/40 mb-8 leading-relaxed px-2">
+              <p className="mb-8 px-2 text-sm leading-relaxed font-medium text-brand-500/40">
                 {description}
               </p>
 

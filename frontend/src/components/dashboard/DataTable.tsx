@@ -93,7 +93,7 @@ function DataTable<T>({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="overflow-hidden rounded-[28px] border border-brand-500/5 bg-smoke-200"
+      className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200"
     >
       {/* Table */}
       <div className="overflow-x-auto">
@@ -103,7 +103,7 @@ function DataTable<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-5 py-4 text-[10px] font-black text-brand-500/40 ${alignClass(col.align)} ${col.sortable ? "cursor-pointer transition-colors select-none hover:text-ocean-500" : ""}`}
+                  className={`px-5 py-4 text-[10px] font-bold text-brand-500/40 ${alignClass(col.align)} ${col.sortable ? "cursor-pointer transition-colors select-none hover:text-ocean-500" : ""}`}
                   style={col.width ? { width: col.width } : undefined}
                   onClick={() => col.sortable && onSort?.(col.key)}
                 >
@@ -142,7 +142,7 @@ function DataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={`px-5 py-4 text-sm text-brand-500 ${alignClass(col.align)}`}
+                      className={`px-5 py-4 text-sm text-brand-500/90 ${alignClass(col.align)}`}
                     >
                       {col.render
                         ? col.render(row, idx)
@@ -161,7 +161,7 @@ function DataTable<T>({
                       {emptyIcon}
                     </div>
                   )}
-                  <p className="text-xs font-black text-brand-500/30">
+                  <p className="text-xs font-bold text-brand-500/30">
                     {emptyTitle}
                   </p>
                   {emptyDescription && (
@@ -187,7 +187,7 @@ function DataTable<T>({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage <= 1}
-              className="rounded-lg p-1.5 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-30"
+              className="rounded-xl p-1.5 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500/90 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <KeyboardArrowLeftRounded fontSize="small" />
             </button>
@@ -207,10 +207,10 @@ function DataTable<T>({
                 <button
                   key={page}
                   onClick={() => onPageChange(page)}
-                  className={`h-8 w-8 rounded-lg text-xs font-black transition-colors ${
+                  className={`h-8 w-8 rounded-xl text-xs font-bold transition-colors ${
                     page === currentPage
                       ? "bg-ocean-500 text-smoke-200"
-                      : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500"
+                      : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500/90"
                   }`}
                 >
                   {page}
@@ -221,7 +221,7 @@ function DataTable<T>({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage >= lastPage}
-              className="rounded-lg p-1.5 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-30"
+              className="rounded-lg p-1.5 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500/90 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <KeyboardArrowRightRounded fontSize="small" />
             </button>

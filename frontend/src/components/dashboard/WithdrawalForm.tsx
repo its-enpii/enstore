@@ -133,13 +133,13 @@ export function WithdrawalForm() {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
       {/* Form Section */}
       <div className="lg:col-span-5">
-        <div className="h-full rounded-[32px] border border-brand-500/5 bg-white p-8 shadow-sm">
+        <div className="h-full rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-calm">
           <div className="mb-8 flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-ocean-500/10 text-ocean-500 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-ocean-500/10 text-ocean-500 shadow-sm">
               <MonetizationOnRounded />
             </div>
             <div>
-              <h3 className="text-lg font-black text-brand-500">Tarik Saldo</h3>
+              <h3 className="text-lg font-bold text-brand-500/90">Tarik Saldo</h3>
               <p className="text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                 Tersedia: Rp {balance.toLocaleString("id-ID")}
               </p>
@@ -208,13 +208,13 @@ export function WithdrawalForm() {
 
       {/* History Section */}
       <div className="lg:col-span-7">
-        <div className="h-full rounded-[32px] border border-brand-500/5 bg-white p-8 shadow-sm">
+        <div className="h-full rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-calm">
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/5 text-brand-500/40 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500/5 text-brand-500/40 shadow-sm">
                 <HistoryRounded />
               </div>
-              <h3 className="text-lg font-black text-brand-500">
+              <h3 className="text-lg font-bold text-brand-500/90">
                 Riwayat Penarikan
               </h3>
             </div>
@@ -242,7 +242,7 @@ export function WithdrawalForm() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-black text-brand-500">
+                        <p className="text-sm font-bold text-brand-500/90">
                           {item.payment_method}
                         </p>
                         <span className="text-[10px] font-bold tracking-tighter text-brand-500/20 uppercase">

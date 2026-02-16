@@ -126,18 +126,18 @@ export default function PostpaidPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Inquiry Form */}
         <div className="space-y-6">
-          <div className="space-y-6 rounded-[32px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
-            <h2 className="flex items-center gap-2 text-xl font-black text-brand-500">
+          <div className="space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+            <h2 className="flex items-center gap-2 text-xl font-bold text-brand-500/90">
               <SearchRounded className="text-ocean-500" /> Cek Tagihan
             </h2>
 
             <form onSubmit={handleInquiry} className="space-y-4">
               <div className="space-y-2">
-                <label className="ml-1 text-xs font-black text-brand-500/40 uppercase">
+                <label className="ml-1 text-xs font-bold text-brand-500/40 uppercase">
                   Pilih Layanan
                 </label>
                 <select
-                  className="w-full cursor-pointer appearance-none rounded-2xl border border-brand-500/5 bg-white px-6 py-3 font-bold text-brand-500 transition-all outline-none focus:ring-4 focus:ring-ocean-500/10"
+                  className="w-full cursor-pointer appearance-none rounded-2xl border border-brand-500/5 bg-smoke-200 px-6 py-3 font-bold text-brand-500/90 transition-all outline-none focus:ring-4 focus:ring-ocean-500/10"
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
                   disabled={loading || inquiryLoading}
@@ -162,7 +162,7 @@ export default function PostpaidPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="ml-1 text-xs font-black text-brand-500/40 uppercase">
+                <label className="ml-1 text-xs font-bold text-brand-500/40 uppercase">
                   ID Pelanggan / No. Meter
                 </label>
                 <Input
@@ -191,7 +191,7 @@ export default function PostpaidPage() {
           <div className="flex gap-4 rounded-3xl border border-ocean-500/10 bg-ocean-500/5 p-6">
             <InfoRounded className="shrink-0 text-ocean-500" />
             <div className="space-y-1">
-              <p className="text-sm font-black text-brand-500">
+              <p className="text-sm font-bold text-brand-500/90">
                 Informasi Penting
               </p>
               <p className="text-xs leading-relaxed font-bold text-brand-500/60">
@@ -212,10 +212,10 @@ export default function PostpaidPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-[32px] border-2 border-dashed border-brand-500/5 bg-smoke-200/50 p-10 text-center"
+                className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-500/5 bg-smoke-200/50 p-10 text-center"
               >
                 <ReceiptLongRounded className="mb-4 text-7xl text-brand-500/10" />
-                <h3 className="text-lg font-black text-brand-500/40">
+                <h3 className="text-lg font-bold text-brand-500/40">
                   Belum Ada Inquiry
                 </h3>
                 <p className="mt-2 text-sm font-bold text-brand-500/20">
@@ -229,10 +229,10 @@ export default function PostpaidPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
-                className="space-y-8 rounded-[32px] border border-brand-500/5 bg-white p-8 shadow-enstore"
+                className="space-y-8 rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-enstore"
               >
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-black text-brand-500">
+                  <h2 className="text-xl font-bold text-brand-500/90">
                     Rincian Tagihan
                   </h2>
                   <div className="rounded-xl bg-emerald-500/10 p-2 text-emerald-500">
@@ -243,18 +243,18 @@ export default function PostpaidPage() {
                 <div className="space-y-4">
                   <div className="flex items-end justify-between border-b border-brand-500/5 pb-4">
                     <div>
-                      <p className="text-[10px] font-black text-brand-500/40 uppercase">
+                      <p className="text-[10px] font-bold text-brand-500/40 uppercase">
                         Pelanggan
                       </p>
-                      <p className="text-lg font-black text-brand-500">
+                      <p className="text-lg font-bold text-brand-500/90">
                         {inquiryResult.customer_name}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-black text-brand-500/40 uppercase">
+                      <p className="text-[10px] font-bold text-brand-500/40 uppercase">
                         ID Pelanggan
                       </p>
-                      <p className="font-bold text-brand-500">
+                      <p className="font-bold text-brand-500/90">
                         {inquiryResult.customer_no}
                       </p>
                     </div>
@@ -263,13 +263,13 @@ export default function PostpaidPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm font-bold">
                       <span className="text-brand-500/60">Tagihan Pokok</span>
-                      <span className="text-brand-500">
+                      <span className="text-brand-500/90">
                         {formatCurrency(inquiryResult.price)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm font-bold">
                       <span className="text-brand-500/60">Biaya Admin</span>
-                      <span className="text-brand-500">
+                      <span className="text-brand-500/90">
                         {formatCurrency(inquiryResult.admin)}
                       </span>
                     </div>
@@ -285,10 +285,10 @@ export default function PostpaidPage() {
                   </div>
 
                   <div className="mt-4 flex items-center justify-between border-t-2 border-dashed border-brand-500/5 pt-6">
-                    <span className="text-lg font-black text-brand-500">
+                    <span className="text-lg font-bold text-brand-500/90">
                       Total Bayar
                     </span>
-                    <span className="text-3xl font-black text-ocean-500">
+                    <span className="text-3xl font-bold text-ocean-500">
                       {formatCurrency(inquiryResult.selling_price)}
                     </span>
                   </div>

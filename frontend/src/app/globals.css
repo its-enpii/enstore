@@ -52,6 +52,7 @@
   --color-ocean-900: #00212d;
 
   --shadow-enstore: 0 1px 16px 0 rgba(0, 23, 32, 0.04);
+  --shadow-calm: 0 1px 4px 0 rgba(0, 23, 32, 0.05);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
@@ -61,9 +62,9 @@
 }
 
 body {
-  @apply bg-smoke-200 text-brand-500;
-  color: #00171f !important;
-  background-color: #f9f9f9 !important;
+  @apply bg-smoke-300 text-brand-500/90 antialiased;
+  color: rgba(0, 23, 31, 0.9) !important;
+  background-color: #f5f5f5 !important; /* smoke-300 */
 }
 
 /* Animations */
@@ -127,15 +128,74 @@ body {
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
   @apply rounded-full bg-brand-500/10;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   @apply bg-brand-500/20;
+}
+
+/* Navigation Components - Pixel Perfect Encore UI */
+.nav-header {
+  @apply mt-[4px] px-[14px] py-[10px] text-[11px] font-bold tracking-[0.05em] text-brand-500/60 uppercase;
+}
+
+.nav-link {
+  @apply flex cursor-pointer items-center gap-[10px] rounded-xl px-[14px] py-[10px] text-[13.5px] font-normal text-brand-500/70 transition-all duration-200 hover:bg-smoke-200;
+}
+
+.nav-link.active {
+  @apply bg-ocean-500/10 font-bold text-ocean-600 shadow-calm;
+}
+
+.nav-icon {
+  @apply mr-1 flex items-center justify-center text-[18px]! text-brand-500/40 transition-colors;
+}
+
+.nav-icon svg {
+  @apply block h-[20px] w-[20px]! stroke-[1.5]; /* Leaner look */
+}
+
+.nav-link:hover .nav-icon {
+  @apply text-brand-500/90;
+}
+
+.nav-link.active .nav-icon {
+  @apply text-ocean-600;
+}
+
+.nav-chevron {
+  @apply ml-auto text-[14px]! text-brand-500/30 transition-transform duration-200;
+}
+
+.nav-link.active .nav-chevron {
+  @apply rotate-90 text-ocean-600;
+}
+
+.nav-submenu {
+  @apply grid grid-rows-[0fr] transition-all duration-300 ease-in-out;
+}
+
+.nav-submenu.show {
+  @apply grid grid-rows-[1fr];
+}
+
+.nav-submenu > div {
+  @apply overflow-hidden;
+}
+
+.nav-sub-link {
+  @apply block rounded-xl px-[14px] py-[8px] pl-[44px] text-[13px] font-normal text-brand-500/60 transition-all duration-200 hover:bg-smoke-200 hover:text-brand-500/90;
+}
+
+.nav-sub-link.active {
+  @apply font-bold text-ocean-600;
+}
+
+/* Card Components - Encore Calm Style */
+.dashboard-card {
+  @apply rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-calm;
 }

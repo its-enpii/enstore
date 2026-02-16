@@ -19,7 +19,7 @@ interface DashboardButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
  * - rounded-xl
  * - shadow-sm hover:shadow-md active:scale-95
  * - focus:ring-4
- * - font-semibold (not font-black uppercase)
+ * - font-semibold (not font-bold uppercase)
  */
 const DashboardButton: React.FC<DashboardButtonProps> = ({
   variant = "primary",

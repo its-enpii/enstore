@@ -74,7 +74,7 @@ export default function BalanceHistoryPage() {
           ]}
         />
 
-        <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-8">
+        <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8">
            {/* Filters */}
            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
               {[
@@ -88,7 +88,7 @@ export default function BalanceHistoryPage() {
                     className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                        filterType === filter.id
                           ? "bg-ocean-500 text-white border-ocean-500 shadow-lg shadow-ocean-500/20"
-                          : "bg-white dark:bg-brand-900/50 text-brand-500 border-brand-500/10 hover:border-ocean-500 hover:text-ocean-500"
+                          : "bg-smoke-200 dark:bg-brand-900/50 text-brand-500/90 border-brand-500/10 hover:border-ocean-500 hover:text-ocean-500"
                     }`}
                  >
                     {filter.label}
@@ -116,14 +116,14 @@ export default function BalanceHistoryPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="flex items-center justify-between p-4 bg-white dark:bg-brand-900/50 rounded-2xl border border-brand-500/5 hover:border-ocean-500/30 transition-all group"
+                        className="flex items-center justify-between p-4 bg-smoke-200 dark:bg-brand-900/50 rounded-2xl border border-brand-500/5 hover:border-ocean-500/30 transition-all group"
                       >
                         <div className="flex items-center gap-4">
                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${mutation.type === 'credit' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
                               {mutation.type === 'credit' ? <TrendingUpRounded /> : <TrendingDownRounded />}
                            </div>
                            <div>
-                              <p className="font-bold text-brand-500 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{mutation.description}</p>
+                              <p className="font-bold text-brand-500/90 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{mutation.description}</p>
                               <div className="flex items-center gap-2 mt-1">
                                  <p className="text-xs text-brand-500/40 font-medium">{formatDate(mutation.created_at)}</p>
                                  {mutation.transaction?.transaction_code && (
@@ -135,7 +135,7 @@ export default function BalanceHistoryPage() {
                            </div>
                         </div>
                         <div className="text-right">
-                           <p className={`font-black text-lg ${mutation.type === 'credit' ? 'text-emerald-500' : 'text-red-500'}`}>
+                           <p className={`font-bold text-lg ${mutation.type === 'credit' ? 'text-emerald-500' : 'text-red-500'}`}>
                               {mutation.type === 'credit' ? '+' : '-'}{formatCurrency(mutation.amount)}
                            </p>
                            <p className="text-[10px] text-brand-500/30 font-bold mt-0.5">Balance: {formatCurrency(mutation.balance_after)}</p>

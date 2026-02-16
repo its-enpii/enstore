@@ -97,14 +97,14 @@ export default function ResellerBalance() {
         {/* Recent Mutations */}
         <div>
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-black text-brand-500 dark:text-smoke-200 uppercase tracking-widest">Recent Mutations</h2>
+            <h2 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest">Recent Mutations</h2>
             <Link href="/reseller/balance/history" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1 uppercase tracking-widest">
               View All <ChevronRightRounded fontSize="small" />
             </Link>
           </div>
 
           {loading ? (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-6 space-y-4">
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-6 space-y-4">
               {[1,2,3,4,5].map(i => (
                 <div key={i} className="flex items-center gap-4 animate-pulse">
                   <div className="w-10 h-10 bg-brand-500/5 rounded-xl" />
@@ -117,7 +117,7 @@ export default function ResellerBalance() {
               ))}
             </div>
           ) : mutations.length > 0 ? (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 divide-y divide-brand-500/5">
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 divide-y divide-brand-500/5">
               {mutations.map((mut) => (
                 <div key={mut.id} className="flex items-center gap-4 p-5 hover:bg-cloud-200/50 dark:hover:bg-brand-700/30 transition-colors">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -126,14 +126,14 @@ export default function ResellerBalance() {
                     {mut.type === "credit" ? <SouthWestRounded /> : <NorthEastRounded />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-brand-500 dark:text-smoke-200 truncate">{mut.description}</p>
+                    <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 truncate">{mut.description}</p>
                     <p className="text-[10px] text-brand-500/30 font-bold uppercase tracking-wider mt-0.5">
                       {formatDate(mut.created_at)} • {formatTime(mut.created_at)}
                       {mut.transaction && <> • <span className="text-ocean-500">{mut.transaction.transaction_code}</span></>}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className={`text-sm font-black ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
+                    <p className={`text-sm font-bold ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
                       {mut.type === "credit" ? "+" : "-"}{formatCurrency(mut.amount)}
                     </p>
                     <p className="text-[10px] text-brand-500/20 font-bold mt-0.5">
@@ -144,11 +144,11 @@ export default function ResellerBalance() {
               ))}
             </div>
           ) : (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-dashed border-brand-500/10 py-16 text-center">
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-dashed border-brand-500/10 py-16 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-brand-500/5 rounded-2xl flex items-center justify-center text-brand-500/15">
                 <SavingsRounded fontSize="large" />
               </div>
-              <p className="text-xs font-black text-brand-500/30 uppercase tracking-widest">No mutations yet</p>
+              <p className="text-xs font-bold text-brand-500/30 uppercase tracking-widest">No mutations yet</p>
               <p className="text-xs text-brand-500/20 mt-1">Top up your balance to get started.</p>
             </div>
           )}

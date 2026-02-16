@@ -112,7 +112,7 @@ export default function TopUpPage() {
           >
             <CheckCircleRounded className="text-emerald-500" fontSize="large" />
           </motion.div>
-          <h2 className="text-xl font-black text-brand-500 dark:text-smoke-200">Top Up Created!</h2>
+          <h2 className="text-xl font-bold text-brand-500/90 dark:text-smoke-200">Top Up Created!</h2>
           <p className="text-brand-500/50 mt-2 text-sm font-bold">
             Transaction <span className="text-ocean-500">{success.code}</span> has been created. Complete your payment to add balance.
           </p>
@@ -154,8 +154,8 @@ export default function TopUpPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
             {/* Amount Selection */}
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-7">
-              <h3 className="text-xs font-black text-brand-500 dark:text-smoke-200 uppercase tracking-widest mb-5">Select Amount</h3>
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7">
+              <h3 className="text-xs font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest mb-5">Select Amount</h3>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 {PRESET_AMOUNTS.map((preset) => (
@@ -163,10 +163,10 @@ export default function TopUpPage() {
                     key={preset}
                     type="button"
                     onClick={() => { setAmount(preset); setCustomAmount(""); }}
-                    className={`py-4 rounded-2xl text-sm font-black transition-all ${
+                    className={`py-4 rounded-2xl text-sm font-bold transition-all ${
                       amount === preset
                         ? "bg-ocean-500 text-smoke-200 scale-105"
-                        : "bg-cloud-200 dark:bg-brand-700/30 text-brand-500 dark:text-smoke-300 border border-brand-500/5 hover:border-ocean-500/30"
+                        : "bg-cloud-200 dark:bg-brand-700/30 text-brand-500/90 dark:text-smoke-300 border border-brand-500/5 hover:border-ocean-500/30"
                     }`}
                   >
                     {formatCurrency(preset)}
@@ -185,8 +185,8 @@ export default function TopUpPage() {
             </div>
 
             {/* Payment Method */}
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-7">
-              <h3 className="text-xs font-black text-brand-500 dark:text-smoke-200 uppercase tracking-widest mb-5">Payment Method</h3>
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7">
+              <h3 className="text-xs font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest mb-5">Payment Method</h3>
 
               {loadingChannels ? (
                 <div className="space-y-4 animate-pulse">
@@ -198,7 +198,7 @@ export default function TopUpPage() {
                 <div className="space-y-6">
                   {Object.entries(grouped).map(([group, channels]) => (
                     <div key={group}>
-                      <p className="text-[10px] font-black text-brand-500/30 uppercase tracking-widest mb-3">{group}</p>
+                      <p className="text-[10px] font-bold text-brand-500/30 uppercase tracking-widest mb-3">{group}</p>
                       <div className="space-y-2">
                         {(channels as any[]).map((ch: any) => (
                           <button
@@ -215,7 +215,7 @@ export default function TopUpPage() {
                               <img src={ch.icon_url} alt={ch.name} className="w-8 h-8 object-contain" />
                             )}
                             <div className="flex-1 text-left">
-                              <p className="text-sm font-bold text-brand-500 dark:text-smoke-200">{ch.name}</p>
+                              <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{ch.name}</p>
                               {ch.fee_customer && (ch.fee_customer.flat > 0 || ch.fee_customer.percent > 0) && (
                                 <p className="text-[10px] text-brand-500/30 font-bold">
                                   Fee: {ch.fee_customer.flat > 0 ? formatCurrency(ch.fee_customer.flat) : ""} {ch.fee_customer.percent > 0 ? `${ch.fee_customer.percent}%` : ""}
@@ -267,14 +267,14 @@ export default function TopUpPage() {
           {/* Summary Sidebar */}
           <div className="space-y-6">
             {/* Current Balance */}
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-7">
+            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-ocean-500/10 rounded-xl flex items-center justify-center text-ocean-500">
                   <AccountBalanceWalletRounded />
                 </div>
-                <h3 className="text-xs font-black text-brand-500 dark:text-smoke-200 uppercase tracking-widest">Current Balance</h3>
+                <h3 className="text-xs font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest">Current Balance</h3>
               </div>
-              <p className="text-2xl font-black text-brand-500 dark:text-smoke-200">
+              <p className="text-2xl font-bold text-brand-500/90 dark:text-smoke-200">
                 {formatCurrency(balance?.available_balance ?? user?.balance ?? 0)}
               </p>
               {balance?.hold_amount ? (
@@ -289,22 +289,22 @@ export default function TopUpPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 p-7"
+                className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7"
               >
-                <h3 className="text-xs font-black text-brand-500 dark:text-smoke-200 uppercase tracking-widest mb-4">Summary</h3>
+                <h3 className="text-xs font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest mb-4">Summary</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-[10px] font-black text-brand-500/30 uppercase tracking-widest">Top Up Amount</span>
-                    <span className="font-bold text-brand-500 dark:text-smoke-200">{formatCurrency(finalAmount)}</span>
+                    <span className="text-[10px] font-bold text-brand-500/30 uppercase tracking-widest">Top Up Amount</span>
+                    <span className="font-bold text-brand-500/90 dark:text-smoke-200">{formatCurrency(finalAmount)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[10px] font-black text-brand-500/30 uppercase tracking-widest">Method</span>
-                    <span className="font-bold text-brand-500 dark:text-smoke-200">{selectedChannel || "-"}</span>
+                    <span className="text-[10px] font-bold text-brand-500/30 uppercase tracking-widest">Method</span>
+                    <span className="font-bold text-brand-500/90 dark:text-smoke-200">{selectedChannel || "-"}</span>
                   </div>
                   <div className="border-t border-brand-500/5 my-2" />
                   <div className="flex justify-between">
-                    <span className="text-[10px] font-black text-brand-500/30 uppercase tracking-widest">New Balance</span>
-                    <span className="font-black text-ocean-500 text-lg">
+                    <span className="text-[10px] font-bold text-brand-500/30 uppercase tracking-widest">New Balance</span>
+                    <span className="font-bold text-ocean-500 text-lg">
                       {formatCurrency((balance?.available_balance ?? user?.balance ?? 0) + finalAmount)}
                     </span>
                   </div>

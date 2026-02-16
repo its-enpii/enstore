@@ -252,7 +252,7 @@ export default function ServicesPage() {
 
             {/* Search Bar */}
             <motion.div
-              className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-brand-500/5 bg-white p-2 shadow-2xl shadow-ocean-500/10"
+              className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-brand-500/5 bg-smoke-200 p-2 shadow-2xl shadow-ocean-500/10"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -292,7 +292,7 @@ export default function ServicesPage() {
                 className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition-all duration-300 ${
                   activeCategory === category.id
                     ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20"
-                    : "bg-white text-brand-500/60 hover:bg-cloud-300"
+                    : "bg-smoke-200 text-brand-500/60 hover:bg-cloud-300"
                 }`}
               >
                 {category.icon}
