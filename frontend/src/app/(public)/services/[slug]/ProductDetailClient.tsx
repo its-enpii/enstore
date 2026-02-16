@@ -571,7 +571,7 @@ export default function ProductDetailPage({
                           />
                         </div>
                         <div>
-                          <p className="text-sm font-black text-brand-500/90 md:text-base">
+                          <p className="text-sm font-bold text-brand-500/90 md:text-base">
                             EnStore Balance
                           </p>
                           <p className="text-xs text-brand-500/40">
@@ -581,7 +581,7 @@ export default function ProductDetailPage({
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-brand-500/40">Fee</p>
-                        <p className="text-sm font-black text-ocean-500 md:text-base">
+                        <p className="text-sm font-bold text-ocean-500 md:text-base">
                           Rp. 0
                         </p>
                       </div>

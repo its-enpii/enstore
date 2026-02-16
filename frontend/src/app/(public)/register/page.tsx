@@ -26,10 +26,10 @@ export default function RegisterPage() {
   const { refreshUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  
+
   const [formData, setFormData] = useState({
     name: "", // Will be constructed on submit
     email: "",
@@ -43,7 +43,7 @@ export default function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  const handleSocialLogin = async (provider: "google" | "facebook") => {
     setSocialLoading(provider);
     try {
       await socialLogin(provider);
@@ -71,8 +71,8 @@ export default function RegisterPage() {
     }
 
     const payload = {
-        ...formData,
-        name: `${firstName} ${lastName}`.trim(),
+      ...formData,
+      name: `${firstName} ${lastName}`.trim(),
     };
 
     try {
@@ -82,19 +82,22 @@ export default function RegisterPage() {
         // Auto login if token is present
         const token = (res.data as any).access_token;
         if (token) {
-            localStorage.setItem("auth_token", token);
-            await refreshUser(); // Update auth context before redirect
-            
-            const user = (res.data as any).user;
-            if (user.role === 'admin') {
-                router.push("/admin/dashboard");
-            } else if (user.role === 'customer' && user.customer_type === 'reseller') {
-                router.push("/reseller/dashboard");
-            } else {
-                router.push("/dashboard");
-            }
+          localStorage.setItem("auth_token", token);
+          await refreshUser(); // Update auth context before redirect
+
+          const user = (res.data as any).user;
+          if (user.role === "admin") {
+            router.push("/admin/dashboard");
+          } else if (
+            user.role === "customer" &&
+            user.customer_type === "reseller"
+          ) {
+            router.push("/reseller/dashboard");
+          } else {
+            router.push("/dashboard");
+          }
         } else {
-            router.push("/login");
+          router.push("/login");
         }
       } else {
         toast.error(res.message || "Registration failed");
@@ -112,16 +115,21 @@ export default function RegisterPage() {
   };
 
   return (
-    <section className="flex justify-center bg-cloud-200 py-28 px-4">
+    <section className="flex justify-center bg-cloud-200 px-4 py-28">
       <div className="w-full max-w-4xl rounded-[48px] bg-smoke-200 p-10 shadow-enstore">
         <div className="mt-6 mb-8 text-center">
-          <h1 className="mb-4 text-[32px] font-bold text-brand-500/90">Create Account</h1>
+          <h1 className="mb-4 text-[32px] font-bold text-brand-500/90">
+            Create Account
+          </h1>
           <p className="text-brand-500/40">
             Join thousands of gamers managing their assets with EnStore.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-12 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-12 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2"
+        >
           <div className="sm:col-span-2">
             <Input
               label="Email or Phone"
@@ -212,12 +220,21 @@ export default function RegisterPage() {
               placeholder="**********"
               startIcon={<LockRounded />}
               endIcon={
-                showConfirmPassword ? <VisibilityOffRounded /> : <VisibilityRounded />
+                showConfirmPassword ? (
+                  <VisibilityOffRounded />
+                ) : (
+                  <VisibilityRounded />
+                )
               }
-              onEndIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              onEndIconClick={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+              }
               value={formData.password_confirmation}
               onChange={(e) =>
-                setFormData({ ...formData, password_confirmation: e.target.value })
+                setFormData({
+                  ...formData,
+                  password_confirmation: e.target.value,
+                })
               }
               required
               fullWidth
@@ -234,13 +251,19 @@ export default function RegisterPage() {
               }
               className="h-5 w-5 rounded-md border-gray-300 text-ocean-500 focus:ring-ocean-500"
             />
-            <label htmlFor="terms" className="text-sm text-brand-500/70">
+            <label htmlFor="terms" className="text-sm text-brand-500/90">
               I agree to the{" "}
-              <Link href="/terms" className="font-semibold text-ocean-500 hover:text-ocean-600">
+              <Link
+                href="/terms"
+                className="font-semibold text-ocean-500 hover:text-ocean-600"
+              >
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="font-semibold text-ocean-500 hover:text-ocean-600">
+              <Link
+                href="/privacy"
+                className="font-semibold text-ocean-500 hover:text-ocean-600"
+              >
                 Privacy Policy
               </Link>
               .
@@ -248,16 +271,16 @@ export default function RegisterPage() {
           </div>
 
           <div className="mt-2 sm:col-span-2">
-             <Button
-                type="submit"
-                variant="primary"
-                className="w-full justify-center py-4 text-lg"
-                isLoading={loading}
-                icon={<ArrowForwardRounded />}
-                iconPosition="right"
-              >
-                Create Account
-              </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full justify-center py-4 text-lg"
+              isLoading={loading}
+              icon={<ArrowForwardRounded />}
+              iconPosition="right"
+            >
+              Create Account
+            </Button>
           </div>
         </form>
 
@@ -274,8 +297,8 @@ export default function RegisterPage() {
             variant="white"
             icon={<Google className="text-red-500" />}
             className="flex-1 border border-brand-500/5"
-            onClick={() => handleSocialLogin('google')}
-            isLoading={socialLoading === 'google'}
+            onClick={() => handleSocialLogin("google")}
+            isLoading={socialLoading === "google"}
             disabled={!!socialLoading}
           >
             Google
@@ -284,8 +307,8 @@ export default function RegisterPage() {
             variant="white"
             icon={<FacebookRounded className="text-blue-500" />}
             className="flex-1 border border-brand-500/5"
-            onClick={() => handleSocialLogin('facebook')}
-            isLoading={socialLoading === 'facebook'}
+            onClick={() => handleSocialLogin("facebook")}
+            isLoading={socialLoading === "facebook"}
             disabled={!!socialLoading}
           >
             Facebook
@@ -296,7 +319,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/login"
-            className="text-ocean-500 cursor-pointer font-semibold hover:text-ocean-600"
+            className="cursor-pointer font-semibold text-ocean-500 hover:text-ocean-600"
           >
             Login here
           </Link>

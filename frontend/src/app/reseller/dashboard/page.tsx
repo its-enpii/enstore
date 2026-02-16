@@ -49,7 +49,8 @@ export default function ResellerDashboard() {
       ]);
 
       if (balRes?.success) setBalance(balRes.data);
-      if (mutRes?.success) setMutations(Array.isArray(mutRes.data) ? mutRes.data : []);
+      if (mutRes?.success)
+        setMutations(Array.isArray(mutRes.data) ? mutRes.data : []);
       if (txnRes?.success) setRecentOrders(txnRes.data?.data || []);
     } catch (err) {
       console.error("Failed to load dashboard:", err);
@@ -73,10 +74,12 @@ export default function ResellerDashboard() {
     },
     {
       title: "Today's Sales",
-      value: `${recentOrders.filter(o => {
-        const today = new Date().toISOString().slice(0, 10);
-        return o.created_at?.startsWith(today);
-      }).length} orders`,
+      value: `${
+        recentOrders.filter((o) => {
+          const today = new Date().toISOString().slice(0, 10);
+          return o.created_at?.startsWith(today);
+        }).length
+      } orders`,
       icon: <ShoppingCartRounded />,
       color: "ocean" as const,
     },
@@ -88,14 +91,22 @@ export default function ResellerDashboard() {
     },
   ];
 
-  const formatCurrency = (amount: number) => `Rp ${amount.toLocaleString("id-ID")}`;
+  const formatCurrency = (amount: number) =>
+    `Rp ${amount.toLocaleString("id-ID")}`;
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+    return d.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
   const formatTime = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -108,7 +119,7 @@ export default function ResellerDashboard() {
         actions={
           <Link
             href="/reseller/topup"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-ocean-500 hover:bg-ocean-600 text-smoke-200 font-bold text-xs rounded-2xl transition-all"
+            className="inline-flex items-center gap-2 rounded-2xl bg-ocean-500 px-6 py-3 text-xs font-bold text-smoke-200 transition-all hover:bg-ocean-600"
           >
             <AddRounded fontSize="small" />
             <span>Top Up Balance</span>
@@ -117,54 +128,63 @@ export default function ResellerDashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, idx) => (
           <StatCard key={idx} index={idx} {...stat} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Main Content: Recent Orders */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">Recent Sales</h2>
-            <Link href="/reseller/transactions" className="text-[10px] font-bold text-ocean-500 hover:underline inline-flex items-center gap-1">
+            <h2 className="text-sm font-bold text-brand-500/90">
+              Recent Sales
+            </h2>
+            <Link
+              href="/reseller/transactions"
+              className="inline-flex items-center gap-1 text-[10px] font-bold text-ocean-500 hover:underline"
+            >
               View All <ChevronRightRounded fontSize="small" />
             </Link>
           </div>
 
           {loading ? (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8 space-y-4">
-              {[1,2,3].map(i => (
-                <div key={i} className="animate-pulse flex items-center gap-4">
-                  <div className="w-10 h-10 bg-brand-500/5 rounded-xl" />
+            <div className="space-y-4 rounded-xl border border-brand-500/5 bg-smoke-200 p-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex animate-pulse items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-brand-500/5" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3 bg-brand-500/5 rounded-full w-3/4" />
-                    <div className="h-2 bg-brand-500/5 rounded-full w-1/2" />
+                    <div className="h-3 w-3/4 rounded-full bg-brand-500/5" />
+                    <div className="h-2 w-1/2 rounded-full bg-brand-500/5" />
                   </div>
-                  <div className="h-6 w-16 bg-brand-500/5 rounded-full" />
+                  <div className="h-6 w-16 rounded-full bg-brand-500/5" />
                 </div>
               ))}
             </div>
           ) : recentOrders.length > 0 ? (
-            <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 divide-y divide-brand-500/5">
+            <div className="divide-y divide-brand-500/5 rounded-xl border border-brand-500/5 bg-smoke-200">
               {recentOrders.map((order) => (
                 <Link
                   key={order.id}
                   href={`/reseller/transactions/${order.transaction_code}`}
-                  className="flex items-center gap-4 p-5 hover:bg-cloud-200/50 dark:hover:bg-brand-700/30 transition-colors first:rounded-t-[28px] last:rounded-b-[28px]"
+                  className="flex items-center gap-4 p-5 transition-colors first:rounded-t-[28px] last:rounded-b-[28px] hover:bg-cloud-200/50"
                 >
-                  <div className="w-10 h-10 bg-ocean-500/10 rounded-xl flex items-center justify-center text-ocean-500 shrink-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ocean-500/10 text-ocean-500">
                     <ShoppingCartRounded fontSize="small" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 truncate">{order.product_name}</p>
-                    <p className="text-[10px] font-bold text-brand-500/30 mt-0.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-brand-500/90">
+                      {order.product_name}
+                    </p>
+                    <p className="mt-0.5 text-[10px] font-bold text-brand-500/30">
                       {order.transaction_code} • {formatDate(order.created_at)}
                     </p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{formatCurrency(order.total_price)}</p>
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-bold text-brand-500/90">
+                      {formatCurrency(order.total_price)}
+                    </p>
                     <StatusBadge status={order.status} size="sm" />
                   </div>
                 </Link>
@@ -187,35 +207,52 @@ export default function ResellerDashboard() {
           />
 
           {/* Recent Mutations */}
-          <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-6">
-            <h3 className="text-xs font-bold text-brand-500/90 dark:text-smoke-200 mb-5">Balance Mutations</h3>
+          <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-6">
+            <h3 className="mb-5 text-xs font-bold text-brand-500/90">
+              Balance Mutations
+            </h3>
 
             {mutations.length > 0 ? (
               <div className="space-y-3">
                 {mutations.map((mut) => (
                   <div key={mut.id} className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${mut.type === "credit" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"}`}>
-                      {mut.type === "credit" ? <SouthWestRounded fontSize="small" /> : <NorthEastRounded fontSize="small" />}
+                    <div
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${mut.type === "credit" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"}`}
+                    >
+                      {mut.type === "credit" ? (
+                        <SouthWestRounded fontSize="small" />
+                      ) : (
+                        <NorthEastRounded fontSize="small" />
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-brand-500/90 dark:text-smoke-300 truncate">{mut.description}</p>
-                      <p className="text-[10px] text-brand-500/30 font-bold">{formatDate(mut.created_at)}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-bold text-brand-500/90">
+                        {mut.description}
+                      </p>
+                      <p className="text-[10px] font-bold text-brand-500/30">
+                        {formatDate(mut.created_at)}
+                      </p>
                     </div>
-                    <span className={`text-xs font-bold ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
-                      {mut.type === "credit" ? "+" : "-"}{formatCurrency(mut.amount)}
+                    <span
+                      className={`text-xs font-bold ${mut.type === "credit" ? "text-emerald-500" : "text-red-500"}`}
+                    >
+                      {mut.type === "credit" ? "+" : "-"}
+                      {formatCurrency(mut.amount)}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="py-8 text-center border-2 border-dashed border-brand-500/5 rounded-2xl">
-                <p className="text-[10px] text-brand-500/30 font-bold">No recent mutations</p>
+              <div className="rounded-2xl border-2 border-dashed border-brand-500/5 py-8 text-center">
+                <p className="text-[10px] font-bold text-brand-500/30">
+                  No recent mutations
+                </p>
               </div>
             )}
 
             <Link
               href="/reseller/balance/history"
-              className="block w-full mt-5 py-3 text-[10px] font-bold text-brand-500/40 dark:text-brand-500/50 border border-brand-500/5 rounded-2xl hover:bg-cloud-200 dark:hover:bg-brand-700/30 transition-colors text-center"
+              className="mt-5 block w-full rounded-2xl border border-brand-500/5 py-3 text-center text-[10px] font-bold text-brand-500/40 transition-colors hover:bg-cloud-200"
             >
               View Full History
             </Link>

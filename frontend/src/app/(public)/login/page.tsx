@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   const { refreshUser } = useAuth();
 
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+  const handleSocialLogin = async (provider: "google" | "facebook") => {
     setSocialLoading(provider);
     try {
       await socialLogin(provider);
@@ -48,22 +48,25 @@ export default function LoginPage() {
     try {
       const res = await login(formData);
       if (res.success) {
-        const token = (res.data as any).access_token; 
+        const token = (res.data as any).access_token;
         if (token) {
-            localStorage.setItem("auth_token", token);
-            await refreshUser(); // Update auth context before redirect
-            toast.success("Login successful!");
-            
-            const user = (res.data as any).user;
-            if (user.role === 'admin') {
-                router.push("/admin/dashboard");
-            } else if (user.role === 'customer' && user.customer_type === 'reseller') {
-                router.push("/reseller/dashboard");
-            } else {
-                router.push("/dashboard");
-            }
+          localStorage.setItem("auth_token", token);
+          await refreshUser(); // Update auth context before redirect
+          toast.success("Login successful!");
+
+          const user = (res.data as any).user;
+          if (user.role === "admin") {
+            router.push("/admin/dashboard");
+          } else if (
+            user.role === "customer" &&
+            user.customer_type === "reseller"
+          ) {
+            router.push("/reseller/dashboard");
+          } else {
+            router.push("/dashboard");
+          }
         } else {
-             toast.error("Login successful but no token received.");
+          toast.error("Login successful but no token received.");
         }
       } else {
         toast.error(res.message || "Login failed");
@@ -81,10 +84,12 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="flex justify-center bg-cloud-200 py-28 px-4">
+    <section className="flex justify-center bg-cloud-200 px-4 py-28">
       <div className="w-full max-w-lg rounded-[48px] bg-smoke-200 p-10 shadow-enstore">
         <div className="mt-6 mb-8 text-center">
-          <h1 className="mb-4 text-[32px] font-bold text-brand-500/90">Welcome Back</h1>
+          <h1 className="mb-4 text-[32px] font-bold text-brand-500/90">
+            Welcome Back
+          </h1>
           <p className="text-brand-500/40">
             Please enter your details to access your account.
           </p>
@@ -106,7 +111,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
-              <label className="text-sm font-semibold text-slate-700">
+              <label className="text-sm font-semibold text-brand-500/90">
                 Password
               </label>
               <Link
@@ -158,8 +163,8 @@ export default function LoginPage() {
             variant="white"
             icon={<Google className="text-red-500" />}
             className="flex-1 border border-brand-500/5"
-            onClick={() => handleSocialLogin('google')}
-            isLoading={socialLoading === 'google'}
+            onClick={() => handleSocialLogin("google")}
+            isLoading={socialLoading === "google"}
             disabled={!!socialLoading}
           >
             Google
@@ -169,8 +174,8 @@ export default function LoginPage() {
             variant="white"
             icon={<FacebookRounded className="text-blue-500" />}
             className="flex-1 border border-brand-500/5"
-            onClick={() => handleSocialLogin('facebook')}
-            isLoading={socialLoading === 'facebook'}
+            onClick={() => handleSocialLogin("facebook")}
+            isLoading={socialLoading === "facebook"}
             disabled={!!socialLoading}
           >
             Facebook
@@ -179,10 +184,7 @@ export default function LoginPage() {
 
         <div className="mt-12 text-center text-brand-500/40">
           Don't have an account?{" "}
-          <Link
-            href="/register"
-            className="text-ocean-500 cursor-pointer"
-          >
+          <Link href="/register" className="cursor-pointer text-ocean-500">
             Register Now
           </Link>
         </div>

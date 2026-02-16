@@ -20,8 +20,16 @@ import {
 export default function ResellerTransactions() {
   const [transactions, setTransactions] = useState<CustomerTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 15 });
-  const [filters, setFilters] = useState<TransactionFilters>({ per_page: 15, page: 1 });
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 15,
+  });
+  const [filters, setFilters] = useState<TransactionFilters>({
+    per_page: 15,
+    page: 1,
+  });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -65,17 +73,33 @@ export default function ResellerTransactions() {
   };
 
   const formatCurrency = (n: number) => `Rp ${n.toLocaleString("id-ID")}`;
-  const formatDate = (s: string) => new Date(s).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
-  const formatTime = (s: string) => new Date(s).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  const formatDate = (s: string) =>
+    new Date(s).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  const formatTime = (s: string) =>
+    new Date(s).toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   const columns: TableColumn<CustomerTransaction>[] = [
     {
       key: "transaction_code",
       label: "Transaction",
       render: (row) => (
-        <Link href={`/reseller/transactions/${row.transaction_code}`} className="group">
-          <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{row.transaction_code}</p>
-          <p className="text-[10px] text-brand-500/30 font-bold mt-0.5">{formatDate(row.created_at)} • {formatTime(row.created_at)}</p>
+        <Link
+          href={`/reseller/transactions/${row.transaction_code}`}
+          className="group"
+        >
+          <p className="text-sm font-bold text-brand-500/90 transition-colors group-hover:text-ocean-500">
+            {row.transaction_code}
+          </p>
+          <p className="mt-0.5 text-[10px] font-bold text-brand-500/30">
+            {formatDate(row.created_at)} • {formatTime(row.created_at)}
+          </p>
         </Link>
       ),
     },
@@ -83,7 +107,9 @@ export default function ResellerTransactions() {
       key: "product_name",
       label: "Product",
       render: (row) => (
-        <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-300 truncate max-w-[200px]">{row.product_name}</p>
+        <p className="max-w-[200px] truncate text-sm font-bold text-brand-500/90">
+          {row.product_name}
+        </p>
       ),
     },
     {
@@ -91,7 +117,10 @@ export default function ResellerTransactions() {
       label: "Type",
       align: "center",
       render: (row) => (
-        <StatusBadge status={row.transaction_type === "topup" ? "info" : "neutral"} label={row.transaction_type} />
+        <StatusBadge
+          status={row.transaction_type === "topup" ? "info" : "neutral"}
+          label={row.transaction_type}
+        />
       ),
     },
     {
@@ -99,7 +128,9 @@ export default function ResellerTransactions() {
       label: "Amount",
       align: "right",
       render: (row) => (
-        <span className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{formatCurrency(row.total_price)}</span>
+        <span className="text-sm font-bold text-brand-500/90">
+          {formatCurrency(row.total_price)}
+        </span>
       ),
     },
     {
@@ -107,7 +138,9 @@ export default function ResellerTransactions() {
       label: "Payment",
       align: "center",
       render: (row) => (
-        <span className="text-xs font-bold text-brand-500/50">{row.payment_method || row.payment?.payment_method || "-"}</span>
+        <span className="text-xs font-bold text-brand-500/50">
+          {row.payment_method || row.payment?.payment_method || "-"}
+        </span>
       ),
     },
     {
@@ -124,70 +157,90 @@ export default function ResellerTransactions() {
     },
   ];
 
-  const statusOptions = ["", "pending", "processing", "success", "failed", "cancelled"];
+  const statusOptions = [
+    "",
+    "pending",
+    "processing",
+    "success",
+    "failed",
+    "cancelled",
+  ];
   const typeOptions = ["", "purchase", "topup"];
 
   return (
     <div className="space-y-6">
-        <PageHeader
-          title="Transaction History"
-          emoji="📋"
-          description="View and track all your transactions."
-          breadcrumbs={[
-            { label: "Dashboard", href: "/reseller/dashboard" },
-            { label: "Transactions" },
-          ]}
-        />
+      <PageHeader
+        title="Transaction History"
+        emoji="📋"
+        description="View and track all your transactions."
+        breadcrumbs={[
+          { label: "Dashboard", href: "/reseller/dashboard" },
+          { label: "Transactions" },
+        ]}
+      />
 
-        {/* Filters Bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <form onSubmit={handleSearch} className="relative flex-1">
-            <SearchRounded className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500/30" fontSize="small" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by code or product..."
-              className="w-full pl-11 pr-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-sm font-bold text-brand-500/90 placeholder:text-brand-500/30 focus:outline-none focus:border-ocean-500/30 transition-colors"
-            />
-          </form>
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setFilters(f => ({ ...f, page: 1 })); }}
-            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-bold text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
-          >
-            <option value="">All Status</option>
-            {statusOptions.filter(Boolean).map(s => (
-              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-            ))}
-          </select>
-          <select
-            value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value); setFilters(f => ({ ...f, page: 1 })); }}
-            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-bold text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
-          >
-            <option value="">All Types</option>
-            {typeOptions.filter(Boolean).map(t => (
-              <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Table */}
-        <DataTable
-          columns={columns}
-          data={transactions}
-          loading={loading}
-          currentPage={pagination.current_page}
-          lastPage={pagination.last_page}
-          total={pagination.total}
-          perPage={pagination.per_page}
-          onPageChange={handlePageChange}
-          emptyIcon={<ReceiptLongRounded fontSize="large" />}
-          emptyTitle="No transactions found"
-          emptyDescription="Your purchase and top-up history will appear here."
-          rowKey={(row) => row.id}
-        />
+      {/* Filters Bar */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <form onSubmit={handleSearch} className="relative flex-1">
+          <SearchRounded
+            className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30"
+            fontSize="small"
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by code or product..."
+            className="w-full rounded-2xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-11 text-sm font-bold text-brand-500/90 transition-colors placeholder:text-brand-500/30 focus:border-ocean-500/30 focus:outline-none"
+          />
+        </form>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setFilters((f) => ({ ...f, page: 1 }));
+          }}
+          className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none"
+        >
+          <option value="">All Status</option>
+          {statusOptions.filter(Boolean).map((s) => (
+            <option key={s} value={s}>
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </option>
+          ))}
+        </select>
+        <select
+          value={typeFilter}
+          onChange={(e) => {
+            setTypeFilter(e.target.value);
+            setFilters((f) => ({ ...f, page: 1 }));
+          }}
+          className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none"
+        >
+          <option value="">All Types</option>
+          {typeOptions.filter(Boolean).map((t) => (
+            <option key={t} value={t}>
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </option>
+          ))}
+        </select>
       </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={transactions}
+        loading={loading}
+        currentPage={pagination.current_page}
+        lastPage={pagination.last_page}
+        total={pagination.total}
+        perPage={pagination.per_page}
+        onPageChange={handlePageChange}
+        emptyIcon={<ReceiptLongRounded fontSize="large" />}
+        emptyTitle="No transactions found"
+        emptyDescription="Your purchase and top-up history will appear here."
+        rowKey={(row) => row.id}
+      />
+    </div>
   );
 }
