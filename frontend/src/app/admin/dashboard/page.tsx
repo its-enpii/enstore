@@ -19,7 +19,19 @@ import {
 import { motion } from "motion/react";
 import Link from "next/link";
 import { api, ENDPOINTS } from "@/lib/api";
-import RevenueChart from "@/components/dashboard/RevenueChart";
+import dynamic from "next/dynamic";
+
+const RevenueChart = dynamic(
+  () => import("@/components/dashboard/RevenueChart"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[300px] w-full items-center justify-center rounded-xl bg-gray-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>
+      </div>
+    ),
+  },
+);
 
 export default function AdminDashboard() {
   const [data, setData] = useState<any>(null);
@@ -291,7 +303,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="h-[240px]">
-                <RevenueChart data={data?.charts.daily_revenue || []} />
+                <RevenueChart
+                  data={data?.charts.daily_revenue || []}
+                  height="100%"
+                />
               </div>
             </div>
           </div>

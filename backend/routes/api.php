@@ -234,5 +234,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/', [App\Http\Controllers\Api\Customer\ProfileController::class, 'deleteAccount']);
         });
 
+        // Analytics
+        Route::prefix('analytics')->group(function () {
+            Route::get('/dashboard', [App\Http\Controllers\Api\Customer\ResellerAnalyticsController::class, 'dashboard']);
+            Route::get('/top-products', [App\Http\Controllers\Api\Customer\ResellerAnalyticsController::class, 'topProducts']);
+        });
+
     });
 });

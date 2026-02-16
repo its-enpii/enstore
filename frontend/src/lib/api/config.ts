@@ -117,6 +117,13 @@ export const ENDPOINTS = {
       /** POST - Mark all as read */
       markAllAsRead: "/notifications/read-all",
     },
+    // Analytics
+    analytics: {
+      /** GET - Dashboard summary & chart */
+      dashboard: "/customer/analytics/dashboard",
+      /** GET - Top products */
+      topProducts: "/customer/analytics/top-products",
+    },
   },
 
   // ----------------------------------------------------------
