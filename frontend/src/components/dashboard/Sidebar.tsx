@@ -47,6 +47,11 @@ interface SidebarProps {
   isOpen?: boolean;
 }
 
+// Module-level cache for admin pending count
+let pendingCountCache: number = 0;
+let lastFetchedPending: number = 0;
+const CACHE_THRESHOLD = 10000; // 10 seconds
+
 const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
   const pathname = usePathname();
   const { logout } = useAuth();
@@ -56,7 +61,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
 
   useEffect(() => {
     if (role === "admin") {
-      const fetchPendingCount = async () => {
+      const fetchPendingCount = async (force = false) => {
+        const now = Date.now();
+        if (!force && now - lastFetchedPending < CACHE_THRESHOLD) {
+          setPendingCount(pendingCountCache);
+          return;
+        }
+
         try {
           const res = await api.get(
             ENDPOINTS.admin.transactions.list,
@@ -64,7 +75,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
             true,
           );
           if (res.success) {
-            setPendingCount((res.data as any).total || 0);
+            const count = (res.data as any).total || 0;
+            pendingCountCache = count;
+            lastFetchedPending = Date.now();
+            setPendingCount(count);
           }
         } catch (err) {
           console.error("Failed to fetch pending count for sidebar:", err);
@@ -72,10 +86,33 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
       };
 
       fetchPendingCount();
-      const interval = setInterval(fetchPendingCount, 60000); // Update every minute
+      const interval = setInterval(() => fetchPendingCount(true), 10000); // 10s refresh
       return () => clearInterval(interval);
     }
   }, [role]);
+
+  // Handle auto-opening active submenus - Clean implementation
+  useEffect(() => {
+    const activeMenu = menuSections
+      .flatMap((s) => s.items)
+      .find((item) => {
+        const hasSubItems = item.subItems && item.subItems.length > 0;
+        if (!hasSubItems) return false;
+
+        const isDashboard = item.href?.endsWith("/dashboard");
+        const isRoot = item.href === "/";
+
+        return item.href
+          ? isDashboard || isRoot
+            ? pathname === item.href
+            : pathname.startsWith(item.href)
+          : item.subItems?.some((sub) => pathname === sub.href);
+      });
+
+    if (activeMenu && !openMenus[activeMenu.title]) {
+      setOpenMenus((prev) => ({ ...prev, [activeMenu.title]: true }));
+    }
+  }, [pathname, role]);
 
   const toggleMenu = (title: string) => {
     setOpenMenus((prev) => ({
@@ -340,16 +377,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
                         : hasSubItems &&
                           item.subItems?.some((sub) => pathname === sub.href);
 
-                      // Auto-open if active
-                      useEffect(() => {
-                        if (isActive && hasSubItems && !openMenus[item.title]) {
-                          setOpenMenus((prev) => ({
-                            ...prev,
-                            [item.title]: true,
-                          }));
-                        }
-                      }, [isActive, hasSubItems, item.title]);
-
                       const linkClasses = `nav-link ${isActive ? "active" : ""}`;
 
                       return (
@@ -366,7 +393,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
                               >
                                 <span className="nav-icon">{item.icon}</span>
                                 <span className="text-left">{item.title}</span>
-                                <KeyboardArrowRightOutlined className="nav-chevron" />
+                                <span
+                                  className={`nav-chevron transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`}
+                                >
+                                  <KeyboardArrowRightOutlined fontSize="small" />
+                                </span>
                               </button>
                               <ul
                                 className={`nav-submenu ${isOpen ? "show" : ""}`}
