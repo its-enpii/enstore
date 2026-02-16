@@ -7,7 +7,6 @@ use App\Models\Banner;
 use App\Services\SupabaseStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Schema;
 
 class BannerController extends Controller
 {
@@ -36,12 +35,12 @@ class BannerController extends Controller
             }
 
             if ($request->filled('search')) {
-                $query->where('title', 'like', '%' . $request->search . '%');
+                $query->where('title', 'like', '%'.$request->search.'%');
             }
 
             $banners = $query->orderBy('sort_order', 'asc')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate($request->get('per_page', 20));
+                ->orderBy('created_at', 'desc')
+                ->paginate($request->get('per_page', 20));
 
             return response()->json([
                 'success' => true,
@@ -50,7 +49,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get banners: ' . $e->getMessage(),
+                'message' => 'Failed to get banners: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -99,7 +98,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create banner: ' . $e->getMessage(),
+                'message' => 'Failed to create banner: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -111,6 +110,7 @@ class BannerController extends Controller
     {
         try {
             $banner = Banner::findOrFail($id);
+
             return response()->json([
                 'success' => true,
                 'data' => $banner,
@@ -173,7 +173,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update banner: ' . $e->getMessage(),
+                'message' => 'Failed to update banner: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -185,7 +185,7 @@ class BannerController extends Controller
     {
         try {
             $banner = Banner::findOrFail($id);
-            
+
             // Delete image from storage
             if ($banner->image) {
                 $this->storage->delete($banner->image);
@@ -200,7 +200,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete banner: ' . $e->getMessage(),
+                'message' => 'Failed to delete banner: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -236,7 +236,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update sort order: ' . $e->getMessage(),
+                'message' => 'Failed to update sort order: '.$e->getMessage(),
             ], 500);
         }
     }

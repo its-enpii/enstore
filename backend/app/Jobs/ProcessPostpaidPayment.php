@@ -17,8 +17,11 @@ class ProcessPostpaidPayment implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $transaction;
+
     public $tries = 3;
+
     public $timeout = 120;
+
     public $backoff = [60, 180, 300]; // 1 min, 3 min, 5 min
 
     /**
@@ -77,7 +80,7 @@ class ProcessPostpaidPayment implements ShouldQueue
             // If max retries exceeded, mark as failed
             if ($this->attempts() >= $this->tries) {
                 $this->handleFailed([
-                    'message' => 'Maximum retry exceeded: ' . $e->getMessage(),
+                    'message' => 'Maximum retry exceeded: '.$e->getMessage(),
                     'rc' => '999',
                 ], 'System error after maximum retries');
             } else {
@@ -160,7 +163,7 @@ class ProcessPostpaidPayment implements ShouldQueue
 
         $message = $errorMessage ?? ($data['message'] ?? 'Unknown error');
 
-        $this->createLog('processing', 'failed', 'Payment failed: ' . $message, $data);
+        $this->createLog('processing', 'failed', 'Payment failed: '.$message, $data);
 
         // Create notification
         if (class_exists('App\\Models\\Notification')) {
@@ -202,7 +205,7 @@ class ProcessPostpaidPayment implements ShouldQueue
         ]);
 
         $this->handleFailed([
-            'message' => 'Job failed permanently: ' . $exception->getMessage(),
+            'message' => 'Job failed permanently: '.$exception->getMessage(),
             'rc' => '999',
         ], 'System error - job failed permanently');
     }

@@ -8,12 +8,13 @@ use App\Models\ProductItem;
 use App\Services\ProductService;
 use App\Services\SupabaseStorageService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
     protected $productService;
+
     protected $supabaseStorage;
 
     public function __construct(ProductService $productService, SupabaseStorageService $supabaseStorage)
@@ -31,17 +32,19 @@ class ProductController extends Controller
             $query = Product::with(['category']);
 
             // 1. TRULY DYNAMIC FILTERING (Schema Aware)
-            $tableName = (new Product())->getTable();
+            $tableName = (new Product)->getTable();
             $tableColumns = Schema::getColumnListing($tableName);
 
             // Exclude kolom sensitif/internal jika perlu (opsional)
             $excludedColumns = ['description', 'deleted_at'];
 
             foreach ($request->all() as $key => $value) {
-                if ($value === null || $value === '') continue;
+                if ($value === null || $value === '') {
+                    continue;
+                }
 
                 // A. Handle Kolom Tabel Utama (Direct Column)
-                if (in_array($key, $tableColumns) && !in_array($key, $excludedColumns)) {
+                if (in_array($key, $tableColumns) && ! in_array($key, $excludedColumns)) {
                     // Auto-detect boolean
                     if ($value === 'true' || $value === 'false') {
                         $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -61,9 +64,9 @@ class ProductController extends Controller
                     }
                     // Coba pecah berdasarkan underscore pertama (GET Param)
                     elseif (str_contains($key, '_')) {
-                        // Strategi: Split di underscore pertama. 
+                        // Strategi: Split di underscore pertama.
                         // Jika 'user_name' -> relation 'user', field 'name'
-                        // Risiko: konflik jika nama relation mengandung underscore. 
+                        // Risiko: konflik jika nama relation mengandung underscore.
                         // Tapi convention Laravel relation biasanya camelCase (productItem), bukan snake_case.
                         [$relation, $field] = explode('_', $key, 2);
                     }
@@ -87,13 +90,13 @@ class ProductController extends Controller
                 // Konfigurasi relasi yang bisa dicari
                 $searchableRelations = [
                     'category' => ['name', 'slug'],
-                    'items' => ['name', 'digiflazz_code']
+                    'items' => ['name', 'digiflazz_code'],
                 ];
 
                 $query->where(function ($q) use ($search, $searchableFields, $searchableRelations) {
                     // 1. Loop kolom di tabel utama
                     foreach ($searchableFields as $field) {
-                        $q->orWhere($field, 'like', '%' . $search . '%');
+                        $q->orWhere($field, 'like', '%'.$search.'%');
                     }
 
                     // 2. Loop kolom di tabel relasi
@@ -101,7 +104,7 @@ class ProductController extends Controller
                         $q->orWhereHas($relation, function ($relQuery) use ($search, $fields) {
                             $relQuery->where(function ($nestedQ) use ($search, $fields) {
                                 foreach ($fields as $field) {
-                                    $nestedQ->orWhere($field, 'like', '%' . $search . '%');
+                                    $nestedQ->orWhere($field, 'like', '%'.$search.'%');
                                 }
                             });
                         });
@@ -116,7 +119,9 @@ class ProductController extends Controller
 
             // Paginate
             $perPage = (int) $request->get('per_page', 20);
-            if ($perPage > 100) $perPage = 100;
+            if ($perPage > 100) {
+                $perPage = 100;
+            }
 
             $products = $query->paginate($perPage);
 
@@ -127,7 +132,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get products: ' . $e->getMessage(),
+                'message' => 'Failed to get products: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -213,7 +218,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create product: ' . $e->getMessage(),
+                'message' => 'Failed to create product: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -226,7 +231,7 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'category_id' => 'sometimes|exists:product_categories,id',
             'name' => 'sometimes|string|max:255',
-            'slug' => 'sometimes|string|unique:products,slug,' . $id,
+            'slug' => 'sometimes|string|unique:products,slug,'.$id,
             'brand' => 'sometimes|string|max:100',
             'provider' => 'nullable|string|max:100',
             'type' => 'sometimes|string|in:game,pulsa,data,pln,pascabayar,other',
@@ -293,7 +298,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update product: ' . $e->getMessage(),
+                'message' => 'Failed to update product: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -310,12 +315,12 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product sync completed successfully.',
-                'output' => $output
+                'output' => $output,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to sync products: ' . $e->getMessage(),
+                'message' => 'Failed to sync products: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -353,7 +358,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete product: ' . $e->getMessage()
+                'message' => 'Failed to delete product: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -363,7 +368,9 @@ class ProductController extends Controller
      */
     private function deleteImage($fullUrl)
     {
-        if (!$fullUrl) return;
+        if (! $fullUrl) {
+            return;
+        }
 
         try {
             $this->supabaseStorage->delete($fullUrl);

@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Product;
-use App\Models\ProductItem;
 use App\Models\ProductCategory;
+use App\Models\ProductItem;
+use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
 class SyncDigiflazzProducts extends Command
 {
@@ -38,17 +37,17 @@ class SyncDigiflazzProducts extends Command
 
             // Get price list from Digiflazz
             $this->info('📡 Fetching price list (Prepaid & Postpaid) from Digiflazz API...');
-            $useCache = !$this->option('force');
+            $useCache = ! $this->option('force');
 
             $prepaidItems = $digiflazzService->getPriceList($useCache);
-            $this->info('✅ Prepaid items fetched: ' . count($prepaidItems));
+            $this->info('✅ Prepaid items fetched: '.count($prepaidItems));
 
             $postpaidItems = $digiflazzService->getPostpaidPriceList($useCache);
-            $this->info('✅ Postpaid items fetched: ' . count($postpaidItems));
+            $this->info('✅ Postpaid items fetched: '.count($postpaidItems));
 
             $items = array_merge($prepaidItems, $postpaidItems);
 
-            $this->info('✅ Total items to process: ' . count($items));
+            $this->info('✅ Total items to process: '.count($items));
             $this->newLine();
 
             // Filter by category if specified
@@ -56,13 +55,13 @@ class SyncDigiflazzProducts extends Command
                 $items = array_filter($items, function ($item) use ($categoryFilter) {
                     return stripos($item['category'] ?? '', $categoryFilter) !== false;
                 });
-                $this->info('🔍 Filtered to ' . count($items) . ' items for category: ' . $categoryFilter);
+                $this->info('🔍 Filtered to '.count($items).' items for category: '.$categoryFilter);
             }
 
             // Group items by brand + category to create parent products
             $this->info('📦 Grouping items by brand + category...');
             $groupedItems = $this->groupItemsByBrandAndCategory($items);
-            $this->info('✅ Found ' . count($groupedItems) . ' unique products');
+            $this->info('✅ Found '.count($groupedItems).' unique products');
             $this->newLine();
 
             // Sync products and items
@@ -86,8 +85,9 @@ class SyncDigiflazzProducts extends Command
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('❌ Error syncing products: ' . $e->getMessage());
+            $this->error('❌ Error syncing products: '.$e->getMessage());
             $this->error($e->getTraceAsString());
+
             return Command::FAILURE;
         }
     }
@@ -102,7 +102,7 @@ class SyncDigiflazzProducts extends Command
 
         foreach ($items as $item) {
             // Ensure item is an array before processing
-            if (!is_array($item)) {
+            if (! is_array($item)) {
                 continue;
             }
 
@@ -119,9 +119,9 @@ class SyncDigiflazzProducts extends Command
             }
 
             // Create a unique key combining brand and category
-            $groupKey = $brand . '|' . $category;
+            $groupKey = $brand.'|'.$category;
 
-            if (!isset($grouped[$groupKey])) {
+            if (! isset($grouped[$groupKey])) {
                 $grouped[$groupKey] = [];
             }
 
@@ -189,7 +189,7 @@ class SyncDigiflazzProducts extends Command
     private function syncProductItem(Product $product, array $data): void
     {
         // Skip inactive products
-        if (isset($data['seller_product_status']) && !$data['seller_product_status']) {
+        if (isset($data['seller_product_status']) && ! $data['seller_product_status']) {
             $this->stats['items_skipped']++;
             $this->skippedItems[] = [
                 'sku_code' => $data['buyer_sku_code'] ?? '-',
@@ -198,6 +198,7 @@ class SyncDigiflazzProducts extends Command
                 'category' => $data['category'] ?? '-',
                 'reason' => 'Inactive (seller_product_status = false)',
             ];
+
             return;
         }
 
@@ -304,7 +305,7 @@ class SyncDigiflazzProducts extends Command
 
             // Avoid duplicating if brand already contains category
             if (stripos($cleanBrand, $category) === false) {
-                return $cleanBrand . ' ' . $cleanCategory;
+                return $cleanBrand.' '.$cleanCategory;
             }
         }
 
@@ -440,7 +441,7 @@ class SyncDigiflazzProducts extends Command
         $buyerProductStatus = $data['buyer_product_status'] ?? true;
         $sellerProductStatus = $data['seller_product_status'] ?? true;
 
-        if (!$buyerProductStatus || !$sellerProductStatus) {
+        if (! $buyerProductStatus || ! $sellerProductStatus) {
             return 'empty';
         }
 
@@ -501,9 +502,9 @@ class SyncDigiflazzProducts extends Command
         );
 
         // Display skipped items detail
-        if (!empty($this->skippedItems)) {
+        if (! empty($this->skippedItems)) {
             $this->newLine();
-            $this->warn('⚠️  Skipped Items (' . count($this->skippedItems) . '):');
+            $this->warn('⚠️  Skipped Items ('.count($this->skippedItems).'):');
             $this->table(
                 ['SKU Code', 'Product Name', 'Brand', 'Category', 'Reason'],
                 $this->skippedItems

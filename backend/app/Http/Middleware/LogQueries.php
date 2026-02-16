@@ -23,7 +23,7 @@ class LogQueries
                 Log::channel('query')->debug('Query executed', [
                     'sql' => $query->sql,
                     'bindings' => $query->bindings,
-                    'time' => $query->time . 'ms',
+                    'time' => $query->time.'ms',
                 ]);
             });
         }

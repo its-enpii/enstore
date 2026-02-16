@@ -6,24 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-  /**
-   * Run the migrations.
-   */
-  public function up(): void
-  {
-    Schema::table('products', function (Blueprint $table) {
-      $table->string('provider')->nullable()->after('brand')
-        ->comment('Provider/publisher, e.g. Moonton, Garena, Telkomsel');
-    });
-  }
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->string('provider')->nullable()->after('brand')
+                ->comment('Provider/publisher, e.g. Moonton, Garena, Telkomsel');
+        });
+    }
 
-  /**
-   * Reverse the migrations.
-   */
-  public function down(): void
-  {
-    Schema::table('products', function (Blueprint $table) {
-      $table->dropColumn('provider');
-    });
-  }
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('provider');
+        });
+    }
 };

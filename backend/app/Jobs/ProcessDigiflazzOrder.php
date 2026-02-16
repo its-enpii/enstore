@@ -2,25 +2,27 @@
 
 namespace App\Jobs;
 
+use App\Models\Transaction;
+use App\Models\TransactionLog;
+use App\Services\TransactionService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Transaction;
-use App\Models\TransactionLog;
-use App\Models\BalanceMutation;
-use App\Services\TransactionService;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProcessDigiflazzOrder implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $transaction;
+
     public $tries = 3; // Retry 3x if failed
+
     public $timeout = 120; // Timeout 2 minutes
+
     public $backoff = [60, 120, 300]; // Retry delays: 1min, 2min, 5min
 
     /**
@@ -70,7 +72,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
                 'rc_processed' => $rc,
                 'status_raw' => $data['status'] ?? null,
                 'status_processed' => $status,
-                'is_pending_check' => ($rc === '01' || $status === 'pending')
+                'is_pending_check' => ($rc === '01' || $status === 'pending'),
             ]);
 
             // Handle based on response code OR status string
@@ -96,7 +98,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             // If max retries exceeded, mark as failed
             if ($this->attempts() >= $this->tries) {
                 $this->handleFailed([
-                    'message' => 'Maximum retry exceeded: ' . $e->getMessage(),
+                    'message' => 'Maximum retry exceeded: '.$e->getMessage(),
                     'rc' => '999',
                 ], 'System error after maximum retries');
             } else {
@@ -150,7 +152,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Handle Success Error: ' . $e->getMessage());
+            Log::error('Handle Success Error: '.$e->getMessage());
             throw $e;
         }
     }
@@ -191,7 +193,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             ]);
 
             $message = $errorMessage ?? ($data['message'] ?? 'Unknown error');
-            $this->createLog('processing', 'failed', 'Order failed: ' . $message, $data);
+            $this->createLog('processing', 'failed', 'Order failed: '.$message, $data);
 
             // Refund to user balance (both balance and gateway payments)
             if ($this->transaction->user_id) {
@@ -199,7 +201,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
                     $transactionService = app(TransactionService::class);
                     $transactionService->refundTransaction(
                         $this->transaction,
-                        'Digiflazz order failed: ' . $message
+                        'Digiflazz order failed: '.$message
                     );
                 } catch (\Exception $refundError) {
                     Log::error('Auto-refund failed during ProcessDigiflazzOrder', [
@@ -217,7 +219,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Handle Failed Error: ' . $e->getMessage());
+            Log::error('Handle Failed Error: '.$e->getMessage());
             throw $e;
         }
     }
@@ -231,6 +233,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
         $productType = $this->transaction->product->type ?? 'other';
 
         $digiflazzService = app(\App\Services\DigiflazzService::class);
+
         return $digiflazzService->formatCustomerNumber($customerData, $productType);
     }
 
@@ -259,7 +262,7 @@ class ProcessDigiflazzOrder implements ShouldQueue
         ]);
 
         $this->handleFailed([
-            'message' => 'Job failed permanently: ' . $exception->getMessage(),
+            'message' => 'Job failed permanently: '.$exception->getMessage(),
             'rc' => '999',
         ], 'System error - job failed permanently');
     }

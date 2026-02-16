@@ -6,6 +6,7 @@ use Exception;
 
 class InvalidCredentialsException extends Exception
 {
-  protected $message = 'Invalid credentials';
-  protected $code = 401;
+    protected $message = 'Invalid credentials';
+
+    protected $code = 401;
 }

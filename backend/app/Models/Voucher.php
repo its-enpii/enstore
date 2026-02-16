@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Voucher extends Model
 {
@@ -104,6 +104,7 @@ class Voucher extends Model
 
         if ($this->type === 'percentage') {
             $discount = ($transactionAmount * $this->value) / 100;
+
             return $this->max_discount ? min($discount, $this->max_discount) : $discount;
         }
 

@@ -21,8 +21,8 @@ class BannerController extends Controller
             }
 
             $banners = $query->orderBy('sort_order', 'asc')
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             return response()->json([
                 'success' => true,
@@ -31,7 +31,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get banners: ' . $e->getMessage(),
+                'message' => 'Failed to get banners: '.$e->getMessage(),
             ], 500);
         }
     }

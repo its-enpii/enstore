@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ProductCategory;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 
 class ProductCategorySeeder extends Seeder
 {
@@ -72,6 +71,6 @@ class ProductCategorySeeder extends Seeder
         }
 
         $this->command->info('✅ Product categories seeded successfully!');
-        $this->command->info('Total categories: ' . count($categories));
+        $this->command->info('Total categories: '.count($categories));
     }
 }

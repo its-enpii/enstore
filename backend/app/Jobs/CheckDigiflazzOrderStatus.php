@@ -2,15 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Models\Transaction;
+use App\Models\TransactionLog;
+use App\Services\TransactionService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Transaction;
-use App\Models\TransactionLog;
-use App\Services\DigiflazzService;
-use App\Services\TransactionService;
 use Illuminate\Support\Facades\Log;
 
 class CheckDigiflazzOrderStatus implements ShouldQueue
@@ -18,7 +17,9 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $transaction;
+
     public $tries = 5; // Check up to 5 times
+
     public $timeout = 60;
 
     /**
@@ -82,7 +83,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
             // If max retries exceeded, mark as failed
             if ($this->attempts() >= $this->tries) {
                 $this->handleFailed([
-                    'message' => 'Status check timeout after ' . $this->tries . ' attempts',
+                    'message' => 'Status check timeout after '.$this->tries.' attempts',
                     'rc' => '999',
                 ], 'Transaction timeout - unable to verify status');
             } else {
@@ -162,7 +163,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
         } else {
             // Max retries reached, mark as failed
             $this->handleFailed([
-                'message' => 'Transaction timeout after ' . $this->tries . ' status checks',
+                'message' => 'Transaction timeout after '.$this->tries.' status checks',
                 'rc' => '999',
             ], 'Transaction timeout');
         }
@@ -187,7 +188,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
             'transaction_id' => $this->transaction->id,
             'status_from' => 'processing',
             'status_to' => 'failed',
-            'message' => 'Order failed: ' . $message,
+            'message' => 'Order failed: '.$message,
             'meta_data' => $data,
         ]);
 
@@ -197,7 +198,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
                 $transactionService = app(TransactionService::class);
                 $transactionService->refundTransaction(
                     $this->transaction,
-                    'Order status check failed: ' . $message
+                    'Order status check failed: '.$message
                 );
             } catch (\Exception $refundError) {
                 Log::error('Auto-refund failed during CheckDigiflazzOrderStatus', [
@@ -224,7 +225,7 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
         ]);
 
         $this->handleFailed([
-            'message' => 'Status check job failed permanently: ' . $exception->getMessage(),
+            'message' => 'Status check job failed permanently: '.$exception->getMessage(),
             'rc' => '999',
         ], 'System error - status check failed');
     }

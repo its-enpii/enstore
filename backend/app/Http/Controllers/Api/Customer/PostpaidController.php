@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Validator;
 class PostpaidController extends Controller
 {
     private $digiflazzService;
+
     private $transactionService;
+
     private $tripayService;
 
     public function __construct(
@@ -57,7 +59,7 @@ class PostpaidController extends Controller
             }
 
             // Generate inquiry reference
-            $inquiryRef = 'INQ-' . date('YmdHis') . '-' . rand(1000, 9999);
+            $inquiryRef = 'INQ-'.date('YmdHis').'-'.rand(1000, 9999);
 
             // Call Digiflazz inquiry
             $result = $this->digiflazzService->inquiryPostpaid(
@@ -66,7 +68,7 @@ class PostpaidController extends Controller
                 $inquiryRef
             );
 
-            if (!$result['success'] || ($result['data']['rc'] ?? '') !== '00') {
+            if (! $result['success'] || ($result['data']['rc'] ?? '') !== '00') {
                 return response()->json([
                     'success' => false,
                     'message' => $result['data']['message'] ?? 'Gagal cek tagihan',
@@ -74,32 +76,32 @@ class PostpaidController extends Controller
             }
 
             $data = $result['data'];
-            
+
             // Calculate selling price
             // Apply standard formula: (Nominal + Admin) + Profit
             // Even if nominal is 0, we calculate the total with admin and profit as requested
             $realAdmin = $data['admin'] ?? 0;
-            
+
             // Determine profit based on user type
             $customerType = auth()->user()->customer_type ?? 'retail';
-            $profit = $customerType === 'reseller' 
-                ? ($productItem->reseller_profit ?? 0) 
+            $profit = $customerType === 'reseller'
+                ? ($productItem->reseller_profit ?? 0)
                 : ($productItem->retail_profit ?? 0);
-            
+
             // Merge profit into admin fee for display consistency
             // Customer sees: Admin = Real Admin + Profit
             $displayAdmin = $realAdmin + $profit;
-            
-            $supplierPrice = isset($data['total_bayar']) && $data['total_bayar'] > 0 
-                ? $data['total_bayar'] 
+
+            $supplierPrice = isset($data['total_bayar']) && $data['total_bayar'] > 0
+                ? $data['total_bayar']
                 : (($data['nominal'] ?? 0) + $realAdmin);
-                
+
             $sellingPrice = $supplierPrice + $profit;
 
             // Save inquiry to cache for 30 minutes
             $inquiryData = [
                 'product_item_id' => $productItem->id,
-                'product_name' => $productItem->product->name . ' - ' . $productItem->name,
+                'product_name' => $productItem->product->name.' - '.$productItem->name,
                 'digiflazz_code' => $productItem->digiflazz_code,
                 'customer_no' => $request->customer_no,
                 'customer_name' => $data['customer_name'] ?? '',
@@ -118,7 +120,7 @@ class PostpaidController extends Controller
                 'message' => 'Berhasil cek tagihan',
                 'data' => [
                     'inquiry_ref' => $inquiryRef,
-                    'product_name' => $productItem->product->name . ' - ' . $productItem->name,
+                    'product_name' => $productItem->product->name.' - '.$productItem->name,
                     'customer_no' => $request->customer_no,
                     'customer_name' => $data['customer_name'] ?? '',
                     'period' => $data['period'] ?? '',
@@ -130,7 +132,7 @@ class PostpaidController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal cek tagihan: ' . $e->getMessage(),
+                'message' => 'Gagal cek tagihan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -157,7 +159,7 @@ class PostpaidController extends Controller
             // Get inquiry data from cache
             $inquiryData = Cache::get($request->inquiry_ref);
 
-            if (!$inquiryData) {
+            if (! $inquiryData) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Inquiry expired atau tidak ditemukan. Silakan cek tagihan lagi.',
@@ -246,7 +248,7 @@ class PostpaidController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat transaksi: ' . $e->getMessage(),
+                'message' => 'Gagal membuat transaksi: '.$e->getMessage(),
             ], 500);
         }
     }

@@ -43,8 +43,8 @@ class Withdrawal extends Model
         parent::boot();
 
         static::creating(function ($withdrawal) {
-            if (!$withdrawal->reference_id) {
-                $withdrawal->reference_id = 'WD-' . strtoupper(\Illuminate\Support\Str::random(8));
+            if (! $withdrawal->reference_id) {
+                $withdrawal->reference_id = 'WD-'.strtoupper(\Illuminate\Support\Str::random(8));
             }
         });
     }

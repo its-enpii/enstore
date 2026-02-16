@@ -14,14 +14,14 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $limit = $request->input('limit', 10);
-        
+
         $notifications = Notification::where('user_id', auth()->id())
             ->latest()
             ->paginate($limit);
 
         return response()->json([
             'success' => true,
-            'data' => $notifications
+            'data' => $notifications,
         ]);
     }
 
@@ -37,8 +37,8 @@ class NotificationController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'count' => $count
-            ]
+                'count' => $count,
+            ],
         ]);
     }
 
@@ -55,7 +55,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Notification marked as read'
+            'message' => 'Notification marked as read',
         ]);
     }
 
@@ -70,7 +70,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'All notifications marked as read'
+            'message' => 'All notifications marked as read',
         ]);
     }
 }

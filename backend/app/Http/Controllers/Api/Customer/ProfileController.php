@@ -6,176 +6,172 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
-  /**
-   * Get user profile
-   * 
-   * @return \Illuminate\Http\JsonResponse
-   */
-  public function show()
-  {
-    try {
-      $user = auth()->user()->load('balance');
+    /**
+     * Get user profile
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show()
+    {
+        try {
+            $user = auth()->user()->load('balance');
 
-      return response()->json([
-        'success' => true,
-        'data' => $user,
-      ]);
-    } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to get profile: ' . $e->getMessage(),
-      ], 500);
-    }
-  }
-
-  /**
-   * Update user profile
-   * 
-   * @param Request $request
-   * @return \Illuminate\Http\JsonResponse
-   */
-  public function update(Request $request)
-  {
-    $user = auth()->user();
-
-    $validator = Validator::make($request->all(), [
-      'name' => 'sometimes|string|max:255',
-      'avatar' => 'sometimes|url',
-    ]);
-
-    if ($validator->fails()) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Validation failed',
-        'errors' => $validator->errors(),
-      ], 422);
+            return response()->json([
+                'success' => true,
+                'data' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get profile: '.$e->getMessage(),
+            ], 500);
+        }
     }
 
-    try {
-      // Only update name and avatar, explicitly ignoring email and phone
-      $user->update($request->only(['name', 'avatar']));
+    /**
+     * Update user profile
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request)
+    {
+        $user = auth()->user();
 
-      return response()->json([
-        'success' => true,
-        'message' => 'Profile updated successfully',
-        'data' => $user->fresh(),
-      ]);
-    } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to update profile: ' . $e->getMessage(),
-      ], 500);
-    }
-  }
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'avatar' => 'sometimes|url',
+        ]);
 
-  /**
-   * Change password
-   * 
-   * @param Request $request
-   * @return \Illuminate\Http\JsonResponse
-   */
-  public function changePassword(Request $request)
-  {
-    $validator = Validator::make($request->all(), [
-      'current_password' => 'required|string',
-      'new_password' => 'required|string|min:8|confirmed',
-    ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-    if ($validator->fails()) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Validation failed',
-        'errors' => $validator->errors(),
-      ], 422);
-    }
+        try {
+            // Only update name and avatar, explicitly ignoring email and phone
+            $user->update($request->only(['name', 'avatar']));
 
-    try {
-      $user = auth()->user();
-
-      // Verify current password
-      if (!Hash::check($request->current_password, $user->password)) {
-        return response()->json([
-          'success' => false,
-          'message' => 'Current password is incorrect',
-        ], 400);
-      }
-
-      // Update password
-      $user->update([
-        'password' => Hash::make($request->new_password),
-      ]);
-
-      return response()->json([
-        'success' => true,
-        'message' => 'Password changed successfully',
-      ]);
-    } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to change password: ' . $e->getMessage(),
-      ], 500);
-    }
-  }
-
-  /**
-   * Delete account
-   * 
-   * @param Request $request
-   * @return \Illuminate\Http\JsonResponse
-   */
-  public function deleteAccount(Request $request)
-  {
-    $validator = Validator::make($request->all(), [
-      'password' => 'required|string',
-    ]);
-
-    if ($validator->fails()) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Validation failed',
-        'errors' => $validator->errors(),
-      ], 422);
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => $user->fresh(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile: '.$e->getMessage(),
+            ], 500);
+        }
     }
 
-    try {
-      $user = auth()->user();
+    /**
+     * Change password
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
 
-      // Verify password
-      if (!Hash::check($request->password, $user->password)) {
-        return response()->json([
-          'success' => false,
-          'message' => 'Password is incorrect',
-        ], 400);
-      }
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-      // Check if user has pending transactions
-      $hasPendingTransactions = $user->transactions()
-        ->whereIn('status', ['pending', 'processing'])
-        ->exists();
+        try {
+            $user = auth()->user();
 
-      if ($hasPendingTransactions) {
-        return response()->json([
-          'success' => false,
-          'message' => 'Cannot delete account with pending transactions',
-        ], 400);
-      }
+            // Verify current password
+            if (! Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Current password is incorrect',
+                ], 400);
+            }
 
-      // Delete account
-      $user->delete();
+            // Update password
+            $user->update([
+                'password' => Hash::make($request->new_password),
+            ]);
 
-      return response()->json([
-        'success' => true,
-        'message' => 'Account deleted successfully',
-      ]);
-    } catch (\Exception $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to delete account: ' . $e->getMessage(),
-      ], 500);
+            return response()->json([
+                'success' => true,
+                'message' => 'Password changed successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to change password: '.$e->getMessage(),
+            ], 500);
+        }
     }
-  }
+
+    /**
+     * Delete account
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteAccount(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $user = auth()->user();
+
+            // Verify password
+            if (! Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Password is incorrect',
+                ], 400);
+            }
+
+            // Check if user has pending transactions
+            $hasPendingTransactions = $user->transactions()
+                ->whereIn('status', ['pending', 'processing'])
+                ->exists();
+
+            if ($hasPendingTransactions) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete account with pending transactions',
+                ], 400);
+            }
+
+            // Delete account
+            $user->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Account deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete account: '.$e->getMessage(),
+            ], 500);
+        }
+    }
 }

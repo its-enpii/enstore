@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
-use App\Models\ProductItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class ResellerAnalyticsController extends Controller
 {
@@ -17,7 +15,7 @@ class ResellerAnalyticsController extends Controller
     public function dashboard(Request $request)
     {
         $user = $request->user();
-        
+
         // Date range (default to current month)
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
@@ -31,15 +29,15 @@ class ResellerAnalyticsController extends Controller
         // 1. Summary Stats
         $totalSpending = (float) $query->sum('total_price');
         $transactionCount = $query->count();
-        
+
         // Success Rate (using all transactions in period, not just success)
         $allTransactions = Transaction::where('user_id', $user->id)
             ->where('transaction_type', 'purchase')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
-            
-        $successRate = $allTransactions > 0 
-            ? round(($transactionCount / $allTransactions) * 100, 1) 
+
+        $successRate = $allTransactions > 0
+            ? round(($transactionCount / $allTransactions) * 100, 1)
             : 0;
 
         // 2. Spending Chart Data (Daily)

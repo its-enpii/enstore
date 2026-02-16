@@ -3,14 +3,16 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class SupabaseStorageService
 {
     private string $disk = 'supabase';
+
     private string $supabaseUrl;
+
     private string $bucket;
 
     public function __construct()
@@ -22,16 +24,16 @@ class SupabaseStorageService
     /**
      * Upload a file to Supabase Storage via S3-compatible driver
      *
-     * @param string $folder  Subfolder inside the bucket (e.g. 'products', 'avatars')
-     * @param UploadedFile $file  The uploaded file
-     * @return string  The public URL of the uploaded file
+     * @param  string  $folder  Subfolder inside the bucket (e.g. 'products', 'avatars')
+     * @param  UploadedFile  $file  The uploaded file
+     * @return string The public URL of the uploaded file
      */
     public function upload(string $folder, UploadedFile $file): string
     {
         // Generate unique filename
         $extension = $file->getClientOriginalExtension();
-        $filename = Str::uuid() . '.' . $extension;
-        $filePath = trim($folder, '/') . '/' . $filename;
+        $filename = Str::uuid().'.'.$extension;
+        $filePath = trim($folder, '/').'/'.$filename;
 
         // Upload via Laravel's Storage facade (S3 driver)
         Storage::disk($this->disk)->put($filePath, file_get_contents($file->getRealPath()), [
@@ -45,15 +47,15 @@ class SupabaseStorageService
     /**
      * Delete a file from Supabase Storage
      *
-     * @param string $fileUrl  The full public URL of the file
-     * @return bool
+     * @param  string  $fileUrl  The full public URL of the file
      */
     public function delete(string $fileUrl): bool
     {
         $path = $this->parsePublicUrl($fileUrl);
 
-        if (!$path) {
+        if (! $path) {
             Log::warning('Could not parse Supabase URL for deletion', ['url' => $fileUrl]);
+
             return false;
         }
 

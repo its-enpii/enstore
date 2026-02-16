@@ -6,6 +6,7 @@ use Exception;
 
 class ProductUnavailableException extends Exception
 {
-  protected $message = 'Product is currently unavailable';
-  protected $code = 400;
+    protected $message = 'Product is currently unavailable';
+
+    protected $code = 400;
 }

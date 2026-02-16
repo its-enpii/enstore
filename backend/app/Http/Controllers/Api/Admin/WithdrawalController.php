@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Withdrawal;
 use App\Services\BalanceService;
-use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -35,13 +35,13 @@ class WithdrawalController extends Controller
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })->orWhere('reference_id', 'like', "%{$search}%");
         }
 
         return response()->json([
             'success' => true,
-            'data' => $query->paginate($request->per_page ?? 20)
+            'data' => $query->paginate($request->per_page ?? 20),
         ]);
     }
 
@@ -54,7 +54,7 @@ class WithdrawalController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $withdrawal
+            'data' => $withdrawal,
         ]);
     }
 
@@ -65,7 +65,7 @@ class WithdrawalController extends Controller
     {
         $request->validate([
             'status' => 'required|in:approved,rejected,completed',
-            'admin_note' => 'nullable|string|max:255'
+            'admin_note' => 'nullable|string|max:255',
         ]);
 
         $withdrawal = Withdrawal::with('user')->findOrFail($id);
@@ -73,7 +73,7 @@ class WithdrawalController extends Controller
         if (in_array($withdrawal->status, ['completed', 'rejected'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot change status of a finished withdrawal'
+                'message' => 'Cannot change status of a finished withdrawal',
             ], 400);
         }
 
@@ -86,7 +86,7 @@ class WithdrawalController extends Controller
             $withdrawal->update([
                 'status' => $newStatus,
                 'admin_note' => $request->admin_note,
-                'completed_at' => ($newStatus === 'completed' || $newStatus === 'approved') ? now() : null
+                'completed_at' => ($newStatus === 'completed' || $newStatus === 'approved') ? now() : null,
             ]);
 
             // Handling Rejection: Refund the balance
@@ -94,19 +94,19 @@ class WithdrawalController extends Controller
                 $this->balanceService->addBalance(
                     $withdrawal->user,
                     $withdrawal->amount,
-                    "Refund Penarikan Ditolak: {$withdrawal->reference_id}. Alasan: " . ($request->admin_note ?? 'N/A'),
+                    "Refund Penarikan Ditolak: {$withdrawal->reference_id}. Alasan: ".($request->admin_note ?? 'N/A'),
                     null
                 );
 
                 Notification::create([
                     'user_id' => $withdrawal->user_id,
                     'title' => 'Penarikan Saldo Ditolak',
-                    'message' => "Mohon maaf, penarikan saldo sebesar Rp " . number_format((float)$withdrawal->amount, 0, ',', '.') . " ditolak. Alasan: " . ($request->admin_note ?? 'Tidak disertakan'),
+                    'message' => 'Mohon maaf, penarikan saldo sebesar Rp '.number_format((float) $withdrawal->amount, 0, ',', '.').' ditolak. Alasan: '.($request->admin_note ?? 'Tidak disertakan'),
                     'type' => 'error',
                     'data' => [
                         'reference_id' => $withdrawal->reference_id,
-                        'reason' => $request->admin_note
-                    ]
+                        'reason' => $request->admin_note,
+                    ],
                 ]);
             }
 
@@ -114,12 +114,12 @@ class WithdrawalController extends Controller
                 Notification::create([
                     'user_id' => $withdrawal->user_id,
                     'title' => 'Penarikan Saldo Berhasil',
-                    'message' => "Penarikan saldo sebesar Rp " . number_format((float)$withdrawal->amount, 0, ',', '.') . " telah diproses/disetujui.",
+                    'message' => 'Penarikan saldo sebesar Rp '.number_format((float) $withdrawal->amount, 0, ',', '.').' telah diproses/disetujui.',
                     'type' => 'success',
                     'data' => [
                         'reference_id' => $withdrawal->reference_id,
-                        'status' => $newStatus
-                    ]
+                        'status' => $newStatus,
+                    ],
                 ]);
             }
 
@@ -128,18 +128,18 @@ class WithdrawalController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "Withdrawal status updated to {$newStatus}",
-                'data' => $withdrawal
+                'data' => $withdrawal,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Admin Withdrawal Update Status Error', [
                 'id' => $id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update status: ' . $e->getMessage()
+                'message' => 'Failed to update status: '.$e->getMessage(),
             ], 500);
         }
     }

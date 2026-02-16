@@ -31,7 +31,7 @@ class WithdrawalController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $withdrawals
+            'data' => $withdrawals,
         ]);
     }
 
@@ -44,10 +44,10 @@ class WithdrawalController extends Controller
         $amount = $request->amount;
 
         // 1. Check if user has sufficient balance
-        if (!$this->balanceService->hasSufficientBalance($user, $amount)) {
+        if (! $this->balanceService->hasSufficientBalance($user, $amount)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Saldo tidak mencukupi'
+                'message' => 'Saldo tidak mencukupi',
             ], 400);
         }
 
@@ -77,18 +77,18 @@ class WithdrawalController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Permintaan penarikan berhasil diajukan',
-                'data' => $withdrawal
+                'data' => $withdrawal,
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Withdrawal Store Error', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memproses penarikan: ' . $e->getMessage()
+                'message' => 'Gagal memproses penarikan: '.$e->getMessage(),
             ], 500);
         }
     }

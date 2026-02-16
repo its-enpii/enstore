@@ -10,7 +10,6 @@ use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -74,6 +73,7 @@ class AuthController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Registrasi gagal',
@@ -97,7 +97,7 @@ class AuthController extends Controller
                 ->first();
 
             // Check if user exists and password is correct
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            if (! $user || ! Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Email/Phone atau password salah',
@@ -210,8 +210,8 @@ class AuthController extends Controller
     {
         try {
             $user = User::where('email', $request->email)->first();
-            if (!$user) {
-                \Log::warning('User not found: ' . $request->email);
+            if (! $user) {
+                \Log::warning('User not found: '.$request->email);
             }
 
             $status = Password::sendResetLink(
@@ -230,7 +230,7 @@ class AuthController extends Controller
                 'status_code' => $status,
             ], 400);
         } catch (\Exception $e) {
-            \Log::error('Forgot password error: ' . $e->getMessage());
+            \Log::error('Forgot password error: '.$e->getMessage());
             \Log::error($e->getTraceAsString());
 
             return response()->json([
@@ -251,7 +251,7 @@ class AuthController extends Controller
                 $request->only('email', 'password', 'password_confirmation', 'token'),
                 function ($user, $password) {
                     $user->forceFill([
-                        'password' => Hash::make($password)
+                        'password' => Hash::make($password),
                     ])->save();
 
                     // Revoke all tokens

@@ -25,7 +25,7 @@ Route::prefix('webhooks')->group(function () {
 Route::get('/download-qr', function (Request $request) {
     $url = $request->query('url');
 
-    if (!$url) {
+    if (! $url) {
         return response()->json(['error' => 'URL required'], 400);
     }
 
@@ -196,7 +196,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Customer routes (both retail and reseller)
     Route::middleware('role:customer')->prefix('customer')->group(function () {
-
 
         // Transactions
         Route::prefix('transactions')->group(function () {

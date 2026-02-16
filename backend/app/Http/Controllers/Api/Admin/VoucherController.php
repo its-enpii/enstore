@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Voucher;
-use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -19,9 +18,9 @@ class VoucherController extends Controller
             $query = Voucher::with(['product']);
 
             if ($request->filled('search')) {
-                $query->where(function($q) use ($request) {
-                    $q->where('code', 'like', '%' . $request->search . '%')
-                      ->orWhere('name', 'like', '%' . $request->search . '%');
+                $query->where(function ($q) use ($request) {
+                    $q->where('code', 'like', '%'.$request->search.'%')
+                        ->orWhere('name', 'like', '%'.$request->search.'%');
                 });
             }
 
@@ -34,7 +33,7 @@ class VoucherController extends Controller
             }
 
             $vouchers = $query->orderBy('created_at', 'desc')
-                              ->paginate($request->get('per_page', 20));
+                ->paginate($request->get('per_page', 20));
 
             return response()->json([
                 'success' => true,
@@ -43,7 +42,7 @@ class VoucherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get vouchers: ' . $e->getMessage(),
+                'message' => 'Failed to get vouchers: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -89,7 +88,7 @@ class VoucherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create voucher: ' . $e->getMessage(),
+                'message' => 'Failed to create voucher: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -101,6 +100,7 @@ class VoucherController extends Controller
     {
         try {
             $voucher = Voucher::with(['product'])->findOrFail($id);
+
             return response()->json([
                 'success' => true,
                 'data' => $voucher,
@@ -122,7 +122,7 @@ class VoucherController extends Controller
             $voucher = Voucher::findOrFail($id);
 
             $validator = Validator::make($request->all(), [
-                'code' => 'sometimes|required|string|max:50|unique:vouchers,code,' . $id,
+                'code' => 'sometimes|required|string|max:50|unique:vouchers,code,'.$id,
                 'name' => 'sometimes|required|string|max:255',
                 'type' => 'sometimes|required|in:percentage,fixed',
                 'value' => 'sometimes|required|numeric|min:0',
@@ -156,7 +156,7 @@ class VoucherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update voucher: ' . $e->getMessage(),
+                'message' => 'Failed to update voucher: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -177,7 +177,7 @@ class VoucherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete voucher: ' . $e->getMessage(),
+                'message' => 'Failed to delete voucher: '.$e->getMessage(),
             ], 500);
         }
     }

@@ -6,6 +6,7 @@ use Exception;
 
 class PaymentFailedException extends Exception
 {
-  protected $message = 'Payment failed';
-  protected $code = 400;
+    protected $message = 'Payment failed';
+
+    protected $code = 400;
 }
