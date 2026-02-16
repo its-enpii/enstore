@@ -19,15 +19,17 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import Input from "@/components/ui/Input";
 import { api, ENDPOINTS } from "@/lib/api";
+import { User } from "@/lib/api/types";
 
-interface UserDetail {
-  id: number;
+// Local interfaces removed in favor of @/lib/api/types
+
+interface UserForm {
   name: string;
   email: string;
+  password?: string;
   role: string;
   phone_number: string;
-  balance: number;
-  created_at: string;
+  balance: string;
 }
 
 export default function EditUserPage() {
@@ -39,7 +41,7 @@ export default function EditUserPage() {
   const [saving, setSaving] = useState(false);
 
   // Initialize with empty strings
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UserForm>({
     name: "",
     email: "",
     password: "", // Optional for update
@@ -51,7 +53,7 @@ export default function EditUserPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get<UserDetail>(
+      const res = await api.get<User>(
         ENDPOINTS.admin.users.detail(userId),
         undefined,
         true,
@@ -59,12 +61,16 @@ export default function EditUserPage() {
       if (res.success) {
         const user = res.data;
         setFormData({
-          name: user.name,
-          email: user.email,
+          name: user.name || "",
+          email: user.email || "",
           password: "",
-          role: user.role,
+          role: user.role || "retail",
           phone_number: user.phone_number || "",
-          balance: user.balance.toString(),
+          balance: String(
+            typeof user.balance === "number"
+              ? user.balance
+              : user.balance?.balance || 0,
+          ),
         });
       }
     } catch (err) {

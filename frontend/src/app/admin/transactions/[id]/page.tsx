@@ -19,33 +19,11 @@ import {
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import { api, ENDPOINTS } from "@/lib/api";
+import { Transaction } from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 // --- Types ---
-interface TransactionDetail {
-  id: number;
-  transaction_code: string;
-  user_id: number;
-  user?: {
-    name: string;
-    email: string;
-    phone_number?: string;
-  };
-  product_name: string;
-  product_id: number;
-  product_item_id: number;
-  payment_method: string;
-  payment_status: string;
-  status: string; // pending, success, failed, processing
-  total_price: number | string;
-  product_price: number | string;
-  admin_fee: number | string;
-  discount_amount: number | string;
-  created_at: string;
-  updated_at: string;
-  note?: string;
-  data?: any; // snap_token etc
-}
+// Local interfaces removed in favor of @/lib/api/types
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -93,9 +71,7 @@ export default function TransactionDetailPage() {
   const transactionId = params.id as string;
 
   const [loading, setLoading] = useState(true);
-  const [transaction, setTransaction] = useState<TransactionDetail | null>(
-    null,
-  );
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [updating, setUpdating] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -103,7 +79,7 @@ export default function TransactionDetailPage() {
   const fetchTransaction = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get<TransactionDetail>(
+      const res = await api.get<Transaction>(
         ENDPOINTS.admin.transactions.detail(transactionId),
         undefined,
         true,
@@ -186,7 +162,9 @@ export default function TransactionDetailPage() {
             <div className="flex items-center gap-2 font-mono font-bold text-brand-500/50">
               #{transaction.transaction_code}
               <button
-                onClick={() => copyToClipboard(transaction.transaction_code)}
+                onClick={() =>
+                  copyToClipboard(transaction?.transaction_code || "")
+                }
                 className="transition-colors hover:text-ocean-500"
               >
                 <ContentCopyRounded style={{ fontSize: 14 }} />

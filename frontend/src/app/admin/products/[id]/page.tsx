@@ -3,72 +3,30 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import {
-  ArrowBackRounded,
-  SaveRounded,
-  AddRounded,
-  EditRounded,
-  DeleteRounded,
-  ImageRounded,
-} from "@mui/icons-material";
+import { ArrowBackRounded, SaveRounded } from "@mui/icons-material";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
-import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
-import Modal from "@/components/ui/Modal";
+import DashboardInput from "@/components/dashboard/DashboardInput";
+import DashboardSelect from "@/components/dashboard/DashboardSelect";
+import DashboardTextarea from "@/components/dashboard/DashboardTextarea";
 import { api, ENDPOINTS } from "@/lib/api";
+import {
+  Product,
+  ProductItem,
+  ProductCategory as Category,
+  InputField,
+} from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
+// Sub-components
+import ProductItemModal from "../components/ProductItemModal";
+import ProductItemList from "../components/ProductItemList";
+import ProductDynamicFields from "../components/ProductDynamicFields";
+import ProductVisualAssets from "../components/ProductVisualAssets";
+
 // --- Types ---
-
-interface ProductItem {
-  id: number;
-  product_id?: number;
-  name: string;
-  digiflazz_code: string;
-  base_price: number;
-  retail_price: number;
-  reseller_price: number;
-  stock_status: string;
-  is_active: boolean;
-  total_sold?: number;
-}
-
-interface InputField {
-  name: string;
-  label: string;
-  type: string;
-  required: boolean;
-  options?: string;
-}
-
-interface ProductDetail {
-  id: number;
-  name: string;
-  slug: string;
-  brand: string;
-  provider: string; // Added
-  type: string;
-  category_id: string;
-  description: string;
-  payment_type: string;
-  is_active: number | boolean;
-  is_featured: number | boolean;
-  sort_order: number;
-  rating: number; // Added
-  image: string;
-  icon: string; // Added
-  input_fields: InputField[] | string; // Could be JSON string or array
-  server_options: string[] | string; // Could be JSON string or array
-  items: ProductItem[];
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-}
+// Local interfaces removed in favor of @/lib/api/types
 
 export default function EditProductPage() {
   const params = useParams();
@@ -78,7 +36,7 @@ export default function EditProductPage() {
   // State
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [productData, setProductData] = useState<ProductDetail | null>(null);
+  const [productData, setProductData] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<ProductItem[]>([]);
 
@@ -97,7 +55,7 @@ export default function EditProductPage() {
   });
 
   // Form State (Product)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Partial<Product>>({
     name: "",
     slug: "",
     brand: "",
@@ -128,7 +86,7 @@ export default function EditProductPage() {
     try {
       setLoading(true);
       const [prodRes, catRes] = await Promise.all([
-        api.get<ProductDetail>(
+        api.get<Product>(
           ENDPOINTS.admin.products.detail(productId),
           undefined,
           true,
@@ -145,14 +103,14 @@ export default function EditProductPage() {
 
         // Populate Form
         setFormData({
-          name: prod.name,
-          slug: prod.slug,
-          brand: prod.brand,
+          name: prod.name || "",
+          slug: prod.slug || "",
+          brand: prod.brand || "",
           provider: prod.provider || "",
-          type: prod.type,
-          category_id: prod.category_id,
+          type: prod.type || "game",
+          category_id: prod.category_id || "",
           description: prod.description || "",
-          payment_type: prod.payment_type,
+          payment_type: prod.payment_type || "prepaid",
           is_active: Boolean(prod.is_active),
           is_featured: Boolean(prod.is_featured),
           sort_order: prod.sort_order || 0,
@@ -245,7 +203,12 @@ export default function EditProductPage() {
     data.append("_method", "PUT");
 
     Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, String(value));
+      // Don't append null/undefined as strings "null"/"undefined"
+      // Also skip complex objects like input_fields, handle them separately if needed,
+      // but here we already have inputFields state
+      if (value !== null && value !== undefined && typeof value !== "object") {
+        data.append(key, String(value));
+      }
     });
 
     if (imageFile) data.append("image", imageFile);
@@ -385,7 +348,9 @@ export default function EditProductPage() {
               <h1 className="text-2xl font-bold text-brand-500">
                 Edit Product
               </h1>
-              <p className="font-bold text-brand-500/50">{productData?.name}</p>
+              <p className="font-bold text-brand-500/50">
+                {productData?.name || "Loading..."}
+              </p>
             </div>
           </div>
 
@@ -417,103 +382,90 @@ export default function EditProductPage() {
                 </h3>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-brand-500/50 uppercase">
-                      Details
-                    </label>
-                    <Input
-                      fullWidth
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Name"
-                    />
-                    <Input
-                      fullWidth
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleChange}
-                      placeholder="Brand"
-                    />
-                    <Input
-                      fullWidth
-                      name="slug"
-                      value={formData.slug}
-                      onChange={handleChange}
-                      placeholder="Slug"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-brand-500/50 uppercase">
-                      Configuration
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="category_id"
-                        value={formData.category_id}
-                        onChange={handleChange}
-                        className="mb-3 w-full appearance-none rounded-xl border border-brand-500/5 bg-white px-4 py-3 text-brand-500 outline-none"
-                      >
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="relative">
-                      <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="mb-3 w-full appearance-none rounded-xl border border-brand-500/5 bg-white px-4 py-3 text-brand-500 outline-none"
-                      >
-                        <option value="game">Game</option>
-                        <option value="pulsa">Pulsa</option>
-                        <option value="data">Data</option>
-                        <option value="voucher">Voucher</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <Input
-                      fullWidth
-                      name="provider"
-                      value={formData.provider}
-                      onChange={handleChange}
-                      placeholder="Provider (e.g. Digiflazz)"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-brand-500/50 uppercase">
-                    Description
-                  </label>
-                  <Textarea
+                  <DashboardInput
                     fullWidth
-                    name="description"
-                    value={formData.description}
+                    label="Name"
+                    name="name"
+                    value={formData.name || ""}
                     onChange={handleChange}
-                    rows={3}
+                    placeholder="Name"
+                  />
+                  <DashboardInput
+                    fullWidth
+                    label="Brand"
+                    name="brand"
+                    value={formData.brand || ""}
+                    onChange={handleChange}
+                    placeholder="Brand"
+                  />
+                  <DashboardInput
+                    fullWidth
+                    label="Slug"
+                    name="slug"
+                    value={formData.slug || ""}
+                    onChange={handleChange}
+                    placeholder="Slug"
+                  />
+                  <DashboardSelect
+                    label="Category"
+                    name="category_id"
+                    value={formData.category_id || ""}
+                    onChange={handleChange}
+                    options={categories.map((cat) => ({
+                      value: String(cat.id),
+                      label: cat.name,
+                    }))}
+                    placeholder="Select Category"
+                    required
+                    fullWidth
+                  />
+                  <DashboardSelect
+                    label="Type"
+                    name="type"
+                    value={formData.type || "game"}
+                    onChange={handleChange}
+                    options={[
+                      { value: "game", label: "Game" },
+                      { value: "pulsa", label: "Pulsa" },
+                      { value: "data", label: "Data" },
+                      { value: "voucher", label: "Voucher" },
+                      { value: "other", label: "Other" },
+                    ]}
+                    fullWidth
+                  />
+                  <DashboardInput
+                    fullWidth
+                    label="Provider"
+                    name="provider"
+                    value={formData.provider || ""}
+                    onChange={handleChange}
+                    placeholder="Provider (e.g. Digiflazz)"
                   />
                 </div>
 
+                <DashboardTextarea
+                  fullWidth
+                  label="Description"
+                  name="description"
+                  value={formData.description || ""}
+                  onChange={handleChange}
+                  rows={3}
+                />
+
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="mb-2 block text-xs font-bold text-brand-500/50 uppercase">
-                      Rating
-                    </label>
-                    <Input
+                    <DashboardInput
                       fullWidth
+                      label="Rating"
                       type="number"
                       step="0.1"
                       name="rating"
-                      value={formData.rating}
+                      value={formData.rating || 0}
                       onChange={handleChange}
                     />
                   </div>
                   <div className="col-span-2 flex items-end gap-6 pb-2">
-                    <label className="flex cursor-pointer items-center gap-2">
+                    <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-2.5 transition-colors hover:border-ocean-500/30">
                       <input
                         type="checkbox"
                         name="is_active"
@@ -521,9 +473,11 @@ export default function EditProductPage() {
                         onChange={handleCheckbox}
                         className="h-5 w-5 rounded text-ocean-500"
                       />
-                      <span className="font-medium text-brand-500">Active</span>
+                      <span className="text-sm font-medium text-brand-500/60">
+                        Active Status
+                      </span>
                     </label>
-                    <label className="flex cursor-pointer items-center gap-2">
+                    <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-2.5 transition-colors hover:border-ocean-500/30">
                       <input
                         type="checkbox"
                         name="is_featured"
@@ -531,7 +485,7 @@ export default function EditProductPage() {
                         onChange={handleCheckbox}
                         className="h-5 w-5 rounded text-ocean-500"
                       />
-                      <span className="font-medium text-brand-500">
+                      <span className="text-sm font-medium text-brand-500/60">
                         Featured
                       </span>
                     </label>
@@ -539,245 +493,26 @@ export default function EditProductPage() {
                 </div>
               </div>
 
-              {/* Dynamic Fields */}
-              <div className="space-y-6 rounded-[32px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
-                <div className="space-y-8">
-                  {/* Input Fields */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-brand-500/5 pb-2">
-                      <label className="text-xs font-bold text-brand-500/50 uppercase">
-                        User Input Fields
-                      </label>
-                      <button
-                        type="button"
-                        onClick={addInputField}
-                        className="text-xs font-bold tracking-widest text-ocean-500 uppercase hover:underline"
-                      >
-                        + Add
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {inputFields.map((field, idx) => (
-                        <div
-                          key={idx}
-                          className="space-y-2 rounded-xl border border-brand-500/5 bg-white p-3"
-                        >
-                          <div className="flex gap-2">
-                            <input
-                              className="w-full bg-transparent text-xs font-medium outline-none"
-                              placeholder="Name (user_id)"
-                              value={field.name}
-                              onChange={(e) =>
-                                updateInputField(idx, "name", e.target.value)
-                              }
-                            />
-                            <input
-                              className="w-full bg-transparent text-xs font-medium outline-none"
-                              placeholder="Label"
-                              value={field.label}
-                              onChange={(e) =>
-                                updateInputField(idx, "label", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <select
-                              value={field.type}
-                              onChange={(e) =>
-                                updateInputField(idx, "type", e.target.value)
-                              }
-                              className="rounded bg-smoke-200 px-1 py-0.5 text-xs outline-none"
-                            >
-                              <option value="text">Text</option>
-                              <option value="number">Number</option>
-                              <option value="email">Email</option>
-                              <option value="select">Dropdown</option>
-                            </select>
-                            <label className="flex items-center gap-1 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={field.required}
-                                onChange={(e) =>
-                                  updateInputField(
-                                    idx,
-                                    "required",
-                                    e.target.checked,
-                                  )
-                                }
-                              />{" "}
-                              Req
-                            </label>
-                            <button
-                              type="button"
-                              onClick={() => removeInputField(idx)}
-                              className="ml-auto text-red-500"
-                            >
-                              <DeleteRounded style={{ fontSize: 14 }} />
-                            </button>
-                          </div>
-                          {field.type === "select" && (
-                            <div className="mt-1">
-                              <input
-                                className="w-full rounded border border-yellow-500/20 bg-yellow-50 px-2 py-1 font-mono text-xs text-yellow-700 outline-none placeholder:text-yellow-700/40"
-                                placeholder="Options (comma separated)"
-                                value={field.options || ""}
-                                onChange={(e) =>
-                                  updateInputField(
-                                    idx,
-                                    "options",
-                                    e.target.value,
-                                  )
-                                }
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProductDynamicFields
+                inputFields={inputFields}
+                onAdd={addInputField}
+                onRemove={removeInputField}
+                onUpdate={updateInputField}
+              />
 
-              {/* Images */}
-              <div className="space-y-6 rounded-[32px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
-                <h3 className="border-b border-brand-500/5 pb-4 text-lg font-bold text-brand-500">
-                  Visual Assets
-                </h3>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-brand-500/10 bg-white">
-                      {imagePreview ? (
-                        <img
-                          src={imagePreview}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <ImageRounded />
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs font-bold text-brand-500/50 uppercase">
-                        Cover Image
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) => handleImageChange(e, "image")}
-                        className="w-full cursor-pointer text-xs text-brand-500 file:mr-2 file:rounded-full file:border-0 file:bg-ocean-500/10 file:px-3 file:py-1 file:text-ocean-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-brand-500/10 bg-white">
-                      {iconPreview ? (
-                        <img
-                          src={iconPreview}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <ImageRounded />
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs font-bold text-brand-500/50 uppercase">
-                        Icon Logo
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) => handleImageChange(e, "icon")}
-                        className="w-full cursor-pointer text-xs text-brand-500 file:mr-2 file:rounded-full file:border-0 file:bg-ocean-500/10 file:px-3 file:py-1 file:text-ocean-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProductVisualAssets
+                imagePreview={imagePreview}
+                iconPreview={iconPreview}
+                handleImageChange={handleImageChange}
+              />
             </form>
 
-            {/* Items List */}
-            <div className="overflow-hidden rounded-[32px] border border-brand-500/5 bg-smoke-200 shadow-sm">
-              <div className="flex items-center justify-between border-b border-brand-500/5 p-6">
-                <h3 className="text-lg font-bold text-brand-500">
-                  Product Items (SKUs)
-                </h3>
-                <DashboardButton
-                  size="sm"
-                  icon={<AddRounded />}
-                  onClick={() => openItemModal()}
-                >
-                  Add SKU
-                </DashboardButton>
-              </div>
-
-              {items.length === 0 ? (
-                <div className="p-12 text-center font-bold text-brand-500/40">
-                  No items found. Add one to start selling.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="bg-brand-500/5 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                        <th className="px-6 py-3 pl-8">Name</th>
-                        <th className="px-6 py-3">Code</th>
-                        <th className="px-6 py-3 text-right">Base Price</th>
-                        <th className="px-6 py-3 text-right">Retail Price</th>
-                        <th className="px-6 py-3 text-right">Reseller</th>
-                        <th className="px-6 py-3 text-center">Status</th>
-                        <th className="px-6 py-3 pr-8 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-brand-500/5">
-                      {items.map((item) => (
-                        <tr
-                          key={item.id}
-                          className="transition-colors hover:bg-white"
-                        >
-                          <td className="px-6 py-3 pl-8 font-bold text-brand-500">
-                            {item.name}
-                          </td>
-                          <td className="px-6 py-3 font-mono text-xs text-brand-500/60">
-                            {item.digiflazz_code}
-                          </td>
-                          <td className="px-6 py-3 text-right font-mono text-brand-500/60">
-                            Rp {(item.base_price ?? 0).toLocaleString("id-ID")}
-                          </td>
-                          <td className="px-6 py-3 text-right font-bold text-ocean-500">
-                            Rp{" "}
-                            {(item.retail_price ?? 0).toLocaleString("id-ID")}
-                          </td>
-                          <td className="px-6 py-3 text-right font-bold text-emerald-500">
-                            Rp{" "}
-                            {(item.reseller_price ?? 0).toLocaleString("id-ID")}
-                          </td>
-                          <td className="px-6 py-3 text-center">
-                            <span
-                              className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${item.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}
-                            >
-                              {item.is_active ? "Active" : "Inactive"}
-                            </span>
-                          </td>
-                          <td className="px-6 py-3 pr-8 text-right">
-                            <div className="flex justify-end gap-2">
-                              <button
-                                onClick={() => openItemModal(item)}
-                                className="rounded p-1.5 text-ocean-500 hover:bg-ocean-500/10"
-                              >
-                                <EditRounded fontSize="small" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem(item.id)}
-                                className="rounded p-1.5 text-red-500 hover:bg-red-500/10"
-                              >
-                                <DeleteRounded fontSize="small" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+            <ProductItemList
+              items={items}
+              onEdit={openItemModal}
+              onDelete={handleDeleteItem}
+              onAdd={() => openItemModal()}
+            />
           </div>
 
           {/* Right Column: Stats / Info */}
@@ -786,14 +521,18 @@ export default function EditProductPage() {
               <h3 className="text-xl font-bold">Quick Stats</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
-                  <div className="text-2xl font-black">{items.length}</div>
+                  <div className="text-2xl font-bold">
+                    {(items?.length || 0).toLocaleString("id-ID")}
+                  </div>
                   <div className="text-xs font-bold uppercase opacity-60">
                     Items
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
-                  <div className="text-2xl font-black">
-                    {items.filter((i) => i.is_active).length}
+                  <div className="text-2xl font-bold">
+                    {(items || [])
+                      .filter((i) => i.is_active)
+                      .length.toLocaleString("id-ID")}
                   </div>
                   <div className="text-xs font-bold uppercase opacity-60">
                     Active
@@ -809,159 +548,14 @@ export default function EditProductPage() {
         </div>
 
         {/* Item Modal */}
-        <Modal
+        <ProductItemModal
           isOpen={isItemModalOpen}
           onClose={() => setIsItemModalOpen(false)}
-          title={currentItem.id ? "Edit SKU Item" : "Add New SKU Item"}
-          width="lg"
-        >
-          <form onSubmit={handleSaveItem} className="space-y-6 p-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-brand-500/50 uppercase">
-                  Item Name
-                </label>
-                <Input
-                  fullWidth
-                  name="itemName"
-                  value={currentItem.name || ""}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g. 5 Diamonds"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-brand-500/50 uppercase">
-                  SKU Code (Unique)
-                </label>
-                <Input
-                  fullWidth
-                  name="itemSku"
-                  value={currentItem.digiflazz_code || ""}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      digiflazz_code: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g. ML-5"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-brand-500/50 uppercase">
-                  Base Price (Modal)
-                </label>
-                <Input
-                  fullWidth
-                  name="basePrice"
-                  type="number"
-                  value={currentItem.base_price || 0}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      base_price: parseFloat(e.target.value),
-                    }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-brand-500/50 uppercase">
-                  Retail Price
-                </label>
-                <Input
-                  fullWidth
-                  name="retailPrice"
-                  type="number"
-                  value={currentItem.retail_price || 0}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      retail_price: parseFloat(e.target.value),
-                    }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-brand-500/50 uppercase">
-                  Reseller Price
-                </label>
-                <Input
-                  fullWidth
-                  name="resellerPrice"
-                  type="number"
-                  value={currentItem.reseller_price || 0}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      reseller_price: parseFloat(e.target.value),
-                    }))
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-6 pt-2">
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={currentItem.is_active ?? true}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      is_active: e.target.checked,
-                    }))
-                  }
-                  className="h-5 w-5 rounded text-ocean-500"
-                />
-                <span className="font-bold text-brand-500">Active</span>
-              </label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-brand-500/50 uppercase">
-                  Stock:
-                </span>
-                <select
-                  value={currentItem.stock_status || "available"}
-                  onChange={(e) =>
-                    setCurrentItem((prev) => ({
-                      ...prev,
-                      stock_status: e.target.value,
-                    }))
-                  }
-                  className="rounded border border-brand-500/10 bg-white px-2 py-1 text-sm font-bold text-brand-500"
-                >
-                  <option value="available">Available</option>
-                  <option value="empty">Empty</option>
-                  <option value="maintenance">Maintenance</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 border-t border-brand-500/5 pt-6">
-              <DashboardButton
-                variant="secondary"
-                type="button"
-                onClick={() => setIsItemModalOpen(false)}
-              >
-                Cancel
-              </DashboardButton>
-              <DashboardButton
-                type="submit"
-                loading={savingItem}
-                disabled={savingItem}
-              >
-                Save Item
-              </DashboardButton>
-            </div>
-          </form>
-        </Modal>
+          currentItem={currentItem}
+          setCurrentItem={setCurrentItem}
+          onSave={handleSaveItem}
+          loading={savingItem}
+        />
       </div>
 
       <ConfirmationModal

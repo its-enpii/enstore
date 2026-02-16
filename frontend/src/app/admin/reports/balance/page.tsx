@@ -13,25 +13,10 @@ import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { api, ENDPOINTS } from "@/lib/api";
+import { BalanceReportData } from "@/lib/api/types";
 
-interface BalanceSummary {
-  total_credit: number;
-  total_debit: number;
-  credit_count: number;
-  debit_count: number;
-  net_balance: number;
-}
-
-interface BalanceMutationGroup {
-  type: string;
-  total_count: number;
-  total_amount: number;
-}
-
-interface BalanceReportData {
-  summary: BalanceSummary;
-  details: BalanceMutationGroup[];
-}
+// --- Types ---
+// Local interfaces removed in favor of @/lib/api/types
 
 export default function BalanceReportPage() {
   const [data, setData] = useState<BalanceReportData | null>(null);

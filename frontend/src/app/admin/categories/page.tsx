@@ -10,21 +10,20 @@ import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { api, ENDPOINTS } from "@/lib/api";
+import {
+  ProductCategory as Category,
+  LaravelPagination,
+} from "@/lib/api/types";
 
 // --- Types ---
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  image?: string;
-  products_count?: number;
-}
+// Local interfaces removed in favor of @/lib/api/types
 
 export default function AdminCategoriesPage() {
   // State
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] =
+    useState<LaravelPagination<Category> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch Categories
@@ -32,9 +31,15 @@ export default function AdminCategoriesPage() {
     setLoading(true);
     try {
       // Using public endpoint as Admin API for categories does not exist yet
-      const res = await api.get<Category[]>(ENDPOINTS.products.categories);
+      const endpoint = ENDPOINTS.products.categories;
+      const res = await api.get<LaravelPagination<Category>>(
+        endpoint,
+        undefined,
+        true,
+      );
       if (res.success) {
-        setCategories(res.data);
+        setCategories(res.data.data);
+        setPagination(res.data);
       }
     } catch (err) {
       console.error("Fetch categories failed:", err);

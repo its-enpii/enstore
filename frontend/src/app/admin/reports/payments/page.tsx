@@ -12,14 +12,7 @@ import {
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { api, ENDPOINTS } from "@/lib/api";
-
-interface PaymentMethodStats {
-  payment_method: string;
-  total_transactions: number;
-  total_revenue: number;
-  total_fees: number;
-  average_transaction: number;
-}
+import { PaymentMethodStats } from "@/lib/api/types";
 
 export default function PaymentMethodReportPage() {
   const [data, setData] = useState<PaymentMethodStats[]>([]);

@@ -23,48 +23,21 @@ import { toast } from "react-hot-toast";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import { api, ENDPOINTS } from "@/lib/api";
+import { User, LaravelPagination } from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 // --- Types ---
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  role: string;
-  customer_type: string;
-  status: string;
-  balance?: {
-    balance: number;
-  };
-  created_at: string;
-}
-
-interface UsersResponse {
-  current_page: number;
-  data: User[];
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
-
-interface PaginationMeta {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
+// --- Types ---
+// Local interfaces removed in favor of @/lib/api/types
 
 export default function AdminUsersPage() {
   const router = useRouter();
 
   // State
   const [users, setUsers] = useState<User[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [pagination, setPagination] = useState<LaravelPagination<User> | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
@@ -101,18 +74,15 @@ export default function AdminUsersPage() {
 
       const endpoint = `${ENDPOINTS.admin.users.list}?${params.toString()}`;
       // Generic type
-      const res = await api.get<UsersResponse>(endpoint, undefined, true);
+      const res = await api.get<LaravelPagination<User>>(
+        endpoint,
+        undefined,
+        true,
+      );
 
       if (res.success) {
         setUsers(res.data.data);
-        setMeta({
-          current_page: res.data.current_page,
-          last_page: res.data.last_page,
-          per_page: res.data.per_page,
-          total: res.data.total,
-          from: res.data.from,
-          to: res.data.to,
-        });
+        setPagination(res.data);
       }
     } catch (err) {
       console.error("Fetch users failed:", err);
@@ -305,9 +275,10 @@ export default function AdminUsersPage() {
                           />
                           <span>
                             Rp{" "}
-                            {user.balance?.balance
-                              ? user.balance.balance.toLocaleString("id-ID")
-                              : "0"}
+                            {typeof user.balance === "number"
+                              ? user.balance.toLocaleString("id-ID")
+                              : user.balance?.balance.toLocaleString("id-ID") ||
+                                "0"}
                           </span>
                         </div>
                       </td>
@@ -351,22 +322,23 @@ export default function AdminUsersPage() {
           )}
 
           {/* Pagination */}
-          {meta && meta.last_page > 1 && (
+          {pagination && pagination.last_page > 1 && (
             <div className="flex items-center justify-between border-t border-brand-500/5 p-4">
               <p className="pl-4 text-xs font-bold text-brand-500/40">
-                Showing {meta.from}-{meta.to} of {meta.total} users
+                Showing {pagination.from}-{pagination.to} of {pagination.total}{" "}
+                users
               </p>
               <div className="flex gap-2 pr-4">
                 <button
-                  onClick={() => handlePageChange(meta.current_page - 1)}
-                  disabled={meta.current_page === 1}
+                  onClick={() => handlePageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
                   className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeftRounded fontSize="small" />
                 </button>
                 <button
-                  onClick={() => handlePageChange(meta.current_page + 1)}
-                  disabled={meta.current_page === meta.last_page}
+                  onClick={() => handlePageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
                   className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronRightRounded fontSize="small" />

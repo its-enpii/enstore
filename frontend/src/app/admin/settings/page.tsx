@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardInput from "@/components/dashboard/DashboardInput";
 import {
   SaveRounded,
   SettingsRounded,
@@ -202,53 +203,35 @@ export default function AdminSettings() {
 
             <form onSubmit={handleSave} className="space-y-6">
               <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                    Retail Margin (%)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      value={profitMargins.retail_margin}
-                      onChange={(e) =>
-                        setProfitMargins({
-                          ...profitMargins,
-                          retail_margin: parseFloat(e.target.value),
-                        })
-                      }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-                      min="0"
-                      step="0.1"
-                    />
-                    <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
-                      <PercentRounded fontSize="small" />
-                    </div>
-                  </div>
-                </div>
+                <DashboardInput
+                  label="Retail Margin (%)"
+                  type="number"
+                  value={profitMargins.retail_margin}
+                  onChange={(e) =>
+                    setProfitMargins({
+                      ...profitMargins,
+                      retail_margin: parseFloat(e.target.value),
+                    })
+                  }
+                  icon={<PercentRounded fontSize="small" />}
+                  min="0"
+                  step="0.1"
+                />
 
-                <div>
-                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                    Reseller Margin (%)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      value={profitMargins.reseller_margin}
-                      onChange={(e) =>
-                        setProfitMargins({
-                          ...profitMargins,
-                          reseller_margin: parseFloat(e.target.value),
-                        })
-                      }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-                      min="0"
-                      step="0.1"
-                    />
-                    <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
-                      <PercentRounded fontSize="small" />
-                    </div>
-                  </div>
-                </div>
+                <DashboardInput
+                  label="Reseller Margin (%)"
+                  type="number"
+                  value={profitMargins.reseller_margin}
+                  onChange={(e) =>
+                    setProfitMargins({
+                      ...profitMargins,
+                      reseller_margin: parseFloat(e.target.value),
+                    })
+                  }
+                  icon={<PercentRounded fontSize="small" />}
+                  min="0"
+                  step="0.1"
+                />
               </div>
 
               <button
@@ -285,74 +268,50 @@ export default function AdminSettings() {
 
             <form onSubmit={handleSaveGeneral} className="space-y-6">
               <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                    Site Name
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={generalSettings.site_name}
-                      onChange={(e) =>
-                        setGeneralSettings({
-                          ...generalSettings,
-                          site_name: e.target.value,
-                        })
-                      }
-                      className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-                      placeholder="EnStore"
-                    />
-                    <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
-                      <LanguageRounded fontSize="small" />
-                    </div>
-                  </div>
-                </div>
+                <DashboardInput
+                  label="Site Name"
+                  type="text"
+                  value={generalSettings.site_name}
+                  onChange={(e) =>
+                    setGeneralSettings({
+                      ...generalSettings,
+                      site_name: e.target.value,
+                    })
+                  }
+                  icon={<LanguageRounded fontSize="small" />}
+                  placeholder="EnStore"
+                  fullWidth
+                />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                      Support Email
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        value={generalSettings.support_email}
-                        onChange={(e) =>
-                          setGeneralSettings({
-                            ...generalSettings,
-                            support_email: e.target.value,
-                          })
-                        }
-                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-                        placeholder="support@mail.com"
-                      />
-                      <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
-                        <EmailRounded fontSize="small" />
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                      WhatsApp Number
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={generalSettings.support_whatsapp}
-                        onChange={(e) =>
-                          setGeneralSettings({
-                            ...generalSettings,
-                            support_whatsapp: e.target.value,
-                          })
-                        }
-                        className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-                        placeholder="081234..."
-                      />
-                      <div className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30">
-                        <PhoneRounded fontSize="small" />
-                      </div>
-                    </div>
-                  </div>
+                  <DashboardInput
+                    label="Support Email"
+                    type="email"
+                    value={generalSettings.support_email}
+                    onChange={(e) =>
+                      setGeneralSettings({
+                        ...generalSettings,
+                        support_email: e.target.value,
+                      })
+                    }
+                    icon={<EmailRounded fontSize="small" />}
+                    placeholder="support@mail.com"
+                    fullWidth
+                  />
+                  <DashboardInput
+                    label="WhatsApp Number"
+                    type="text"
+                    value={generalSettings.support_whatsapp}
+                    onChange={(e) =>
+                      setGeneralSettings({
+                        ...generalSettings,
+                        support_whatsapp: e.target.value,
+                      })
+                    }
+                    icon={<PhoneRounded fontSize="small" />}
+                    placeholder="081234..."
+                    fullWidth
+                  />
                 </div>
 
                 <div>

@@ -3,35 +3,22 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import {
-  ArrowBackRounded,
-  SaveRounded,
-  ImageRounded,
-  AddRounded,
-  DeleteRounded,
-  DragIndicatorRounded,
-} from "@mui/icons-material";
+import { ArrowBackRounded, SaveRounded } from "@mui/icons-material";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
-import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
+import DashboardInput from "@/components/dashboard/DashboardInput";
+import DashboardSelect from "@/components/dashboard/DashboardSelect";
+import DashboardTextarea from "@/components/dashboard/DashboardTextarea";
 import { api, ENDPOINTS } from "@/lib/api";
+import { ProductCategory as Category, InputField } from "@/lib/api/types";
+
+// Sub-components
+import ProductDynamicFields from "../components/ProductDynamicFields";
+import ProductVisualAssets from "../components/ProductVisualAssets";
 
 // --- Types ---
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-}
-
-interface InputField {
-  name: string;
-  label: string;
-  type: string;
-  required: boolean;
-  options?: string;
-}
+// Local interfaces removed in favor of @/lib/api/types
 
 export default function CreateProductPage() {
   const router = useRouter();
@@ -204,74 +191,54 @@ export default function CreateProductPage() {
               </h3>
 
               <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                    Product Name
-                  </label>
-                  <Input
-                    fullWidth
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="e.g. Mobile Legends"
-                    required
-                  />
-                </div>
+                <DashboardInput
+                  fullWidth
+                  label="Product Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="e.g. Mobile Legends"
+                  required
+                />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                      Brand
-                    </label>
-                    <Input
-                      fullWidth
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleChange}
-                      placeholder="e.g. Moonton"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                      Provider
-                    </label>
-                    <Input
-                      fullWidth
-                      name="provider"
-                      value={formData.provider}
-                      onChange={handleChange}
-                      placeholder="e.g. Digiflazz"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                    Slug (URL)
-                  </label>
-                  <Input
+                  <DashboardInput
                     fullWidth
-                    name="slug"
-                    value={formData.slug}
+                    label="Brand"
+                    name="brand"
+                    value={formData.brand}
                     onChange={handleChange}
-                    placeholder="auto-generated-if-empty"
+                    placeholder="e.g. Moonton"
+                    required
+                  />
+                  <DashboardInput
+                    fullWidth
+                    label="Provider"
+                    name="provider"
+                    value={formData.provider}
+                    onChange={handleChange}
+                    placeholder="e.g. Digiflazz"
                   />
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                    Description
-                  </label>
-                  <Textarea
-                    fullWidth
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Product description..."
-                    rows={4}
-                  />
-                </div>
+                <DashboardInput
+                  fullWidth
+                  label="Slug (URL)"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleChange}
+                  placeholder="auto-generated-if-empty"
+                />
+
+                <DashboardTextarea
+                  fullWidth
+                  label="Description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Product description..."
+                  rows={4}
+                />
               </div>
             </div>
 
@@ -282,97 +249,71 @@ export default function CreateProductPage() {
 
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                      Category
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="category_id"
-                        value={formData.category_id}
-                        onChange={handleChange}
-                        className="w-full appearance-none rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
-                        required
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                      Type
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="w-full appearance-none rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
-                      >
-                        <option value="game">Game Topup</option>
-                        <option value="pulsa">Pulsa</option>
-                        <option value="data">Data Package</option>
-                        <option value="voucher">Voucher</option>
-                        <option value="pln">PLN Token</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                  </div>
+                  <DashboardSelect
+                    label="Category"
+                    name="category_id"
+                    value={formData.category_id}
+                    onChange={handleChange}
+                    options={categories.map((cat) => ({
+                      value: String(cat.id),
+                      label: cat.name,
+                    }))}
+                    placeholder="Select Category"
+                    required
+                    fullWidth
+                  />
+                  <DashboardSelect
+                    label="Type"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                    options={[
+                      { value: "game", label: "Game Topup" },
+                      { value: "pulsa", label: "Pulsa" },
+                      { value: "data", label: "Data Package" },
+                      { value: "voucher", label: "Voucher" },
+                      { value: "pln", label: "PLN Token" },
+                      { value: "other", label: "Other" },
+                    ]}
+                    fullWidth
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                      Payment Type
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="payment_type"
-                        value={formData.payment_type}
-                        onChange={handleChange}
-                        className="w-full appearance-none rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
-                      >
-                        <option value="prepaid">Prepaid (Instant)</option>
-                        <option value="postpaid">Postpaid (Bill)</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                      Sort Order
-                    </label>
-                    <Input
-                      fullWidth
-                      type="number"
-                      name="sort_order"
-                      value={formData.sort_order}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-medium text-brand-500/50 uppercase">
-                    Rating (0-5)
-                  </label>
-                  <Input
+                  <DashboardSelect
+                    label="Payment Type"
+                    name="payment_type"
+                    value={formData.payment_type}
+                    onChange={handleChange}
+                    options={[
+                      { value: "prepaid", label: "Prepaid (Instant)" },
+                      { value: "postpaid", label: "Postpaid (Bill)" },
+                    ]}
                     fullWidth
+                  />
+                  <DashboardInput
+                    fullWidth
+                    label="Sort Order"
                     type="number"
-                    step="0.1"
-                    max="5"
-                    name="rating"
-                    value={formData.rating}
+                    name="sort_order"
+                    value={formData.sort_order}
                     onChange={handleChange}
                   />
                 </div>
 
+                <DashboardInput
+                  fullWidth
+                  label="Rating (0-5)"
+                  type="number"
+                  step="0.1"
+                  max="5"
+                  name="rating"
+                  value={formData.rating}
+                  onChange={handleChange}
+                />
+
                 <div className="flex gap-4 pt-2">
-                  <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 p-3 transition-colors hover:border-ocean-500/30">
+                  <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-2.5 transition-colors hover:border-ocean-500/30">
                     <input
                       type="checkbox"
                       name="is_active"
@@ -380,12 +321,12 @@ export default function CreateProductPage() {
                       onChange={handleCheckbox}
                       className="h-5 w-5 rounded text-ocean-500 focus:ring-ocean-500"
                     />
-                    <span className="text-sm font-medium text-brand-500/90">
+                    <span className="text-sm font-medium text-brand-500/60">
                       Active
                     </span>
                   </label>
 
-                  <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 p-3 transition-colors hover:border-ocean-500/30">
+                  <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-2.5 transition-colors hover:border-ocean-500/30">
                     <input
                       type="checkbox"
                       name="is_featured"
@@ -393,7 +334,7 @@ export default function CreateProductPage() {
                       onChange={handleCheckbox}
                       className="h-5 w-5 rounded text-ocean-500 focus:ring-ocean-500"
                     />
-                    <span className="text-sm font-medium text-brand-500/90">
+                    <span className="text-sm font-medium text-brand-500/60">
                       Featured
                     </span>
                   </label>
@@ -402,171 +343,18 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Dynamic Input Fields */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-brand-500/5 pb-4">
-                <h3 className="text-lg font-bold text-brand-500/90">
-                  Input Fields
-                </h3>
-                <button
-                  type="button"
-                  onClick={addInputField}
-                  className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-ocean-500 transition-colors hover:bg-ocean-500/10"
-                >
-                  <AddRounded fontSize="small" /> Add Field
-                </button>
-              </div>
+          <ProductDynamicFields
+            inputFields={inputFields}
+            onAdd={addInputField}
+            onRemove={removeInputField}
+            onUpdate={updateInputField}
+          />
 
-              <div className="space-y-3">
-                {inputFields.map((field, idx) => (
-                  <div
-                    key={idx}
-                    className="group relative space-y-3 rounded-xl border border-brand-500/5 bg-smoke-200 p-4"
-                  >
-                    <div className="flex gap-3">
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          placeholder="Name (e.g. server_id)"
-                          value={field.name}
-                          onChange={(e) =>
-                            updateInputField(idx, "name", e.target.value)
-                          }
-                          className="w-full rounded-lg border border-transparent bg-smoke-200 px-3 py-2 text-sm text-brand-500/90 outline-none focus:border-ocean-500/20"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          placeholder="Label (e.g. Server)"
-                          value={field.label}
-                          onChange={(e) =>
-                            updateInputField(idx, "label", e.target.value)
-                          }
-                          className="w-full rounded-lg border border-transparent bg-smoke-200 px-3 py-2 text-sm text-brand-500/90 outline-none focus:border-ocean-500/20"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <select
-                        value={field.type}
-                        onChange={(e) =>
-                          updateInputField(idx, "type", e.target.value)
-                        }
-                        className="flex-1 rounded-lg bg-smoke-200 px-3 py-2 text-sm text-brand-500/90 outline-none"
-                      >
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="email">Email</option>
-                        <option value="select">Dropdown (Select)</option>
-                      </select>
-                      <label className="flex cursor-pointer items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={field.required}
-                          onChange={(e) =>
-                            updateInputField(idx, "required", e.target.checked)
-                          }
-                          className="rounded text-ocean-500"
-                        />
-                        <span className="text-xs font-medium text-brand-500/60">
-                          Required
-                        </span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => removeInputField(idx)}
-                        className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-500/10"
-                      >
-                        <DeleteRounded fontSize="small" />
-                      </button>
-                    </div>
-                    {field.type === "select" && (
-                      <div className="border-t border-brand-500/5 pt-2">
-                        <input
-                          type="text"
-                          placeholder="Options (comma separated, e.g. Asia,Europe,America)"
-                          value={field.options || ""}
-                          onChange={(e) =>
-                            updateInputField(idx, "options", e.target.value)
-                          }
-                          className="w-full rounded-lg border border-yellow-500/20 bg-yellow-50 px-3 py-2 text-sm font-bold text-yellow-700 outline-none placeholder:text-yellow-700/40"
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {inputFields.length === 0 && (
-                  <p className="py-4 text-center text-xs font-bold text-brand-500/40">
-                    No input fields defined.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Images */}
-          <div className="space-y-6 border-t border-brand-500/5 pt-4">
-            <h3 className="text-lg font-bold text-brand-500/90">
-              Visual Assets
-            </h3>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {/* Main Image */}
-              <div className="space-y-4">
-                <label className="text-xs font-medium text-brand-500/50 uppercase">
-                  Cover Image
-                </label>
-                <div className="flex items-center gap-4">
-                  <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-brand-500/10 bg-smoke-200">
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <ImageRounded className="text-brand-500/20" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      onChange={(e) => handleImageChange(e, "image")}
-                      accept="image/*"
-                      className="w-full cursor-pointer text-sm text-brand-500/90 file:mr-4 file:rounded-full file:border-0 file:bg-ocean-500/10 file:px-4 file:py-2 file:text-ocean-500 hover:file:bg-ocean-500/20"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Icon */}
-              <div className="space-y-4">
-                <label className="text-xs font-medium text-brand-500/50 uppercase">
-                  Icon / Logo
-                </label>
-                <div className="flex items-center gap-4">
-                  <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-brand-500/10 bg-smoke-200">
-                    {iconPreview ? (
-                      <img
-                        src={iconPreview}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <ImageRounded className="text-brand-500/20" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      onChange={(e) => handleImageChange(e, "icon")}
-                      accept="image/*"
-                      className="w-full cursor-pointer text-sm text-brand-500/90 file:mr-4 file:rounded-full file:border-0 file:bg-ocean-500/10 file:px-4 file:py-2 file:text-ocean-500 hover:file:bg-ocean-500/20"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductVisualAssets
+            imagePreview={imagePreview}
+            iconPreview={iconPreview}
+            handleImageChange={handleImageChange}
+          />
 
           <div className="flex justify-end gap-3 border-t border-brand-500/5 pt-4">
             <DashboardButton

@@ -25,46 +25,16 @@ import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
+import DashboardInput from "@/components/dashboard/DashboardInput";
 
 import { api, ENDPOINTS } from "@/lib/api";
+import { Product, LaravelPagination } from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 // --- Types ---
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  brand: string;
-  type: string;
-  category?: {
-    name: string;
-    slug: string;
-  };
-  is_active: boolean;
-  is_featured: boolean;
-  image?: string;
-  items_count?: number;
-  created_at: string;
-}
+// Local interfaces removed in favor of @/lib/api/types
 
-interface ProductsResponse {
-  current_page: number;
-  data: Product[];
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
-
-interface PaginationMeta {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
+// PaginationMeta removed
 
 // --- Icons Helper ---
 const getTypeIcon = (type: string) => {
@@ -89,7 +59,8 @@ export default function AdminProductsPage() {
 
   // State
   const [products, setProducts] = useState<Product[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [pagination, setPagination] =
+    useState<LaravelPagination<Product> | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [syncing, setSyncing] = useState(false);
@@ -121,18 +92,15 @@ export default function AdminProductsPage() {
 
       const endpoint = `${ENDPOINTS.admin.products.list}?${params.toString()}`;
       // Pass generic type to api.get to fix "unknown" type error
-      const res = await api.get<ProductsResponse>(endpoint, undefined, true);
+      const res = await api.get<LaravelPagination<Product>>(
+        endpoint,
+        undefined,
+        true,
+      );
 
       if (res.success) {
         setProducts(res.data.data);
-        setMeta({
-          current_page: res.data.current_page,
-          last_page: res.data.last_page,
-          per_page: res.data.per_page,
-          total: res.data.total,
-          from: res.data.from,
-          to: res.data.to,
-        });
+        setPagination(res.data);
       }
     } catch (err) {
       console.error("Fetch products failed:", err);
@@ -236,16 +204,14 @@ export default function AdminProductsPage() {
 
         {/* Filter Bar */}
         <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
-          <form onSubmit={handleSearch} className="relative flex-1">
-            <SearchRounded className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30" />
-            <input
-              type="text"
-              placeholder="Search product name, brand, or code..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-12 text-brand-500/90 transition-all outline-none placeholder:text-brand-500/20 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10"
-            />
-          </form>
+          <DashboardInput
+            fullWidth
+            placeholder="Search product name, brand, or code..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            icon={<SearchRounded />}
+            className="flex-1"
+          />
 
           <div className="flex gap-3">
             {/* Unused Input import removed to fix linting, using native input above */}
@@ -386,20 +352,21 @@ export default function AdminProductsPage() {
           )}
 
           {/* Pagination */}
-          {meta && meta.last_page > 1 && (
+          {pagination && pagination.last_page > 1 && (
             <div className="flex items-center justify-between border-t border-brand-500/5 p-4">
               <p className="pl-4 text-xs font-bold text-brand-500/40">
-                Showing {meta.from}-{meta.to} of {meta.total} items
+                Showing {pagination.from}-{pagination.to} of {pagination.total}{" "}
+                items
               </p>
               <div className="flex gap-2 pr-4">
                 <button
-                  onClick={() => handlePageChange(meta.current_page - 1)}
-                  disabled={meta.current_page === 1}
+                  onClick={() => handlePageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
                   className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeftRounded fontSize="small" />
                 </button>
-                {[...Array(meta.last_page).keys()].map((idx) => {
+                {[...Array(pagination.last_page).keys()].map((idx) => {
                   // Simple logic to show max 5 pages, to allow build to pass without errors on "Array(tooBig)" if it happens
                   // But for now, let's just stick to reliable basic map
                   return (
@@ -407,7 +374,7 @@ export default function AdminProductsPage() {
                       key={idx}
                       onClick={() => handlePageChange(idx + 1)}
                       className={`h-8 w-8 rounded-xl border text-xs font-bold transition-colors ${
-                        meta.current_page === idx + 1
+                        pagination.current_page === idx + 1
                           ? "border-ocean-500 bg-ocean-500 text-white"
                           : "border-transparent bg-transparent text-brand-500/60 hover:bg-smoke-200"
                       }`}
@@ -417,8 +384,8 @@ export default function AdminProductsPage() {
                   );
                 })}
                 <button
-                  onClick={() => handlePageChange(meta.current_page + 1)}
-                  disabled={meta.current_page === meta.last_page}
+                  onClick={() => handlePageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
                   className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronRightRounded fontSize="small" />

@@ -22,45 +22,11 @@ import { toast } from "react-hot-toast";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { api, ENDPOINTS } from "@/lib/api";
+import { Transaction, LaravelPagination } from "@/lib/api/types";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 // --- Types ---
-interface Transaction {
-  id: number;
-  transaction_code: string;
-  user?: {
-    name: string;
-    email: string;
-  };
-  product_name: string;
-  total_price: number;
-  status: string;
-  payment_status: string;
-  payment_method: string;
-  created_at: string;
-  product_item?: {
-    is_active: boolean;
-  };
-}
-
-interface TransactionsResponse {
-  current_page: number;
-  data: Transaction[];
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
-
-interface PaginationMeta {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
+// Local interfaces removed in favor of @/lib/api/types
 
 // --- Icons Helper ---
 const getStatusBadge = (status: string) => {
@@ -110,7 +76,8 @@ export default function AdminTransactionsPage() {
 
   // State
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [pagination, setPagination] =
+    useState<LaravelPagination<Transaction> | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -146,7 +113,7 @@ export default function AdminTransactionsPage() {
 
       const endpoint = `${ENDPOINTS.admin.transactions.list}?${params.toString()}`;
       // Add generic type
-      const res = await api.get<TransactionsResponse>(
+      const res = await api.get<LaravelPagination<Transaction>>(
         endpoint,
         undefined,
         true,
@@ -154,14 +121,7 @@ export default function AdminTransactionsPage() {
 
       if (res.success) {
         setTransactions(res.data.data);
-        setMeta({
-          current_page: res.data.current_page,
-          last_page: res.data.last_page,
-          per_page: res.data.per_page,
-          total: res.data.total,
-          from: res.data.from,
-          to: res.data.to,
-        });
+        setPagination(res.data);
       }
     } catch (err) {
       console.error("Fetch transactions failed:", err);
@@ -440,7 +400,7 @@ export default function AdminTransactionsPage() {
 
                           <button
                             onClick={() =>
-                              copyToClipboard(trx.transaction_code)
+                              copyToClipboard(trx.transaction_code || "")
                             }
                             className="rounded-xl p-2 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500/90"
                             title="Copy Code"
@@ -466,22 +426,23 @@ export default function AdminTransactionsPage() {
           )}
 
           {/* Pagination */}
-          {meta && meta.last_page > 1 && (
+          {pagination && pagination.last_page > 1 && (
             <div className="flex items-center justify-between border-t border-brand-500/5 p-4">
               <p className="pl-4 text-xs font-bold text-brand-500/40">
-                Showing {meta.from}-{meta.to} of {meta.total} transactions
+                Showing {pagination.from}-{pagination.to} of {pagination.total}{" "}
+                transactions
               </p>
               <div className="flex gap-2 pr-4">
                 <button
-                  onClick={() => handlePageChange(meta.current_page - 1)}
-                  disabled={meta.current_page === 1}
+                  onClick={() => handlePageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
                   className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeftRounded fontSize="small" />
                 </button>
                 <button
-                  onClick={() => handlePageChange(meta.current_page + 1)}
-                  disabled={meta.current_page === meta.last_page}
+                  onClick={() => handlePageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
                   className="rounded-xl border border-brand-500/10 p-2 text-brand-500/90 transition-colors hover:bg-smoke-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronRightRounded fontSize="small" />
