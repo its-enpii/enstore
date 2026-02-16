@@ -2,7 +2,10 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded } from "@mui/icons-material";
+import {
+  KeyboardArrowLeftRounded,
+  KeyboardArrowRightRounded,
+} from "@mui/icons-material";
 
 // ============================================================
 // DataTable Column Definition
@@ -53,7 +56,7 @@ function SkeletonRow({ cols }: { cols: number }) {
     <tr className="animate-pulse">
       {Array.from({ length: cols }).map((_, i) => (
         <td key={i} className="px-5 py-4">
-          <div className="h-4 bg-brand-500/5 rounded-full w-3/4" />
+          <div className="h-4 w-3/4 rounded-full bg-brand-500/5" />
         </td>
       ))}
     </tr>
@@ -80,7 +83,6 @@ function DataTable<T>({
   onSort,
   rowKey,
 }: DataTableProps<T>) {
-
   const alignClass = (align?: string) => {
     if (align === "center") return "text-center";
     if (align === "right") return "text-right";
@@ -91,7 +93,7 @@ function DataTable<T>({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-smoke-200 dark:bg-brand-800 rounded-[28px] border border-brand-500/5 overflow-hidden"
+      className="overflow-hidden rounded-[28px] border border-brand-500/5 bg-smoke-200"
     >
       {/* Table */}
       <div className="overflow-x-auto">
@@ -101,14 +103,18 @@ function DataTable<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-5 py-4 text-[10px] font-black text-brand-500/40 dark:text-brand-500/50 ${alignClass(col.align)} ${col.sortable ? "cursor-pointer select-none hover:text-ocean-500 transition-colors" : ""}`}
+                  className={`px-5 py-4 text-[10px] font-black text-brand-500/40 ${alignClass(col.align)} ${col.sortable ? "cursor-pointer transition-colors select-none hover:text-ocean-500" : ""}`}
                   style={col.width ? { width: col.width } : undefined}
                   onClick={() => col.sortable && onSort?.(col.key)}
                 >
-                  <div className={`inline-flex items-center gap-1 ${col.align === "right" ? "flex-row-reverse" : ""}`}>
+                  <div
+                    className={`inline-flex items-center gap-1 ${col.align === "right" ? "flex-row-reverse" : ""}`}
+                  >
                     {col.label}
                     {col.sortable && sortBy === col.key && (
-                      <span className="text-ocean-500 text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
+                      <span className="text-xs text-ocean-500">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -126,33 +132,42 @@ function DataTable<T>({
             )}
 
             {/* Data Rows */}
-            {!loading && data.length > 0 && data.map((row, idx) => (
-              <tr
-                key={rowKey ? rowKey(row, idx) : idx}
-                className="hover:bg-cloud-200/60 dark:hover:bg-brand-700/30 transition-colors duration-150"
-              >
-                {columns.map((col) => (
-                  <td key={col.key} className={`px-5 py-4 text-sm text-brand-500 dark:text-smoke-300 ${alignClass(col.align)}`}>
-                    {col.render
-                      ? col.render(row, idx)
-                      : String((row as any)[col.key] ?? "-")}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {!loading &&
+              data.length > 0 &&
+              data.map((row, idx) => (
+                <tr
+                  key={rowKey ? rowKey(row, idx) : idx}
+                  className="transition-colors duration-150 hover:bg-cloud-200/60"
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className={`px-5 py-4 text-sm text-brand-500 ${alignClass(col.align)}`}
+                    >
+                      {col.render
+                        ? col.render(row, idx)
+                        : String((row as any)[col.key] ?? "-")}
+                    </td>
+                  ))}
+                </tr>
+              ))}
 
             {/* Empty State */}
             {!loading && data.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="px-5 py-16 text-center">
                   {emptyIcon && (
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-brand-500/5 flex items-center justify-center text-brand-500/15">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-500/5 text-brand-500/15">
                       {emptyIcon}
                     </div>
                   )}
-                  <p className="text-xs font-black text-brand-500/30">{emptyTitle}</p>
+                  <p className="text-xs font-black text-brand-500/30">
+                    {emptyTitle}
+                  </p>
                   {emptyDescription && (
-                    <p className="text-xs text-brand-500/20 mt-1">{emptyDescription}</p>
+                    <p className="mt-1 text-xs text-brand-500/20">
+                      {emptyDescription}
+                    </p>
                   )}
                 </td>
               </tr>
@@ -163,15 +178,16 @@ function DataTable<T>({
 
       {/* Pagination */}
       {onPageChange && lastPage > 1 && (
-        <div className="flex items-center justify-between px-5 py-4 border-t border-brand-500/5">
+        <div className="flex items-center justify-between border-t border-brand-500/5 px-5 py-4">
           <p className="text-[10px] font-bold text-brand-500/30">
-            Showing {((currentPage - 1) * perPage) + 1}–{Math.min(currentPage * perPage, total)} of {total}
+            Showing {(currentPage - 1) * perPage + 1}–
+            {Math.min(currentPage * perPage, total)} of {total}
           </p>
           <div className="flex items-center gap-1">
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage <= 1}
-              className="p-1.5 rounded-lg text-brand-500/40 hover:text-brand-500 hover:bg-brand-500/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="rounded-lg p-1.5 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <KeyboardArrowLeftRounded fontSize="small" />
             </button>
@@ -191,10 +207,10 @@ function DataTable<T>({
                 <button
                   key={page}
                   onClick={() => onPageChange(page)}
-                  className={`w-8 h-8 rounded-lg text-xs font-black transition-colors ${
+                  className={`h-8 w-8 rounded-lg text-xs font-black transition-colors ${
                     page === currentPage
                       ? "bg-ocean-500 text-smoke-200"
-                      : "text-brand-500/40 hover:text-brand-500 hover:bg-brand-500/5"
+                      : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500"
                   }`}
                 >
                   {page}
@@ -205,7 +221,7 @@ function DataTable<T>({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage >= lastPage}
-              className="p-1.5 rounded-lg text-brand-500/40 hover:text-brand-500 hover:bg-brand-500/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="rounded-lg p-1.5 text-brand-500/40 transition-colors hover:bg-brand-500/5 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <KeyboardArrowRightRounded fontSize="small" />
             </button>

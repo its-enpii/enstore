@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @theme {
+  --variant-dark: .dark &;
+
   /* Brand Navy color palette (based on #00171F) */
   --color-brand-50: #e6eaeb;
   --color-brand-100: #ccd5d8;
@@ -54,31 +56,72 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+  color-scheme: light !important;
+}
+
+body {
+  @apply bg-smoke-200 text-brand-500;
+  color: #00171f !important;
+  background-color: #f9f9f9 !important;
+}
+
 /* Animations */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-100%); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 0.1; transform: scale(1); }
-  50% { opacity: 0.15; transform: scale(1.05); }
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.05);
+  }
 }
 
-.animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
-.animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
-.animate-slide-down { animation: slide-down 0.5s ease-out forwards; }
-.animate-pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+.animate-slide-down {
+  animation: slide-down 0.5s ease-out forwards;
+}
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
 
 /* Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
@@ -90,7 +133,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-brand-500/10 rounded-full;
+  @apply rounded-full bg-brand-500/10;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {

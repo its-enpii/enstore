@@ -19,6 +19,7 @@ import {
 import { motion } from "motion/react";
 import Link from "next/link";
 import { api, ENDPOINTS } from "@/lib/api";
+import RevenueChart from "@/components/dashboard/RevenueChart";
 
 export default function AdminDashboard() {
   const [data, setData] = useState<any>(null);
@@ -86,14 +87,16 @@ export default function AdminDashboard() {
       progress: 88,
     },
     {
-      title: "System Balance",
-      value: "Rp 12.450.000", // This would normally come from a provider API check
+      title: "Estimated Profit (MTD)",
+      value: data
+        ? `Rp ${data.revenue.total_profit.toLocaleString("id-ID")}`
+        : "Rp 0",
       icon: <AccountBalanceWalletRounded />,
       color: "bg-brand-500",
       text: "text-brand-500",
       bg_light: "bg-brand-500/10",
-      growth: 3,
-      progress: 95,
+      growth: 8,
+      progress: 92,
     },
   ];
 
@@ -205,11 +208,11 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="group rounded-[32px] border border-brand-500/5 bg-smoke-200 p-6 transition-all duration-300 hover:border-ocean-500/20"
+              className="group rounded-[32px] border border-brand-500/5 bg-smoke-200 p-6 shadow-sm transition-all duration-300 hover:border-ocean-500/20 hover:shadow-md"
             >
               <div className="mb-4 flex items-center justify-between">
                 <div
-                  className={`h-12 w-12 ${stat.color} flex items-center justify-center rounded-2xl text-smoke-200 transition-transform duration-300 group-hover:scale-110`}
+                  className={`h-12 w-12 ${stat.color} flex items-center justify-center rounded-2xl text-smoke-200 shadow-lg shadow-ocean-500/10 transition-transform duration-300 group-hover:scale-110`}
                 >
                   {stat.icon}
                 </div>
@@ -240,12 +243,138 @@ export default function AdminDashboard() {
                     initial={{ width: 0 }}
                     animate={{ width: `${stat.progress}%` }}
                     transition={{ delay: 0.5 + idx * 0.1, duration: 1 }}
-                    className={`h-full ${stat.color}`}
+                    className={`h-full ${stat.color} shadow-[0_0_8px_rgba(14,165,233,0.3)]`}
                   />
                 </div>
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Analytics Section - New Chart Row */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-black text-brand-500">
+                Revenue & Sales Performance
+              </h2>
+              <Link
+                href="/admin/reports/sales"
+                className="text-xs font-bold tracking-widest text-ocean-500 uppercase hover:underline"
+              >
+                Detailed Report
+              </Link>
+            </div>
+            <div className="rounded-[40px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+              <div className="mb-8 flex items-center gap-6">
+                <div>
+                  <p className="text-[10px] font-bold tracking-widest text-brand-500/40 uppercase">
+                    Avg. Daily Revenue
+                  </p>
+                  <p className="text-xl font-black text-brand-500">
+                    Rp{" "}
+                    {data
+                      ? Math.round(
+                          data.revenue.total_revenue / 30,
+                        ).toLocaleString("id-ID")
+                      : "0"}
+                  </p>
+                </div>
+                <div className="h-8 w-px bg-brand-500/10"></div>
+                <div>
+                  <p className="text-[10px] font-bold tracking-widest text-brand-500/40 uppercase">
+                    Success Rate
+                  </p>
+                  <p className="text-xl font-black text-emerald-500">
+                    {data?.overview.success_rate || 0}%
+                  </p>
+                </div>
+              </div>
+              <div className="h-[240px]">
+                <RevenueChart data={data?.charts.daily_revenue || []} />
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Sidebar */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-black text-brand-500">
+              Sales Distribution
+            </h2>
+            <div className="h-full rounded-[40px] border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+              <div className="space-y-6">
+                {data?.charts.status_distribution &&
+                  Object.entries(data.charts.status_distribution).map(
+                    ([status, count]: [string, any], idx) => (
+                      <div
+                        key={status}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`h-2 w-2 rounded-full ${
+                              status === "success"
+                                ? "bg-emerald-500"
+                                : status === "pending"
+                                  ? "bg-brand-500"
+                                  : "bg-red-500"
+                            }`}
+                          ></div>
+                          <span className="text-sm font-bold text-brand-500/60 capitalize">
+                            {status}
+                          </span>
+                        </div>
+                        <span className="text-sm font-black text-brand-500">
+                          {count}
+                        </span>
+                      </div>
+                    ),
+                  )}
+
+                <div className="border-t border-brand-500/5 pt-6">
+                  <p className="mb-4 text-[10px] font-bold tracking-widest text-brand-500/40 uppercase">
+                    Top Transaction Types
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-end justify-between">
+                      <span className="text-xs font-bold text-ocean-500">
+                        Purchase
+                      </span>
+                      <span className="text-xs font-black text-brand-500">
+                        Rp{" "}
+                        {data?.revenue.by_type.purchase.toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-cloud-200">
+                      <div
+                        className="h-full rounded-full bg-ocean-500"
+                        style={{
+                          width: `${(data?.revenue.by_type.purchase / data?.revenue.total_revenue) * 100}%`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex items-end justify-between">
+                      <span className="text-xs font-bold text-brand-500/60">
+                        Top Up
+                      </span>
+                      <span className="text-xs font-black text-brand-500">
+                        Rp {data?.revenue.by_type.topup.toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-cloud-200">
+                      <div
+                        className="h-full rounded-full bg-brand-500"
+                        style={{
+                          width: `${(data?.revenue.by_type.topup / data?.revenue.total_revenue) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

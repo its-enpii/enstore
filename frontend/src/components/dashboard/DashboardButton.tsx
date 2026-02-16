@@ -14,7 +14,7 @@ interface DashboardButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
 /**
  * Dashboard Button - follows Encore UI button styling
  * with EnStore color palette.
- * 
+ *
  * Key patterns from encore-ui:
  * - rounded-xl
  * - shadow-sm hover:shadow-md active:scale-95
@@ -37,7 +37,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
     primary:
       "bg-ocean-500 hover:bg-ocean-600 active:bg-ocean-800 focus:ring-4 focus:ring-ocean-500/30 text-white shadow-sm hover:shadow-md",
     secondary:
-      "bg-slate-100 hover:bg-slate-200 active:bg-slate-300 focus:ring-4 focus:ring-slate-500/20 text-slate-600 dark:bg-slate-700 dark:text-slate-200",
+      "bg-slate-100 hover:bg-slate-200 active:bg-slate-300 focus:ring-4 focus:ring-slate-500/20 text-slate-600",
     success:
       "bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 focus:ring-4 focus:ring-emerald-500/30 text-white shadow-sm hover:shadow-md",
     danger:
@@ -55,21 +55,11 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
   return (
     <button
       disabled={disabled || loading}
-      className={`
-        inline-flex items-center justify-center gap-2
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        font-semibold rounded-xl
-        active:scale-95
-        transition-all duration-200
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-        ${fullWidth ? "w-full" : ""}
-        ${className}
-      `}
+      className={`inline-flex items-center justify-center gap-2 ${variantStyles[variant]} ${sizeStyles[size]} rounded-xl font-semibold transition-all duration-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 ${fullWidth ? "w-full" : ""} ${className} `}
       {...props}
     >
       {loading && (
-        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
       )}
       {!loading && icon && iconPosition === "left" && icon}
       {children}

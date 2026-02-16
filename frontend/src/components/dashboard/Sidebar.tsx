@@ -26,6 +26,8 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import DashboardConfirmDialog from "./DashboardConfirmDialog";
+import { api, ENDPOINTS } from "@/lib/api";
+import { useEffect } from "react";
 
 interface MenuItem {
   title: string;
@@ -50,6 +52,30 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
   const { logout } = useAuth();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (role === "admin") {
+      const fetchPendingCount = async () => {
+        try {
+          const res = await api.get(
+            ENDPOINTS.admin.transactions.list,
+            { status: "pending", per_page: 1 },
+            true,
+          );
+          if (res.success) {
+            setPendingCount((res.data as any).total || 0);
+          }
+        } catch (err) {
+          console.error("Failed to fetch pending count for sidebar:", err);
+        }
+      };
+
+      fetchPendingCount();
+      const interval = setInterval(fetchPendingCount, 60000); // Update every minute
+      return () => clearInterval(interval);
+    }
+  }, [role]);
 
   const toggleMenu = (title: string) => {
     setOpenMenus((prev) => ({
@@ -114,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                 title: "Transactions",
                 href: "/admin/transactions",
                 icon: <ReceiptLongRounded />,
-                badge: "New",
+                badge: pendingCount > 0 ? String(pendingCount) : undefined,
               },
               {
                 title: "Categories & Products",
@@ -254,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
 
   return (
     <>
-      <div className="flex h-16 shrink-0 items-center border-b border-slate-100 px-6 dark:border-slate-700">
+      <div className="flex h-16 shrink-0 items-center border-b border-slate-100 px-6">
         <div className="flex items-center gap-3 text-xl font-bold tracking-tight text-ocean-500">
           <div className="flex h-10 w-10 rotate-3 items-center justify-center rounded-2xl bg-linear-to-br from-ocean-400 to-ocean-600 text-smoke-200 shadow-lg shadow-ocean-500/20">
             <GamepadRounded fontSize="medium" />
@@ -281,7 +307,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
           <ul className="space-y-6">
             {menuSections.map((section, idx) => (
               <li key={idx} className="space-y-2">
-                <div className="mt-2 px-3.5 py-2.5 text-xs font-bold tracking-wide text-slate-700 uppercase dark:text-slate-300">
+                <div className="mt-2 px-3.5 py-2.5 text-xs font-bold tracking-wide text-slate-700 uppercase">
                   {section.header}
                 </div>
                 <ul className="space-y-1">
@@ -308,14 +334,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
 
                     // Encore UI Style Mappings
                     const linkBaseClass =
-                      "w-full text-left flex items-center gap-2 px-3.5 py-2.5 text-sm font-normal rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer group";
+                      "w-full text-left flex items-center gap-2 px-3.5 py-2.5 text-sm font-normal rounded-xl hover:bg-slate-100 transition-colors cursor-pointer group";
                     const linkActiveClass =
-                      "bg-transparent font-bold text-ocean-500 dark:text-ocean-400";
-                    const linkInactiveClass =
-                      "text-slate-700 dark:text-slate-300";
+                      "bg-transparent font-bold text-ocean-500";
+                    const linkInactiveClass = "text-slate-700";
 
-                    const iconClass = `text-lg mr-1.5 transition-colors duration-200 ${isActive || isOpen ? "text-ocean-500 dark:text-ocean-400" : "text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200"}`;
-                    const chevronClass = `ml-auto text-sm transition-transform duration-200 ${isOpen ? "rotate-90" : ""} ${isActive || isOpen ? "text-ocean-500 dark:text-ocean-400" : "text-slate-400 dark:text-slate-500"}`;
+                    const iconClass = `text-lg mr-1.5 transition-colors duration-200 ${isActive || isOpen ? "text-ocean-500" : "text-slate-500 group-hover:text-slate-700"}`;
+                    const chevronClass = `ml-auto text-sm transition-transform duration-200 ${isOpen ? "rotate-90" : ""} ${isActive || isOpen ? "text-ocean-500" : "text-slate-400"}`;
 
                     return (
                       <li key={itemIdx}>
@@ -344,8 +369,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                                         href={sub.href}
                                         className={`block rounded-xl px-3.5 py-2.5 pl-9 text-sm transition-colors ${
                                           isSubActive
-                                            ? "font-medium text-ocean-500 dark:text-ocean-400"
-                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+                                            ? "font-medium text-ocean-500"
+                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                         }`}
                                       >
                                         {sub.title}
@@ -382,13 +407,13 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
         </nav>
       </div>
 
-      <div className="space-y-2 border-t border-slate-100 p-4 dark:border-slate-700">
+      <div className="space-y-2 border-t border-slate-100 p-4">
         <Link
           href="/help"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-100"
         >
           <ContactSupportRounded
-            className="text-lg text-slate-400 dark:text-slate-500"
+            className="text-lg text-slate-400"
             fontSize="inherit"
           />
           <span className="font-medium">Help center</span>
@@ -396,7 +421,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
 
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/10"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
         >
           <LogoutRounded className="text-lg" fontSize="inherit" />
           <span className="font-medium">Logout</span>

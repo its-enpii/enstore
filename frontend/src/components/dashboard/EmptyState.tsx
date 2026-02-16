@@ -10,19 +10,26 @@ interface EmptyStateProps {
   action?: React.ReactNode;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, action }) => {
+const EmptyState: React.FC<EmptyStateProps> = ({
+  icon,
+  title,
+  description,
+  action,
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="py-16 px-8 text-center bg-cloud-200/50 dark:bg-brand-800/30 rounded-[32px] border border-dashed border-brand-500/10"
+      className="rounded-[32px] border border-dashed border-brand-500/10 bg-cloud-200/50 px-8 py-16 text-center"
     >
-      <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-brand-500/5 flex items-center justify-center text-brand-500/15">
+      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-500/5 text-brand-500/15">
         {icon}
       </div>
-      <h3 className="text-sm font-black text-brand-500/40 dark:text-brand-500/50">{title}</h3>
+      <h3 className="text-sm font-black text-brand-500/40">{title}</h3>
       {description && (
-        <p className="text-xs text-brand-500/30 dark:text-brand-500/40 mt-2 max-w-sm mx-auto">{description}</p>
+        <p className="mx-auto mt-2 max-w-sm text-xs text-brand-500/30">
+          {description}
+        </p>
       )}
       {action && <div className="mt-6">{action}</div>}
     </motion.div>

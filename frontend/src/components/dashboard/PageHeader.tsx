@@ -11,30 +11,47 @@ interface PageHeaderProps {
   breadcrumbs?: { label: string; href?: string }[];
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, description, emoji, actions, breadcrumbs }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({
+  title,
+  description,
+  emoji,
+  actions,
+  breadcrumbs,
+}) => {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="flex items-center gap-1 mb-2">
+          <nav className="mb-2 flex items-center gap-1">
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
-                {idx > 0 && <span className="text-brand-500/20 text-xs mx-1">/</span>}
+                {idx > 0 && (
+                  <span className="mx-1 text-xs text-brand-500/20">/</span>
+                )}
                 {crumb.href ? (
-                  <Link href={crumb.href} className="text-[10px] font-bold text-brand-500/40 hover:text-ocean-500 transition-colors">
+                  <Link
+                    href={crumb.href}
+                    className="text-[10px] font-bold text-brand-500/40 transition-colors hover:text-ocean-500"
+                  >
                     {crumb.label}
                   </Link>
                 ) : (
-                  <span className="text-[10px] font-bold text-brand-500/60 dark:text-brand-500/40">{crumb.label}</span>
+                  <span className="text-[10px] font-bold text-brand-500/60">
+                    {crumb.label}
+                  </span>
                 )}
               </React.Fragment>
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-black text-brand-500 dark:text-smoke-200">
+        <h1 className="text-2xl font-black text-brand-500">
           {title} {emoji && <span>{emoji}</span>}
         </h1>
-        {description && <p className="text-brand-500/50 dark:text-brand-500/40 mt-1 font-bold text-sm">{description}</p>}
+        {description && (
+          <p className="mt-1 text-sm font-bold text-brand-500/50">
+            {description}
+          </p>
+        )}
       </div>
       {actions && <div className="flex items-center gap-3">{actions}</div>}
     </div>
