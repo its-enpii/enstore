@@ -251,7 +251,7 @@ class BalanceService
         'balance_id' => $balance->id,
         'transaction_id' => $transaction ? $transaction->id : null,
         'type' => 'debit',
-        'amount' => $balance,
+        'amount' => $amount,
         'balance_before' => $balanceBefore,
         'balance_after' => $balanceAfter,
         'description' => $description,

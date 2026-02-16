@@ -59,6 +59,9 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+// Public Banner Routes
+Route::get('/banners', [App\Http\Controllers\Api\Public\BannerController::class, 'index']);
+
 // Public Transaction Routes (Guest Checkout)
 Route::post('/transactions/purchase', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'createPurchase']);
 Route::get('/transactions/status/{transactionCode}', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'checkStatus']);
@@ -155,6 +158,32 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}', [App\Http\Controllers\Api\Admin\ActivityLogController::class, 'show']);
             Route::post('/clean', [App\Http\Controllers\Api\Admin\ActivityLogController::class, 'clean']);
         });
+
+        // Withdrawals
+        Route::prefix('withdrawals')->group(function () {
+            Route::get('/', [App\Http\Controllers\Api\Admin\WithdrawalController::class, 'index']);
+            Route::get('/{id}', [App\Http\Controllers\Api\Admin\WithdrawalController::class, 'show']);
+            Route::put('/{id}/status', [App\Http\Controllers\Api\Admin\WithdrawalController::class, 'updateStatus']);
+        });
+
+        // Banner Management
+        Route::prefix('banners')->group(function () {
+            Route::get('/', [App\Http\Controllers\Api\Admin\BannerController::class, 'index']);
+            Route::post('/', [App\Http\Controllers\Api\Admin\BannerController::class, 'store']);
+            Route::get('/{id}', [App\Http\Controllers\Api\Admin\BannerController::class, 'show']);
+            Route::post('/{id}', [App\Http\Controllers\Api\Admin\BannerController::class, 'update']); // Use POST because of multipart/form-data with PUT issues in PHP
+            Route::delete('/{id}', [App\Http\Controllers\Api\Admin\BannerController::class, 'destroy']);
+            Route::post('/update-order', [App\Http\Controllers\Api\Admin\BannerController::class, 'updateSortOrder']);
+        });
+
+        // Voucher Management
+        Route::prefix('vouchers')->group(function () {
+            Route::get('/', [App\Http\Controllers\Api\Admin\VoucherController::class, 'index']);
+            Route::post('/', [App\Http\Controllers\Api\Admin\VoucherController::class, 'store']);
+            Route::get('/{id}', [App\Http\Controllers\Api\Admin\VoucherController::class, 'show']);
+            Route::put('/{id}', [App\Http\Controllers\Api\Admin\VoucherController::class, 'update']);
+            Route::delete('/{id}', [App\Http\Controllers\Api\Admin\VoucherController::class, 'destroy']);
+        });
     });
 
     // Customer routes (both retail and reseller)
@@ -175,6 +204,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('balance')->group(function () {
             Route::get('/', [App\Http\Controllers\Api\Customer\BalanceController::class, 'index']);
             Route::get('/mutations', [App\Http\Controllers\Api\Customer\BalanceController::class, 'mutations']);
+        });
+
+        // Withdrawals
+        Route::prefix('withdrawals')->group(function () {
+            Route::get('/', [App\Http\Controllers\Api\Customer\WithdrawalController::class, 'index']);
+            Route::post('/', [App\Http\Controllers\Api\Customer\WithdrawalController::class, 'store']);
         });
 
         // Postpaid (PPOB)

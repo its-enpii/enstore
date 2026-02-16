@@ -44,6 +44,7 @@ export interface CustomerTransaction {
   product_code?: string;
   product_price: number;
   admin_fee: number;
+  discount_amount: number;
   total_price: number;
   customer_data?: Record<string, string>;
   payment_method: string;
@@ -127,6 +128,7 @@ export interface TopUpResponse {
 export interface PurchaseBalanceRequest {
   product_item_id: number;
   customer_data: Record<string, string>;
+  voucher_code?: string;
 }
 
 // ----------------------------------------------------------
@@ -227,6 +229,7 @@ export async function customerPurchase(data: {
   product_item_id: number;
   payment_method: string;
   customer_data: Record<string, string>;
+  voucher_code?: string;
 }): Promise<ApiResponse<any>> {
   return api.post(ENDPOINTS.customer.purchase, data, true);
 }

@@ -23,6 +23,8 @@ import {
   StorefrontRounded,
   FavoriteRounded,
   AutoGraphRounded,
+  MonetizationOnRounded,
+  ConfirmationNumberRounded,
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import DashboardConfirmDialog from "./DashboardConfirmDialog";
@@ -155,6 +157,16 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                 href: "/admin/users",
                 icon: <PeopleRounded />,
               },
+              {
+                title: "Withdrawal Requests",
+                href: "/admin/withdrawals",
+                icon: <MonetizationOnRounded />,
+              },
+              {
+                title: "Voucher Management",
+                href: "/admin/vouchers",
+                icon: <ConfirmationNumberRounded />,
+              },
             ],
           },
           {
@@ -164,6 +176,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose }) => {
                 title: "Platform Settings",
                 href: "/admin/settings",
                 icon: <SettingsRounded />,
+              },
+              {
+                title: "Banner Management",
+                href: "/admin/banners",
+                icon: <ViewCarouselRounded />,
               },
               {
                 title: "Activity Logs",

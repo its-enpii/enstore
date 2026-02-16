@@ -11,12 +11,15 @@ class Voucher extends Model
 
     protected $fillable = [
         'code',
+        'name',
         'type',
         'value',
         'min_transaction',
         'max_discount',
         'usage_limit',
         'usage_count',
+        'user_limit',
+        'product_id',
         'customer_type',
         'is_active',
         'start_date',
@@ -30,6 +33,8 @@ class Voucher extends Model
         'max_discount' => 'decimal:2',
         'usage_limit' => 'integer',
         'usage_count' => 'integer',
+        'user_limit' => 'integer',
+        'product_id' => 'integer',
         'is_active' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
@@ -45,6 +50,14 @@ class Voucher extends Model
         return $this->hasMany(VoucherUsage::class);
     }
 
+    /**
+     * Get the associated product (if any)
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
     // ==================== SCOPES ====================
 
     /**
@@ -53,9 +66,18 @@ class Voucher extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->whereRaw('usage_count < usage_limit');
+            ->where(function ($q) {
+                $q->whereNull('start_date')
+                    ->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('usage_limit')
+                    ->orWhereRaw('usage_count < usage_limit');
+            });
     }
 
     // ==================== METHODS ====================
@@ -66,9 +88,9 @@ class Voucher extends Model
     public function isValid()
     {
         return $this->is_active
-            && $this->start_date <= now()
-            && $this->end_date >= now()
-            && $this->usage_count < $this->usage_limit;
+            && (is_null($this->start_date) || $this->start_date <= now())
+            && (is_null($this->end_date) || $this->end_date >= now())
+            && (is_null($this->usage_limit) || $this->usage_count < $this->usage_limit);
     }
 
     /**

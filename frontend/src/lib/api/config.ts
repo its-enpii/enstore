@@ -42,6 +42,7 @@ export const ENDPOINTS = {
     cancel: (code: string) => `/transactions/${code}/cancel`,
     /** GET - Get available payment channels */
     paymentChannels: "/transactions/payment-channels",
+    banners: "/banners",
   },
 
   // ----------------------------------------------------------
@@ -94,6 +95,11 @@ export const ENDPOINTS = {
     /** GET - Get balance mutations */
     balanceMutations: "/customer/balance/mutations",
 
+    /** GET - Get withdrawal history */
+    withdrawals: "/customer/withdrawals",
+    /** POST - Create withdrawal request */
+    createWithdrawal: "/customer/withdrawals",
+
     /** POST - Postpaid inquiry */
     postpaidInquiry: "/customer/postpaid/inquiry",
     /** POST - Postpaid pay */
@@ -106,8 +112,6 @@ export const ENDPOINTS = {
   admin: {
     /** GET - Dashboard statistics */
     dashboard: "/admin/dashboard",
-
-
 
     products: {
       /** GET - List all products */
@@ -208,6 +212,31 @@ export const ENDPOINTS = {
       detail: (id: number | string) => `/admin/activity-logs/${id}`,
       /** POST - Clean old logs */
       clean: "/admin/activity-logs/clean",
+    },
+
+    withdrawals: {
+      /** GET - List all withdrawals */
+      list: "/admin/withdrawals",
+      /** GET - Get withdrawal detail */
+      detail: (id: number | string) => `/admin/withdrawals/${id}`,
+      /** PUT - Update withdrawal status */
+      updateStatus: (id: number | string) => `/admin/withdrawals/${id}/status`,
+    },
+    banners: {
+      // Added admin banner endpoints
+      list: "/admin/banners",
+      create: "/admin/banners",
+      detail: (id: number | string) => `/admin/banners/${id}`,
+      update: (id: number | string) => `/admin/banners/${id}`,
+      delete: (id: number | string) => `/admin/banners/${id}`,
+      updateOrder: "/admin/banners/update-order",
+    },
+    vouchers: {
+      list: "/admin/vouchers",
+      create: "/admin/vouchers",
+      detail: (id: number | string) => `/admin/vouchers/${id}`,
+      update: (id: number | string) => `/admin/vouchers/${id}`,
+      delete: (id: number | string) => `/admin/vouchers/${id}`,
     },
   },
 } as const;

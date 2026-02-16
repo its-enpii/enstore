@@ -51,7 +51,8 @@ class TransactionController extends Controller
         $user,
         $productItem,
         $request->customer_data,
-        $request->payment_method
+        $request->payment_method,
+        $request->voucher_code
       );
 
       $orderItems = [
@@ -144,7 +145,8 @@ class TransactionController extends Controller
       $transaction = $this->transactionService->createBalancePurchaseTransaction(
         $user,
         $productItem,
-        $request->customer_data
+        $request->customer_data,
+        $request->voucher_code
       );
 
       // Dispatch appropriate job based on payment type

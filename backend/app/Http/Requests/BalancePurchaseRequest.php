@@ -30,6 +30,7 @@ class BalancePurchaseRequest extends FormRequest
             'customer_data.zone_id' => 'sometimes|string|max:255',
             'customer_data.phone' => 'sometimes|string|max:20',
             'customer_data.server' => 'sometimes|string|max:100',
+            'voucher_code' => 'sometimes|nullable|string|exists:vouchers,code',
         ];
     }
 

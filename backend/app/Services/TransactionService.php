@@ -16,13 +16,16 @@ class TransactionService
 {
   protected $productService;
   protected $balanceService;
+  protected $voucherService;
 
   public function __construct(
     ProductService $productService,
-    BalanceService $balanceService
+    BalanceService $balanceService,
+    VoucherService $voucherService
   ) {
     $this->productService = $productService;
     $this->balanceService = $balanceService;
+    $this->voucherService = $voucherService;
   }
 
   /**
@@ -53,7 +56,8 @@ class TransactionService
     ?User $user,
     ProductItem $productItem,
     array $customerData,
-    string $paymentMethod
+    string $paymentMethod,
+    ?string $voucherCode = null
   ) {
     // Validate product item availability
     if (!$productItem->isAvailable()) {
@@ -69,11 +73,23 @@ class TransactionService
       $adminFee = $this->getAdminFee($paymentMethod);
       $totalPrice = $price + $adminFee;
 
+      $discountAmount = 0;
+      $voucherId = null;
+
+      // Handle Voucher
+      if ($voucherCode) {
+        $voucher = $this->voucherService->validateVoucher($voucherCode, $user, $productItem, $price);
+        $discountAmount = $this->voucherService->calculateDiscount($voucher, $price);
+        $totalPrice = max(0, $totalPrice - $discountAmount);
+        $voucherId = $voucher->id;
+      }
+
       // Create transaction
       $transaction = Transaction::create([
         'transaction_code' => $this->generateTransactionCode(),
         'user_id' => $user ? $user->id : null,
         'product_item_id' => $productItem->id,
+        'voucher_id' => $voucherId, // Add voucher_id
         'customer_type' => $customerType,
         'payment_method_type' => 'gateway',
         'transaction_type' => 'purchase',
@@ -81,6 +97,7 @@ class TransactionService
         'product_code' => $productItem->digiflazz_code,
         'product_price' => $price,
         'admin_fee' => $adminFee,
+        'discount_amount' => $discountAmount, // Add discount_amount
         'total_price' => $totalPrice,
         'customer_data' => $customerData,
         'payment_method' => $paymentMethod,
@@ -88,6 +105,11 @@ class TransactionService
         'payment_status' => 'pending',
         'expired_at' => now()->addHours(2),
       ]);
+
+      // Record voucher usage if applicable
+      if (isset($voucher)) {
+        $this->voucherService->recordUsage($voucher, $transaction, $discountAmount);
+      }
 
       // Log transaction creation
       $this->addLog($transaction, 'created', 'Transaction created', [
@@ -120,7 +142,8 @@ class TransactionService
   public function createBalancePurchaseTransaction(
     User $user,
     ProductItem $productItem,
-    array $customerData
+    array $customerData,
+    ?string $voucherCode = null
   ) {
     // Validate product item availability
     if (!$productItem->isAvailable()) {
@@ -130,8 +153,20 @@ class TransactionService
     // Get price
     $price = $productItem->getPriceForCustomer($user->customer_type);
 
+    $discountAmount = 0;
+    $voucherId = null;
+
+    // Handle Voucher
+    if ($voucherCode) {
+      $voucher = $this->voucherService->validateVoucher($voucherCode, $user, $productItem, $price);
+      $discountAmount = $this->voucherService->calculateDiscount($voucher, $price);
+      $voucherId = $voucher->id;
+    }
+
+    $totalPrice = max(0, $price - $discountAmount);
+
     // Check balance
-    if (!$this->balanceService->hasSufficientBalance($user, $price)) {
+    if (!$this->balanceService->hasSufficientBalance($user, $totalPrice)) {
       throw new \Exception('Insufficient balance');
     }
 
@@ -143,6 +178,7 @@ class TransactionService
         'transaction_code' => $this->generateTransactionCode(),
         'user_id' => $user->id,
         'product_item_id' => $productItem->id,
+        'voucher_id' => $voucherId, // Add voucher_id
         'customer_type' => $user->customer_type,
         'payment_method_type' => 'balance',
         'transaction_type' => 'purchase',
@@ -150,7 +186,8 @@ class TransactionService
         'product_code' => $productItem->digiflazz_code,
         'product_price' => $price,
         'admin_fee' => 0,
-        'total_price' => $price,
+        'discount_amount' => $discountAmount, // Add discount_amount
+        'total_price' => $totalPrice,
         'customer_data' => $customerData,
         'payment_method' => 'balance',
         'status' => 'processing',
@@ -158,10 +195,15 @@ class TransactionService
         'paid_at' => now(),
       ]);
 
+      // Record voucher usage if applicable
+      if (isset($voucher)) {
+        $this->voucherService->recordUsage($voucher, $transaction, $discountAmount);
+      }
+
       // Deduct balance
       $this->balanceService->deductBalance(
         $user,
-        $price,
+        $totalPrice,
         'Purchase: ' . $productItem->product->name . ' - ' . $productItem->name,
         $transaction
       );
@@ -355,7 +397,7 @@ class TransactionService
 
     try {
       $user = $transaction->user;
-      $refundAmount = $transaction->total_price;
+      $refundAmount = (float) $transaction->total_price;
 
       // Add balance back to user
       $this->balanceService->addBalance(

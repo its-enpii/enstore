@@ -31,6 +31,7 @@ export interface PurchaseRequest {
   customer_name?: string;
   customer_email?: string;
   customer_phone?: string;
+  voucher_code?: string;
 }
 
 export interface PurchaseResponse {
@@ -65,6 +66,7 @@ export interface TransactionStatus {
   pricing: {
     product: number;
     admin: number;
+    discount: number;
     total: number;
   };
   payment: {

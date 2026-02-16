@@ -11,6 +11,7 @@ import {
   SecurityRounded,
   SupportAgentRounded,
   ShoppingCartCheckoutRounded,
+  AccountBalanceWalletRounded,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Button from "@/components/ui/Button";
@@ -19,9 +20,12 @@ import {
   getProductBySlug,
   getPaymentChannels,
   guestPurchase,
+  customerPurchase,
+  purchaseWithBalance,
   type Product,
   type PaymentChannel,
 } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import ItemCard from "@/components/services/ItemCard";
 import Breadcrumb from "@/components/services/breadcrumb";
 import { toast } from "react-hot-toast";
@@ -35,6 +39,7 @@ export default function ProductDetailPage({
   const slug = propSlug || (params?.slug as string);
 
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
 
   // API States
   const [product, setProduct] = useState<Product | null>(null);
@@ -50,6 +55,7 @@ export default function ProductDetailPage({
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string | null>("QRIS");
   const [email, setEmail] = useState("");
+  const [voucherCode, setVoucherCode] = useState("");
 
   const handlePurchase = async () => {
     if (!selectedPackage || !selectedPayment || !product) {
@@ -77,15 +83,40 @@ export default function ProductDetailPage({
 
     setSubmitting(true);
     try {
-      const response = await guestPurchase({
+      let response;
+      const purchaseData = {
         product_item_id: selectedPackage,
         payment_method: selectedPayment,
         customer_data: formData,
-        customer_email: email,
-      });
+        voucher_code: voucherCode || undefined,
+      };
+
+      if (isAuthenticated) {
+        if (selectedPayment === "balance") {
+          response = await purchaseWithBalance({
+            product_item_id: selectedPackage,
+            customer_data: formData,
+            voucher_code: voucherCode || undefined,
+          });
+        } else {
+          response = await customerPurchase(purchaseData);
+        }
+      } else {
+        response = await guestPurchase({
+          ...purchaseData,
+          customer_email: email,
+        });
+      }
 
       if (response.success && response.data) {
-        // Redirect to payment page
+        // Handle successful balance purchase (usually processing immediately)
+        if (selectedPayment === "balance") {
+          toast.success("Purchase successful!");
+          router.push("/dashboard/transactions");
+          return;
+        }
+
+        // Redirect to payment page for gateway
         router.push(
           `/services/${slug}/payment?transactionCode=${response.data.transaction.transaction_code}`,
         );
@@ -506,6 +537,59 @@ export default function ProductDetailPage({
                 </h2>
               </div>
 
+              {/* Balance Option for Authenticated Users */}
+              {isAuthenticated && user && (
+                <div className="mb-6">
+                  <p className="flex items-center gap-2 text-xs font-medium tracking-wide text-brand-500/40 uppercase md:text-sm">
+                    <span className="h-2 w-2 rounded-full bg-brand-500/40" />
+                    Account Wallet
+                  </p>
+                  <motion.button
+                    onClick={() => setSelectedPayment("balance")}
+                    className={`mt-2 w-full rounded-3xl border-2 p-4 text-left transition-all duration-300 md:mt-4 ${
+                      selectedPayment === "balance"
+                        ? "border-ocean-500 bg-ocean-500/5"
+                        : "border-brand-500/5 bg-smoke-200 hover:border-ocean-500/30"
+                    }`}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 md:h-12 md:w-12 md:rounded-2xl ${
+                            selectedPayment === "balance"
+                              ? "bg-ocean-500"
+                              : "bg-cloud-200"
+                          }`}
+                        >
+                          <AccountBalanceWalletRounded
+                            className={`text-xl transition-all duration-300 ${
+                              selectedPayment === "balance"
+                                ? "text-cloud-200"
+                                : "text-ocean-500"
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-brand-500/90 md:text-base">
+                            EnStore Balance
+                          </p>
+                          <p className="text-xs text-brand-500/40">
+                            Available: Rp. {formatPrice(user.balance || 0)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-brand-500/40">Fee</p>
+                        <p className="text-sm font-black text-ocean-500 md:text-base">
+                          Rp. 0
+                        </p>
+                      </div>
+                    </div>
+                  </motion.button>
+                </div>
+              )}
+
               {/* Payment Channels from API */}
               {Object.entries(groupedChannels).map(
                 ([group, channels], index) => (
@@ -571,6 +655,36 @@ export default function ProductDetailPage({
                   Payment channels are being loaded...
                 </p>
               )}
+            </div>
+
+            {/* Step 4: Voucher Code (Optional) */}
+            <div className="mb-8 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
+              <div className="mb-6 flex items-center gap-3 md:mb-10">
+                <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-ocean-500 text-[20px] font-bold text-white">
+                  4
+                </div>
+                <h2 className="text-[20px] font-bold text-brand-500/90">
+                  Voucher Code (Optional)
+                </h2>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Enter voucher code"
+                    value={voucherCode}
+                    onChange={(e) =>
+                      setVoucherCode(e.target.value.toUpperCase())
+                    }
+                    inputSize="md"
+                    fullWidth
+                  />
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-brand-500/40">
+                Have a special discount code? Enter it here to save on your
+                purchase.
+              </p>
             </div>
 
             {/* Checkout Bar */}

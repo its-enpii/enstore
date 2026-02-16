@@ -44,7 +44,8 @@ class PublicTransactionController extends Controller
         null, // Explicitly null for guest
         $productItem,
         $request->customer_data,
-        $request->payment_method
+        $request->payment_method,
+        $request->voucher_code
       );
 
       // For guest, use customer data from request or general info
@@ -174,6 +175,7 @@ class PublicTransactionController extends Controller
           'pricing' => [
             'product' => $transaction->product_price,
             'admin' => $transaction->admin_fee,
+            'discount' => $transaction->discount_amount,
             'total' => $transaction->total_price,
           ],
           'payment' => [

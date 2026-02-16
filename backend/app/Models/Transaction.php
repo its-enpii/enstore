@@ -24,6 +24,8 @@ class Transaction extends Model
         'product_price',
         'admin_fee',
         'total_price',
+        'discount_amount',
+        'voucher_id',
         'customer_data',
         'customer_note',
         'payment_method',
@@ -47,6 +49,7 @@ class Transaction extends Model
         'product_price' => 'decimal:2',
         'admin_fee' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
         'customer_data' => 'array',
         'bill_data' => 'array',
         'paid_at' => 'datetime',
@@ -112,6 +115,22 @@ class Transaction extends Model
     public function balanceMutations()
     {
         return $this->hasMany(BalanceMutation::class);
+    }
+
+    /**
+     * Get the voucher used for this transaction
+     */
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
+    /**
+     * Get the voucher usage record
+     */
+    public function voucherUsage()
+    {
+        return $this->hasOne(VoucherUsage::class);
     }
 
     // ==================== SCOPES ====================
