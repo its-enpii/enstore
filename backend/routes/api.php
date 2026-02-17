@@ -199,7 +199,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Customer routes (both retail and reseller)
-    Route::middleware('role:customer')->prefix('customer')->group(function () {
+    Route::middleware('role:customer,admin,retail,reseller')->prefix('customer')->group(function () {
 
         // Transactions
         Route::prefix('transactions')->group(function () {

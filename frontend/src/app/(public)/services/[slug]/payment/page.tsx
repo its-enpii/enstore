@@ -604,6 +604,7 @@ export default function PaymentPage() {
         confirmLabel="Ya, Batalkan"
         variant="danger"
         isLoading={isCancelling}
+        cancelLabel="Kembali"
       />
     </section>
   );

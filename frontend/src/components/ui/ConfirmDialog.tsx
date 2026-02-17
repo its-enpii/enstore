@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "motion/react";
+import { WarningRounded, LogoutRounded } from "@mui/icons-material";
 import Button from "./Button";
-import Modal from "./Modal";
-import { WarningRounded } from "@mui/icons-material";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ interface ConfirmDialogProps {
   isLoading?: boolean;
 }
 
-export default function ConfirmDialog({
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen,
   onClose,
   onConfirm,
@@ -27,49 +28,109 @@ export default function ConfirmDialog({
   cancelLabel = "Cancel",
   variant = "danger",
   isLoading = false,
-}: ConfirmDialogProps) {
-  const getIcon = () => {
-    switch (variant) {
-      case "danger":
-        return <WarningRounded className="h-12 w-12 text-red-500" />;
-      case "warning":
-        return <WarningRounded className="h-12 w-12 text-orange-500" />;
-      default:
-        return <WarningRounded className="h-12 w-12 text-blue-500" />;
+}) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
     }
-  };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
+  if (!mounted) return null;
 
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} width="sm">
-      <div className="flex flex-col items-center text-center">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-50">
-          {getIcon()}
-        </div>
-
-        <h3 className="mb-2 text-xl font-bold text-gray-900">{title}</h3>
-        <p className="mb-8 text-gray-500">{description}</p>
-
-        <div className="flex w-full gap-3">
-          <Button
-            variant="white"
+  const content = (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            className="flex-1 justify-center border border-gray-200"
-            disabled={isLoading}
+            className="absolute inset-0 bg-brand-900/60 backdrop-blur-md"
+          />
+
+          {/* Dialog Card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+            className="relative w-full max-w-sm overflow-hidden rounded-xl border border-brand-500/10 bg-smoke-200 p-8 shadow-2xl"
           >
-            {cancelLabel}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={onConfirm}
-            className={`flex-1 justify-center ${variant === "danger" ? "bg-red-500! text-smoke-200! !hover:bg-red-600" : ""}`}
-            isLoading={isLoading}
-          >
-            {confirmLabel}
-          </Button>
+            {/* Background Decoration */}
+            <div
+              className={`absolute -top-24 -right-24 h-48 w-48 rounded-full opacity-20 blur-3xl ${
+                variant === "danger" ? "bg-red-500" : "bg-ocean-500"
+              }`}
+            ></div>
+
+            <div className="relative flex flex-col items-center text-center">
+              {/* Icon Section */}
+              <div
+                className={`mb-6 flex h-20 w-20 items-center justify-center rounded-xl shadow-xl ${
+                  variant === "danger"
+                    ? "bg-red-500 text-smoke-200 shadow-red-500/20"
+                    : variant === "warning"
+                      ? "bg-amber-500 text-smoke-200 shadow-amber-500/20"
+                      : "bg-ocean-500 text-smoke-200 shadow-ocean-500/20"
+                }`}
+              >
+                {title.toLowerCase().includes("logout") ? (
+                  <LogoutRounded fontSize="large" />
+                ) : (
+                  <WarningRounded fontSize="large" />
+                )}
+              </div>
+
+              {/* Text Content */}
+              <h3 className="mb-3 text-2xl font-bold tracking-tight text-brand-500/90">
+                {title}
+              </h3>
+              <p className="mb-8 px-2 text-sm leading-relaxed font-medium text-brand-500/40">
+                {description}
+              </p>
+
+              {/* Actions */}
+              <div className="flex w-full gap-3">
+                <Button
+                  variant="white"
+                  onClick={onClose}
+                  fullWidth
+                  disabled={isLoading}
+                  className="rounded-xl! border-none! bg-slate-100! text-slate-600! hover:bg-slate-200!"
+                >
+                  {cancelLabel}
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={onConfirm}
+                  fullWidth
+                  isLoading={isLoading}
+                  className={`rounded-xl! ${
+                    variant === "danger"
+                      ? "bg-red-600! text-white! shadow-sm hover:bg-red-700! hover:shadow-md"
+                      : ""
+                  }`}
+                >
+                  {confirmLabel}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </Modal>
+      )}
+    </AnimatePresence>
   );
-}
+
+  return createPortal(content, document.body);
+};
+
+export default ConfirmDialog;
