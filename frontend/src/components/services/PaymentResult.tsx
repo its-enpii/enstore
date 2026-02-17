@@ -7,6 +7,7 @@ import {
   SportsEsportsRounded,
   DiamondRounded,
   ArrowBackRounded,
+  SyncRounded,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import { TransactionStatus } from "@/lib/api";
 import { useState } from "react";
 
 interface PaymentResultProps {
-  status: "success" | "failed" | "expired";
+  status: "success" | "failed" | "expired" | "processing";
   transaction: TransactionStatus;
 }
 
@@ -26,6 +27,7 @@ export default function PaymentResult({
   const [copied, setCopied] = useState(false);
 
   const isSuccess = status === "success";
+  const isProcessing = status === "processing";
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -34,7 +36,7 @@ export default function PaymentResult({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full lg:max-w-5/12 mx-auto px-6 py-8 md:px-8 md:py-10 bg-smoke-200 shadow-enstore rounded-[48px]">
+    <div className="mx-auto flex w-full flex-col items-center justify-center rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10 lg:max-w-5/12">
       {/* Icon */}
       <motion.div
         initial={{ scale: 0 }}
@@ -43,11 +45,20 @@ export default function PaymentResult({
         className={`mb-10 flex h-24 w-24 items-center justify-center rounded-full ${
           isSuccess
             ? "bg-green-500 text-white shadow-lg shadow-green-500/30"
-            : "bg-red-500 text-white shadow-lg shadow-red-500/30"
+            : isProcessing
+              ? "bg-yellow-500 text-white shadow-lg shadow-yellow-500/30"
+              : "bg-red-500 text-white shadow-lg shadow-red-500/30"
         }`}
       >
         {isSuccess ? (
           <CheckCircleRounded sx={{ fontSize: 64 }} />
+        ) : isProcessing ? (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+          >
+            <SyncRounded sx={{ fontSize: 64 }} />
+          </motion.div>
         ) : (
           <CancelRounded sx={{ fontSize: 64 }} />
         )}
@@ -58,20 +69,32 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className={`mb-4 text-center text-2xl md:text-3xl font-bold lg:text-4xl ${isSuccess ? "text-ocean-500" : "text-red-500"}`}
+        className={`mb-4 text-center text-2xl font-bold md:text-3xl lg:text-4xl ${
+          isSuccess
+            ? "text-ocean-500"
+            : isProcessing
+              ? "text-yellow-600"
+              : "text-red-500"
+        }`}
       >
-        {isSuccess ? "Transaction Successful!" : "Transaction Failed"}
+        {isSuccess
+          ? "Transaction Successful!"
+          : isProcessing
+            ? "Payment Received!"
+            : "Transaction Failed"}
       </motion.h1>
 
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="text-sm md:text-base mb-10 text-center text-brand-500/40"
+        className="mb-10 text-center text-sm text-brand-500/40 md:text-base"
       >
         {isSuccess
           ? "Your top-up has been processed and delivered."
-          : "We could not process your transaction. Please try again."}
+          : isProcessing
+            ? "Your payment is successful. We are now processing your top-up."
+            : "We could not process your transaction. Please try again."}
       </motion.p>
 
       {/* Details Card */}
@@ -82,16 +105,16 @@ export default function PaymentResult({
         className="mb-8 w-full"
       >
         {/* Invoice ID */}
-        <div className="mb-4 flex items-center justify-between rounded-[24px] bg-cloud-200 p-4 border border-brand-500/5">
+        <div className="mb-4 flex items-center justify-between rounded-[24px] border border-brand-500/5 bg-cloud-200 p-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 border border-brand-500/5 text-ocean-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-500/5 bg-smoke-200 text-ocean-500">
               <DescriptionRounded />
             </div>
             <div>
               <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Invoice ID
               </p>
-              <p className="text-sm md:text-base font-bold text-brand-500/90">
+              <p className="text-sm font-bold text-brand-500/90 md:text-base">
                 {transaction.transaction_code}
               </p>
             </div>
@@ -109,16 +132,16 @@ export default function PaymentResult({
         </div>
 
         {/* Game */}
-        <div className="mb-4 flex items-center justify-between rounded-[24px] bg-cloud-200 p-4 border border-brand-500/5">
+        <div className="mb-4 flex items-center justify-between rounded-[24px] border border-brand-500/5 bg-cloud-200 p-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 border border-brand-500/5 text-ocean-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-500/5 bg-smoke-200 text-ocean-500">
               <SportsEsportsRounded />
             </div>
             <div>
               <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Game
               </p>
-              <p className="text-sm md:text-base font-bold text-brand-500/90">
+              <p className="text-sm font-bold text-brand-500/90 md:text-base">
                 {transaction.product.name}
               </p>
             </div>
@@ -126,24 +149,30 @@ export default function PaymentResult({
         </div>
 
         {/* Item Delivered */}
-        <div className="flex items-center justify-between rounded-[24px] bg-cloud-200 p-4 border border-brand-500/5">
+        <div className="flex items-center justify-between rounded-[24px] border border-brand-500/5 bg-cloud-200 p-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-smoke-200 border border-brand-500/5 text-ocean-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-500/5 bg-smoke-200 text-ocean-500">
               <DiamondRounded />
             </div>
             <div>
               <p className="mb-1 text-xs font-medium tracking-wide text-brand-500/40 uppercase">
                 Item Delivered
               </p>
-              <p className="text-sm md:text-base font-bold text-brand-500/90">
+              <p className="text-sm font-bold text-brand-500/90 md:text-base">
                 {transaction.product.item}
               </p>
             </div>
           </div>
-          {isSuccess && (
-            <span className="hidden rounded-full bg-green-500/10 border border-green-500/20 px-3 py-2 text-xs text-green-600 sm:inline-block">
+          {isSuccess ? (
+            <span className="hidden rounded-full border border-green-500/20 bg-green-500/10 px-3 py-2 text-xs text-green-600 sm:inline-block">
               DELIVERED
             </span>
+          ) : (
+            isProcessing && (
+              <span className="hidden rounded-full border border-yellow-500/20 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-600 sm:inline-block">
+                PROCESSING
+              </span>
+            )
           )}
         </div>
       </motion.div>
@@ -153,7 +182,7 @@ export default function PaymentResult({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full"
+        className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2"
       >
         <Button
           variant="white"
@@ -164,7 +193,11 @@ export default function PaymentResult({
           Download E-Receipt
         </Button>
         <Link href="/" className="w-full">
-          <Button variant="primary" icon={<ArrowBackRounded />} className="w-full justify-center">
+          <Button
+            variant="primary"
+            icon={<ArrowBackRounded />}
+            className="w-full justify-center"
+          >
             Back to Home
           </Button>
         </Link>

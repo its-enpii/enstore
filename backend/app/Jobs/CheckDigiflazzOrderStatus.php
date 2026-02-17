@@ -57,22 +57,10 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
 
             $data = $result['data'];
 
-            // Parse response
-            $parsedResponse = $digiflazzService->parseResponseCode($data['rc'] ?? '999');
+            // Handle fulfilment via centralized service
+            $transactionService = app(TransactionService::class);
+            $transactionService->handleDigiflazzFulfilment($this->transaction, $data);
 
-            $rc = (string) ($data['rc'] ?? '');
-            $status = strtolower(trim($data['status'] ?? ''));
-
-            if ($rc === '00' || $status === 'sukses' || $status === 'success') {
-                // ✅ SUCCESS
-                $this->handleSuccess($data);
-            } elseif ($rc === '01' || $status === 'pending') {
-                // ⏳ STILL PENDING
-                $this->handleStillPending($data);
-            } else {
-                // ❌ FAILED
-                $this->handleFailed($data, $parsedResponse['message']);
-            }
         } catch (\Exception $e) {
             Log::error('Check Digiflazz Order Status Error', [
                 'transaction_code' => $this->transaction->transaction_code,
@@ -101,117 +89,27 @@ class CheckDigiflazzOrderStatus implements ShouldQueue
     }
 
     /**
-     * Handle success response
+     * Handle success (Legacy - kept for compatibility)
      */
     private function handleSuccess($data)
     {
-        $this->transaction->update([
-            'status' => 'success',
-            'digiflazz_trx_id' => $data['trx_id'] ?? null,
-            'digiflazz_serial_number' => $data['sn'] ?? null,
-            'digiflazz_message' => $data['message'] ?? 'Success',
-            'digiflazz_status' => $data['status'] ?? 'Sukses',
-            'digiflazz_rc' => $data['rc'] ?? '00',
-            'completed_at' => now(),
-        ]);
-
-        TransactionLog::create([
-            'transaction_id' => $this->transaction->id,
-            'status_from' => 'processing',
-            'status_to' => 'success',
-            'message' => 'Order completed successfully (verified by status check)',
-            'meta_data' => $data,
-        ]);
-
-        // Create notification
-        if (class_exists('App\Models\Notification') && $this->transaction->user_id) {
-            \App\Models\Notification::create([
-                'user_id' => $this->transaction->user_id,
-                'title' => 'Transaksi Berhasil!',
-                'message' => "Pesanan {$this->transaction->product_name} berhasil diproses.",
-                'type' => 'success',
-                'data' => [
-                    'transaction_code' => $this->transaction->transaction_code,
-                    'serial_number' => $data['sn'] ?? null,
-                ],
-            ]);
-        }
+        app(TransactionService::class)->handleDigiflazzFulfilment($this->transaction, $data);
     }
 
     /**
-     * Handle still pending response
+     * Handle still pending (Legacy - kept for compatibility)
      */
     private function handleStillPending($data)
     {
-        $this->transaction->update([
-            'digiflazz_message' => $data['message'] ?? 'Still Pending',
-            'digiflazz_status' => $data['status'] ?? 'Pending',
-            'digiflazz_rc' => $data['rc'] ?? '01',
-        ]);
-
-        TransactionLog::create([
-            'transaction_id' => $this->transaction->id,
-            'status_from' => 'processing',
-            'status_to' => 'processing',
-            'message' => "Order still pending at Digiflazz (check attempt {$this->attempts()})",
-            'meta_data' => $data,
-        ]);
-
-        // If not max retries, schedule another check in 3 minutes
-        if ($this->attempts() < $this->tries) {
-            $this->release(180);
-        } else {
-            // Max retries reached, mark as failed
-            $this->handleFailed([
-                'message' => 'Transaction timeout after '.$this->tries.' status checks',
-                'rc' => '999',
-            ], 'Transaction timeout');
-        }
+        app(TransactionService::class)->handleDigiflazzFulfilment($this->transaction, $data);
     }
 
     /**
-     * Handle failed response
+     * Handle failed (Legacy - kept for compatibility)
      */
     private function handleFailed($data, $errorMessage = null)
     {
-        $this->transaction->update([
-            'status' => 'failed',
-            'digiflazz_message' => $data['message'] ?? 'Failed',
-            'digiflazz_status' => $data['status'] ?? 'Gagal',
-            'digiflazz_rc' => $data['rc'] ?? '999',
-            'failed_at' => now(),
-        ]);
-
-        $message = $errorMessage ?? ($data['message'] ?? 'Unknown error');
-
-        TransactionLog::create([
-            'transaction_id' => $this->transaction->id,
-            'status_from' => 'processing',
-            'status_to' => 'failed',
-            'message' => 'Order failed: '.$message,
-            'meta_data' => $data,
-        ]);
-
-        // Refund to user balance (both balance and gateway payments)
-        if ($this->transaction->user_id) {
-            try {
-                $transactionService = app(TransactionService::class);
-                $transactionService->refundTransaction(
-                    $this->transaction,
-                    'Order status check failed: '.$message
-                );
-            } catch (\Exception $refundError) {
-                Log::error('Auto-refund failed during CheckDigiflazzOrderStatus', [
-                    'transaction_code' => $this->transaction->transaction_code,
-                    'error' => $refundError->getMessage(),
-                ]);
-            }
-        }
-
-        Log::warning('Digiflazz Order Status: Failed', [
-            'transaction_code' => $this->transaction->transaction_code,
-            'error' => $message,
-        ]);
+        app(TransactionService::class)->handleDigiflazzFulfilment($this->transaction, $data);
     }
 
     /**

@@ -105,13 +105,20 @@ export default function ProductDynamicFields({
                   </div>
                 </div>
                 {field.type === "select" && (
-                  <div className="mt-1">
+                  <div className="mt-1 space-y-1">
                     <input
                       className="w-full rounded border border-yellow-500/20 bg-yellow-50 px-2 py-1 font-mono text-xs text-yellow-700 outline-none placeholder:text-yellow-700/40"
-                      placeholder="Options (comma separated)"
+                      placeholder="e.g. S1:Server 1, S2:Server 2"
                       value={field.options || ""}
                       onChange={(e) => onUpdate(idx, "options", e.target.value)}
                     />
+                    <p className="text-[9px] leading-tight font-medium text-yellow-700/60">
+                      * Format:{" "}
+                      <span className="font-bold underline">ID:Label</span>{" "}
+                      (e.g.{" "}
+                      <span className="font-bold italic">FE:Flash Event</span>).
+                      Separated by comma.
+                    </p>
                   </div>
                 )}
               </div>

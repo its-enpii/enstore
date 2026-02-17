@@ -64,13 +64,13 @@ export default function ProductDetailPage({
     }
 
     // Validate required fields
-    if (product.input_fields) {
+    if (Array.isArray(product.input_fields)) {
       const missingFields = product.input_fields.filter(
-        (f) => f.required && !formData[f.name],
+        (f: any) => f.required && !formData[f.name],
       );
       if (missingFields.length > 0) {
         toast.error(
-          `Please fill in: ${missingFields.map((f) => f.label).join(", ")}`,
+          `Please fill in: ${missingFields.map((f: any) => f.label).join(", ")}`,
         );
         return;
       }
@@ -163,11 +163,12 @@ export default function ProductDetailPage({
   }, [slug]);
 
   // Helpers
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | string) => {
+    const numPrice = typeof price === "string" ? parseFloat(price) : price;
     return new Intl.NumberFormat("id-ID", {
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 0,
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(numPrice || 0);
   };
 
   const selectedItem = product?.items?.find((i) => i.id === selectedPackage);
@@ -285,13 +286,13 @@ export default function ProductDetailPage({
                       </h3>
 
                       <ol className="ml-4 list-decimal space-y-2 text-sm text-brand-500/60">
-                        {product.input_fields &&
+                        {Array.isArray(product.input_fields) &&
                         product.input_fields.length > 0 ? (
                           <>
                             <li>
                               Enter your{" "}
                               {product.input_fields
-                                .map((f) => f.label)
+                                .map((f: any) => f.label)
                                 .join(" and ")}
                             </li>
                             <li>
@@ -364,75 +365,84 @@ export default function ProductDetailPage({
                 </div>
 
                 <div
-                  className={`mb-8 grid gap-x-6 gap-y-8 ${product.input_fields.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}
+                  className={`mb-8 grid gap-x-6 gap-y-8 ${Array.isArray(product.input_fields) && product.input_fields.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}
                 >
-                  {product.input_fields.map((field) => {
-                    if (field.type === "select" && field.options) {
-                      const options = field.options
-                        .split(",")
-                        .map((o) => o.trim());
-                      return (
-                        <div key={field.name} className="w-full">
-                          <div className="mb-1.5 block text-sm font-medium text-gray-700">
-                            {field.label}{" "}
-                            {field.required && (
-                              <span className="text-red-500">*</span>
-                            )}
-                          </div>
-                          <div className="relative">
-                            <select
-                              className="w-full appearance-none rounded-full border-0 bg-cloud-200 px-6 py-4 text-base text-brand-500/60 transition-all duration-200 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                              value={formData[field.name] || ""}
-                              onChange={(e) =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  [field.name]: e.target.value,
-                                }))
-                              }
-                            >
-                              <option value="">Select {field.label}</option>
-                              {options.map((opt) => (
-                                <option key={opt} value={opt}>
-                                  {opt}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-brand-500/40">
-                              <svg
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
+                  {Array.isArray(product.input_fields) &&
+                    product.input_fields.map((field: any) => {
+                      if (field.type === "select" && field.options) {
+                        const options = (field.options as string)
+                          .split(",")
+                          .map((o: string) => o.trim());
+                        return (
+                          <div key={field.name} className="w-full">
+                            <div className="mb-1.5 block text-sm font-medium text-gray-700">
+                              {field.label}{" "}
+                              {field.required && (
+                                <span className="text-red-500">*</span>
+                              )}
+                            </div>
+                            <div className="relative">
+                              <select
+                                className="w-full appearance-none rounded-full border-0 bg-cloud-200 px-6 py-4 text-base text-brand-500/60 transition-all duration-200 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                value={formData[field.name] || ""}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    [field.name]: e.target.value,
+                                  }))
+                                }
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
+                                <option value="">Select {field.label}</option>
+                                {options.map((opt) => {
+                                  // Support "value:label" or "value|label" format
+                                  const [val, lab] = opt.includes(":")
+                                    ? opt.split(":")
+                                    : opt.includes("|")
+                                      ? opt.split("|")
+                                      : [opt, opt];
+                                  return (
+                                    <option key={val.trim()} value={val.trim()}>
+                                      {lab.trim()}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-brand-500/40">
+                                <svg
+                                  className="h-5 w-5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    }
+                        );
+                      }
 
-                    return (
-                      <Input
-                        key={field.name}
-                        label={field.label}
-                        type={field.type || "text"}
-                        placeholder={field.placeholder || field.label}
-                        value={formData[field.name] || ""}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            [field.name]: e.target.value,
-                          }))
-                        }
-                        inputSize="md"
-                        fullWidth
-                      />
-                    );
-                  })}
+                      return (
+                        <Input
+                          key={field.name}
+                          label={field.label}
+                          type={field.type || "text"}
+                          placeholder={field.placeholder || field.label}
+                          value={formData[field.name] || ""}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              [field.name]: e.target.value,
+                            }))
+                          }
+                          inputSize="md"
+                          fullWidth
+                        />
+                      );
+                    })}
                 </div>
 
                 <p className="flex items-center gap-2 rounded-full border border-brand-500/5 bg-cloud-200 p-3 text-sm text-brand-500/50">
@@ -726,10 +736,10 @@ export default function ProductDetailPage({
                     disabled={
                       !selectedPackage ||
                       submitting ||
-                      (product.input_fields != null &&
+                      (Array.isArray(product.input_fields) &&
                         product.input_fields.length > 0 &&
                         product.input_fields.some(
-                          (f) => f.required && !formData[f.name],
+                          (f: any) => f.required && !formData[f.name],
                         ))
                     }
                     onClick={handlePurchase}

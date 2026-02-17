@@ -28,6 +28,21 @@ class DigiflazzService
     }
 
     /**
+     * Get target callback URL for webhooks
+     *
+     * @return string|null
+     */
+    public function getCallbackUrl()
+    {
+        $appUrl = config('app.url');
+        if (str_contains($appUrl, 'localhost')) {
+            return null; // Digiflazz cannot reach localhost
+        }
+
+        return rtrim($appUrl, '/').'/api/webhooks/digiflazz';
+    }
+
+    /**
      * Generate signature for Digiflazz API
      *
      * @param  string  $command
@@ -257,6 +272,8 @@ class DigiflazzService
 
             if (isset($options['cb_url'])) {
                 $payload['cb_url'] = $options['cb_url'];
+            } elseif ($cbUrl = $this->getCallbackUrl()) {
+                $payload['cb_url'] = $cbUrl;
             }
 
             if (isset($options['allow_dot'])) {
@@ -525,5 +542,42 @@ class DigiflazzService
         ];
 
         return $codes[$rc] ?? ['status' => 'failed', 'message' => "Unknown error (RC: {$rc})"];
+    }
+
+    /**
+     * Validate webhook signature from Digiflazz
+     *
+     * @param  array  $data  The payload data
+     * @param  string|null  $headerSignature  The signature from X-Digiflazz-Delivery header (optional)
+     * @param  string|null  $rawContent  The raw request content (optional)
+     * @return bool
+     */
+    public function validateWebhookSignature($data, $headerSignature = null, $rawContent = null)
+    {
+        // 1. Check for standard Digiflazz MD5 signature in payload
+        if (isset($data['sign'])) {
+            $expectedSign = md5($this->username.$this->apiKey.'cb');
+
+            if (hash_equals($expectedSign, $data['sign'])) {
+                return true;
+            }
+        }
+
+        // 2. Check for optional Secret Key validation (Header based)
+        $secret = config('services.digiflazz.webhook_secret');
+        if ($secret && $headerSignature && $rawContent) {
+            $expectedHeaderSignature = 'sha1='.hash_hmac('sha1', $rawContent, $secret);
+
+            return hash_equals($expectedHeaderSignature, $headerSignature);
+        }
+
+        // If no secret is configured and no sign field present, log warning and fail
+        if (! isset($data['sign']) && ! $secret) {
+            Log::warning('Digiflazz Webhook: No signature found in payload and no secret configured');
+
+            return false;
+        }
+
+        return false;
     }
 }

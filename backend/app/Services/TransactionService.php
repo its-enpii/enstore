@@ -604,4 +604,60 @@ class TransactionService
             throw $e;
         }
     }
+
+    /**
+     * Handle fulfilment response from Digiflazz
+     * Centralized logic used by background jobs and webhooks
+     *
+     * @param  Transaction  $transaction
+     * @param  array  $data  The data payload from Digiflazz
+     * @return void
+     */
+    public function handleDigiflazzFulfilment(Transaction $transaction, array $data)
+    {
+        Log::info('Handling Digiflazz Fulfilment:', [
+            'transaction_code' => $transaction->transaction_code,
+            'status' => $data['status'] ?? 'unknown',
+            'rc' => $data['rc'] ?? 'unknown',
+        ]);
+
+        $status = strtolower(trim($data['status'] ?? ''));
+        $rc = (string) ($data['rc'] ?? '');
+
+        // Decisions based on status and response code
+        if ($rc === '00' || $status === 'sukses' || $status === 'success') {
+            // ✅ SUCCESS
+            $this->markAsSuccess($transaction, [
+                'digiflazz_trx_id' => $data['trx_id'] ?? null,
+                'digiflazz_serial_number' => $data['sn'] ?? null,
+                'digiflazz_message' => $data['message'] ?? 'Success',
+                'digiflazz_status' => $data['status'] ?? 'Sukses',
+                'digiflazz_rc' => $rc,
+            ]);
+        } elseif ($rc === '01' || $status === 'pending') {
+            // ⏳ PENDING
+            $this->updateStatus($transaction, 'processing', [
+                'digiflazz_message' => $data['message'] ?? 'Pending',
+                'digiflazz_status' => $data['status'] ?? 'Pending',
+                'digiflazz_rc' => $rc,
+            ]);
+        } else {
+            // ❌ FAILED
+            $digiflazzService = app(DigiflazzService::class);
+            $parsedResponse = $digiflazzService->parseResponseCode($rc);
+
+            $this->markAsFailed(
+                $transaction,
+                $data['message'] ?? $parsedResponse['message'],
+                true // Auto refund for failed fulfilment
+            );
+
+            // Update digiflazz specific fields
+            $transaction->update([
+                'digiflazz_status' => $data['status'] ?? 'Gagal',
+                'digiflazz_rc' => $rc,
+                'digiflazz_message' => $data['message'] ?? 'Failed',
+            ]);
+        }
+    }
 }

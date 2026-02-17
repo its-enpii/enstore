@@ -89,7 +89,7 @@ export default function PaymentPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isTimeExpired, setIsTimeExpired] = useState(false);
-  
+
   // Confirmation state
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -136,20 +136,28 @@ export default function PaymentPage() {
     isTimeExpired;
 
   const isPaid =
-    (transaction?.status === "success" || transaction?.payment_status === "paid") &&
+    (transaction?.status === "success" ||
+      transaction?.status === "processing" ||
+      transaction?.payment_status === "paid") &&
     !isExpired;
 
+  const isFinalState =
+    transaction?.status === "success" ||
+    transaction?.status === "failed" ||
+    transaction?.status === "expired" ||
+    isTimeExpired;
+
   useEffect(() => {
-    if (transactionCode && !isPaid && !isExpired) {
+    if (transactionCode && !isFinalState) {
       if (!transaction) fetchStatus(); // Initial fetch
 
-      const interval = setInterval(fetchStatus, 10000); // Poll every 10s
+      const interval = setInterval(fetchStatus, 1000); // Poll every 1s
       return () => clearInterval(interval);
     } else if (!transactionCode) {
       setError("Transaction code not found");
       setLoading(false);
     }
-  }, [transactionCode, isPaid, isExpired]);
+  }, [transactionCode, isFinalState]);
 
   const handleCancelOrder = async () => {
     setIsConfirmOpen(true);
@@ -157,7 +165,7 @@ export default function PaymentPage() {
 
   const onConfirmCancel = async () => {
     if (!transactionCode) return;
-    
+
     try {
       setIsCancelling(true);
       const res = await cancelTransaction(transactionCode);
@@ -224,7 +232,13 @@ export default function PaymentPage() {
 
         {isPaid || isExpired ? (
           <PaymentResult
-            status={isPaid ? "success" : "failed"}
+            status={
+              isExpired
+                ? "failed"
+                : transaction.status === "success"
+                  ? "success"
+                  : "processing"
+            }
             transaction={transaction}
           />
         ) : (
@@ -234,7 +248,7 @@ export default function PaymentPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 rounded-[48px] bg-smoke-200 px-6 py-8 md:px-8 md:py-10 shadow-enstore"
+                className="mb-6 rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10"
               >
                 {/* Status Badge */}
                 <div className="mb-6 font-medium">
@@ -396,7 +410,7 @@ export default function PaymentPage() {
               animate={{ opacity: 1, x: 0 }}
               className="col-span-1 lg:col-span-2"
             >
-              <div className="rounded-[48px] bg-smoke-200 px-6 py-8 md:px-8 md:py-10 shadow-enstore">
+              <div className="rounded-[48px] bg-smoke-200 px-6 py-8 shadow-enstore md:px-8 md:py-10">
                 <div className="flex flex-col items-center justify-center">
                   {/* Adaptive Header */}
                   <h3 className="mb-8 text-2xl font-bold text-brand-500/90">
@@ -404,7 +418,7 @@ export default function PaymentPage() {
                       ? "Scan QR to Pay"
                       : "Complete Payment"}
                   </h3>
-                  <p className="mb-10 text-brand-500/40 text-center">
+                  <p className="mb-10 text-center text-brand-500/40">
                     {transaction.payment.qr_url
                       ? "Supports payments via Shopee Pay, OVO, DANA, GoPay, LinkAja, and bank transfers via QRIS."
                       : `Please follow the instructions below to complete your payment via ${transaction.payment.payment_method}.`}
@@ -414,7 +428,7 @@ export default function PaymentPage() {
                   {transaction.payment.qr_url ? (
                     <>
                       <div className="mb-10 inline-block rounded-[40px] border border-brand-500/5 bg-cloud-200 p-6 md:p-10">
-                        <div className="relative p-6 flex w-56 h-56 md:h-80 md:w-80 items-center justify-center overflow-hidden rounded-2xl border border-brand-500/5">
+                        <div className="relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-2xl border border-brand-500/5 p-6 md:h-80 md:w-80">
                           <Image
                             src={transaction.payment.qr_url}
                             alt="Payment QR"
@@ -445,7 +459,7 @@ export default function PaymentPage() {
                           Payment Code / VA Number
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-xl md:text-4xl font-bold tracking-wider text-brand-500/90">
+                          <span className="font-mono text-xl font-bold tracking-wider text-brand-500/90 md:text-4xl">
                             {transaction.payment.payment_code}
                           </span>
 
@@ -457,9 +471,9 @@ export default function PaymentPage() {
                             className={`rounded-2xl! border border-brand-500/5 p-4 ${copied ? "border-ocean-500" : ""}`}
                             icon={
                               copied ? (
-                                <CheckCircleRounded className="h-4! w-4! md:h-6! md:w-6! text-ocean-500" />
+                                <CheckCircleRounded className="h-4! w-4! text-ocean-500 md:h-6! md:w-6!" />
                               ) : (
-                                <ContentCopyRounded className="h-4! w-4! md:h-6! md:w-6! text-brand-500" />
+                                <ContentCopyRounded className="h-4! w-4! text-brand-500 md:h-6! md:w-6!" />
                               )
                             }
                             iconOnly={true}
@@ -563,7 +577,7 @@ export default function PaymentPage() {
                     </div>
                   )}
 
-                  <div className="w-full mt-14 flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-t border-brand-500/5 pt-6">
+                  <div className="mt-14 flex w-full flex-col gap-4 border-t border-brand-500/5 pt-6 md:flex-row md:items-center md:justify-between">
                     <p className="text-sm text-brand-500/40 italic">
                       Paid already? It might take 1-2 mins to sync.
                     </p>

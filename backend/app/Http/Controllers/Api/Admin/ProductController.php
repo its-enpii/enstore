@@ -183,8 +183,8 @@ class ProductController extends Controller
             'input_fields' => 'nullable|array',
             'server_options' => 'nullable|array',
             'rating' => 'nullable|numeric|min:0|max:5',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_active' => 'sometimes|in:0,1,true,false',
+'is_featured' => 'sometimes|in:0,1,true,false',
             'sort_order' => 'integer|min:0',
         ]);
 
@@ -208,6 +208,9 @@ class ProductController extends Controller
             if ($request->hasFile('icon')) {
                 $data['icon'] = $this->supabaseStorage->upload('icons', $request->file('icon'));
             }
+
+            $data['is_active'] = filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN);
+$data['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN);
 
             $product = Product::create($data);
 
@@ -247,8 +250,8 @@ class ProductController extends Controller
             'input_fields' => 'nullable|array',
             'server_options' => 'nullable|array',
             'rating' => 'nullable|numeric|min:0|max:5',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_active' => 'sometimes|in:0,1,true,false',
+'is_featured' => 'sometimes|in:0,1,true,false',
             'sort_order' => 'integer|min:0',
         ]);
 
@@ -288,6 +291,9 @@ class ProductController extends Controller
             } else {
                 unset($data['icon']);
             }
+
+            $data['is_active'] = filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN);
+$data['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN);
 
             $product->update($data);
 

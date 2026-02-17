@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 // Webhook routes (no authentication required)
 Route::prefix('webhooks')->group(function () {
     Route::post('/tripay', [TripayCallbackController::class, 'handle']);
+    Route::post('/digiflazz', [\App\Http\Controllers\Api\DigiflazzCallbackController::class, 'handle']);
 });
 
 Route::get('/download-qr', function (Request $request) {

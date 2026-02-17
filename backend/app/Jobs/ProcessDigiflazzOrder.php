@@ -61,32 +61,10 @@ class ProcessDigiflazzOrder implements ShouldQueue
 
             Log::info('Digiflazz Raw Response:', $data);
 
-            // Parse response code
-            $parsedResponse = $digiflazzService->parseResponseCode($data['rc'] ?? '999');
+            // Handle fulfilment via centralized service
+            $transactionService = app(TransactionService::class);
+            $transactionService->handleDigiflazzFulfilment($this->transaction, $data);
 
-            $rc = (string) ($data['rc'] ?? '');
-            $status = strtolower(trim($data['status'] ?? ''));
-
-            Log::info('Digiflazz Decision Debug:', [
-                'rc_raw' => $data['rc'] ?? null,
-                'rc_processed' => $rc,
-                'status_raw' => $data['status'] ?? null,
-                'status_processed' => $status,
-                'is_pending_check' => ($rc === '01' || $status === 'pending'),
-            ]);
-
-            // Handle based on response code OR status string
-            if ($rc === '00' || $status === 'sukses' || $status === 'success') {
-                // ✅ SUCCESS
-                $this->handleSuccess($data);
-            } elseif ($rc === '01' || $status === 'pending') {
-                // ⏳ PENDING - Will check again later
-                $this->handlePending($data);
-            } else {
-                Log::warning('Digiflazz Decision: FELL TO ELSE BLOCK');
-                // ❌ FAILED
-                $this->handleFailed($data, $parsedResponse['message']);
-            }
         } catch (\Exception $e) {
             Log::error('Process Digiflazz Order Error', [
                 'transaction_code' => $this->transaction->transaction_code,
@@ -116,112 +94,41 @@ class ProcessDigiflazzOrder implements ShouldQueue
     }
 
     /**
-     * Handle success response
+     * Create transaction log
+     */
+    private function createLog($statusFrom, $statusTo, $message, $metaData = null)
+    {
+        TransactionLog::create([
+            'transaction_id' => $this->transaction->id,
+            'status_from' => $statusFrom,
+            'status_to' => $statusTo,
+            'message' => $message,
+            'meta_data' => $metaData,
+        ]);
+    }
+
+    /**
+     * Handle success (Legacy - kept for compatibility if needed elsewhere)
      */
     private function handleSuccess($data)
     {
-        DB::beginTransaction();
-
-        try {
-            $this->transaction->update([
-                'status' => 'success',
-                'digiflazz_trx_id' => $data['trx_id'] ?? null,
-                'digiflazz_serial_number' => $data['sn'] ?? null,
-                'digiflazz_message' => $data['message'] ?? 'Success',
-                'digiflazz_status' => $data['status'] ?? 'Sukses',
-                'digiflazz_rc' => $data['rc'] ?? '00',
-                'completed_at' => now(),
-            ]);
-
-            $this->createLog('processing', 'success', 'Order completed successfully', $data);
-
-            // Create notification for user (if Notification model exists and user exists)
-            if ($this->transaction->user_id) {
-                \App\Models\Notification::create([
-                    'user_id' => $this->transaction->user_id,
-                    'title' => 'Transaksi Berhasil!',
-                    'message' => "Pesanan {$this->transaction->product_name} berhasil diproses.",
-                    'type' => 'success',
-                    'data' => [
-                        'transaction_code' => $this->transaction->transaction_code,
-                        'serial_number' => $data['sn'] ?? null,
-                    ],
-                ]);
-            }
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Handle Success Error: '.$e->getMessage());
-            throw $e;
-        }
+        app(TransactionService::class)->handleDigiflazzFulfilment($this->transaction, $data);
     }
 
     /**
-     * Handle pending response
+     * Handle pending (Legacy - kept for compatibility if needed elsewhere)
      */
     private function handlePending($data)
     {
-        $this->transaction->update([
-            'status' => 'processing',
-            'digiflazz_message' => $data['message'] ?? 'Pending',
-            'digiflazz_status' => $data['status'] ?? 'Pending',
-            'digiflazz_rc' => $data['rc'] ?? '01',
-        ]);
-
-        $this->createLog('processing', 'processing', 'Order is pending at Digiflazz', $data);
-
-        // Dispatch job to check status in 2 minutes
-        CheckDigiflazzOrderStatus::dispatch($this->transaction)
-            ->delay(now()->addMinutes(2));
+        app(TransactionService::class)->handleDigiflazzFulfilment($this->transaction, $data);
     }
 
     /**
-     * Handle failed response
+     * Handle failed (Legacy - kept for compatibility if needed elsewhere)
      */
     private function handleFailed($data, $errorMessage = null)
     {
-        DB::beginTransaction();
-
-        try {
-            $this->transaction->update([
-                'status' => 'failed',
-                'digiflazz_message' => $data['message'] ?? 'Failed',
-                'digiflazz_status' => $data['status'] ?? 'Gagal',
-                'digiflazz_rc' => $data['rc'] ?? '999',
-                'failed_at' => now(),
-            ]);
-
-            $message = $errorMessage ?? ($data['message'] ?? 'Unknown error');
-            $this->createLog('processing', 'failed', 'Order failed: '.$message, $data);
-
-            // Refund to user balance (both balance and gateway payments)
-            if ($this->transaction->user_id) {
-                try {
-                    $transactionService = app(TransactionService::class);
-                    $transactionService->refundTransaction(
-                        $this->transaction,
-                        'Digiflazz order failed: '.$message
-                    );
-                } catch (\Exception $refundError) {
-                    Log::error('Auto-refund failed during ProcessDigiflazzOrder', [
-                        'transaction_code' => $this->transaction->transaction_code,
-                        'error' => $refundError->getMessage(),
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            Log::warning('Digiflazz Order Failed', [
-                'transaction_code' => $this->transaction->transaction_code,
-                'error' => $message,
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Handle Failed Error: '.$e->getMessage());
-            throw $e;
-        }
+        app(TransactionService::class)->handleDigiflazzFulfilment($this->transaction, $data);
     }
 
     /**
@@ -235,20 +142,6 @@ class ProcessDigiflazzOrder implements ShouldQueue
         $digiflazzService = app(\App\Services\DigiflazzService::class);
 
         return $digiflazzService->formatCustomerNumber($customerData, $productType);
-    }
-
-    /**
-     * Create transaction log
-     */
-    private function createLog($statusFrom, $statusTo, $message, $metaData = null)
-    {
-        TransactionLog::create([
-            'transaction_id' => $this->transaction->id,
-            'status_from' => $statusFrom,
-            'status_to' => $statusTo,
-            'message' => $message,
-            'meta_data' => $metaData,
-        ]);
     }
 
     /**
