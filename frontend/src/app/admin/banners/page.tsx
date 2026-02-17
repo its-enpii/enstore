@@ -298,7 +298,7 @@ export default function AdminBannersPage() {
           type="number"
           value={orders[item.id] !== undefined ? orders[item.id] : val}
           onChange={(e) => handleOrderChange(item.id, e.target.value)}
-          className="w-16 rounded-lg border border-brand-500/10 bg-white px-2 py-1 text-center text-sm font-bold text-brand-500 focus:border-ocean-500 focus:outline-none"
+          className="w-16 rounded-lg border border-brand-500/10 bg-smoke-200 px-2 py-1 text-center text-sm font-bold text-brand-500 focus:border-ocean-500 focus:outline-none"
         />
       ),
     },

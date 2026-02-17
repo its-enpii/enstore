@@ -101,7 +101,7 @@ export default function ProductsReport() {
 
         {/* Charts Section */}
         {data.length > 0 && (
-          <div className="rounded-xl border border-brand-500/5 bg-white p-6 dark:bg-brand-900/50">
+          <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-6">
             <h3 className="mb-6 text-lg font-bold text-brand-500/90">
               Top 10 Products by Volume
             </h3>

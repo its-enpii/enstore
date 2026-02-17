@@ -346,7 +346,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
           <div className="flex h-16 items-center border-b border-brand-500/5 px-6">
             <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-ocean-500">
               <GamepadOutlined className="text-2xl" />
-              <span>Encore</span>
+              <span>EnStore</span>
             </div>
             <button
               onClick={onClose}

@@ -52,7 +52,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
           }}
         >
           <defs>
-            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="colorRevenueChart" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={color} stopOpacity={0.3} />
               <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
@@ -105,7 +105,6 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
             }}
             labelFormatter={(label) =>
               new Date(label).toLocaleDateString("id-ID", {
-                weekday: "long",
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -118,7 +117,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
             stroke={color}
             strokeWidth={3}
             fillOpacity={1}
-            fill="url(#colorRevenue)"
+            fill="url(#colorRevenueChart)"
             activeDot={{ r: 6, strokeWidth: 0 }}
           />
         </AreaChart>

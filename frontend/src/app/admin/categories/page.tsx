@@ -62,13 +62,13 @@ export default function AdminCategoriesPage() {
   });
 
   // Fetch Categories
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = useCallback(async (search = "") => {
     setLoading(true);
     try {
       const endpoint = ENDPOINTS.admin.categories.list;
       const res = await api.get<LaravelPagination<Category>>(
         endpoint,
-        undefined,
+        { search },
         true,
       );
       if (res.success) {
@@ -89,9 +89,14 @@ export default function AdminCategoriesPage() {
     }
   }, []);
 
+  // Debounce Search
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    const delayDebounceFn = setTimeout(() => {
+      fetchCategories(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, fetchCategories]);
 
   // Modal Handlers
   const handleOpenModal = (category: Category | null = null) => {
@@ -174,7 +179,7 @@ export default function AdminCategoriesPage() {
             : "Kategori berhasil dibuat",
         );
         setIsModalOpen(false);
-        fetchCategories();
+        fetchCategories(searchTerm);
       } else {
         toast.error(res.message || "Gagal menyimpan kategori");
       }
@@ -199,7 +204,7 @@ export default function AdminCategoriesPage() {
       );
       if (res.success) {
         toast.success("Kategori berhasil dihapus");
-        fetchCategories();
+        fetchCategories(searchTerm);
         setConfirmDelete({ isOpen: false, id: null, loading: false });
       } else {
         toast.error(res.message || "Gagal menghapus kategori");
@@ -210,13 +215,6 @@ export default function AdminCategoriesPage() {
       setConfirmDelete((prev) => ({ ...prev, loading: false }));
     }
   };
-
-  // Filtered Categories
-  const filteredCategories = (categories || []).filter(
-    (cat) =>
-      cat.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cat.slug?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
 
   return (
     <DashboardLayout role="admin">
@@ -260,7 +258,7 @@ export default function AdminCategoriesPage() {
                 Loading categories...
               </p>
             </div>
-          ) : filteredCategories.length === 0 ? (
+          ) : categories.length === 0 ? (
             <div className="p-20 text-center">
               <CategoryRounded className="mb-4 text-6xl text-brand-500/10" />
               <h3 className="text-xl font-bold text-brand-500/90">
@@ -294,7 +292,7 @@ export default function AdminCategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-500/5">
-                  {filteredCategories.map((cat) => (
+                  {categories.map((cat) => (
                     <tr
                       key={cat.id}
                       className="group transition-colors hover:bg-smoke-200"

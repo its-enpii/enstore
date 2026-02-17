@@ -28,6 +28,193 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
+  // Command Palette Logic
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  const NAV_ITEMS = [
+    // Admin
+    {
+      title: "Dashboard",
+      href: "/admin/dashboard",
+      role: "admin",
+      group: "Overview",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Sales Report",
+      href: "/admin/reports/sales",
+      role: "admin",
+      group: "Analytics",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "User Report",
+      href: "/admin/reports/users",
+      role: "admin",
+      group: "Analytics",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Product Report",
+      href: "/admin/reports/products",
+      role: "admin",
+      group: "Analytics",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Transactions",
+      href: "/admin/transactions",
+      role: "admin",
+      group: "Management",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Products",
+      href: "/admin/products",
+      role: "admin",
+      group: "Management",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Categories",
+      href: "/admin/categories",
+      role: "admin",
+      group: "Management",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Users",
+      href: "/admin/users",
+      role: "admin",
+      group: "Management",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Withdrawals",
+      href: "/admin/withdrawals",
+      role: "admin",
+      group: "Management",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Vouchers",
+      href: "/admin/vouchers",
+      role: "admin",
+      group: "Management",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Banners",
+      href: "/admin/banners",
+      role: "admin",
+      group: "UI",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Settings",
+      href: "/admin/settings",
+      role: "admin",
+      group: "System",
+      icon: <SettingsRounded fontSize="small" />,
+    },
+
+    // Reseller
+    {
+      title: "Dashboard",
+      href: "/reseller/dashboard",
+      role: "reseller",
+      group: "Overview",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "Itinerary / Services",
+      href: "/services",
+      role: "reseller",
+      group: "Services",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "My Wallet",
+      href: "/reseller/balance",
+      role: "reseller",
+      group: "Finance",
+      icon: <CreditCardRounded fontSize="small" />,
+    },
+
+    // Retail / User
+    {
+      title: "Dashboard",
+      href: "/dashboard",
+      role: "retail",
+      group: "Overview",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "New Purchase",
+      href: "/services",
+      role: "retail",
+      group: "Services",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "History",
+      href: "/dashboard/transactions",
+      role: "retail",
+      group: "History",
+      icon: <MenuRounded fontSize="small" />,
+    },
+    {
+      title: "My Balance",
+      href: "/dashboard/balance",
+      role: "retail",
+      group: "Finance",
+      icon: <CreditCardRounded fontSize="small" />,
+    },
+
+    // Common
+    {
+      title: "My Profile",
+      href:
+        user?.role === "admin"
+          ? "/admin/profile"
+          : user?.customer_type === "reseller"
+            ? "/reseller/profile"
+            : "/dashboard/profile",
+      role: "all",
+      group: "Account",
+      icon: <PersonRounded fontSize="small" />,
+    },
+  ];
+
+  const searchResults = NAV_ITEMS.filter((item) => {
+    // Determine current user role for filtering
+    const currentUserRole =
+      user?.role === "admin"
+        ? "admin"
+        : user?.customer_type === "reseller"
+          ? "reseller"
+          : "retail";
+
+    if (item.role === "all") return true;
+    if (item.role === currentUserRole) {
+      return item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <header className="relative z-10 w-full">
       <div className="border-b border-brand-500/5 bg-smoke-50/95 backdrop-blur-md">
@@ -49,9 +236,14 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 <div className="relative flex items-center rounded-xl border border-brand-500/10 bg-brand-500/5 transition-all duration-300 focus-within:border-ocean-500/30 focus-within:bg-smoke-200">
                   <SearchRounded className="ml-4 text-lg text-brand-500/40" />
                   <input
+                    ref={searchInputRef}
                     type="text"
-                    placeholder="Search anything..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search pages (Ctrl + K)..."
                     className="flex-1 bg-transparent px-4 py-2.5 text-sm text-brand-500/90 outline-none placeholder:text-brand-500/40"
+                    onFocus={() => setShowResults(true)}
+                    onBlur={() => setTimeout(() => setShowResults(false), 200)}
                   />
                   <div className="mr-3 flex items-center gap-1 text-[10px] font-bold text-brand-500/30">
                     <kbd className="rounded border border-brand-500/10 bg-smoke-200 px-1.5 py-0.5">
@@ -62,6 +254,43 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                     </kbd>
                   </div>
                 </div>
+
+                {/* Command Palette Results */}
+                {showResults && searchQuery && (
+                  <div className="absolute top-full left-0 mt-2 w-full overflow-hidden rounded-xl border border-brand-500/10 bg-smoke-200 shadow-xl backdrop-blur-xl">
+                    <div className="max-h-60 overflow-y-auto py-2">
+                      {searchResults.length > 0 ? (
+                        searchResults.map((item, idx) => (
+                          <button
+                            key={idx}
+                            onMouseDown={() => {
+                              router.push(item.href);
+                              setSearchQuery("");
+                              setShowResults(false);
+                            }}
+                            className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors hover:bg-ocean-500/5"
+                          >
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/5 text-brand-500/60">
+                              {item.icon}
+                            </div>
+                            <div>
+                              <p className="font-bold text-brand-500/90">
+                                {item.title}
+                              </p>
+                              <p className="text-xs text-brand-500/40">
+                                {item.group}
+                              </p>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-center text-sm text-brand-500/40">
+                          No results found.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

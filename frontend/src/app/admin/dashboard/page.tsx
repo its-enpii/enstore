@@ -423,7 +423,7 @@ export default function AdminDashboard() {
                   recentTransactions.map((tr, idx) => (
                     <div
                       key={tr.id}
-                      className="group flex items-center justify-between p-5 transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-white/80"
+                      className="group flex items-center justify-between p-5 transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-smoke-200/80"
                     >
                       <div className="flex items-center gap-4">
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-500/5 bg-smoke-200 text-[10px] font-bold text-brand-500/90 shadow-xs transition-colors group-hover:border-ocean-500/20 group-hover:text-ocean-500">
@@ -552,7 +552,7 @@ export default function AdminDashboard() {
                   recentActivities.map((log) => (
                     <div
                       key={log.id}
-                      className="group flex items-center gap-4 p-5 transition-colors hover:bg-white/80"
+                      className="group flex items-center gap-4 p-5 transition-colors hover:bg-smoke-200/80"
                     >
                       <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-500/5 bg-smoke-200 text-ocean-500 shadow-xs transition-colors group-hover:border-ocean-500/20 group-hover:text-ocean-500">
                         <NotificationsActiveRounded fontSize="small" />

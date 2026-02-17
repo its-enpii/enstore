@@ -145,8 +145,7 @@ export default function SalesReport() {
               </div>
             </div>
 
-            {/* Charts Section */}
-            <div className="mb-8 rounded-xl border border-brand-500/5 bg-white p-6 dark:bg-brand-900/50">
+            <div className="mb-8 rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
               <h3 className="mb-6 text-lg font-bold text-brand-500/90">
                 Revenue & Profit Trend
               </h3>
@@ -158,7 +157,7 @@ export default function SalesReport() {
                   >
                     <defs>
                       <linearGradient
-                        id="colorRevenue"
+                        id="colorRevenueSales"
                         x1="0"
                         y1="0"
                         x2="0"
@@ -176,7 +175,7 @@ export default function SalesReport() {
                         />
                       </linearGradient>
                       <linearGradient
-                        id="colorProfit"
+                        id="colorProfitSales"
                         x1="0"
                         y1="0"
                         x2="0"
@@ -194,16 +193,16 @@ export default function SalesReport() {
                         />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis
                       dataKey="period"
-                      stroke="#94a3b8"
+                      stroke="#64748b"
                       fontSize={12}
                       tickLine={false}
                       axisLine={false}
                     />
                     <YAxis
-                      stroke="#94a3b8"
+                      stroke="#64748b"
                       fontSize={12}
                       tickLine={false}
                       axisLine={false}
@@ -213,8 +212,9 @@ export default function SalesReport() {
                       contentStyle={{
                         backgroundColor: "#fff",
                         borderRadius: "12px",
-                        border: "none",
+                        border: "1px solid #e2e8f0",
                         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                        color: "#1e293b",
                       }}
                     />
                     <Area
@@ -223,7 +223,7 @@ export default function SalesReport() {
                       name="Revenue"
                       stroke="#0ea5e9"
                       fillOpacity={1}
-                      fill="url(#colorRevenue)"
+                      fill="url(#colorRevenueSales)"
                     />
                     <Area
                       type="monotone"
@@ -231,7 +231,7 @@ export default function SalesReport() {
                       name="Profit"
                       stroke="#10b981"
                       fillOpacity={1}
-                      fill="url(#colorProfit)"
+                      fill="url(#colorProfitSales)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
