@@ -194,35 +194,37 @@ export default function AdminDashboard() {
         </div>
 
         {/* Alerts / Tasks */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {alerts.map((alert, idx) => (
             <div
               key={idx}
-              className={`${alert.bg} ${alert.color} ${alert.border} flex items-center justify-between rounded-xl border px-4 py-3 shadow-sm`}
+              className={`${alert.bg} ${alert.color} ${alert.border} flex items-center justify-between rounded-2xl border px-5 py-4 shadow-xs`}
             >
-              <div className="flex items-center gap-2">
-                {alert.icon}
-                <span className="text-xs font-bold tracking-wide uppercase">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-smoke-200/50">
+                  {alert.icon}
+                </div>
+                <span className="text-[10px] font-bold tracking-widest uppercase">
                   {alert.title}
                 </span>
               </div>
               <ChevronRightRounded
                 fontSize="small"
-                className="cursor-pointer opacity-60 transition-opacity hover:opacity-100"
+                className="cursor-pointer opacity-40 transition-opacity hover:opacity-100"
               />
             </div>
           ))}
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           {stats.map((stat, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="group rounded-xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm transition-all duration-300 hover:border-ocean-500/20 hover:shadow-md"
+              className="group rounded-2xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm transition-all duration-300 hover:border-ocean-500/20 hover:shadow-md"
             >
               <div className="mb-4 flex items-center justify-between">
                 <div
@@ -265,10 +267,10 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Analytics Section - New Chart Row */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-2">
-            <div className="flex items-center justify-between">
+        {/* Analytics Section - Chart Row */}
+        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
+          <div className="flex flex-col space-y-4 lg:col-span-2">
+            <div className="flex items-center justify-between px-1">
               <h2 className="text-lg font-bold text-brand-500/90">
                 Revenue & Sales Performance
               </h2>
@@ -279,7 +281,7 @@ export default function AdminDashboard() {
                 Detailed Report
               </Link>
             </div>
-            <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+            <div className="flex-1 rounded-2xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
               <div className="mb-8 flex items-center gap-6">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-brand-500/40 uppercase">
@@ -314,11 +316,13 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Stats Sidebar */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-brand-500/90">
-              Sales Distribution
-            </h2>
-            <div className="h-full rounded-xl border border-brand-500/5 bg-smoke-200 p-8 shadow-sm">
+          <div className="flex flex-col space-y-4 lg:col-span-1">
+            <div className="px-1">
+              <h2 className="text-lg font-bold text-brand-500/90">
+                Sales Distribution
+              </h2>
+            </div>
+            <div className="flex-1 rounded-2xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
               <div className="space-y-6">
                 {data?.charts.status_distribution &&
                   Object.entries(data.charts.status_distribution).map(
@@ -399,10 +403,10 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
           {/* Section 1: Recent Transactions Area */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="flex flex-col space-y-4 lg:col-span-2">
+            <div className="flex items-center justify-between px-1">
               <h2 className="text-lg font-bold text-brand-500/90">
                 Live Transactions
               </h2>
@@ -413,34 +417,38 @@ export default function AdminDashboard() {
                 View All
               </Link>
             </div>
-            <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200">
+            <div className="flex-1 overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
               <div className="divide-y divide-brand-500/5">
                 {recentTransactions.length > 0 ? (
                   recentTransactions.map((tr, idx) => (
                     <div
                       key={tr.id}
-                      className="flex items-center justify-between p-4 transition-colors hover:bg-cloud-200"
+                      className="group flex items-center justify-between p-5 transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-white/80"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-smoke-200 text-xs font-bold text-brand-500/90 shadow-sm">
-                          {tr.transaction_code.slice(-3).toUpperCase()}
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-500/5 bg-smoke-200 text-[10px] font-bold text-brand-500/90 shadow-xs transition-colors group-hover:border-ocean-500/20 group-hover:text-ocean-500">
+                          {tr.transaction_code.slice(-4).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-brand-500/90">
+                          <p className="text-sm font-bold text-brand-500/90 transition-colors group-hover:text-ocean-500">
                             {tr.product_name}
                           </p>
-                          <p className="text-[10px] font-bold text-brand-500/40">
-                            {tr.user?.name || "Guest User"}
+                          <p className="mt-0.5 text-[10px] font-bold text-brand-500/30">
+                            {tr.user?.name || "Guest User"} •{" "}
+                            {new Date(tr.created_at).toLocaleTimeString(
+                              "id-ID",
+                              { hour: "2-digit", minute: "2-digit" },
+                            )}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-bold text-brand-500/90">
+                        <p className="text-sm font-bold text-brand-500/90">
                           Rp{" "}
                           {Number(tr.total_price ?? 0).toLocaleString("id-ID")}
                         </p>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[8px] font-bold uppercase ${getStatusColor(tr.status)}`}
+                          className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-[8px] font-bold uppercase ${getStatusColor(tr.status)}`}
                         >
                           {tr.status}
                         </span>
@@ -460,8 +468,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Section 2: Best Products & Profit */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="flex flex-col space-y-4 lg:col-span-1">
+            <div className="flex items-center justify-between px-1">
               <h2 className="text-lg font-bold text-brand-500/90">
                 Product Performance
               </h2>
@@ -472,7 +480,7 @@ export default function AdminDashboard() {
                 Management
               </Link>
             </div>
-            <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-8">
+            <div className="flex-1 rounded-2xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
               <div className="space-y-6">
                 {data?.products.top_selling.length > 0 ? (
                   data.products.top_selling.map((item: any, idx: number) => (
@@ -525,9 +533,9 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Recent Activity Section */}
-          <div className="space-y-4 lg:col-span-2">
-            <div className="flex items-center justify-between">
+          {/* System Activity Logs Section */}
+          <div className="flex flex-col space-y-4 lg:col-span-3">
+            <div className="flex items-center justify-between px-1">
               <h2 className="text-lg font-bold text-brand-500/90">
                 System Activity Logs
               </h2>
@@ -538,19 +546,19 @@ export default function AdminDashboard() {
                 Full Logs
               </Link>
             </div>
-            <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200">
+            <div className="flex-1 overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
               <div className="divide-y divide-brand-500/5">
                 {recentActivities.length > 0 ? (
                   recentActivities.map((log) => (
                     <div
                       key={log.id}
-                      className="flex items-center gap-4 p-4 transition-colors hover:bg-cloud-200"
+                      className="group flex items-center gap-4 p-5 transition-colors hover:bg-white/80"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-smoke-200 text-ocean-500 shadow-sm">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-500/5 bg-smoke-200 text-ocean-500 shadow-xs transition-colors group-hover:border-ocean-500/20 group-hover:text-ocean-500">
                         <NotificationsActiveRounded fontSize="small" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-bold text-brand-500/90">
+                        <p className="text-sm font-bold text-brand-500/90 transition-colors group-hover:text-ocean-500">
                           {log.description}
                         </p>
                         <div className="mt-0.5 flex items-center gap-2">
@@ -565,13 +573,13 @@ export default function AdminDashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-[10px] font-bold text-brand-500/30 uppercase italic">
+                      <div className="text-[10px] font-bold text-brand-500/20 uppercase italic transition-colors group-hover:text-brand-500/40">
                         {log.user?.name || "System"}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="p-8 text-center text-xs font-bold text-brand-500/30 uppercase">
+                  <div className="p-12 text-center text-xs font-bold text-brand-500/30 uppercase">
                     No recent activity
                   </div>
                 )}

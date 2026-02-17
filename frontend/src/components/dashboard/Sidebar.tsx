@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
         try {
           const res = await api.get(
             ENDPOINTS.admin.transactions.list,
-            { status: "pending", per_page: 1 },
+            { status: "pending,processing", per_page: 1 },
             true,
           );
           if (res.success) {
@@ -431,7 +431,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role, onClose, isOpen }) => {
                                   className={`ml-auto rounded px-1.5 py-0.5 text-[10px] font-bold text-white ${
                                     item.badge === "VIP"
                                       ? "bg-ocean-500"
-                                      : "bg-emerald-500"
+                                      : item.title === "Transactions"
+                                        ? "bg-amber-500"
+                                        : "bg-emerald-500"
                                   }`}
                                 >
                                   {item.badge}

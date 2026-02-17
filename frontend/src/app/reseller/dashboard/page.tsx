@@ -128,24 +128,24 @@ export default function ResellerDashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, idx) => (
           <StatCard key={idx} index={idx} {...stat} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
         {/* Main Content: Recent Orders */}
-        <div className="space-y-6 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-brand-500/90">
+        <div className="flex flex-col space-y-6 lg:col-span-2">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-lg font-bold text-brand-500/90">
               Recent Sales
             </h2>
             <Link
               href="/reseller/transactions"
-              className="inline-flex items-center gap-1 text-[10px] font-bold text-ocean-500 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-bold tracking-widest text-ocean-500 uppercase hover:underline"
             >
-              View All <ChevronRightRounded fontSize="small" />
+              View All
             </Link>
           </div>
 
@@ -163,18 +163,18 @@ export default function ResellerDashboard() {
               ))}
             </div>
           ) : recentOrders.length > 0 ? (
-            <div className="divide-y divide-brand-500/5 rounded-xl border border-brand-500/5 bg-smoke-200">
+            <div className="flex-1 divide-y divide-brand-500/5 rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
               {recentOrders.map((order) => (
                 <Link
                   key={order.id}
                   href={`/reseller/transactions/${order.transaction_code}`}
-                  className="flex items-center gap-4 p-5 transition-colors first:rounded-t-[28px] last:rounded-b-[28px] hover:bg-cloud-200/50"
+                  className="group flex items-center gap-4 p-5 transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-white/80"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ocean-500/10 text-ocean-500">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ocean-500/10 text-ocean-500 transition-colors group-hover:bg-ocean-500 group-hover:text-smoke-200">
                     <ShoppingCartRounded fontSize="small" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-brand-500/90">
+                    <p className="truncate text-sm font-bold text-brand-500/90 transition-colors group-hover:text-ocean-500">
                       {order.product_name}
                     </p>
                     <p className="mt-0.5 text-[10px] font-bold text-brand-500/30">
@@ -185,7 +185,9 @@ export default function ResellerDashboard() {
                     <p className="text-sm font-bold text-brand-500/90">
                       {formatCurrency(order.total_price)}
                     </p>
-                    <StatusBadge status={order.status} size="sm" />
+                    <div className="mt-1">
+                      <StatusBadge status={order.status} size="sm" />
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -200,15 +202,15 @@ export default function ResellerDashboard() {
         </div>
 
         {/* Sidebar: Balance + Mutations */}
-        <div className="space-y-6">
+        <div className="flex flex-col space-y-6">
           <BalanceCard
             balance={balance?.available_balance ?? user?.balance ?? 0}
             userType={user?.customer_type}
           />
 
           {/* Recent Mutations */}
-          <div className="rounded-xl border border-brand-500/5 bg-smoke-200 p-6">
-            <h3 className="mb-5 text-xs font-bold text-brand-500/90">
+          <div className="flex-1 rounded-2xl border border-brand-500/5 bg-smoke-200 p-6 shadow-sm">
+            <h3 className="mb-5 px-1 text-xs leading-none font-bold tracking-widest text-brand-500/30 uppercase">
               Balance Mutations
             </h3>
 

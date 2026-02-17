@@ -68,43 +68,45 @@ export default function CustomerDashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, idx) => (
           <StatCard key={idx} index={idx} {...stat} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
         {/* Recent Transactions */}
-        <div className="space-y-6 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-brand-500/90">
+        <div className="flex flex-col space-y-6 lg:col-span-2">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-lg font-bold text-brand-500/90">
               Recent Transactions
             </h2>
             <Link
               href="/dashboard/transactions"
-              className="inline-flex items-center gap-1 text-[10px] font-bold text-ocean-500 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-bold tracking-widest text-ocean-500 uppercase hover:underline"
             >
-              View All <ChevronRightRounded fontSize="small" />
+              View All
             </Link>
           </div>
 
-          <EmptyState
-            icon={<HistoryRounded fontSize="large" />}
-            title="No transactions yet"
-            description="When you make a purchase, it will show up here."
-            action={
-              <Link href="/services">
-                <button className="rounded-xl bg-ocean-500 px-6 py-2 text-xs font-bold text-smoke-200 shadow-lg shadow-ocean-500/20">
-                  Find Games
-                </button>
-              </Link>
-            }
-          />
+          <div className="flex-1 overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
+            <EmptyState
+              icon={<HistoryRounded fontSize="large" />}
+              title="No transactions yet"
+              description="When you make a purchase, it will show up here."
+              action={
+                <Link href="/services">
+                  <button className="rounded-2xl bg-ocean-500 px-6 py-2 text-xs font-bold text-smoke-200 shadow-sm transition-transform active:translate-y-0.5">
+                    Find Games
+                  </button>
+                </Link>
+              }
+            />
+          </div>
         </div>
 
         {/* Sidebar Modules */}
-        <div className="space-y-6">
+        <div className="flex flex-col space-y-6">
           <BalanceCard
             balance={user?.balance ?? 0}
             userType="Retail"
@@ -113,9 +115,9 @@ export default function CustomerDashboard() {
           />
 
           {/* Special Promo */}
-          <div className="group relative overflow-hidden rounded-xl bg-linear-to-br from-ocean-500 to-brand-500 p-6 text-smoke-200">
+          <div className="group relative flex-1 overflow-hidden rounded-2xl bg-linear-to-br from-ocean-500 to-brand-500 p-6 text-smoke-200 shadow-lg shadow-ocean-500/10">
             <div className="relative z-10">
-              <span className="rounded-full bg-smoke-200/20 px-3 py-1 text-[10px] font-bold backdrop-blur-md">
+              <span className="rounded-full bg-smoke-200/20 px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
                 Flash Sale
               </span>
               <h3 className="mt-3 text-xl font-bold">Get 20% Cashback</h3>
@@ -123,7 +125,7 @@ export default function CustomerDashboard() {
                 On your first Mobile Legends diamond purchase!
               </p>
               <Link href="/services">
-                <button className="w-full rounded-xl bg-smoke-200 py-2.5 font-bold text-brand-500/90 transition-colors hover:bg-cloud-200">
+                <button className="active:translate-y-0.1 w-full rounded-2xl bg-smoke-200 py-3 font-bold text-brand-500/90 transition-all outline-none hover:bg-cloud-200">
                   Claim Now
                 </button>
               </Link>

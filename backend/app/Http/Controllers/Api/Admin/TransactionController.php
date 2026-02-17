@@ -37,7 +37,11 @@ class TransactionController extends Controller
 
                 // A. Direct Columns
                 if (in_array($key, $tableColumns)) {
-                    $query->where($key, $value);
+                    if (is_string($value) && str_contains($value, ',')) {
+                        $query->whereIn($key, explode(',', $value));
+                    } else {
+                        $query->where($key, $value);
+                    }
                 }
 
                 // B. Relations (Dot Notation OR Underscore)
