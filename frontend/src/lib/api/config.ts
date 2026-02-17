@@ -162,6 +162,14 @@ export const ENDPOINTS = {
       delete: (id: number | string) => `/admin/products/items/${id}`,
     },
 
+    categories: {
+      list: "/admin/products/categories",
+      create: "/admin/products/categories",
+      detail: (id: number | string) => `/admin/products/categories/${id}`,
+      update: (id: number | string) => `/admin/products/categories/${id}`,
+      delete: (id: number | string) => `/admin/products/categories/${id}`,
+    },
+
     transactions: {
       /** GET - List all transactions */
       list: "/admin/transactions",

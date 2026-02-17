@@ -211,7 +211,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
+        <div className="flex flex-col gap-6 rounded-3xl border border-brand-500/5 bg-smoke-200 p-5 md:flex-row">
           <form onSubmit={handleSearch} className="flex-1">
             <DashboardInput
               fullWidth
@@ -234,7 +234,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Products Table */}
-        <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200 shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
           {loading ? (
             <div className="p-12 text-center">
               <div className="mb-4 inline-block h-10 w-10 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>

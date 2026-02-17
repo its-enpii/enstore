@@ -9,6 +9,16 @@ import {
 } from "@mui/icons-material";
 import { api, ENDPOINTS } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 export default function UsersReport() {
   const [data, setData] = useState<any[]>([]);
@@ -88,6 +98,74 @@ export default function UsersReport() {
             {/* Export button could be added here */}
           </div>
         </div>
+
+        {/* Charts Section */}
+        {data.length > 0 && (
+          <div className="rounded-xl border border-brand-500/5 bg-white p-6 dark:bg-brand-900/50">
+            <h3 className="mb-6 text-lg font-bold text-brand-500/90">
+              Top 10 Users by Spending
+            </h3>
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={data.slice(0, 10)}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                    stroke="#f1f5f9"
+                  />
+                  <XAxis
+                    type="number"
+                    stroke="#94a3b8"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `${value / 1000}k`}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={150}
+                    stroke="#94a3b8"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "transparent" }}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      borderRadius: "12px",
+                      border: "none",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
+                    formatter={(value: any) => [
+                      `Rp ${Number(value).toLocaleString("id-ID")}`,
+                      "Total Spent",
+                    ]}
+                  />
+                  <Bar
+                    dataKey="total_spent"
+                    name="Spent"
+                    radius={[0, 4, 4, 0]}
+                    barSize={20}
+                    fill="#10b981"
+                  >
+                    {data.slice(0, 10).map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={index < 3 ? "#10b981" : "#cbd5e1"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200 shadow-sm">
           {loading ? (

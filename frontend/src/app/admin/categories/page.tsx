@@ -1,23 +1,32 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   SearchRounded,
   CategoryRounded,
-  InfoRounded,
+  AddRounded,
+  EditRounded,
+  DeleteRounded,
+  CloseRounded,
+  CloudUploadRounded,
+  ImageRounded,
+  FilterListRounded,
 } from "@mui/icons-material";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
+import { motion, AnimatePresence } from "motion/react";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardInput from "@/components/dashboard/DashboardInput";
+import DashboardButton from "@/components/dashboard/DashboardButton";
+import DashboardSelect from "@/components/dashboard/DashboardSelect";
+import StatusBadge from "@/components/dashboard/StatusBadge";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { api, ENDPOINTS } from "@/lib/api";
 import {
   ProductCategory as Category,
   LaravelPagination,
 } from "@/lib/api/types";
-
-// --- Types ---
-// Local interfaces removed in favor of @/lib/api/types
 
 export default function AdminCategoriesPage() {
   // State
@@ -27,12 +36,36 @@ export default function AdminCategoriesPage() {
     useState<LaravelPagination<Category> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    type: "PHYSICAL",
+    description: "",
+    icon: null as File | null,
+    is_active: true,
+    sort_order: 0,
+  });
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    id: number | null;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    id: null,
+    loading: false,
+  });
+
   // Fetch Categories
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     try {
-      // Using public endpoint as Admin API for categories does not exist yet
-      const endpoint = ENDPOINTS.products.categories;
+      const endpoint = ENDPOINTS.admin.categories.list;
       const res = await api.get<LaravelPagination<Category>>(
         endpoint,
         undefined,
@@ -60,6 +93,124 @@ export default function AdminCategoriesPage() {
     fetchCategories();
   }, [fetchCategories]);
 
+  // Modal Handlers
+  const handleOpenModal = (category: Category | null = null) => {
+    if (category) {
+      setEditingCategory(category);
+      setFormData({
+        name: category.name,
+        slug: category.slug,
+        type: category.type || "PHYSICAL",
+        description: category.description || "",
+        icon: null,
+        is_active: category.is_active,
+        sort_order: category.sort_order || 0,
+      });
+      setPreviewImage(category.icon);
+    } else {
+      setEditingCategory(null);
+      setFormData({
+        name: "",
+        slug: "",
+        type: "PHYSICAL",
+        description: "",
+        icon: null,
+        is_active: true,
+        sort_order: 0,
+      });
+      setPreviewImage(null);
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, icon: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const dataToSend = new FormData();
+      dataToSend.append("name", formData.name);
+      dataToSend.append("slug", formData.slug);
+      dataToSend.append("type", formData.type);
+      dataToSend.append("description", formData.description);
+      dataToSend.append("is_active", formData.is_active ? "1" : "0");
+      dataToSend.append("sort_order", formData.sort_order.toString());
+      if (formData.icon) {
+        dataToSend.append("icon", formData.icon);
+      }
+
+      let res;
+      if (editingCategory) {
+        // Use POST for update to handle FormData/File upload in PHP
+        res = await api.post(
+          ENDPOINTS.admin.categories.update(editingCategory.id),
+          dataToSend,
+          true,
+        );
+      } else {
+        res = await api.post(
+          ENDPOINTS.admin.categories.create,
+          dataToSend,
+          true,
+        );
+      }
+
+      if (res.success) {
+        toast.success(
+          editingCategory
+            ? "Kategori berhasil diperbarui"
+            : "Kategori berhasil dibuat",
+        );
+        setIsModalOpen(false);
+        fetchCategories();
+      } else {
+        toast.error(res.message || "Gagal menyimpan kategori");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Terjadi kesalahan");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    setConfirmDelete({ isOpen: true, id, loading: false });
+  };
+
+  const processDelete = async () => {
+    if (!confirmDelete.id) return;
+    setConfirmDelete((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await api.delete(
+        ENDPOINTS.admin.categories.delete(confirmDelete.id),
+        true,
+      );
+      if (res.success) {
+        toast.success("Kategori berhasil dihapus");
+        fetchCategories();
+        setConfirmDelete({ isOpen: false, id: null, loading: false });
+      } else {
+        toast.error(res.message || "Gagal menghapus kategori");
+      }
+    } catch (err) {
+      toast.error("Terjadi kesalahan saat menghapus kategori");
+    } finally {
+      setConfirmDelete((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
   // Filtered Categories
   const filteredCategories = (categories || []).filter(
     (cat) =>
@@ -77,27 +228,20 @@ export default function AdminCategoriesPage() {
               Categories 🏷️
             </h1>
             <p className="mt-2 text-sm text-brand-500/40">
-              View product categories.
+              Manage product categories.
             </p>
           </div>
-          {/* Add Button Removed: API not supported */}
+          <DashboardButton
+            variant="primary"
+            icon={<AddRounded />}
+            onClick={() => handleOpenModal()}
+          >
+            Add Category
+          </DashboardButton>
         </div>
 
-        {/* Info Banner */}
-        <div className="flex items-start gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
-          <InfoRounded className="mt-0.5 text-blue-500" />
-          <div>
-            <p className="text-sm font-bold text-blue-700">Read Only Access</p>
-            <p className="mt-1 text-xs text-blue-600/80">
-              Saat ini manajemen kategori (Create/Update/Delete) belum tersedia
-              di API Backend. Halaman ini hanya menampilkan daftar kategori yang
-              ada.
-            </p>
-          </div>
-        </div>
-
-        {/* Filter Bar (Separated) */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
+        {/* Filters */}
+        <div className="flex flex-col gap-6 rounded-3xl border border-brand-500/5 bg-smoke-200 p-5 md:flex-row">
           <DashboardInput
             fullWidth
             placeholder="Search categories..."
@@ -108,7 +252,7 @@ export default function AdminCategoriesPage() {
         </div>
 
         {/* Categories Table (Data Container) */}
-        <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200 shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
           {loading ? (
             <div className="p-12 text-center">
               <div className="mb-4 inline-block h-10 w-10 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>
@@ -136,10 +280,16 @@ export default function AdminCategoriesPage() {
                       Slug
                     </th>
                     <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
-                      Description
+                      Type
                     </th>
                     <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
                       Products
+                    </th>
+                    <th className="px-6 py-4 text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -151,8 +301,21 @@ export default function AdminCategoriesPage() {
                     >
                       <td className="px-6 py-4 pl-8">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ocean-500/10 text-ocean-500">
-                            <CategoryRounded fontSize="small" />
+                          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-ocean-500/10 text-ocean-500">
+                            {cat.icon ? (
+                              <Image
+                                src={
+                                  cat.icon.startsWith("http")
+                                    ? cat.icon
+                                    : `/api/storage/${cat.icon}`
+                                }
+                                alt={cat.name}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <CategoryRounded fontSize="small" />
+                            )}
                           </div>
                           <span className="font-bold text-brand-500/90">
                             {cat.name}
@@ -165,14 +328,36 @@ export default function AdminCategoriesPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="line-clamp-1 max-w-[200px] text-sm font-medium text-brand-500/60">
-                          {cat.description || "-"}
+                        <span className="text-xs font-bold text-brand-500/60">
+                          {cat.type}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm font-bold text-brand-500/40">
                           {cat.products_count || 0} Items
                         </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge
+                          status={cat.is_active ? "active" : "neutral"}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <DashboardButton
+                            variant="secondary"
+                            size="sm"
+                            icon={<EditRounded sx={{ fontSize: 16 }} />}
+                            onClick={() => handleOpenModal(cat)}
+                          />
+                          <DashboardButton
+                            variant="secondary"
+                            size="sm"
+                            className="text-red-500 hover:bg-red-50!"
+                            icon={<DeleteRounded sx={{ fontSize: 16 }} />}
+                            onClick={() => handleDelete(cat.id)}
+                          />
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -182,6 +367,176 @@ export default function AdminCategoriesPage() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-brand-500/20 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative max-h-[90vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-xl bg-smoke-200 shadow-2xl"
+            >
+              <form onSubmit={handleSubmit} className="p-8">
+                <div className="mb-8 flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-brand-500/90">
+                    {editingCategory ? "Edit Category" : "New Category"}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-smoke-200 text-brand-500/40 transition-all hover:bg-brand-500/5 hover:text-brand-500/90"
+                  >
+                    <CloseRounded />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Icon Upload */}
+                  <div>
+                    <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                      Category Icon
+                    </label>
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="group relative flex h-32 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-brand-500/10 bg-smoke-200 transition-all hover:border-ocean-500/30"
+                    >
+                      {previewImage ? (
+                        <>
+                          <Image
+                            src={
+                              previewImage.startsWith("http") ||
+                              previewImage.startsWith("data:")
+                                ? previewImage
+                                : `/api/storage/${previewImage}`
+                            }
+                            alt="preview"
+                            fill
+                            className="object-contain p-4"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-brand-500/40 opacity-0 transition-all group-hover:opacity-100">
+                            <CloudUploadRounded className="text-white" />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                          <ImageRounded
+                            className="mb-2 text-brand-500/20"
+                            sx={{ fontSize: 32 }}
+                          />
+                          <p className="text-xs font-bold text-brand-500/40">
+                            Upload Icon
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                  </div>
+
+                  <DashboardInput
+                    label="Category Name"
+                    placeholder="e.g. Mobile Legends"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    fullWidth
+                    required
+                  />
+
+                  <DashboardInput
+                    label="Slug (Optional)"
+                    placeholder="e.g. mobile-legends"
+                    value={formData.slug}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value })
+                    }
+                    fullWidth
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <DashboardSelect
+                      label="Type"
+                      options={[
+                        { value: "PHYSICAL", label: "Physical Goods" },
+                        { value: "VIRTUAL", label: "Virtual / Top Up" },
+                      ]}
+                      value={formData.type}
+                      onChange={(e) =>
+                        setFormData({ ...formData, type: e.target.value })
+                      }
+                    />
+
+                    <DashboardInput
+                      label="Sort Order"
+                      type="number"
+                      value={formData.sort_order.toString()}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          sort_order: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      fullWidth
+                    />
+                  </div>
+
+                  <DashboardSelect
+                    label="Status"
+                    options={[
+                      { value: "1", label: "Active" },
+                      { value: "0", label: "Inactive" },
+                    ]}
+                    value={formData.is_active ? "1" : "0"}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        is_active: e.target.value === "1",
+                      })
+                    }
+                  />
+
+                  <div className="pt-4">
+                    <DashboardButton
+                      type="submit"
+                      variant="primary"
+                      fullWidth
+                      loading={submitting}
+                    >
+                      {editingCategory ? "Update Category" : "Create Category"}
+                    </DashboardButton>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <ConfirmationModal
+        isOpen={confirmDelete.isOpen}
+        onClose={() => setConfirmDelete((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={processDelete}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? Products associated with it might be affected."
+        confirmLabel="Delete Category"
+        loading={confirmDelete.loading}
+        type="danger"
+      />
     </DashboardLayout>
   );
 }

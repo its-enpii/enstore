@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import PageHeader from "@/components/dashboard/PageHeader";
+import DashboardInput from "@/components/dashboard/DashboardInput";
 import DataTable, { type TableColumn } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import {
@@ -180,50 +181,48 @@ export default function ResellerTransactions() {
       />
 
       {/* Filters Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-8 rounded-2xl border border-brand-500/5 bg-smoke-200 p-5 md:flex-row md:items-stretch">
         <form onSubmit={handleSearch} className="relative flex-1">
-          <SearchRounded
-            className="absolute top-1/2 left-4 -translate-y-1/2 text-brand-500/30"
-            fontSize="small"
-          />
-          <input
-            type="text"
+          <DashboardInput
+            fullWidth
+            placeholder="Search by code or product..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by code or product..."
-            className="w-full rounded-2xl border border-brand-500/5 bg-smoke-200 py-3 pr-4 pl-11 text-sm font-bold text-brand-500/90 transition-colors placeholder:text-brand-500/30 focus:border-ocean-500/30 focus:outline-none"
+            icon={<SearchRounded />}
           />
         </form>
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setFilters((f) => ({ ...f, page: 1 }));
-          }}
-          className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none"
-        >
-          <option value="">All Status</option>
-          {statusOptions.filter(Boolean).map((s) => (
-            <option key={s} value={s}>
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </option>
-          ))}
-        </select>
-        <select
-          value={typeFilter}
-          onChange={(e) => {
-            setTypeFilter(e.target.value);
-            setFilters((f) => ({ ...f, page: 1 }));
-          }}
-          className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none"
-        >
-          <option value="">All Types</option>
-          {typeOptions.filter(Boolean).map((t) => (
-            <option key={t} value={t}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-3">
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setFilters((f) => ({ ...f, page: 1 }));
+            }}
+            className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none"
+          >
+            <option value="">All Status</option>
+            {statusOptions.filter(Boolean).map((s) => (
+              <option key={s} value={s}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </option>
+            ))}
+          </select>
+          <select
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setFilters((f) => ({ ...f, page: 1 }));
+            }}
+            className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none"
+          >
+            <option value="">All Types</option>
+            {typeOptions.filter(Boolean).map((t) => (
+              <option key={t} value={t}>
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Table */}

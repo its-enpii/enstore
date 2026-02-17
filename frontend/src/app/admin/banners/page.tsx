@@ -4,18 +4,17 @@ import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import PageHeader from "@/components/dashboard/PageHeader";
 import {
-  ViewCarouselRounded,
   AddRounded,
   SearchRounded,
   FilterListRounded,
   EditRounded,
   DeleteRounded,
-  VisibilityRounded,
   ImageRounded,
   LinkRounded,
   CalendarTodayRounded,
   CloseRounded,
   CloudUploadRounded,
+  SaveRounded,
 } from "@mui/icons-material";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "motion/react";
@@ -43,6 +42,11 @@ export default function AdminBannersPage() {
     search: "",
     page: 1,
   });
+
+  // Ordering State
+  const [orders, setOrders] = useState<{ [key: number]: number }>({});
+  const [hasOrderChanges, setHasOrderChanges] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<any>(null);
@@ -99,11 +103,55 @@ export default function AdminBannersPage() {
           last_page: resData.last_page,
           total: resData.total,
         });
+
+        // Initialize orders state
+        const initialOrders: any = {};
+        resData.data.forEach((item: any) => {
+          initialOrders[item.id] = item.sort_order;
+        });
+        setOrders(initialOrders);
+        setHasOrderChanges(false);
       }
     } catch (err) {
       toast.error("Gagal mengambil data banner");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOrderChange = (id: number, value: string) => {
+    const newOrder = parseInt(value) || 0;
+    setOrders((prev) => ({ ...prev, [id]: newOrder }));
+    setHasOrderChanges(true);
+  };
+
+  const saveOrders = async () => {
+    setSavingOrder(true);
+    try {
+      const payload = {
+        orders: Object.entries(orders).map(([id, sort_order]) => ({
+          id: parseInt(id),
+          sort_order,
+        })),
+      };
+
+      const res = await api.post(
+        ENDPOINTS.admin.banners.updateOrder, // Endpoint already exists in config.ts based on previous check
+        payload,
+        true,
+      );
+
+      if (res.success) {
+        toast.success("Order saved!");
+        setHasOrderChanges(false);
+        fetchBanners();
+      } else {
+        toast.error("Failed to save order");
+      }
+    } catch (err) {
+      toast.error("Failed to save order");
+    } finally {
+      setSavingOrder(false);
     }
   };
 
@@ -125,7 +173,7 @@ export default function AdminBannersPage() {
           : "",
         image: null,
       });
-      setPreviewImage(banner.image); // This is a URL from Supabase
+      setPreviewImage(banner.image);
     } else {
       setEditingBanner(null);
       setFormData({
@@ -175,7 +223,6 @@ export default function AdminBannersPage() {
 
       let res;
       if (editingBanner) {
-        // Laravel has issues with PUT and multipart/form-data, so we use POST with /{id}
         res = await api.post(
           ENDPOINTS.admin.banners.update(editingBanner.id),
           dataToSend,
@@ -229,12 +276,37 @@ export default function AdminBannersPage() {
     }
   };
 
-  const columns = [
+  const getStatusLabel = (banner: any) => {
+    if (!banner.is_active) return { label: "INACTIVE", status: "neutral" };
+
+    const now = new Date();
+    const start = banner.start_date ? new Date(banner.start_date) : null;
+    const end = banner.end_date ? new Date(banner.end_date) : null;
+
+    if (start && start > now) return { label: "SCHEDULED", status: "warning" };
+    if (end && end < now) return { label: "EXPIRED", status: "danger" };
+
+    return { label: "ACTIVE", status: "success" };
+  };
+
+  const columns: any[] = [
+    {
+      key: "sort_order",
+      label: "ORDER",
+      render: (val: number, item: any) => (
+        <input
+          type="number"
+          value={orders[item.id] !== undefined ? orders[item.id] : val}
+          onChange={(e) => handleOrderChange(item.id, e.target.value)}
+          className="w-16 rounded-lg border border-brand-500/10 bg-white px-2 py-1 text-center text-sm font-bold text-brand-500 focus:border-ocean-500 focus:outline-none"
+        />
+      ),
+    },
     {
       key: "image",
       label: "PREVIEW",
       render: (val: string) => (
-        <div className="relative h-10 w-20 overflow-hidden rounded-lg border border-brand-500/5">
+        <div className="relative h-12 w-24 overflow-hidden rounded-lg border border-brand-500/5 bg-smoke-300">
           <Image
             src={val.startsWith("http") ? val : `/api/storage/${val}`}
             alt="banner"
@@ -246,9 +318,20 @@ export default function AdminBannersPage() {
     },
     {
       key: "title",
-      label: "TITLE",
-      render: (val: string) => (
-        <span className="text-sm font-bold text-brand-500/90">{val}</span>
+      label: "INFO",
+      render: (val: string, item: any) => (
+        <div>
+          <div className="text-sm font-bold text-brand-500/90">{val}</div>
+          <div className="text-[10px] text-brand-500/50">
+            {item.start_date
+              ? new Date(item.start_date).toLocaleDateString()
+              : "Now"}{" "}
+            -{" "}
+            {item.end_date
+              ? new Date(item.end_date).toLocaleDateString()
+              : "Forever"}
+          </div>
+        </div>
       ),
     },
     {
@@ -263,19 +346,10 @@ export default function AdminBannersPage() {
     {
       key: "is_active",
       label: "STATUS",
-      render: (val: boolean) => (
-        <StatusBadge
-          status={val ? "success" : "neutral"}
-          label={val ? "ACTIVE" : "INACTIVE"}
-        />
-      ),
-    },
-    {
-      key: "sort_order",
-      label: "ORDER",
-      render: (val: number) => (
-        <span className="text-xs font-bold text-brand-500/40">{val}</span>
-      ),
+      render: (val: boolean, item: any) => {
+        const { label, status } = getStatusLabel(item);
+        return <StatusBadge status={status as any} label={label} />;
+      },
     },
     {
       key: "actions",
@@ -312,13 +386,26 @@ export default function AdminBannersPage() {
             { label: "Banners" },
           ]}
           actions={
-            <DashboardButton
-              variant="primary"
-              icon={<AddRounded />}
-              onClick={() => handleOpenModal()}
-            >
-              Add Banner
-            </DashboardButton>
+            <div className="flex gap-3">
+              {hasOrderChanges && (
+                <DashboardButton
+                  variant="primary"
+                  className="bg-green-500 hover:bg-green-600"
+                  icon={<SaveRounded />}
+                  loading={savingOrder}
+                  onClick={saveOrders}
+                >
+                  Save Order
+                </DashboardButton>
+              )}
+              <DashboardButton
+                variant="primary"
+                icon={<AddRounded />}
+                onClick={() => handleOpenModal()}
+              >
+                Add Banner
+              </DashboardButton>
+            </div>
           }
         />
 

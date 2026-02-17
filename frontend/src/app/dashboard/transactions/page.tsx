@@ -3,12 +3,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 
 import PageHeader from "@/components/dashboard/PageHeader";
+import DashboardInput from "@/components/dashboard/DashboardInput";
 import DataTable, { type TableColumn } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
-import {
-  ReceiptLongRounded,
-  SearchRounded,
-} from "@mui/icons-material";
+import { ReceiptLongRounded, SearchRounded } from "@mui/icons-material";
 import Link from "next/link";
 import {
   getTransactions,
@@ -21,8 +19,16 @@ export default function TransactionsPage() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<CustomerTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, per_page: 15 });
-  const [filters, setFilters] = useState<TransactionFilters>({ per_page: 15, page: 1 });
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 15,
+  });
+  const [filters, setFilters] = useState<TransactionFilters>({
+    per_page: 15,
+    page: 1,
+  });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -70,17 +76,33 @@ export default function TransactionsPage() {
   };
 
   const formatCurrency = (n: number) => `Rp ${n.toLocaleString("id-ID")}`;
-  const formatDate = (s: string) => new Date(s).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
-  const formatTime = (s: string) => new Date(s).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  const formatDate = (s: string) =>
+    new Date(s).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  const formatTime = (s: string) =>
+    new Date(s).toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   const columns: TableColumn<CustomerTransaction>[] = [
     {
       key: "transaction_code",
       label: "Transaction",
       render: (row) => (
-        <Link href={`/dashboard/transactions/${row.transaction_code}`} className="group">
-          <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 group-hover:text-ocean-500 transition-colors">{row.transaction_code}</p>
-          <p className="text-[10px] text-brand-500/30 font-bold mt-0.5">{formatDate(row.created_at)} • {formatTime(row.created_at)}</p>
+        <Link
+          href={`/dashboard/transactions/${row.transaction_code}`}
+          className="group"
+        >
+          <p className="text-sm font-bold text-brand-500/90 transition-colors group-hover:text-ocean-500 dark:text-smoke-200">
+            {row.transaction_code}
+          </p>
+          <p className="mt-0.5 text-[10px] font-bold text-brand-500/30">
+            {formatDate(row.created_at)} • {formatTime(row.created_at)}
+          </p>
         </Link>
       ),
     },
@@ -88,7 +110,9 @@ export default function TransactionsPage() {
       key: "product_name",
       label: "Product",
       render: (row) => (
-        <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-300 truncate max-w-[200px]">{row.product_name}</p>
+        <p className="max-w-[200px] truncate text-sm font-bold text-brand-500/90 dark:text-smoke-300">
+          {row.product_name}
+        </p>
       ),
     },
     {
@@ -96,7 +120,10 @@ export default function TransactionsPage() {
       label: "Type",
       align: "center",
       render: (row) => (
-        <StatusBadge status={row.transaction_type === "topup" ? "info" : "neutral"} label={row.transaction_type} />
+        <StatusBadge
+          status={row.transaction_type === "topup" ? "info" : "neutral"}
+          label={row.transaction_type}
+        />
       ),
     },
     {
@@ -104,7 +131,9 @@ export default function TransactionsPage() {
       label: "Amount",
       align: "right",
       render: (row) => (
-        <span className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{formatCurrency(row.total_price)}</span>
+        <span className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">
+          {formatCurrency(row.total_price)}
+        </span>
       ),
     },
     {
@@ -112,7 +141,9 @@ export default function TransactionsPage() {
       label: "Payment",
       align: "center",
       render: (row) => (
-        <span className="text-xs font-bold text-brand-500/50">{row.payment_method || row.payment?.payment_method || "-"}</span>
+        <span className="text-xs font-bold text-brand-500/50">
+          {row.payment_method || row.payment?.payment_method || "-"}
+        </span>
       ),
     },
     {
@@ -128,81 +159,100 @@ export default function TransactionsPage() {
       render: (row) => <StatusBadge status={row.payment_status} />,
     },
     {
-       key: "action",
-       label: "",
-       align: "right",
-       width: "50px",
-       render: (row) => (
-           <Link 
-               href={`/dashboard/transactions/${row.transaction_code}`}
-               className="text-xs font-bold text-ocean-500 hover:text-ocean-600 hover:underline"
-           >
-               View
-           </Link>
-       )
-   }
+      key: "action",
+      label: "",
+      align: "right",
+      width: "50px",
+      render: (row) => (
+        <Link
+          href={`/dashboard/transactions/${row.transaction_code}`}
+          className="text-xs font-bold text-ocean-500 hover:text-ocean-600 hover:underline"
+        >
+          View
+        </Link>
+      ),
+    },
   ];
 
-  const statusOptions = ["", "pending", "processing", "success", "failed", "cancelled"];
+  const statusOptions = [
+    "",
+    "pending",
+    "processing",
+    "success",
+    "failed",
+    "cancelled",
+  ];
   const typeOptions = ["", "purchase", "topup"];
 
   return (
-      <div className="space-y-6">
-        <PageHeader
-          title="My Transactions"
-          emoji="📋"
-          description="View and track all your transactions."
-        />
+    <div className="space-y-8 rounded-2xl">
+      <PageHeader
+        title="My Transactions"
+        emoji="📋"
+        description="View and track all your transactions."
+      />
 
-        {/* Filters Bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <form onSubmit={handleSearch} className="relative flex-1">
-            <SearchRounded className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500/30" fontSize="small" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by code or product..."
-              className="w-full pl-11 pr-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-sm font-bold text-brand-500/90 placeholder:text-brand-500/30 focus:outline-none focus:border-ocean-500/30 transition-colors"
-            />
-          </form>
+      {/* Filter Bar */}
+      <div className="flex flex-col gap-6 rounded-3xl border border-brand-500/5 bg-smoke-200 p-5 md:flex-row">
+        <form onSubmit={handleSearch} className="flex-1">
+          <DashboardInput
+            fullWidth
+            placeholder="Search by code or product..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            icon={<SearchRounded />}
+          />
+        </form>
+
+        <div className="flex gap-3">
           <select
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setFilters(f => ({ ...f, page: 1 })); }}
-            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-bold text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setFilters((f) => ({ ...f, page: 1 }));
+            }}
+            className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none dark:bg-brand-800"
           >
             <option value="">All Status</option>
-            {statusOptions.filter(Boolean).map(s => (
-              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+            {statusOptions.filter(Boolean).map((s) => (
+              <option key={s} value={s}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </option>
             ))}
           </select>
           <select
             value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value); setFilters(f => ({ ...f, page: 1 })); }}
-            className="px-4 py-3 bg-smoke-200 dark:bg-brand-800 border border-brand-500/5 rounded-2xl text-xs font-bold text-brand-500/60 focus:outline-none focus:border-ocean-500/30 transition-colors cursor-pointer"
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setFilters((f) => ({ ...f, page: 1 }));
+            }}
+            className="cursor-pointer rounded-2xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-xs font-bold text-brand-500/60 transition-colors focus:border-ocean-500/30 focus:outline-none dark:bg-brand-800"
           >
             <option value="">All Types</option>
-            {typeOptions.filter(Boolean).map(t => (
-              <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+            {typeOptions.filter(Boolean).map((t) => (
+              <option key={t} value={t}>
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </option>
             ))}
           </select>
         </div>
-
-        {/* Table */}
-        <DataTable
-           columns={columns}
-           data={transactions}
-           loading={loading}
-           currentPage={pagination.current_page}
-           lastPage={pagination.last_page}
-           total={pagination.total}
-           perPage={pagination.per_page}
-           onPageChange={handlePageChange}
-           emptyIcon={<ReceiptLongRounded fontSize="large" />}
-           emptyTitle="No transactions found"
-           emptyDescription="Your purchase and top-up history will appear here."
-           rowKey={(row) => row.id}
-        />
       </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={transactions}
+        loading={loading}
+        currentPage={pagination.current_page}
+        lastPage={pagination.last_page}
+        total={pagination.total}
+        perPage={pagination.per_page}
+        onPageChange={handlePageChange}
+        emptyIcon={<ReceiptLongRounded fontSize="large" />}
+        emptyTitle="No transactions found"
+        emptyDescription="Your purchase and top-up history will appear here."
+        rowKey={(row) => row.id}
+      />
+    </div>
   );
 }

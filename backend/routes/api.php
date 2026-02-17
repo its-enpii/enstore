@@ -104,6 +104,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('products')->group(function () {
             Route::post('/sync-digiflazz', [App\Http\Controllers\Api\Admin\ProductController::class, 'syncFromDigiflazz']);
 
+            // Categories Management
+            Route::apiResource('categories', \App\Http\Controllers\Api\Admin\CategoryController::class);
+
             // Product Items (Separated Controller)
             Route::post('/bulk-update-prices', [App\Http\Controllers\Api\Admin\ProductItemController::class, 'bulkUpdate']);
             Route::post('/{id}/items', [App\Http\Controllers\Api\Admin\ProductItemController::class, 'store']);

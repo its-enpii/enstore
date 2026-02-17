@@ -223,7 +223,7 @@ export default function AdminTransactionsPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-brand-500/5 bg-smoke-200 p-4 md:flex-row">
+        <div className="flex flex-col gap-6 rounded-3xl border border-brand-500/5 bg-smoke-200 p-5 md:flex-row md:items-stretch">
           {/* Search */}
           <form onSubmit={handleSearch} className="flex-1">
             <DashboardInput
@@ -236,12 +236,12 @@ export default function AdminTransactionsPage() {
           </form>
 
           {/* Status Tabs (Desktop) */}
-          <div className="hidden rounded-xl border border-brand-500/5 bg-smoke-200 p-1 md:flex">
+          <div className="hidden rounded-2xl border border-brand-500/5 bg-smoke-200 p-1.5 shadow-sm md:flex">
             {["all", "pending", "success", "failed"].map((status) => (
               <button
                 key={status}
                 onClick={() => handleStatusFilter(status)}
-                className={`rounded-lg px-4 py-2 text-xs font-bold uppercase transition-all ${
+                className={`rounded-xl px-5 py-2 text-[10px] font-bold tracking-widest uppercase transition-all ${
                   statusFilter === status
                     ? "bg-ocean-500 text-white shadow-lg shadow-ocean-500/20"
                     : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500/90"
@@ -270,7 +270,7 @@ export default function AdminTransactionsPage() {
         </div>
 
         {/* Transactions Table */}
-        <div className="overflow-hidden rounded-xl border border-brand-500/5 bg-smoke-200 shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-brand-500/5 bg-smoke-200 shadow-sm">
           {loading ? (
             <div className="p-12 text-center">
               <div className="mb-4 inline-block h-10 w-10 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>

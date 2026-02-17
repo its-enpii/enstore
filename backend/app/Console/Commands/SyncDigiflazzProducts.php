@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductItem;
+use App\Models\Setting;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -27,10 +28,19 @@ class SyncDigiflazzProducts extends Command
 
     private $skippedItems = [];
 
+    private $retailMarginPercent = 0;
+    private $resellerMarginPercent = 0;
+
     public function handle()
     {
         $this->info('🚀 Starting hierarchical product sync from Digiflazz...');
         $this->newLine();
+
+        // 1. Fetch Global Profit Margins
+        $this->retailMarginPercent = (float) Setting::where('key', 'profit_margin.retail')->value('value') ?? 0;
+        $this->resellerMarginPercent = (float) Setting::where('key', 'profit_margin.reseller')->value('value') ?? 0;
+
+        $this->info("💰 Using Profit Margins: Retail {$this->retailMarginPercent}%, Reseller {$this->resellerMarginPercent}%");
 
         try {
             $digiflazzService = app(\App\Services\DigiflazzService::class);
@@ -402,19 +412,29 @@ class SyncDigiflazzProducts extends Command
     }
 
     /**
-     * Calculate retail price (base + margin)
+     * Calculate retail price (base + margin %)
      */
     private function calculateRetailPrice(float $basePrice): float
     {
-        return $basePrice + 2000; // Rp 2.000 margin
+        $margin = $basePrice * ($this->retailMarginPercent / 100);
+        // Fallback to minimal fixed margin if percentage is 0 (optional safe guard)
+        if ($this->retailMarginPercent <= 0) {
+             return $basePrice + 2000; 
+        }
+        return $basePrice + $margin;
     }
 
     /**
-     * Calculate reseller price (base + smaller margin)
+     * Calculate reseller price (base + margin %)
      */
     private function calculateResellerPrice(float $basePrice): float
     {
-        return $basePrice + 1000; // Rp 1.000 margin
+        $margin = $basePrice * ($this->resellerMarginPercent / 100);
+        // Fallback
+        if ($this->resellerMarginPercent <= 0) {
+            return $basePrice + 1000;
+        }
+        return $basePrice + $margin;
     }
 
     /**
@@ -422,7 +442,8 @@ class SyncDigiflazzProducts extends Command
      */
     private function calculateRetailProfit(float $basePrice): float
     {
-        return 2000;
+        $price = $this->calculateRetailPrice($basePrice);
+        return $price - $basePrice;
     }
 
     /**
@@ -430,7 +451,8 @@ class SyncDigiflazzProducts extends Command
      */
     private function calculateResellerProfit(float $basePrice): float
     {
-        return 1000;
+        $price = $this->calculateResellerPrice($basePrice);
+        return $price - $basePrice;
     }
 
     /**

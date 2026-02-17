@@ -8,6 +8,15 @@ import {
   FileDownloadRounded,
 } from "@mui/icons-material";
 import { api, ENDPOINTS } from "@/lib/api";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function SalesReport() {
   const [data, setData] = useState<any>(null);
@@ -133,6 +142,99 @@ export default function SalesReport() {
                     data?.summary?.average_transaction || 0,
                   ).toLocaleString("id-ID")}
                 </p>
+              </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="mb-8 rounded-xl border border-brand-500/5 bg-white p-6 dark:bg-brand-900/50">
+              <h3 className="mb-6 text-lg font-bold text-brand-500/90">
+                Revenue & Profit Trend
+              </h3>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={data?.details || []}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="colorRevenue"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#0ea5e9"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#0ea5e9"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="colorProfit"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#10b981"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#10b981"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis
+                      dataKey="period"
+                      stroke="#94a3b8"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="#94a3b8"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value / 1000}k`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        borderRadius: "12px",
+                        border: "none",
+                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="total_revenue"
+                      name="Revenue"
+                      stroke="#0ea5e9"
+                      fillOpacity={1}
+                      fill="url(#colorRevenue)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="total_profit"
+                      name="Profit"
+                      stroke="#10b981"
+                      fillOpacity={1}
+                      fill="url(#colorProfit)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
