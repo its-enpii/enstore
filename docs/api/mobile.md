@@ -65,6 +65,30 @@ Disarankan untuk memanggil endpoint ini saat user logout agar tidak menerima not
 **Endpoint:** `DELETE /api/customer/devices/{device_id}`
 **Header:** `Authorization: Bearer {token}`
 
+### 3. Utility - Lookup Provider
+
+Mendeteksi nama provider (operator) berdasarkan prefix nomor telepon (HLR). Berguna untuk otomatisasi pilihan produk pulsa/kuota.
+
+- **Endpoint**: `/api/utility/lookup-provider`
+- **Method**: `GET`
+- **Query Params**:
+  - `phone`: Nomor telepon (misal: `085812345678`)
+
+**Response Sukses**:
+
+```json
+{
+  "success": true,
+  "message": "Provider ditemukan",
+  "data": {
+    "phone": "085812345678",
+    "prefix": "0858",
+    "provider_name": "Indosat",
+    "provider_code": "indosat"
+  }
+}
+```
+
 ---
 
 ## Tip Pengembangan Flutter:

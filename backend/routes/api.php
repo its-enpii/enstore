@@ -77,8 +77,9 @@ Route::prefix('products')->group(function () {
     Route::get('/slug/{slug}', [App\Http\Controllers\Api\Customer\ProductController::class, 'showBySlug']);
 });
 
-// Mobile App Config
+// Mobile App Config & Utilities
 Route::get('/app-config', [App\Http\Controllers\Api\Public\AppConfigController::class, 'index']);
+Route::get('/utility/lookup-provider', [App\Http\Controllers\Api\Public\UtilityController::class, 'lookupProvider']);
 
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {

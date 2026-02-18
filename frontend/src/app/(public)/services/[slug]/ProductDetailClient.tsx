@@ -56,6 +56,72 @@ export default function ProductDetailPage({
   const [selectedPayment, setSelectedPayment] = useState<string | null>("QRIS");
   const [email, setEmail] = useState("");
   const [voucherCode, setVoucherCode] = useState("");
+  const [detectedProvider, setDetectedProvider] = useState<{
+    name: string;
+    code: string;
+  } | null>(null);
+
+  // Detect provider from phone number
+  useEffect(() => {
+    const phone = formData.phone;
+    if (phone && phone.length >= 4) {
+      // Simple prefix check (matches backend PhoneHelper)
+      const prefixes: Record<string, { name: string; code: string }> = {
+        "0811": { name: "Telkomsel", code: "telkomsel" },
+        "0812": { name: "Telkomsel", code: "telkomsel" },
+        "0813": { name: "Telkomsel", code: "telkomsel" },
+        "0821": { name: "Telkomsel", code: "telkomsel" },
+        "0822": { name: "Telkomsel", code: "telkomsel" },
+        "0823": { name: "Telkomsel", code: "telkomsel" },
+        "0851": { name: "Telkomsel", code: "telkomsel" },
+        "0852": { name: "Telkomsel", code: "telkomsel" },
+        "0853": { name: "Telkomsel", code: "telkomsel" },
+        "0814": { name: "Indosat", code: "indosat" },
+        "0815": { name: "Indosat", code: "indosat" },
+        "0816": { name: "Indosat", code: "indosat" },
+        "0855": { name: "Indosat", code: "indosat" },
+        "0856": { name: "Indosat", code: "indosat" },
+        "0857": { name: "Indosat", code: "indosat" },
+        "0858": { name: "Indosat", code: "indosat" },
+        "0817": { name: "XL", code: "xl" },
+        "0818": { name: "XL", code: "xl" },
+        "0819": { name: "XL", code: "xl" },
+        "0859": { name: "XL", code: "xl" },
+        "0877": { name: "XL", code: "xl" },
+        "0878": { name: "XL", code: "xl" },
+        "0831": { name: "Axis", code: "axis" },
+        "0832": { name: "Axis", code: "axis" },
+        "0833": { name: "Axis", code: "axis" },
+        "0838": { name: "Axis", code: "axis" },
+        "0881": { name: "Smartfren", code: "smartfren" },
+        "0882": { name: "Smartfren", code: "smartfren" },
+        "0883": { name: "Smartfren", code: "smartfren" },
+        "0884": { name: "Smartfren", code: "smartfren" },
+        "0885": { name: "Smartfren", code: "smartfren" },
+        "0886": { name: "Smartfren", code: "smartfren" },
+        "0887": { name: "Smartfren", code: "smartfren" },
+        "0888": { name: "Smartfren", code: "smartfren" },
+        "0889": { name: "Smartfren", code: "smartfren" },
+        "0895": { name: "Tri", code: "three" },
+        "0896": { name: "Tri", code: "three" },
+        "0897": { name: "Tri", code: "three" },
+        "0898: ": { name: "Tri", code: "three" },
+        "0899": { name: "Tri", code: "three" },
+      };
+
+      let normalized = phone.replace(/[^0-9+]/g, "");
+      if (normalized.startsWith("+62")) {
+        normalized = "0" + normalized.slice(3);
+      } else if (normalized.startsWith("62")) {
+        normalized = "0" + normalized.slice(2);
+      }
+
+      const prefix = normalized.slice(0, 4);
+      setDetectedProvider(prefixes[prefix] || null);
+    } else {
+      setDetectedProvider(null);
+    }
+  }, [formData.phone]);
 
   const handlePurchase = async () => {
     if (!selectedPackage || !selectedPayment || !product) {
@@ -74,6 +140,18 @@ export default function ProductDetailPage({
         );
         return;
       }
+    }
+
+    // Validate provider mismatch
+    if (
+      detectedProvider &&
+      product.provider &&
+      detectedProvider.code !== product.provider.toLowerCase()
+    ) {
+      toast.error(
+        `Nomor HP Anda (${detectedProvider.name}) tidak sesuai dengan produk ${product.provider}.`,
+      );
+      return;
     }
 
     if (!email) {
@@ -369,78 +447,102 @@ export default function ProductDetailPage({
                 >
                   {Array.isArray(product.input_fields) &&
                     product.input_fields.map((field: any) => {
-                      if (field.type === "select" && field.options) {
-                        const options = (field.options as string)
-                          .split(",")
-                          .map((o: string) => o.trim());
-                        return (
-                          <div key={field.name} className="w-full">
-                            <div className="mb-1.5 block text-sm font-medium text-gray-700">
-                              {field.label}{" "}
-                              {field.required && (
-                                <span className="text-red-500">*</span>
-                              )}
-                            </div>
-                            <div className="relative">
-                              <select
-                                className="w-full appearance-none rounded-full border-0 bg-cloud-200 px-6 py-4 text-base text-brand-500/60 transition-all duration-200 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                                value={formData[field.name] || ""}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    [field.name]: e.target.value,
-                                  }))
-                                }
-                              >
-                                <option value="">Select {field.label}</option>
-                                {options.map((opt) => {
-                                  // Support "value:label" or "value|label" format
-                                  const [val, lab] = opt.includes(":")
-                                    ? opt.split(":")
-                                    : opt.includes("|")
-                                      ? opt.split("|")
-                                      : [opt, opt];
-                                  return (
-                                    <option key={val.trim()} value={val.trim()}>
-                                      {lab.trim()}
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-brand-500/40">
-                                <svg
-                                  className="h-5 w-5"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
+                      const isPhoneField =
+                        field.name === "phone" ||
+                        field.label.toLowerCase().includes("nomor");
 
                       return (
-                        <Input
-                          key={field.name}
-                          label={field.label}
-                          type={field.type || "text"}
-                          placeholder={field.placeholder || field.label}
-                          value={formData[field.name] || ""}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              [field.name]: e.target.value,
-                            }))
-                          }
-                          inputSize="md"
-                          fullWidth
-                        />
+                        <div key={field.name} className="flex flex-col gap-2">
+                          {field.type === "select" && field.options ? (
+                            <div className="w-full">
+                              <div className="mb-1.5 block text-sm font-medium text-gray-700">
+                                {field.label}{" "}
+                                {field.required && (
+                                  <span className="text-red-500">*</span>
+                                )}
+                              </div>
+                              <div className="relative">
+                                <select
+                                  className="w-full appearance-none rounded-full border-0 bg-cloud-200 px-6 py-4 text-base text-brand-500/60 transition-all duration-200 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                  value={formData[field.name] || ""}
+                                  onChange={(e) =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      [field.name]: e.target.value,
+                                    }))
+                                  }
+                                >
+                                  <option value="">Select {field.label}</option>
+                                  {(field.options as string)
+                                    .split(",")
+                                    .map((o: string) => o.trim())
+                                    .map((opt) => {
+                                      const [val, lab] = opt.includes(":")
+                                        ? opt.split(":")
+                                        : opt.includes("|")
+                                          ? opt.split("|")
+                                          : [opt, opt];
+                                      return (
+                                        <option
+                                          key={val.trim()}
+                                          value={val.trim()}
+                                        >
+                                          {lab.trim()}
+                                        </option>
+                                      );
+                                    })}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-brand-500/40">
+                                  <svg
+                                    className="h-5 w-5"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <Input
+                              label={field.label}
+                              type={field.type || "text"}
+                              placeholder={field.placeholder || field.label}
+                              value={formData[field.name] || ""}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  [field.name]: e.target.value,
+                                }))
+                              }
+                              inputSize="md"
+                              fullWidth
+                            />
+                          )}
+
+                          {isPhoneField &&
+                            detectedProvider &&
+                            product.provider &&
+                            detectedProvider.code !==
+                              product.provider.toLowerCase() && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex items-center gap-2 rounded-2xl bg-red-500/10 px-4 py-3 text-xs font-medium text-red-500"
+                              >
+                                <InfoRounded className="h-4 w-4" />
+                                <span>
+                                  Nomor ini terdeteksi sebagai{" "}
+                                  <b>{detectedProvider.name}</b>, sedangkan Anda
+                                  memilih produk <b>{product.provider}</b>.
+                                </span>
+                              </motion.div>
+                            )}
+                        </div>
                       );
                     })}
                 </div>
