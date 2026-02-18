@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/logo-with-text.png" alt="Enstore Logo" width="600">
+</p>
+
 # Enstore - Platform Toko Produk Digital
 
 Platform penjualan produk digital (voucher game, pulsa, PLN, e-money, dll) dengan integrasi Tripay (payment gateway) dan Digiflazz (penyedia produk).

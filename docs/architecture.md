@@ -1,4 +1,4 @@
-# Arsitektur Sistem & Struktur Database
+# <img src="assets/logo.png" alt="Enstore Icon" width="32" vertical-align="middle"> Arsitektur Sistem & Struktur Database
 
 ## 🏗️ Gambaran Umum Arsitektur
 
