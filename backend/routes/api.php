@@ -77,6 +77,9 @@ Route::prefix('products')->group(function () {
     Route::get('/slug/{slug}', [App\Http\Controllers\Api\Customer\ProductController::class, 'showBySlug']);
 });
 
+// Mobile App Config
+Route::get('/app-config', [App\Http\Controllers\Api\Public\AppConfigController::class, 'index']);
+
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
@@ -241,6 +244,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('analytics')->group(function () {
             Route::get('/dashboard', [App\Http\Controllers\Api\Customer\ResellerAnalyticsController::class, 'dashboard']);
             Route::get('/top-products', [App\Http\Controllers\Api\Customer\ResellerAnalyticsController::class, 'topProducts']);
+        });
+
+        // Device Management (FCM)
+        Route::prefix('devices')->group(function () {
+            Route::post('/register', [App\Http\Controllers\Api\Customer\DeviceController::class, 'register']);
+            Route::delete('/{deviceId}', [App\Http\Controllers\Api\Customer\DeviceController::class, 'destroy']);
         });
 
     });

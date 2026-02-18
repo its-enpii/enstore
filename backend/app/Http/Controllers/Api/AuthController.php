@@ -41,7 +41,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
-                'customer_type' => $request->customer_type ?? 'retail',
+                'customer_type' => 'retail',
                 'role' => 'customer',
                 'is_guest' => false,
                 'status' => 'active',

@@ -13,10 +13,12 @@
   "phone": "081234567890",
   "password": "password123",
   "password_confirmation": "password123",
-  "customer_type": "retail", // atau "reseller"
   "referral_code": "ABC12345" // opsional
 }
 ```
+
+> [!NOTE]
+> Semua pendaftaran baru akan otomatis memiliki tipe customer `retail`. Pendaftaran sebagai `reseller` tidak tersedia melalui API publik.
 
 ### Respon Sukses (201):
 

@@ -126,4 +126,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'referred_by');
     }
+
+    /**
+     * Get all devices for the user
+     */
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
 }

@@ -26,7 +26,6 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'customer_type' => ['sometimes', 'in:retail,reseller'],
             'referral_code' => ['nullable', 'string', 'exists:users,referral_code'],
         ];
     }
@@ -43,7 +42,6 @@ class RegisterRequest extends FormRequest
             'phone.unique' => 'Nomor telepon sudah terdaftar.',
             'password.min' => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'customer_type.in' => 'Tipe customer harus retail atau reseller.',
             'referral_code.exists' => 'Kode referral tidak valid.',
         ];
     }
