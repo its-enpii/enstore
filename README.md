@@ -34,4 +34,4 @@ Dokumentasi lengkap telah disentralisasi di folder `docs/`:
 
 ---
 
-Dikembangkan oleh Enpii Studio
+Dikembangkan oleh enpii studio

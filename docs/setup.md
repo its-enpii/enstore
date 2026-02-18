@@ -66,6 +66,9 @@ Untuk performa yang lebih baik:
 - `TRIPAY_*`: Kredensial gateway pembayaran.
 - `DIGIFLAZZ_*`: Kredensial penyedia produk digital.
 
+> [!NOTE]
+> File `.env` di **root directory** digunakan untuk mengatur port Docker dan kredensial database untuk kontainer, sedangkan `backend/.env` digunakan untuk konfigurasi internal Laravel.
+
 ---
 
 ## 🐛 Troubleshooting

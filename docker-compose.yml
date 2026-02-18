@@ -15,9 +15,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=enstore
-      - DB_USERNAME=enstore_db_user
-      - DB_PASSWORD=enstore_db_password
+      - DB_DATABASE=${DB_DATABASE:-enstore}
+      - DB_USERNAME=${DB_USERNAME:-enstore_db_user}
+      - DB_PASSWORD=${DB_PASSWORD:-enstore_db_password}
     networks:
       - enstore
     depends_on:
@@ -30,7 +30,7 @@ services:
     container_name: enstore-backend-nginx
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "${BACKEND_PORT:-8000}:80"
     volumes:
       - ./backend:/var/www
       - ./backend/docker/nginx/conf.d:/etc/nginx/conf.d
@@ -45,12 +45,12 @@ services:
     container_name: enstore-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: enstore
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: enstore_db_password
-      MYSQL_USER: enstore_db_user
+      MYSQL_DATABASE: ${DB_DATABASE:-enstore}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-enstore_db_password}
+      MYSQL_USER: ${DB_USERNAME:-enstore_db_user}
     ports:
-      - "3307:3306"
+      - "${DB_PORT:-3307}:3306"
     volumes:
       - dbdata:/var/lib/mysql
     networks:
@@ -66,9 +66,9 @@ services:
       PMA_HOST: db
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD:-root}
     ports:
-      - "8080:80"
+      - "${PHPMYADMIN_PORT:-8080}:80"
     networks:
       - enstore
     depends_on:
@@ -89,7 +89,7 @@ services:
     container_name: enstore-frontend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -132,7 +132,7 @@ services:
     container_name: enstore-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     networks:
       - enstore
     volumes:
@@ -151,9 +151,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=enstore
-      - DB_USERNAME=enstore_db_user
-      - DB_PASSWORD=enstore_db_password
+      - DB_DATABASE=${DB_DATABASE:-enstore}
+      - DB_USERNAME=${DB_USERNAME:-enstore_db_user}
+      - DB_PASSWORD=${DB_PASSWORD:-enstore_db_password}
     networks:
       - enstore
     depends_on:
@@ -174,9 +174,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=enstore
-      - DB_USERNAME=enstore_db_user
-      - DB_PASSWORD=enstore_db_password
+      - DB_DATABASE=${DB_DATABASE:-enstore}
+      - DB_USERNAME=${DB_USERNAME:-enstore_db_user}
+      - DB_PASSWORD=${DB_PASSWORD:-enstore_db_password}
     networks:
       - enstore
     depends_on:

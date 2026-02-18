@@ -1,102 +1,102 @@
 @echo off
-REM Enstore - Setup Script for Windows
-REM This script helps you set up the development environment
+REM Enstore - Skrip Setup untuk Windows
+REM Skrip ini membantu Anda menyiapkan lingkungan pengembangan
 
 echo.
 echo ================================
-echo   Enstore Setup Script
+echo   Skrip Setup Enstore
 echo ================================
 echo.
 
-REM Check if Docker is running
+REM Cek apakah Docker berjalan
 docker info >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Docker is not running. Please start Docker Desktop first.
+    echo [ERROR] Docker tidak berjalan. Silakan jalankan Docker Desktop terlebih dahulu.
     pause
     exit /b 1
 )
 
-echo [OK] Docker is running
+echo [OK] Docker berjalan
 echo.
 
-REM Step 1: Copy environment files
-echo [Step 1] Setting up environment files...
+REM Langkah 1: Salin file environment
+echo [Langkah 1] Menyiapkan file environment...
 if not exist .env (
     copy .env.example .env >nul
-    echo [OK] Created .env file
+    echo [OK] Berhasil membuat file .env
 ) else (
-    echo [SKIP] .env already exists
+    echo [SKIP] .env sudah ada
 )
 
 if not exist backend\.env (
     copy backend\.env.example backend\.env >nul
-    echo [OK] Created backend\.env file
+    echo [OK] Berhasil membuat file backend\.env
 ) else (
-    echo [SKIP] backend\.env already exists
+    echo [SKIP] backend\.env sudah ada
 )
 
 echo.
 
-REM Step 2: Start Docker containers
-echo [Step 2] Starting Docker containers...
+REM Langkah 2: Jalankan kontainer Docker
+echo [Langkah 2] Menjalankan kontainer Docker...
 docker-compose up -d
 
-echo [WAIT] Waiting for containers to be ready (30 seconds)...
+echo [WAIT] Menunggu kontainer siap (30 detik)...
 timeout /t 30 /nobreak >nul
 
 echo.
 
-REM Step 3: Install backend dependencies
-echo [Step 3] Installing backend dependencies...
+REM Langkah 3: Instal dependensi backend
+echo [Langkah 3] Menginstal dependensi backend...
 docker-compose exec -T backend composer install --no-interaction
 
 echo.
 
-REM Step 4: Generate application key
-echo [Step 4] Generating application key...
+REM Langkah 4: Generate application key
+echo [Langkah 4] Membuat application key...
 docker-compose exec -T backend php artisan key:generate --no-interaction
 
 echo.
 
-REM Step 5: Run migrations
-echo [Step 5] Running database migrations...
+REM Langkah 5: Jalankan migrasi database
+echo [Langkah 5] Menjalankan migrasi database...
 docker-compose exec -T backend php artisan migrate --no-interaction
 
 echo.
 
-REM Step 6: Ask about seeding
-set /p SEED="Do you want to seed the database? (y/n): "
+REM Langkah 6: Tanya tentang seeding
+set /p SEED="Apakah Anda ingin mengisi database dengan data awal (seed)? (y/n): "
 if /i "%SEED%"=="y" (
-    echo [SEED] Seeding database...
+    echo [SEED] Mengisi database...
     docker-compose exec -T backend php artisan db:seed --no-interaction
 )
 
 echo.
 
-REM Step 7: Ask about syncing products
-set /p SYNC="Do you want to sync Digiflazz products? (y/n): "
+REM Langkah 7: Tanya tentang sinkronisasi produk
+set /p SYNC="Apakah Anda ingin sinkronisasi produk Digiflazz? (y/n): "
 if /i "%SYNC%"=="y" (
-    echo [SYNC] Syncing Digiflazz products...
+    echo [SYNC] Sinkronisasi produk Digiflazz...
     docker-compose exec -T backend php artisan digiflazz:sync-products
 )
 
 echo.
-echo ================================
-echo   Setup completed successfully!
-echo ================================
+echo ===================================
+echo   Setup Berhasil Diselesaikan!
+echo ===================================
 echo.
-echo Your application is ready!
+echo Aplikasi Anda sudah siap!
 echo.
-echo Access your applications:
+echo Akses aplikasi Anda di:
 echo   - Frontend:    http://localhost:3000
 echo   - Backend API: http://localhost:8000
 echo   - phpMyAdmin:  http://localhost:8080
 echo.
-echo Useful commands:
-echo   - View logs:        docker-compose logs -f
-echo   - Stop services:    docker-compose down
-echo   - Restart services: docker-compose restart
+echo Perintah berguna:
+echo   - Lihat log:        docker-compose logs -f
+echo   - Hentikan layanan: docker-compose down
+echo   - Restart layanan:  docker-compose restart
 echo.
-echo Happy coding!
+echo Selamat berkoding!
 echo.
 pause
