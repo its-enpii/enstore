@@ -85,3 +85,32 @@ docker-compose exec backend php artisan optimize:clear
 # Rebuild specific container
 docker-compose up -d --build backend
 ```
+
+### 🌍 Production Deployment
+
+For production, use the production compose file:
+
+```bash
+# Build production images
+docker-compose -f docker-compose.prod.yml build
+
+# Start production services
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+---
+
+## 🏗️ Profiles & Optional Services
+
+Some services like Frontend (Next.js) and Flutter are disabled by default. Use Docker profiles to enable them:
+
+```bash
+# Enable Frontend
+docker-compose --profile frontend up -d
+
+# Enable Flutter
+docker-compose --profile flutter up -d
+
+# Enable All
+docker-compose --profile frontend --profile flutter up -d
+```

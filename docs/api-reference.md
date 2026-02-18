@@ -50,14 +50,16 @@
 **Base Path:** `/api/admin`  
 [**→ Request/Response Payloads**](api/admin.md)
 
-| Method   | Endpoint         | Description                        |
-| -------- | ---------------- | ---------------------------------- |
-| GET      | `/dashboard`     | Sales & User statistics            |
-| GET/POST | `/products`      | Manage products & Digiflazz sync   |
-| GET/PUT  | `/transactions`  | Manage orders & update status      |
-| GET/POST | `/users`         | Manage users & balance adjustments |
-| GET/PUT  | `/settings`      | System configuration               |
-| GET      | `/reports/sales` | Generate financial reports         |
+| Method   | Endpoint         | Description                         |
+| -------- | ---------------- | ----------------------------------- |
+| GET      | `/dashboard`     | Sales & User statistics             |
+| GET/POST | `/products`      | Manage products & Digiflazz sync    |
+| GET/PUT  | `/transactions`  | Manage orders & update status       |
+| GET/POST | `/users`         | Manage users & balance adjustments  |
+| GET/PUT  | `/settings`      | System configuration                |
+| GET      | `/reports/sales` | Generate financial reports          |
+| GET/PUT  | `/vouchers`      | Manage discount vouchers            |
+| GET/PUT  | `/withdrawals`   | Manage reseller balance withdrawals |
 
 ---
 
