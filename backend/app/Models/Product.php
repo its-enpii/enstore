@@ -14,6 +14,7 @@ class Product extends Model
         'name',
         'slug',
         'brand',
+        'publisher',
         'provider',
         'type',
         'payment_type',

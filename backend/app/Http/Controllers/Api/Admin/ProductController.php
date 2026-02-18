@@ -172,8 +172,9 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|exists:product_categories,id',
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products,slug',
+            'slug' => 'nullable|string|unique:products,slug',
             'brand' => 'required|string|max:100',
+            'publisher' => 'nullable|string|max:100',
             'provider' => 'nullable|string|max:100',
             'type' => 'required|string|in:game,pulsa,data,pln,pascabayar,other',
             'payment_type' => 'required|string|in:prepaid,postpaid',
@@ -198,6 +199,17 @@ class ProductController extends Controller
 
         try {
             $data = $validator->validated();
+            
+            // Auto-generate slug if not provided
+            if (empty($data['slug'])) {
+                $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+                
+                // Ensure uniqueness (simple check)
+                $count = Product::where('slug', $data['slug'])->count();
+                if ($count > 0) {
+                    $data['slug'] .= '-' . time();
+                }
+            }
 
             // Handle Image Upload
             if ($request->hasFile('image')) {
@@ -239,8 +251,9 @@ $data['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN
         $validator = Validator::make($request->all(), [
             'category_id' => 'sometimes|exists:product_categories,id',
             'name' => 'sometimes|string|max:255',
-            'slug' => 'sometimes|string|unique:products,slug,'.$id,
+            'slug' => 'nullable|string|unique:products,slug,'.$id,
             'brand' => 'sometimes|string|max:100',
+            'publisher' => 'nullable|string|max:100',
             'provider' => 'nullable|string|max:100',
             'type' => 'sometimes|string|in:game,pulsa,data,pln,pascabayar,other',
             'payment_type' => 'sometimes|string|in:prepaid,postpaid',
@@ -267,6 +280,19 @@ $data['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN
             $product = Product::findOrFail($id);
 
             $data = $validator->validated();
+
+            // Auto-generate slug if empty (and name is present or we use existing name)
+            if (array_key_exists('slug', $data) && empty($data['slug'])) {
+                $nameToSlug = $data['name'] ?? $product->name;
+                $data['slug'] = \Illuminate\Support\Str::slug($nameToSlug);
+                 
+                 // Ensure uniqueness
+                $count = Product::where('slug', $data['slug'])->where('id', '!=', $id)->count();
+                if ($count > 0) {
+                    $data['slug'] .= '-' . time();
+                }
+            }
+            // If slug key is missing, we don't change it.
 
             // Handle Image Upload
             if ($request->hasFile('image')) {

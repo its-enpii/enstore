@@ -30,6 +30,7 @@ export default function CreateProductPage() {
     name: "",
     slug: "",
     brand: "",
+    publisher: "",
     provider: "",
     type: "game",
     category_id: "",
@@ -208,9 +209,20 @@ export default function CreateProductPage() {
                     name="brand"
                     value={formData.brand}
                     onChange={handleChange}
-                    placeholder="e.g. Moonton"
+                    placeholder="e.g. Mobile Legends"
                     required
                   />
+                  <DashboardInput
+                    fullWidth
+                    label="Publisher"
+                    name="publisher"
+                    value={formData.publisher}
+                    onChange={handleChange}
+                    placeholder="e.g. Moonton (Optional)"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <DashboardInput
                     fullWidth
                     label="Provider"
@@ -219,16 +231,15 @@ export default function CreateProductPage() {
                     onChange={handleChange}
                     placeholder="e.g. Digiflazz"
                   />
+                  <DashboardInput
+                    fullWidth
+                    label="Slug (URL)"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleChange}
+                    placeholder="auto-generated-if-empty"
+                  />
                 </div>
-
-                <DashboardInput
-                  fullWidth
-                  label="Slug (URL)"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleChange}
-                  placeholder="auto-generated-if-empty"
-                />
 
                 <DashboardTextarea
                   fullWidth

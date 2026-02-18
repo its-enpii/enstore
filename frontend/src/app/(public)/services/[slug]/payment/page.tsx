@@ -300,7 +300,13 @@ export default function PaymentPage() {
                           {key.replace("_", " ").toLowerCase()}
                         </span>
                         <span className="font-medium text-brand-500/90">
-                          {value}
+                          {Array.isArray(transaction.product.input_fields) &&
+                          transaction.product.input_fields.find(
+                            (f: any) => f.name === key,
+                          )?.type === "password"
+                            ? value.substring(0, 2) +
+                              "*".repeat(value.length - 2)
+                            : value}
                         </span>
                       </div>
                     ),

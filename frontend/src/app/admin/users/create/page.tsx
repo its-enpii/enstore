@@ -7,11 +7,16 @@ import {
   ArrowBackRounded,
   SaveRounded,
   PersonAddRounded,
+  EmailRounded,
+  PhoneRounded,
+  LockRounded,
+  BadgeRounded,
 } from "@mui/icons-material";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardButton from "@/components/dashboard/DashboardButton";
-import Input from "@/components/ui/Input";
+import DashboardInput from "@/components/dashboard/DashboardInput";
+import DashboardSelect from "@/components/dashboard/DashboardSelect";
 import { api, ENDPOINTS } from "@/lib/api";
 
 export default function CreateUserPage() {
@@ -84,115 +89,102 @@ export default function CreateUserPage() {
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-xs font-medium text-brand-500/50 uppercase">
-                Full Name
-              </label>
-              <Input
+              <DashboardInput
                 fullWidth
+                label="Full Name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
                 placeholder="John Doe"
+                icon={<BadgeRounded />}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-brand-500/50 uppercase">
-                Email Address
-              </label>
-              <Input
+              <DashboardInput
                 fullWidth
                 type="email"
+                label="Email Address"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
                 placeholder="john@example.com"
+                icon={<EmailRounded />}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-brand-500/50 uppercase">
-                Phone Number
-              </label>
-              <Input
+              <DashboardInput
                 fullWidth
+                label="Phone Number"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 required
                 placeholder="08123456789"
+                icon={<PhoneRounded />}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-brand-500/50 uppercase">
-                Password
-              </label>
-              <Input
+              <DashboardInput
                 fullWidth
                 type="password"
+                label="Password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 required
                 placeholder="********"
                 minLength={8}
+                icon={<LockRounded />}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 pt-2 md:grid-cols-3">
             <div className="space-y-2">
-              <label className="text-xs font-medium text-brand-500/50 uppercase">
-                Role
-              </label>
-              <div className="relative">
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
-                >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
+              <DashboardSelect
+                fullWidth
+                label="Role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                options={[
+                  { value: "customer", label: "Customer" },
+                  { value: "admin", label: "Admin" },
+                ]}
+              />
             </div>
 
             {formData.role === "customer" && (
               <div className="space-y-2">
-                <label className="text-xs font-medium text-brand-500/50 uppercase">
-                  Customer Type
-                </label>
-                <div className="relative">
-                  <select
-                    name="customer_type"
-                    value={formData.customer_type}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
-                  >
-                    <option value="retail">Retail</option>
-                    <option value="reseller">Reseller</option>
-                  </select>
-                </div>
+                <DashboardSelect
+                  fullWidth
+                  label="Customer Type"
+                  name="customer_type"
+                  value={formData.customer_type}
+                  onChange={handleChange}
+                  options={[
+                    { value: "retail", label: "Retail" },
+                    { value: "reseller", label: "Reseller" },
+                  ]}
+                />
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-brand-500/50 uppercase">
-                Status
-              </label>
-              <div className="relative">
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-3 text-brand-500/90 outline-none"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              </div>
+              <DashboardSelect
+                fullWidth
+                label="Status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                options={[
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" },
+                  { value: "suspended", label: "Suspended" },
+                ]}
+              />
             </div>
           </div>
 

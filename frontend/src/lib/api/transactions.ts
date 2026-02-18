@@ -61,6 +61,7 @@ export interface TransactionStatus {
     image: string;
     slug: string;
     brand: string;
+    input_fields?: any;
     customer_data: Record<string, string>;
   };
   pricing: {

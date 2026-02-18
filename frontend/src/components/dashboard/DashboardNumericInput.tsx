@@ -41,6 +41,7 @@ const DashboardNumericInput = forwardRef<
       value,
       onChange,
       prefix = "Rp ",
+      autoComplete = "off",
       ...props
     },
     ref,
@@ -102,6 +103,7 @@ const DashboardNumericInput = forwardRef<
             disabled={disabled}
             value={displayValue}
             onChange={handleInputChange}
+            autoComplete={autoComplete}
             className={`w-full rounded-xl border border-brand-500/10 bg-smoke-200 px-4 py-2.5 text-sm font-bold text-brand-500/90 transition-all duration-200 outline-none placeholder:text-brand-500/30 focus:border-ocean-500/50 focus:ring-2 focus:ring-ocean-500/30 disabled:cursor-not-allowed disabled:opacity-50 ${icon || prefix ? "pl-11" : ""} ${endIcon ? "pr-11" : ""} ${error ? "border-red-500! focus:ring-red-500/30!" : ""} ${className} `}
             {...props}
           />

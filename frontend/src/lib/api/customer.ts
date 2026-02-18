@@ -297,3 +297,61 @@ export async function changePassword(data: {
 }): Promise<ApiResponse<void>> {
   return api.post<void>(ENDPOINTS.customer.changePassword, data, true);
 }
+
+// ----------------------------------------------------------
+// Notification API
+// ----------------------------------------------------------
+
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  data: {
+    action_url?: string;
+    icon?: string;
+    color?: string;
+    [key: string]: any;
+  };
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getNotifications(
+  page = 1,
+): Promise<ApiResponse<PaginatedData<AppNotification>>> {
+  return api.get<PaginatedData<AppNotification>>(
+    ENDPOINTS.customer.notifications.list,
+    { page },
+    true,
+  );
+}
+
+export async function getUnreadNotificationCount(): Promise<
+  ApiResponse<{ count: number }>
+> {
+  return api.get<{ count: number }>(
+    ENDPOINTS.customer.notifications.count,
+    undefined,
+    true,
+  );
+}
+
+export async function markNotificationAsRead(
+  id: string,
+): Promise<ApiResponse<void>> {
+  return api.post<void>(
+    ENDPOINTS.customer.notifications.markAsRead(id),
+    undefined,
+    true,
+  );
+}
+
+export async function markAllNotificationsAsRead(): Promise<ApiResponse<void>> {
+  return api.post<void>(
+    ENDPOINTS.customer.notifications.markAllAsRead,
+    undefined,
+    true,
+  );
+}

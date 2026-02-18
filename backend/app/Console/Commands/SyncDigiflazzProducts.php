@@ -142,6 +142,16 @@ class SyncDigiflazzProducts extends Command
     }
 
     /**
+     * Normalize brand name for publisher field
+     */
+    private function normalizeBrand(string $brand): string
+    {
+        // Remove common suffixes like "Games", "Voucher", etc to get the clean publisher name
+        $clean = preg_replace('/\s+(GAME|GAMES|VOUCHER|PULSA|DATA|PAKET|TOKEN|TAGIHAN)$/i', '', $brand);
+        return trim(ucwords(strtolower($clean)));
+    }
+
+    /**
      * Sync a product and its items
      */
     private function syncProduct(string $groupKey, array $items): void
@@ -171,7 +181,9 @@ class SyncDigiflazzProducts extends Command
             [
                 'category_id' => $category->id,
                 'name' => $productName,
-                'brand' => $brand,
+                'brand' => $brand, // Keep original brand/service name
+                'publisher' => $this->normalizeBrand($brand), // Populate publisher
+                'provider' => 'digiflazz', // Valid provider for this command
                 'type' => $type,
                 'payment_type' => $paymentType,
                 'is_active' => true,

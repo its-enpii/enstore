@@ -47,10 +47,10 @@ Route::get('/download-qr', function (Request $request) {
 
 // Public routes
 Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:password-reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
     // Social Authentication (Google & Facebook)
     Route::prefix('social')->group(function () {
@@ -65,7 +65,7 @@ Route::get('/banners', [App\Http\Controllers\Api\Public\BannerController::class,
 
 // Public Transaction Routes (Guest Checkout)
 Route::post('/transactions/purchase', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'createPurchase']);
-Route::get('/transactions/status/{transactionCode}', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'checkStatus']);
+Route::get('/transactions/status/{transactionCode}', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'checkStatus'])->middleware('throttle:polling');
 Route::post('/transactions/{transactionCode}/cancel', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'cancelTransaction']);
 Route::get('/transactions/payment-channels', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'paymentChannels']);
 
@@ -205,7 +205,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('transactions')->group(function () {
             Route::get('/', [App\Http\Controllers\Api\Customer\TransactionController::class, 'history']);
             Route::get('/payment-channels', [App\Http\Controllers\Api\Customer\TransactionController::class, 'paymentChannels']);
-            Route::get('/{transactionCode}', [App\Http\Controllers\Api\Customer\TransactionController::class, 'show']);
+            Route::get('/{transactionCode}', [App\Http\Controllers\Api\Customer\TransactionController::class, 'show'])->middleware('throttle:polling');
             Route::post('/purchase', [App\Http\Controllers\Api\Customer\TransactionController::class, 'createPurchase']);
             Route::post('/purchase-balance', [App\Http\Controllers\Api\Customer\TransactionController::class, 'createBalancePurchase']);
             Route::post('/topup', [App\Http\Controllers\Api\Customer\TransactionController::class, 'createTopup']);

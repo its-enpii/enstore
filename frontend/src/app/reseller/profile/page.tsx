@@ -87,10 +87,10 @@ function SettingsContent() {
     setSuccessMsg("");
     try {
       setSaving(true);
-      const res = await updateProfile({ 
-        name: `${firstName} ${lastName}`.trim(), 
-        email, 
-        phone 
+      const res = await updateProfile({
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        phone,
       });
       if (res.success) {
         setSuccessMsg("Profile updated successfully!");
@@ -135,7 +135,10 @@ function SettingsContent() {
         setTimeout(() => setSuccessMsg(""), 3000);
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to change password. Check your current password.");
+      setErrorMsg(
+        err.message ||
+          "Failed to change password. Check your current password.",
+      );
     } finally {
       setSaving(false);
     }
@@ -143,190 +146,203 @@ function SettingsContent() {
 
   return (
     <div className="space-y-8">
-        <PageHeader
-          title="My Profile"
-          emoji="👤"
-          description="Manage your reseller account information and security."
-          breadcrumbs={[
-            { label: "Dashboard", href: "/reseller/dashboard" },
-            { label: "My Profile" },
-          ]}
-        />
+      <PageHeader
+        title="My Profile"
+        emoji="👤"
+        description="Manage your reseller account information and security."
+        breadcrumbs={[
+          { label: "Dashboard", href: "/reseller/dashboard" },
+          { label: "My Profile" },
+        ]}
+      />
 
-        {/* Tab Switcher */}
-        <div className="flex gap-2 p-1.5 bg-smoke-200 dark:bg-brand-800 rounded-2xl w-fit">
-          {[
-            { id: "profile", label: "Profile", icon: <PersonRounded fontSize="small" /> },
-            { id: "password", label: "Security", icon: <LockRounded fontSize="small" /> },
-          ].map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id as any)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                tab === t.id
-                  ? "bg-ocean-500 text-smoke-200 shadow-lg shadow-ocean-500/20"
-                  : "text-brand-500/40 hover:text-brand-500/90 hover:bg-brand-500/5"
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </button>
+      {/* Tab Switcher */}
+      <div className="flex w-fit gap-2 rounded-2xl bg-smoke-200 p-1.5">
+        {[
+          {
+            id: "profile",
+            label: "Profile",
+            icon: <PersonRounded fontSize="small" />,
+          },
+          {
+            id: "password",
+            label: "Security",
+            icon: <LockRounded fontSize="small" />,
+          },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id as any)}
+            className={`flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-bold tracking-widest uppercase transition-all ${
+              tab === t.id
+                ? "bg-ocean-500 text-smoke-200 shadow-lg shadow-ocean-500/20"
+                : "text-brand-500/40 hover:bg-brand-500/5 hover:text-brand-500/90"
+            }`}
+          >
+            {t.icon}
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Feedback Messages */}
+      <AnimatePresence>
+        {successMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-600"
+          >
+            <CheckCircleRounded fontSize="small" /> {successMsg}
+          </motion.div>
+        )}
+        {errorMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-600"
+          >
+            {errorMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {loading ? (
+        <div className="animate-pulse space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-14 rounded-2xl bg-brand-500/5" />
           ))}
         </div>
-
-        {/* Feedback Messages */}
-        <AnimatePresence>
-          {successMsg && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-sm font-bold p-4 rounded-2xl"
-            >
-              <CheckCircleRounded fontSize="small" /> {successMsg}
-            </motion.div>
-          )}
-          {errorMsg && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-600 text-sm font-bold p-4 rounded-2xl"
-            >
-              {errorMsg}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {loading ? (
-          <div className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-8 animate-pulse space-y-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-14 bg-brand-500/5 rounded-2xl" />
-            ))}
-          </div>
-        ) : tab === "profile" ? (
-          <motion.form
-            key="profile"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onSubmit={handleProfileSave}
-            className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7 space-y-6"
-          >
-            {/* Account Info */}
-            <div className="flex items-center gap-4 pb-6 border-b border-brand-500/5">
-              <div className="w-16 h-16 rounded-2xl bg-ocean-500 text-smoke-200 flex items-center justify-center text-2xl font-bold">
-                {firstName?.charAt(0).toUpperCase() || "U"}
-              </div>
-              <div>
-                <h3 className="font-bold text-brand-500/90 dark:text-smoke-200">{firstName} {lastName}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <StatusBadge status={profile?.status || "active"} />
-                  <StatusBadge status="info" label={profile?.customer_type || "reseller"} />
-                </div>
-              </div>
+      ) : tab === "profile" ? (
+        <motion.form
+          key="profile"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onSubmit={handleProfileSave}
+          className="space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-7"
+        >
+          {/* Account Info */}
+          <div className="flex items-center gap-4 border-b border-brand-500/5 pb-6">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-ocean-500 text-2xl font-bold text-smoke-200">
+              {firstName?.charAt(0).toUpperCase() || "U"}
             </div>
-
-            {/* Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <DashboardInput
-                label="First Name"
-                icon={<PersonRounded fontSize="small" />}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="First name"
-                fullWidth
-              />
-              <DashboardInput
-                label="Last Name"
-                icon={<PersonRounded fontSize="small" />}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Last name"
-                fullWidth
-              />
-            </div>
-            <DashboardInput
-              label="Email"
-              icon={<EmailRounded fontSize="small" />}
-              type="email"
-              value={email}
-              readOnly
-              className="bg-brand-500/5 cursor-not-allowed"
-              helperText="Email cannot be changed."
-              fullWidth
-            />
-            <DashboardInput
-              label="Phone"
-              icon={<PhoneRounded fontSize="small" />}
-              type="tel"
-              value={phone}
-              readOnly
-              className="bg-brand-500/5 cursor-not-allowed"
-              helperText="Phone number cannot be changed."
-              fullWidth
-            />
-
-            <DashboardButton
-              type="submit"
-              variant="primary"
-              disabled={saving}
-              loading={saving}
-              icon={<SaveRounded fontSize="small" />}
-            >
-              Save Details
-            </DashboardButton>
-          </motion.form>
-        ) : (
-          <motion.form
-            key="password"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onSubmit={handlePasswordChange}
-            className="bg-smoke-200 dark:bg-brand-800 rounded-xl border border-brand-500/5 p-7 space-y-6 max-w-xl"
-          >
-            <div className="flex items-center gap-3 pb-4 border-b border-brand-500/5">
-              <div className="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-500/90">
-                <LockRounded />
-              </div>
-              <h3 className="text-sm font-bold text-brand-500/90 dark:text-smoke-200 uppercase tracking-widest">
-                Change Password
+            <div>
+              <h3 className="font-bold text-brand-500/90">
+                {firstName} {lastName}
               </h3>
+              <div className="mt-1 flex items-center gap-2">
+                <StatusBadge status={profile?.status || "active"} />
+                <StatusBadge
+                  status="info"
+                  label={profile?.customer_type || "reseller"}
+                />
+              </div>
             </div>
+          </div>
 
-            <PasswordField
-              label="Current Password"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-              show={showCurrent}
-              onToggle={() => setShowCurrent(!showCurrent)}
+          {/* Fields */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <DashboardInput
+              label="First Name"
+              icon={<PersonRounded fontSize="small" />}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First name"
+              fullWidth
             />
-            <PasswordField
-              label="New Password"
-              value={newPassword}
-              onChange={setNewPassword}
-              show={showNew}
-              onToggle={() => setShowNew(!showNew)}
+            <DashboardInput
+              label="Last Name"
+              icon={<PersonRounded fontSize="small" />}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last name"
+              fullWidth
             />
-            <PasswordField
-              label="Confirm New Password"
-              value={confirmPassword}
-              onChange={setConfirmPassword}
-              show={showConfirm}
-              onToggle={() => setShowConfirm(!showConfirm)}
-            />
+          </div>
+          <DashboardInput
+            label="Email"
+            icon={<EmailRounded fontSize="small" />}
+            type="email"
+            value={email}
+            readOnly
+            className="cursor-not-allowed bg-brand-500/5"
+            helperText="Email cannot be changed."
+            fullWidth
+          />
+          <DashboardInput
+            label="Phone"
+            icon={<PhoneRounded fontSize="small" />}
+            type="tel"
+            value={phone}
+            readOnly
+            className="cursor-not-allowed bg-brand-500/5"
+            helperText="Phone number cannot be changed."
+            fullWidth
+          />
 
-            <DashboardButton
-              type="submit"
-              variant="primary"
-              disabled={saving}
-              loading={saving}
-              icon={<LockRounded fontSize="small" />}
-            >
-              Update Password
-            </DashboardButton>
-          </motion.form>
-        )}
-      </div>
+          <DashboardButton
+            type="submit"
+            variant="primary"
+            disabled={saving}
+            loading={saving}
+            icon={<SaveRounded fontSize="small" />}
+          >
+            Save Details
+          </DashboardButton>
+        </motion.form>
+      ) : (
+        <motion.form
+          key="password"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onSubmit={handlePasswordChange}
+          className="max-w-xl space-y-6 rounded-xl border border-brand-500/5 bg-smoke-200 p-7"
+        >
+          <div className="flex items-center gap-3 border-b border-brand-500/5 pb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/10 text-brand-500/90">
+              <LockRounded />
+            </div>
+            <h3 className="text-sm font-bold tracking-widest text-brand-500/90 uppercase">
+              Change Password
+            </h3>
+          </div>
+
+          <PasswordField
+            label="Current Password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            show={showCurrent}
+            onToggle={() => setShowCurrent(!showCurrent)}
+          />
+          <PasswordField
+            label="New Password"
+            value={newPassword}
+            onChange={setNewPassword}
+            show={showNew}
+            onToggle={() => setShowNew(!showNew)}
+          />
+          <PasswordField
+            label="Confirm New Password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            show={showConfirm}
+            onToggle={() => setShowConfirm(!showConfirm)}
+          />
+
+          <DashboardButton
+            type="submit"
+            variant="primary"
+            disabled={saving}
+            loading={saving}
+            icon={<LockRounded fontSize="small" />}
+          >
+            Update Password
+          </DashboardButton>
+        </motion.form>
+      )}
+    </div>
   );
 }
 
@@ -352,7 +368,13 @@ function PasswordField({
       onChange={(e) => onChange(e.target.value)}
       placeholder="••••••••"
       fullWidth
-      endIcon={show ? <VisibilityOffRounded fontSize="small" /> : <VisibilityRounded fontSize="small" />}
+      endIcon={
+        show ? (
+          <VisibilityOffRounded fontSize="small" />
+        ) : (
+          <VisibilityRounded fontSize="small" />
+        )
+      }
       onEndIconClick={onToggle}
     />
   );

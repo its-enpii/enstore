@@ -71,6 +71,7 @@ export interface Product {
   name: string;
   slug: string;
   brand: string;
+  publisher: string | null;
   provider: string | null;
   type: string;
   payment_type: "prepaid" | "postpaid" | string;

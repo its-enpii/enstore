@@ -97,7 +97,7 @@ class TransactionController extends Controller
                 'payment_method' => $tripayResponse['payment_method'],
                 'payment_channel' => $tripayResponse['payment_name'],
                 'amount' => $tripayResponse['amount'],
-                'fee' => $tripayResponse['total_fee']['customer'] ?? 0,
+                'fee' => $tripayResponse['total_fee'] ?? 0,
                 'total_amount' => $tripayResponse['amount_received'],
                 'payment_url' => $tripayResponse['checkout_url'] ?? null,
                 'qr_url' => $tripayResponse['qr_url'] ?? null,
@@ -105,6 +105,27 @@ class TransactionController extends Controller
                 'expired_at' => date('Y-m-d H:i:s', $tripayResponse['expired_time']),
                 'payment_instructions' => $tripayResponse['instructions'] ?? [],
             ]);
+
+            // UPDATE TRANSACTION WITH ACTUAL FEE FROM TRIPAY
+            // This ensures the "Admin Fee" and "Total Price" in database match what user pays.
+            $actualFee = $tripayResponse['total_fee'] ?? 0;
+            
+            // Force calculation: Original Amount + Fee
+            // We use the original transaction total_price (which is the product price) + actual fee
+            $totalPrice = $transaction->total_price + $actualFee;
+
+            // Force update via Query Builder to ensure it persists
+            DB::table('transactions')
+                ->where('id', $transaction->id)
+                ->update([
+                    'admin_fee' => $actualFee,
+                    'total_price' => $totalPrice,
+                    'updated_at' => now(),
+                ]);
+
+            // Update the model instance manually so the response has the new data
+            $transaction->admin_fee = $actualFee;
+            $transaction->total_price = $totalPrice;
 
             DB::commit();
 
@@ -153,7 +174,17 @@ class TransactionController extends Controller
             if ($transaction->prepaid_postpaid_type === 'postpaid') {
                 ProcessPostpaidPayment::dispatch($transaction);
             } else {
-                ProcessDigiflazzOrder::dispatch($transaction);
+                // Check provider
+                $provider = strtolower($productItem->product->provider ?? '');
+
+                if ($provider === 'digiflazz') {
+                    // Dispatch prepaid order job (Digiflazz)
+                    ProcessDigiflazzOrder::dispatch($transaction);
+                } else {
+                    // Manual provider or others
+                    // Do nothing, let it stay processing
+                    // Optionally dispatch notification to admin
+                }
             }
 
             return response()->json([
@@ -235,7 +266,7 @@ class TransactionController extends Controller
                 'payment_method' => $tripayResponse['payment_method'],
                 'payment_channel' => $tripayResponse['payment_name'],
                 'amount' => $tripayResponse['amount'],
-                'fee' => $tripayResponse['total_fee']['customer'] ?? 0,
+                'fee' => $tripayResponse['total_fee'] ?? 0,
                 'total_amount' => $tripayResponse['amount_received'],
                 'payment_url' => $tripayResponse['checkout_url'] ?? null,
                 'qr_url' => $tripayResponse['qr_url'] ?? null,
@@ -243,6 +274,25 @@ class TransactionController extends Controller
                 'expired_at' => date('Y-m-d H:i:s', $tripayResponse['expired_time']),
                 'payment_instructions' => $tripayResponse['instructions'] ?? [],
             ]);
+
+            // UPDATE TRANSACTION WITH ACTUAL FEE FROM TRIPAY
+            $actualFee = $tripayResponse['total_fee'] ?? 0;
+            
+            // Force calculation: Original Amount + Fee
+            $totalPrice = $transaction->total_price + $actualFee;
+
+            // Force update via Query Builder
+            DB::table('transactions')
+                ->where('id', $transaction->id)
+                ->update([
+                    'admin_fee' => $actualFee,
+                    'total_price' => $totalPrice,
+                    'updated_at' => now(),
+                ]);
+
+            // Update model instance manually
+            $transaction->admin_fee = $actualFee;
+            $transaction->total_price = $totalPrice;
 
             DB::commit();
 
@@ -316,9 +366,21 @@ class TransactionController extends Controller
                 ->where('transaction_code', $transactionCode)
                 ->firstOrFail();
 
+            // Structure to match PublicTransactionController for consistency
+            $transactionData = $transaction->toArray();
+            $transactionData['product'] = [
+                'name' => $transaction->productItem->product->name,
+                'item' => $transaction->productItem->name,
+                'image' => $transaction->productItem->product->image,
+                'slug' => $transaction->productItem->product->slug,
+                'brand' => $transaction->productItem->product->brand,
+                'input_fields' => $transaction->productItem->product->input_fields,
+                'customer_data' => $transaction->customer_data,
+            ];
+
             return response()->json([
                 'success' => true,
-                'data' => $transaction,
+                'data' => $transactionData,
             ]);
         } catch (\Exception $e) {
             return response()->json([

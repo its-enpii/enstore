@@ -487,20 +487,9 @@ class TransactionService
      */
     private function getAdminFee(string $paymentMethod)
     {
-        // You can customize this based on payment method
-        $fees = [
-            'QRIS' => 0,
-            'BRIVA' => 4000,
-            'BCAVA' => 4000,
-            'BNIVA' => 4000,
-            'MANDIRIVA' => 4000,
-            'PERMATAVA' => 4000,
-            'OVO' => 0,
-            'DANA' => 0,
-            'SHOPEEPAY' => 0,
-        ];
-
-        return $fees[$paymentMethod] ?? 1500;
+        // Internal admin fee should be 0.
+        // The Payment Gateway (Tripay) will calculate and add its own fee on top of the amount.
+        return 0;
     }
 
     /**

@@ -61,7 +61,8 @@ Authorization: Bearer {token}
                 "id": 1,
                 "name": "Mobile Legends",
                 "brand": "MOBILE LEGENDS",
-                "provider": "Moonton",
+                "publisher": "Moonton",
+                "provider": "Digiflazz",
                 "category": { "id": 1, "name": "Games" },
                 "image": "http://localhost:8000/storage/products/pubg.jpg",
                 "is_active": true,
@@ -98,7 +99,8 @@ name: "Pubg Mobile"
 category_id: 1
 slug: "pubg-mobile"
 brand: "TENCENT"
-provider: "Tencent Games"
+publisher: "Level Infinite"
+provider: "Digiflazz"
 type: "game"
 payment_type: "prepaid"
 description: "Top up UC PUBG Mobile"
@@ -128,7 +130,8 @@ Content-Type: multipart/form-data
 
 _method: "PUT"
 name: "Mobile Legends Updated"
-provider: "Moonton"
+publisher: "Moonton"
+provider: "Digiflazz"
 description: "Updated description"
 image: (New Binary File)
 icon: (New Binary File)

@@ -59,6 +59,7 @@ export default function EditProductPage() {
     name: "",
     slug: "",
     brand: "",
+    publisher: "",
     provider: "",
     type: "game",
     category_id: "",
@@ -106,6 +107,7 @@ export default function EditProductPage() {
           name: prod.name || "",
           slug: prod.slug || "",
           brand: prod.brand || "",
+          publisher: prod.publisher || "",
           provider: prod.provider || "",
           type: prod.type || "game",
           category_id: prod.category_id || "",
@@ -396,7 +398,15 @@ export default function EditProductPage() {
                     name="brand"
                     value={formData.brand || ""}
                     onChange={handleChange}
-                    placeholder="Brand"
+                    placeholder="e.g. Mobile Legends"
+                  />
+                  <DashboardInput
+                    fullWidth
+                    label="Publisher"
+                    name="publisher"
+                    value={formData.publisher || ""}
+                    onChange={handleChange}
+                    placeholder="e.g. Moonton (Optional)"
                   />
                   <DashboardInput
                     fullWidth

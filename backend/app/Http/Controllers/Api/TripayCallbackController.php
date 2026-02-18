@@ -290,8 +290,16 @@ class TripayCallbackController extends Controller
             // Dispatch postpaid payment job
             \App\Jobs\ProcessPostpaidPayment::dispatch($transaction);
         } else {
-            // Dispatch prepaid order job (default)
-            ProcessDigiflazzOrder::dispatch($transaction);
+            // Check provider
+            $provider = strtolower($transaction->productItem->product->provider ?? '');
+
+            if ($provider === 'digiflazz') {
+                // Dispatch prepaid order job (Digiflazz)
+                ProcessDigiflazzOrder::dispatch($transaction);
+            } else {
+                // Manual provider or others
+                // Do nothing, let it stay processing
+            }
         }
     }
 }

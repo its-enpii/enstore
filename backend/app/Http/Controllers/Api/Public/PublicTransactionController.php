@@ -172,6 +172,7 @@ class PublicTransactionController extends Controller
                         'image' => $transaction->productItem->product->image,
                         'slug' => $transaction->productItem->product->slug,
                         'brand' => $transaction->productItem->product->brand,
+                        'input_fields' => $transaction->productItem->product->input_fields,
                         'customer_data' => $transaction->customer_data,
                     ],
                     'pricing' => [

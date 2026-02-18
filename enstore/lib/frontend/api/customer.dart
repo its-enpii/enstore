@@ -83,4 +83,38 @@ class CustomerService {
       fromJson: (data) => CustomerTransaction.fromJson(data),
     );
   }
+
+  // Notifications
+  Future<ApiResponse<PaginatedData<AppNotification>>> getNotifications({
+    int page = 1,
+  }) async {
+    return await ApiClient().get<PaginatedData<AppNotification>>(
+      ApiConfig.endpoints.customer.notifications.list,
+      queryParameters: {'page': page},
+      fromJson: (data) => PaginatedData.fromJson(
+        data,
+        (item) => AppNotification.fromJson(item),
+      ),
+    );
+  }
+
+  Future<ApiResponse<int>> getUnreadNotificationCount() async {
+    return await ApiClient().get<int>(
+      ApiConfig.endpoints.customer.notifications.count,
+      fromJson: (data) =>
+          data['count'] ?? 0, // Assuming { count: 5 } response format
+    );
+  }
+
+  Future<ApiResponse<void>> markNotificationAsRead(String id) async {
+    return await ApiClient().post<void>(
+      ApiConfig.endpoints.customer.notifications.markAsRead(id),
+    );
+  }
+
+  Future<ApiResponse<void>> markAllNotificationsAsRead() async {
+    return await ApiClient().post<void>(
+      ApiConfig.endpoints.customer.notifications.markAllAsRead,
+    );
+  }
 }

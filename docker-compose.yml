@@ -22,6 +22,7 @@ services:
       - enstore
     depends_on:
       - db
+      - redis
 
   # Nginx for Backend API
   backend-nginx:

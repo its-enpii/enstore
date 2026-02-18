@@ -47,6 +47,7 @@ export default function ProductDynamicFields({
                     <input
                       className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-2.5 text-xs font-bold text-brand-500 outline-none focus:border-ocean-500/20"
                       placeholder="e.g. user_id"
+                      autoComplete="off"
                       value={field.name || ""}
                       onChange={(e) => onUpdate(idx, "name", e.target.value)}
                     />
@@ -58,6 +59,7 @@ export default function ProductDynamicFields({
                     <input
                       className="w-full rounded-xl border border-brand-500/5 bg-smoke-200 px-4 py-2.5 text-xs font-bold text-brand-500 outline-none focus:border-ocean-500/20"
                       placeholder="e.g. User ID"
+                      autoComplete="off"
                       value={field.label || ""}
                       onChange={(e) => onUpdate(idx, "label", e.target.value)}
                     />
@@ -77,6 +79,7 @@ export default function ProductDynamicFields({
                         <option value="text">Text</option>
                         <option value="number">Number</option>
                         <option value="email">Email</option>
+                        <option value="password">Password</option>
                         <option value="select">Dropdown</option>
                       </select>
                     </div>
@@ -109,6 +112,7 @@ export default function ProductDynamicFields({
                     <input
                       className="w-full rounded border border-yellow-500/20 bg-yellow-50 px-2 py-1 font-mono text-xs text-yellow-700 outline-none placeholder:text-yellow-700/40"
                       placeholder="e.g. S1:Server 1, S2:Server 2"
+                      autoComplete="off"
                       value={field.options || ""}
                       onChange={(e) => onUpdate(idx, "options", e.target.value)}
                     />

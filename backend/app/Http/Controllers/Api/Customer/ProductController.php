@@ -78,6 +78,7 @@ class ProductController extends Controller
                 });
 
                 $product->price_range = $product->getPriceRange($customerType);
+                $product->makeHidden(['provider', 'server_options']); // Hide sensitive/internal fields
             });
 
             return response()->json([
@@ -112,6 +113,8 @@ class ProductController extends Controller
                 $item->makeHidden(['base_price', 'reseller_price', 'reseller_profit', 'retail_profit']);
             });
 
+            $product->makeHidden(['provider', 'server_options']);
+
             return response()->json([
                 'success' => true,
                 'role' => $customerType,
@@ -137,6 +140,8 @@ class ProductController extends Controller
                 $item->retail_price = $price;
                 $item->makeHidden(['base_price', 'reseller_price', 'reseller_profit', 'retail_profit']);
             });
+
+            $product->makeHidden(['provider', 'server_options']);
 
             return response()->json([
                 'success' => true,

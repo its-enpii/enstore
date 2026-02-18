@@ -159,6 +159,28 @@ final newProduct = await AdminService().createProduct({
 });
 ```
 
+## Notification Features (`CustomerService`)
+
+### List Notifications
+
+```dart
+final response = await CustomerService().getNotifications(page: 1);
+if (response.success) {
+  for (var notification in response.data?.data ?? []) {
+    print('${notification.title}: ${notification.body}');
+  }
+}
+```
+
+### Unread Count
+
+```dart
+final response = await CustomerService().getUnreadNotificationCount();
+if (response.success) {
+  print('Unread: ${response.data}');
+}
+```
+
 ## Error Handling
 
 All service methods return an `ApiResponse<T>` object.

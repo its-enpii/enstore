@@ -34,6 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       className = "",
       disabled,
       id,
+      autoComplete = "off",
       ...props
     },
     ref,
@@ -42,8 +43,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || generatedId;
 
     // Resolve icons (backward compatibility)
-    const startIcon = propStartIcon || (iconPosition === "left" ? icon : undefined);
-    const endIcon = propEndIcon || (iconPosition === "right" ? icon : undefined);
+    const startIcon =
+      propStartIcon || (iconPosition === "left" ? icon : undefined);
+    const endIcon =
+      propEndIcon || (iconPosition === "right" ? icon : undefined);
 
     const baseStyles =
       "appearance-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden bg-cloud-200 text-brand-500/60 placeholder:text-brand-500/30 focus:border-ocean-500 focus:ring-1 focus:ring-ocean-200 transition-all duration-200 rounded-full focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
@@ -59,14 +62,22 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       : "";
 
     const widthStyles = fullWidth ? "w-full" : "";
-    
+
     // Padding Logic
-    const paddingLeftStyles = startIcon 
-      ? inputSize === "sm" ? "!pl-9" : inputSize === "md" ? "!pl-10" : "!pl-11"
+    const paddingLeftStyles = startIcon
+      ? inputSize === "sm"
+        ? "!pl-9"
+        : inputSize === "md"
+          ? "!pl-10"
+          : "!pl-11"
       : "";
-      
+
     const paddingRightStyles = endIcon
-      ? inputSize === "sm" ? "!pr-9" : inputSize === "md" ? "!pr-10" : "!pr-11"
+      ? inputSize === "sm"
+        ? "!pr-9"
+        : inputSize === "md"
+          ? "!pr-10"
+          : "!pr-11"
       : "";
 
     const iconSizeStyles = {
@@ -75,8 +86,18 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       lg: "[&>svg]:w-6! [&>svg]:h-6!",
     };
 
-    const startIconPosition = inputSize === "sm" ? "left-3" : inputSize === "md" ? "left-3.5" : "left-4";
-    const endIconPosition = inputSize === "sm" ? "right-3" : inputSize === "md" ? "right-3.5" : "right-4";
+    const startIconPosition =
+      inputSize === "sm"
+        ? "left-3"
+        : inputSize === "md"
+          ? "left-3.5"
+          : "left-4";
+    const endIconPosition =
+      inputSize === "sm"
+        ? "right-3"
+        : inputSize === "md"
+          ? "right-3.5"
+          : "right-4";
 
     const inputClasses = `${baseStyles} ${sizeStyles[inputSize]} ${widthStyles} ${errorStyles} ${paddingLeftStyles} ${paddingRightStyles} ${className}`;
 
@@ -100,9 +121,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onClick={onStartIconClick}
               className={`absolute top-1/2 -translate-y-1/2 ${startIconPosition} ${
                 error ? "text-red-500" : "text-brand-500/40"
-              } ${disabled ? "opacity-50" : ""} ${onStartIconClick ? "cursor-pointer pointer-events-auto hover:text-brand-500/70" : "pointer-events-none"}`}
+              } ${disabled ? "opacity-50" : ""} ${onStartIconClick ? "pointer-events-auto cursor-pointer hover:text-brand-500/70" : "pointer-events-none"}`}
             >
-              <span className={`flex items-center ${iconSizeStyles[inputSize]}`}>
+              <span
+                className={`flex items-center ${iconSizeStyles[inputSize]}`}
+              >
                 {startIcon}
               </span>
             </div>
@@ -113,6 +136,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             disabled={disabled}
             className={inputClasses}
+            autoComplete={autoComplete}
             aria-invalid={error ? "true" : "false"}
             aria-describedby={
               error
@@ -129,9 +153,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onClick={onEndIconClick}
               className={`absolute top-1/2 -translate-y-1/2 ${endIconPosition} ${
                 error ? "text-red-500" : "text-brand-500/40"
-              } ${disabled ? "opacity-50" : ""} ${onEndIconClick ? "cursor-pointer pointer-events-auto hover:text-brand-500/70" : "pointer-events-none"}`}
+              } ${disabled ? "opacity-50" : ""} ${onEndIconClick ? "pointer-events-auto cursor-pointer hover:text-brand-500/70" : "pointer-events-none"}`}
             >
-              <span className={`flex items-center ${iconSizeStyles[inputSize]}`}>
+              <span
+                className={`flex items-center ${iconSizeStyles[inputSize]}`}
+              >
                 {endIcon}
               </span>
             </div>
