@@ -100,7 +100,7 @@ export default function ServicesPage() {
             setProducts((prev) => {
               const existingIds = new Set(prev.map((p) => p.id));
               const uniqueNewProducts = newProducts.filter(
-                (p) => !existingIds.has(p.id),
+                (p: any) => !existingIds.has(p.id),
               );
               return [...prev, ...uniqueNewProducts];
             });
@@ -331,7 +331,7 @@ export default function ServicesPage() {
           {!initialLoading && !error && (
             <>
               <div
-                className={`grid grid-cols-2 gap-y-6 gap-x-6 md:gap-y-8 transition-opacity duration-200 md:grid-cols-3 lg:grid-cols-4 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
+                className={`grid grid-cols-2 gap-x-6 gap-y-6 transition-opacity duration-200 md:grid-cols-3 md:gap-y-8 lg:grid-cols-4 ${refreshing ? "pointer-events-none opacity-50" : "opacity-100"}`}
               >
                 {products.map((product, index) => (
                   <ProductCard

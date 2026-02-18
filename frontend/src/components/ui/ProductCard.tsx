@@ -51,7 +51,7 @@ const ProductCard = ({
         className="block h-full"
       >
         <motion.div
-          className="group relative h-full cursor-pointer overflow-hidden rounded-2xl bg-smoke-200 p-2 shadow-enstore sm:rounded-3xl sm:p-3 lg:rounded-xl lg:p-4 hover:shadow-xl transition-shadow duration-300"
+          className="group relative h-full cursor-pointer overflow-hidden rounded-[40px] bg-smoke-200 p-2 shadow-enstore transition-shadow duration-300 hover:shadow-xl sm:p-3 lg:p-4"
           whileHover={{ y: -8, scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
@@ -60,7 +60,7 @@ const ProductCard = ({
             <div className="absolute top-4 right-4 z-10">
               <motion.button
                 onClick={handleFavoriteClick}
-                className="w-8 h-8 rounded-full bg-smoke-200/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-smoke-200 hover:text-red-500 transition-colors shadow-lg"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-smoke-200/20 text-white shadow-lg backdrop-blur-md transition-colors hover:bg-smoke-200 hover:text-red-500"
                 whileTap={{ scale: 0.8 }}
                 whileHover={{ scale: 1.1 }}
               >
@@ -77,12 +77,12 @@ const ProductCard = ({
                     </motion.div>
                   ) : (
                     <motion.div
-                       key="nofav"
-                       initial={{ scale: 0 }}
-                       animate={{ scale: 1 }}
-                       exit={{ scale: 0 }}
+                      key="nofav"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
                     >
-                       <FavoriteBorderRounded fontSize="small" />
+                      <FavoriteBorderRounded fontSize="small" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -90,7 +90,7 @@ const ProductCard = ({
             </div>
           )}
 
-          <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl">
+          <div className="relative w-full overflow-hidden rounded-3xl">
             <motion.div
               className="h-40 w-full bg-cover bg-center sm:h-52 lg:h-64"
               style={{ backgroundImage: `url(${imageUrl})` }}
@@ -98,14 +98,16 @@ const ProductCard = ({
               transition={{ duration: 0.4 }}
             />
             {/* Dark overlay on hover for better text visibility if needed */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
           </div>
 
           <div className="p-2 sm:p-3 lg:p-4">
-            <h3 className="mb-1 text-sm font-bold text-brand-500/90 sm:mb-2 sm:text-base lg:text-[20px] line-clamp-1">
+            <h3 className="mb-1 line-clamp-1 text-sm font-bold text-brand-500/90 sm:mb-2 sm:text-base lg:text-[20px]">
               {title}
             </h3>
-            <p className="text-xs text-brand-500/40 sm:text-sm truncate">{publisher}</p>
+            <p className="truncate text-xs text-brand-500/40 sm:text-sm">
+              {publisher}
+            </p>
           </div>
         </motion.div>
       </MotionLink>
