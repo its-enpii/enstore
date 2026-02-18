@@ -1,10 +1,10 @@
-# Auth API Specification
+# Spesifikasi API Autentikasi
 
-## 1. Register
+## 1. Registrasi
 
 **Endpoint:** `POST /api/auth/register`
 
-### Request Body:
+### Body Permintaan:
 
 ```json
 {
@@ -13,12 +13,12 @@
   "phone": "081234567890",
   "password": "password123",
   "password_confirmation": "password123",
-  "customer_type": "retail", // or "reseller"
-  "referral_code": "ABC12345" // optional
+  "customer_type": "retail", // atau "reseller"
+  "referral_code": "ABC12345" // opsional
 }
 ```
 
-### Success Response (201):
+### Respon Sukses (201):
 
 ```json
 {
@@ -42,16 +42,16 @@
 
 **Endpoint:** `POST /api/auth/login`
 
-### Request Body:
+### Body Permintaan:
 
 ```json
 {
-  "identifier": "john@example.com", // email or phone
+  "identifier": "john@example.com", // email atau telepon
   "password": "password123"
 }
 ```
 
-### Success Response (200):
+### Respon Sukses (200):
 
 ```json
 {
@@ -66,16 +66,16 @@
 
 ---
 
-## 3. Social Login (OAuth2)
+## 3. Login Sosial (OAuth2)
 
 **Endpoint:** `GET /api/auth/social/{provider}/redirect`
 
-- **Providers:** `google`, `facebook`
-- **Callback Handling:** Auth creates user by email if not exists and links social ID. Redirects back to frontend with token.
+- **Penyedia:** `google`, `facebook`
+- **Penanganan Callback:** Autentikasi membuat user berdasarkan email jika belum ada dan menautkan ID sosial. Redirect kembali ke frontend dengan token.
 
 ---
 
-## 4. Reset Password Flow
+## 4. Alur Reset Password
 
-1. **Forgot:** `POST /api/auth/forgot-password` (Body: `email`)
+1. **Lupa:** `POST /api/auth/forgot-password` (Body: `email`)
 2. **Reset:** `POST /api/auth/reset-password` (Body: `email`, `token`, `password`, `password_confirmation`)

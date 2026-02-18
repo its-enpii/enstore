@@ -1,54 +1,54 @@
-# Setup & Installation Guide
+# Panduan Setup & Instalasi
 
-## 🚀 Quick Start (Docker)
+## 🚀 Memulai Cepat (Docker)
 
-### 1. Initial Setup
+### 1. Persiapan Awal
 
 ```bash
-# 1. Copy environment files
+# 1. Salin file environment
 cp .env.example .env
 cp backend/.env.example backend/.env
 
-# 2. Start all services
+# 2. Jalankan semua layanan
 docker-compose up -d
 
-# 3. Install dependencies
+# 3. Instal dependensi
 docker-compose exec backend composer install
 docker-compose exec backend php artisan key:generate
 docker-compose exec backend php artisan migrate --seed
 ```
 
-### 2. Daily Development
+### 2. Pengembangan Harian
 
-- **Start**: `docker-compose up -d`
-- **Stop**: `docker-compose down`
-- **Logs**: `docker-compose logs -f`
+- **Mulai**: `docker-compose up -d`
+- **Berhenti**: `docker-compose down`
+- **Log**: `docker-compose logs -f`
 
 ---
 
-## 🔧 Service Configuration
+## 🔧 Konfigurasi Layanan
 
-### Main Services
+### Layanan Utama
 
-| Service | Container             | Port | Description       |
+| Layanan | Kontainer             | Port | Deskripsi         |
 | ------- | --------------------- | ---- | ----------------- |
 | backend | enstore-backend       | -    | PHP-FPM (Laravel) |
 | nginx   | enstore-backend-nginx | 8000 | Web Server        |
 | db      | enstore-db            | 3307 | MySQL 8.0         |
-| redis   | enstore-redis         | 6379 | Cache & Queue     |
-| pma     | enstore-phpmyadmin    | 8080 | DB Management     |
+| redis   | enstore-redis         | 6379 | Cache & Antrian   |
+| pma     | enstore-phpmyadmin    | 8080 | Manajemen DB      |
 
-### Enabling Redis (Cache & Queue)
+### Mengaktifkan Redis (Cache & Antrian)
 
-To enable Redis for better performance:
+Untuk performa yang lebih baik:
 
-1. Update `backend/.env`:
+1. Perbarui `backend/.env`:
    ```env
    CACHE_STORE=redis
    QUEUE_CONNECTION=redis
    REDIS_HOST=redis
    ```
-2. Restart services:
+2. Restart layanan:
    ```bash
    docker-compose down && docker-compose up -d
    docker-compose restart queue
@@ -56,61 +56,61 @@ To enable Redis for better performance:
 
 ---
 
-## 📝 Environment Variables (.env)
+## 📝 Variabel Lingkungan (.env)
 
-### Backend Important Keys
+### Kunci Penting Backend
 
-- `APP_URL`: your app domain.
-- `DB_HOST`: set to `db` (container name).
-- `REDIS_HOST`: set to `redis`.
-- `TRIPAY_*`: Payment gateway credentials.
-- `DIGIFLAZZ_*`: Digital product provider credentials.
+- `APP_URL`: domain aplikasi Anda.
+- `DB_HOST`: set ke `db` (nama kontainer).
+- `REDIS_HOST`: set ke `redis`.
+- `TRIPAY_*`: Kredensial gateway pembayaran.
+- `DIGIFLAZZ_*`: Kredensial penyedia produk digital.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### Masalah Umum
 
-- **Permission Denied**: Run `chmod -R 777 backend/storage backend/bootstrap/cache`.
-- **Database Connection Refused**: Wait 10-15s for MySQL to initialize.
-- **Port Conflict**: Change ports in root `docker-compose.yml` if 8000/3307/6379 are taken.
+- **Permission Denied**: Jalankan `chmod -R 777 backend/storage backend/bootstrap/cache`.
+- **Database Connection Refused**: Tunggu 10-15 detik hingga MySQL selesai inisialisasi.
+- **Port Conflict**: Ubah port di `docker-compose.yml` utama jika 8000/3307/6379 sudah digunakan.
 
-### Maintenance Commands
+### Perintah Pemeliharaan
 
 ```bash
-# Clear all Laravel cache
+# Bersihkan semua cache Laravel
 docker-compose exec backend php artisan optimize:clear
 
-# Rebuild specific container
+# Bangun ulang kontainer spesifik
 docker-compose up -d --build backend
 ```
 
-### 🌍 Production Deployment
+### 🌍 Deployment Produksi
 
-For production, use the production compose file:
+Untuk lingkungan produksi, gunakan file compose produksi:
 
 ```bash
-# Build production images
+# Bangun image produksi
 docker-compose -f docker-compose.prod.yml build
 
-# Start production services
+# Jalankan layanan produksi
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ---
 
-## 🏗️ Profiles & Optional Services
+## 🏗️ Profile & Layanan Opsional
 
-Some services like Frontend (Next.js) and Flutter are disabled by default. Use Docker profiles to enable them:
+Beberapa layanan seperti Frontend (Next.js) dan Flutter dinonaktifkan secara default. Gunakan profile Docker untuk mengaktifkannya:
 
 ```bash
-# Enable Frontend
+# Aktifkan Frontend
 docker-compose --profile frontend up -d
 
-# Enable Flutter
+# Aktifkan Flutter
 docker-compose --profile flutter up -d
 
-# Enable All
+# Aktifkan Keduanya
 docker-compose --profile frontend --profile flutter up -d
 ```

@@ -1,43 +1,43 @@
-# Features & Specialized Flows
+# Fitur & Alur Khusus
 
-## 🛒 Guest Checkout
+## 🛒 Checkout Guest
 
-Allows users to buy without registering a full account.
+Memungkinkan pengguna membeli tanpa harus mendaftarkan akun lengkap.
 
-- **Workflow**: Input details → Choice of payment → Pay → Status page.
-- **Auto-Account**: Technical provision for future registration using the same email.
-
----
-
-## 💰 Refund System
-
-Implemented for failed provider (Digiflazz) orders.
-
-- **Trigger**: Order failed AND payment was already Success.
-- **Mechanism**: Amount is added to User's `balance`.
-- **Audit**: Logged in `balance_mutations` and `activity_logs`.
+- **Alur Kerja**: Input detail → Pilih pembayaran → Bayar → Halaman status.
+- **Akun Otomatis**: Ketentuan teknis untuk pendaftaran di masa mendatang menggunakan email yang sama.
 
 ---
 
-## 🔔 Notification System
+## 💰 Sistem Refund
 
-Real-time feedback for users.
+Diimplementasikan untuk pesanan penyedia (Digiflazz) yang gagal.
 
-- **Types**: `payment_success`, `order_completed`, `refund_processed`.
-- **Delivery**: Database notifications, visible in web/mobile header.
-
----
-
-## 💎 Pricing Tiers
-
-- **Retail**: Standard profit margin applied to base Digiflazz price.
-- **Reseller**: Reduced profit margin for high-volume users.
-- **Override**: Admin can manually set specific items' prices regardless of formula.
+- **Pemicu**: Pesanan GAGAL DAN pembayaran sudah SUKSES.
+- **Mekanisme**: Dana ditambahkan kembali ke `saldo` (balance) Pengguna.
+- **Audit**: Tercatat dalam `balance_mutations` dan `activity_logs`.
 
 ---
 
-## 🛡️ Brute-force Protection (Rate Limiting)
+## 🔔 Sistem Notifikasi
 
-- **Auth Limit**: 5 attempts per minute.
-- **API Limit**: 300 requests per minute.
-- **Polling Limit**: 600 requests per minute (for status checks).
+Umpan balik real-time untuk pengguna.
+
+- **Tipe**: `payment_success`, `order_completed`, `refund_processed`.
+- **Pengiriman**: Notifikasi database, terlihat di header web/mobile.
+
+---
+
+## 💎 Tingkatan Harga
+
+- **Retail**: Margin keuntungan standar diterapkan pada harga dasar Digiflazz.
+- **Reseller**: Margin keuntungan yang dikurangi untuk pengguna dengan volume tinggi.
+- **Override**: Admin dapat secara manual mengatur harga item tertentu tanpa mengikuti rumus.
+
+---
+
+## 🛡️ Perlindungan Brute-force (Rate Limiting)
+
+- **Batas Auth**: 5 upaya per menit.
+- **Batas API**: 300 permintaan per menit.
+- **Batas Polling**: 600 permintaan per menit (untuk pengecekan status).

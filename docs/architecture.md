@@ -1,22 +1,22 @@
-# System Architecture & Database Structure
+# Arsitektur Sistem & Struktur Database
 
-## 🏗️ Architecture Overview
+## 🏗️ Gambaran Umum Arsitektur
 
-The system is built as a Docker-integrated Laravel backend with a Next.js/Flutter frontend (profile-based).
+Sistem ini dibangun sebagai backend Laravel yang terintegrasi dengan Docker, dengan frontend Next.js/Flutter (berbasis profile).
 
-### Service Details
+### Detail Layanan
 
-- **Backend (PHP-FPM)**: Running on port 9000 (Internal), handled by Nginx on port 8000.
-- **Database (MySQL 8.0)**: Accessible on port 3307.
-- **Redis**: Used for caching and queue management on port 6379.
-- **Queue Worker**: Handles background jobs (e.g., Digiflazz order processing).
-- **Scheduler**: Manages cron tasks like product syncing.
+- **Backend (PHP-FPM)**: Berjalan pada port 9000 (Internal), ditangani oleh Nginx pada port 8000.
+- **Database (MySQL 8.0)**: Dapat diakses pada port 3307.
+- **Redis**: Digunakan untuk caching dan manajemen antrian (queue) pada port 6379.
+- **Queue Worker**: Menangani tugas latar belakang (misalnya, pemrosesan pesanan Digiflazz).
+- **Scheduler**: Mengelola tugas terjadwal seperti sinkronisasi produk.
 
 ---
 
-## 🗄️ Database Structure
+## 🗄️ Struktur Database
 
-### Core Entity Relationship (ERD)
+### Entity Relationship Diagram (ERD) Utama
 
 ```mermaid
 erDiagram
@@ -32,11 +32,11 @@ erDiagram
     VOUCHERS ||--o{ VOUCHER_USAGES : used_in
 ```
 
-### Table Definitions
+### Definisi Tabel
 
 #### 1. Users
 
-Manages Guest, Retail, Reseller, and Admin accounts.
+Mengelola akun Guest, Retail, Reseller, dan Admin.
 
 - `role`: admin, customer.
 - `customer_type`: retail, reseller.
@@ -44,36 +44,36 @@ Manages Guest, Retail, Reseller, and Admin accounts.
 
 #### 2. Products & Categories
 
-- `products`: Integrated with Digiflazz SKUs. Supports tiered pricing (retail vs reseller) and dynamic input fields.
-- `product_categories`: Grouping by type (game, pulsa, etc.).
+- `products`: Terintegrasi dengan SKU Digiflazz. Mendukung harga bertingkat (retail vs reseller) dan field input dinamis.
+- `product_categories`: Pengelompokan berdasarkan tipe (game, pulsa, dll).
 
 #### 3. Transactions & Payments
 
-- `transactions`: Central log for purchases and top-ups.
-- `payments`: Tracks payment gateway (Tripay) statuses and methods (QRIS, VA, etc.).
-- `balance_mutations`: Detailed history of all wallet movements for resellers.
+- `transactions`: Log pusat untuk pembelian dan top-up.
+- `payments`: Melacak status dan metode pembayaran gateway (Tripay) (QRIS, VA, dll).
+- `balance_mutations`: Riwayat detail semua pergerakan saldo untuk reseller.
 
 #### 4. System Logs
 
-- `activity_logs`: General system actions.
-- `transaction_logs`: Specific status transitions for orders.
+- `activity_logs`: Tindakan sistem secara umum.
+- `transaction_logs`: Transisi status spesifik untuk pesanan.
 
 ---
 
-## 🔄 Core Data Flows
+## 🔄 Alur Data Utama
 
-### API Request Flow
+### Alur Permintaan API
 
-1. User Request → Backend Nginx (8000)
+1. Permintaan Pengguna → Backend Nginx (8000)
 2. Nginx → PHP-FPM (Backend)
 3. Backend → MySQL/Redis
-4. Response → User
+4. Respon → Pengguna
 
-### Order Processing Flow (Digiflazz)
+### Alur Pemrosesan Pesanan (Digiflazz)
 
-1. Payment PAID (via Tripay Callback)
-2. Trigger `ProcessDigiflazzOrder` Job
-3. Job pushed to Redis Queue
-4. Queue Worker executes job → Call Digiflazz API
-5. SN (Serial Number) received → Complete Transaction
-6. Notify User
+1. Pembayaran PAID (melalui Callback Tripay)
+2. Memicu Job `ProcessDigiflazzOrder`
+3. Job dimasukkan ke Antrian Redis
+4. Queue Worker mengeksekusi job → Memanggil API Digiflazz
+5. SN (Serial Number) diterima → Selesaikan Transaksi
+6. Notifikasi ke Pengguna

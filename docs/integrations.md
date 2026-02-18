@@ -1,56 +1,56 @@
-# Third-Party Integrations
+# Integrasi Pihak Ketiga
 
 ## 💳 Tripay (Payment Gateway)
 
-Tripay handles all digital payments (QRIS, VA, E-Wallets).
+Tripay menangani semua pembayaran digital (QRIS, VA, E-Wallet).
 
-### Logic Flow
+### Alur Logika
 
-1. User creates transaction → App calls `TripayService::createPayment()`.
-2. Tripay returns `checkout_url` and payment instructions.
-3. Callback received at `POST /api/webhooks/tripay`.
-4. App validates signature and updates order status.
+1. Pengguna membuat transaksi → Aplikasi memanggil `TripayService::createPayment()`.
+2. Tripay mengembalikan `checkout_url` dan instruksi pembayaran.
+3. Callback diterima di `POST /api/webhooks/tripay`.
+4. Aplikasi memvalidasi tanda tangan dan memperbarui status pesanan.
 
-### 🔐 Technical: Callback Validation
+### 🔐 Teknis: Validasi Callback
 
-Tripay callbacks are secured with an HMAC SHA256 signature.
+Callback Tripay diamankan dengan tanda tangan HMAC SHA256.
 
 - **Header:** `X-Callback-Signature`
-- **Logic:** `hash_hmac('sha256', $payload, $private_key)`
-- **Validation:** Always verify the signature matches before updating any database record.
+- **Logika:** `hash_hmac('sha256', $json_payload_body, $private_key)`
+- **Validasi:** Gunakan raw JSON body yang diterima dari Tripay sebagai payload untuk fungsi HMAC.
 
-### Status Mapping
+### Pemetaan Status
 
-| Tripay Status | App Status | Action                    |
-| ------------- | ---------- | ------------------------- |
-| `PAID`        | `paid`     | Process order (Digiflazz) |
-| `EXPIRED`     | `expired`  | Cancel transaction        |
-| `FAILED`      | `failed`   | Mark as error             |
-
----
-
-## ⚡ Digiflazz (Product Provider)
-
-Digiflazz provides the actual digital products (Diamonds, Pulsa, UC).
-
-### Integration Details
-
-- **Syncing**: Products are synced via `php artisan digiflazz:sync-products`.
-- **Ordering**: Triggered immediately after payment is confirmed.
-- **Callback**: Digiflazz notifies of status changes (e.g., Success with SN).
-
-### Core Service
-
-`App\Services\DigiflazzService` handles all API communication using the configured credentials.
+| Status Tripay | Status Aplikasi | Tindakan                   |
+| ------------- | --------------- | -------------------------- |
+| `PAID`        | `paid`          | Proses pesanan (Digiflazz) |
+| `EXPIRED`     | `expired`       | Batalkan transaksi         |
+| `FAILED`      | `failed`        | Tandai sebagai error       |
 
 ---
 
-## 📧 Social Login (OAuth2)
+## ⚡ Digiflazz (Penyedia Produk)
 
-Integration with Google and Facebook using Laravel Socialite.
+Digiflazz menyediakan produk digital yang sesungguhnya (Diamond, Pulsa, UC).
 
-### Flow
+### Detail Integrasi
 
-1. Redirect to `/api/auth/social/{provider}/redirect`.
-2. Callback handled at `/api/auth/social/{provider}/callback`.
-3. Account auto-linked by email or new account created.
+- **Sinkronisasi**: Produk disinkronkan melalui `php artisan digiflazz:sync-products`.
+- **Pemesanan**: Dipicu segera setelah pembayaran dikonfirmasi.
+- **Callback**: Digiflazz memberi tahu perubahan status (misalnya, Sukses dengan SN).
+
+### Layanan Inti
+
+`App\Services\DigiflazzService` menangani semua komunikasi API menggunakan kredensial yang dikonfigurasi.
+
+---
+
+## 📧 Login Sosial (OAuth2)
+
+Integrasi dengan Google dan Facebook menggunakan Laravel Socialite.
+
+### Alur
+
+1. Redirect ke `/api/auth/social/{provider}/redirect`.
+2. Callback ditangani di `/api/auth/social/{provider}/callback`.
+3. Akun otomatis ditautkan berdasarkan email atau akun baru dibuat.

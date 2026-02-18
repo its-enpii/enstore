@@ -1,24 +1,24 @@
-# Admin API Specification
+# Spesifikasi API Admin
 
-## 1. Dashboard Statistics
+## 1. Statistik Dashboard
 
 **Endpoint:** `GET /api/admin/dashboard`
 **Params:** `period` (today, week, month, year)
 
-- **Returns:** Revenue growth, success rate, user growth, top products chart data.
+- **Mengembalikan:** Pertumbuhan pendapatan, success rate, pertumbuhan user, dan data grafik produk teratas.
 
 ---
 
-## 2. Product Management
+## 2. Manajemen Produk
 
-### List Products
+### Daftar Produk
 
 **Endpoint:** `GET /api/admin/products`
 
-- **Advanced Search:** Searches name, brand, category, variant, or SKU.
-- **Dynamic Filter:** `category.slug=...`, `type=...`, `is_active=...`.
+- **Pencarian Lanjut:** Mencari nama, brand, kategori, varian, atau SKU.
+- **Filter Dinamis:** `category.slug=...`, `type=...`, `is_active=...`.
 
-### Bulk Price Update
+### Update Harga Massal
 
 **Endpoint:** `POST /api/admin/products/bulk-update-prices`
 **Body:**
@@ -34,22 +34,22 @@
 
 ---
 
-## 3. User Management
+## 3. Manajemen Pengguna
 
-- **Balance Adjustment:** `POST /api/admin/users/{id}/adjust-balance`
+- **Penyesuaian Saldo:** `POST /api/admin/users/{id}/adjust-balance`
 - **Body:** `type` (add/deduct), `amount`, `description`.
-- **Statistics:** `GET /api/admin/users/statistics`.
+- **Statistik:** `GET /api/admin/users/statistics`.
 
 ---
 
-## 4. Report Generation
+## 4. Pembuatan Laporan
 
-- **Sales:** `GET /api/admin/reports/sales?group_by=day`
-- **Export:** `GET /api/admin/reports/export/transactions` (Returns CSV).
+- **Penjualan:** `GET /api/admin/reports/sales?group_by=day`
+- **Ekspor:** `GET /api/admin/reports/export/transactions` (Mengembalikan CSV).
 
 ---
 
-## 5. System Settings
+## 5. Pengaturan Sistem
 
 **Endpoint:** `POST /api/admin/settings/bulk-update`
 **Body:**
@@ -57,7 +57,7 @@
 ```json
 {
   "settings": [
-    { "key": "app.name", "value": "New Name" },
+    { "key": "app.name", "value": "Nama Baru" },
     { "key": "retail_margin", "value": "10" }
   ]
 }
