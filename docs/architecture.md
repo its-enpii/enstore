@@ -27,7 +27,7 @@ erDiagram
     PRODUCT_CATEGORIES ||--o{ PRODUCTS : contains
     PRODUCTS ||--o{ TRANSACTIONS : part_of
     TRANSACTIONS ||--|| PAYMENTS : has
-    TRANSACTIONS ||o--o{ TRANSACTION_LOGS : logs
+    TRANSACTIONS ||--o{ TRANSACTION_LOGS : logs
     PAYMENTS ||--o{ PAYMENT_CALLBACKS : receives
     VOUCHERS ||--o{ VOUCHER_USAGES : used_in
 ```
