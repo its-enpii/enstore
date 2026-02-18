@@ -5,6 +5,7 @@ Platform penjualan produk digital (voucher game, pulsa, PLN, e-money, dll) denga
 ## 🚀 Quick Start dengan Docker
 
 ### Prerequisites
+
 - Docker Desktop installed
 - Docker Compose installed
 - Git
@@ -42,15 +43,16 @@ docker-compose exec backend php artisan db:seed
 
 Setelah semua container berjalan, Anda bisa mengakses:
 
-| Service | URL | Description | Status |
-|---------|-----|-------------|--------|
-| **Backend API** | http://localhost:8000 | Laravel API | ✅ Active |
-| **phpMyAdmin** | http://localhost:8080 | Database Management | ✅ Active |
-| **MySQL** | localhost:3307 | Database (user: enstore_db_user, pass: enstore_db_password) | ✅ Active |
-| **Redis** | localhost:6379 | Cache & Queue | ✅ Active |
-| **Frontend** | http://localhost:3000 | Next.js Frontend | ⏸️ Disabled (Not Ready) |
+| Service         | URL                   | Description                                                 | Status                  |
+| --------------- | --------------------- | ----------------------------------------------------------- | ----------------------- |
+| **Backend API** | http://localhost:8000 | Laravel API                                                 | ✅ Active               |
+| **phpMyAdmin**  | http://localhost:8080 | Database Management                                         | ✅ Active               |
+| **MySQL**       | localhost:3307        | Database (user: enstore_db_user, pass: enstore_db_password) | ✅ Active               |
+| **Redis**       | localhost:6379        | Cache & Queue                                               | ✅ Active               |
+| **Frontend**    | http://localhost:3000 | Next.js Frontend                                            | ⏸️ Disabled (Not Ready) |
 
 **Note:** Frontend dan Flutter saat ini **disabled by default** karena belum ready. Untuk mengaktifkan:
+
 ```bash
 # Jalankan dengan frontend
 docker-compose --profile frontend up -d
@@ -80,6 +82,7 @@ docker-compose --profile frontend --profile flutter up -d
 - **flutter-web** - Flutter Web App (enable dengan `--profile flutter`)
 
 **Mengaktifkan Frontend/Flutter:**
+
 ```bash
 # Hanya backend (default)
 docker-compose up -d
@@ -232,17 +235,15 @@ DIGIFLAZZ_API_KEY=your_api_key
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
 
-## 📚 Dokumentasi
+## 📚 Documentation
 
-Dokumentasi lengkap tersedia di folder `backend/`:
+Detailed documentation is now centralized in the `docs/` directory:
 
-- [DATABASE_LOGGING.md](backend/DATABASE_LOGGING.md) - Database logging strategy
-- [TRIPAY_INTEGRATION.md](backend/TRIPAY_INTEGRATION.md) - Tripay payment gateway
-- [DIGIFLAZZ_INTEGRATION.md](backend/DIGIFLAZZ_INTEGRATION.md) - Digiflazz product provider
-- [CORE_BUSINESS_LOGIC.md](backend/CORE_BUSINESS_LOGIC.md) - Business logic services
-- [AUTH_API_DOCUMENTATION.md](backend/AUTH_API_DOCUMENTATION.md) - Authentication API
-- [ADMIN_API_ENDPOINTS.md](backend/ADMIN_API_ENDPOINTS.md) - Admin API
-- [CUSTOMER_API_ENDPOINTS.md](backend/CUSTOMER_API_ENDPOINTS.md) - Customer API
+- [**System Architecture**](docs/architecture.md) - System design & database schema.
+- [**Setup & Installation**](docs/setup.md) - Docker, Redis, and environment setup.
+- [**API Reference**](docs/api-reference.md) - Comprehensive API documentation.
+- [**Third-Party Integrations**](docs/integrations.md) - Tripay, Digiflazz, and Social Login.
+- [**Features & Flows**](docs/features.md) - Refund logic, Guest Checkout, etc.
 
 ## 🐛 Troubleshooting
 
@@ -252,9 +253,9 @@ Jika port 3000, 8000, atau 3307 sudah digunakan, edit `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "3001:3000"  # Frontend
-  - "8001:80"    # Backend
-  - "3308:3306"  # MySQL
+  - "3001:3000" # Frontend
+  - "8001:80" # Backend
+  - "3308:3306" # MySQL
 ```
 
 ### Permission errors (Linux/Mac)
