@@ -16,7 +16,7 @@ export interface TableColumn<T> {
   sortable?: boolean;
   width?: string;
   align?: "left" | "center" | "right";
-  render?: (row: T, index: number) => React.ReactNode;
+  render?: (value: any, row: T, index: number) => React.ReactNode;
 }
 
 // ============================================================
@@ -145,7 +145,7 @@ function DataTable<T>({
                       className={`px-5 py-4 text-sm text-brand-500/90 ${alignClass(col.align)}`}
                     >
                       {col.render
-                        ? col.render(row, idx)
+                        ? col.render((row as any)[col.key], row, idx)
                         : String((row as any)[col.key] ?? "-")}
                     </td>
                   ))}

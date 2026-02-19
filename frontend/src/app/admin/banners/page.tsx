@@ -308,7 +308,11 @@ export default function AdminBannersPage() {
       render: (val: string) => (
         <div className="relative h-12 w-24 overflow-hidden rounded-lg border border-brand-500/5 bg-smoke-300">
           <Image
-            src={val.startsWith("http") ? val : `/api/storage/${val}`}
+            src={
+              typeof val === "string" && val.startsWith("http")
+                ? val
+                : `/api/storage/${val}`
+            }
             alt="banner"
             fill
             className="object-cover"
@@ -493,8 +497,9 @@ export default function AdminBannersPage() {
                         <>
                           <Image
                             src={
-                              previewImage.startsWith("http") ||
-                              previewImage.startsWith("data:")
+                              typeof previewImage === "string" &&
+                              (previewImage.startsWith("http") ||
+                                previewImage.startsWith("data:"))
                                 ? previewImage
                                 : `/api/storage/${previewImage}`
                             }

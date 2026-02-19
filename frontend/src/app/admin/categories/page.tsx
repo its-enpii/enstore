@@ -303,6 +303,7 @@ export default function AdminCategoriesPage() {
                             {cat.icon ? (
                               <Image
                                 src={
+                                  typeof cat.icon === "string" &&
                                   cat.icon.startsWith("http")
                                     ? cat.icon
                                     : `/api/storage/${cat.icon}`
@@ -411,8 +412,9 @@ export default function AdminCategoriesPage() {
                         <>
                           <Image
                             src={
-                              previewImage.startsWith("http") ||
-                              previewImage.startsWith("data:")
+                              typeof previewImage === "string" &&
+                              (previewImage.startsWith("http") ||
+                                previewImage.startsWith("data:"))
                                 ? previewImage
                                 : `/api/storage/${previewImage}`
                             }

@@ -90,7 +90,7 @@ export default function ResellerTransactions() {
     {
       key: "transaction_code",
       label: "Transaction",
-      render: (row) => (
+      render: (_, row) => (
         <Link
           href={`/reseller/transactions/${row.transaction_code}`}
           className="group"
@@ -107,9 +107,9 @@ export default function ResellerTransactions() {
     {
       key: "product_name",
       label: "Product",
-      render: (row) => (
+      render: (val) => (
         <p className="max-w-[200px] truncate text-sm font-bold text-brand-500/90">
-          {row.product_name}
+          {val}
         </p>
       ),
     },
@@ -117,10 +117,10 @@ export default function ResellerTransactions() {
       key: "transaction_type",
       label: "Type",
       align: "center",
-      render: (row) => (
+      render: (val) => (
         <StatusBadge
-          status={row.transaction_type === "topup" ? "info" : "neutral"}
-          label={row.transaction_type}
+          status={val === "topup" ? "info" : "neutral"}
+          label={val}
         />
       ),
     },
@@ -128,9 +128,9 @@ export default function ResellerTransactions() {
       key: "total_price",
       label: "Amount",
       align: "right",
-      render: (row) => (
+      render: (val) => (
         <span className="text-sm font-bold text-brand-500/90">
-          {formatCurrency(row.total_price)}
+          {formatCurrency(val)}
         </span>
       ),
     },
@@ -138,9 +138,9 @@ export default function ResellerTransactions() {
       key: "payment_method",
       label: "Payment",
       align: "center",
-      render: (row) => (
+      render: (val, row) => (
         <span className="text-xs font-bold text-brand-500/50">
-          {row.payment_method || row.payment?.payment_method || "-"}
+          {val || row.payment?.payment_method || "-"}
         </span>
       ),
     },
@@ -148,13 +148,13 @@ export default function ResellerTransactions() {
       key: "status",
       label: "Status",
       align: "center",
-      render: (row) => <StatusBadge status={row.status} />,
+      render: (val) => <StatusBadge status={val} />,
     },
     {
       key: "payment_status",
       label: "Payment",
       align: "center",
-      render: (row) => <StatusBadge status={row.payment_status} />,
+      render: (val) => <StatusBadge status={val} />,
     },
   ];
 

@@ -31,7 +31,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get banners: '.$e->getMessage(),
+                'message' => 'Failed to get banners: ' . $e->getMessage(),
             ], 500);
         }
     }

@@ -47,7 +47,7 @@ export default function BalanceHistoryPage() {
       key: "type",
       label: "Type",
       width: "80px",
-      render: (row) => (
+      render: (_, row) => (
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
           row.type === "credit" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
         }`}>
@@ -58,7 +58,7 @@ export default function BalanceHistoryPage() {
     {
       key: "description",
       label: "Description",
-      render: (row) => (
+      render: (_, row) => (
         <div>
           <p className="text-sm font-bold text-brand-500/90 dark:text-smoke-200">{row.description}</p>
           {row.transaction && (
@@ -71,7 +71,7 @@ export default function BalanceHistoryPage() {
       key: "amount",
       label: "Amount",
       align: "right",
-      render: (row) => (
+      render: (_, row) => (
         <span className={`text-sm font-bold ${row.type === "credit" ? "text-emerald-500" : "text-red-500"}`}>
           {row.type === "credit" ? "+" : "-"}{formatCurrency(row.amount)}
         </span>
@@ -81,7 +81,7 @@ export default function BalanceHistoryPage() {
       key: "balance_after",
       label: "Balance After",
       align: "right",
-      render: (row) => (
+      render: (_, row) => (
         <span className="text-sm font-bold text-brand-500/60 dark:text-smoke-300">{formatCurrency(row.balance_after)}</span>
       ),
     },
@@ -89,7 +89,7 @@ export default function BalanceHistoryPage() {
       key: "created_at",
       label: "Date",
       align: "right",
-      render: (row) => (
+      render: (_, row) => (
         <div className="text-right">
           <p className="text-xs font-bold text-brand-500/60 dark:text-smoke-300">{formatDate(row.created_at)}</p>
           <p className="text-[10px] text-brand-500/30 font-bold">{formatTime(row.created_at)}</p>

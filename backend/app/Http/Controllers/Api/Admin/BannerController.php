@@ -35,7 +35,7 @@ class BannerController extends Controller
             }
 
             if ($request->filled('search')) {
-                $query->where('title', 'like', '%'.$request->search.'%');
+                $query->where('title', 'like', '%' . $request->search . '%');
             }
 
             $banners = $query->orderBy('sort_order', 'asc')
@@ -49,7 +49,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get banners: '.$e->getMessage(),
+                'message' => 'Failed to get banners: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -84,7 +84,7 @@ class BannerController extends Controller
 
             // Handle Image Upload
             if ($request->hasFile('image')) {
-                $path = $this->storage->upload($request->file('image'), 'banners');
+                $path = $this->storage->upload('banners', $request->file('image'));
                 $data['image'] = $path;
             }
 
@@ -98,7 +98,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create banner: '.$e->getMessage(),
+                'message' => 'Failed to create banner: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -159,7 +159,7 @@ class BannerController extends Controller
                 if ($banner->image) {
                     $this->storage->delete($banner->image);
                 }
-                $path = $this->storage->upload($request->file('image'), 'banners');
+                $path = $this->storage->upload('banners', $request->file('image'));
                 $data['image'] = $path;
             }
 
@@ -173,7 +173,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update banner: '.$e->getMessage(),
+                'message' => 'Failed to update banner: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -200,7 +200,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete banner: '.$e->getMessage(),
+                'message' => 'Failed to delete banner: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -236,7 +236,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update sort order: '.$e->getMessage(),
+                'message' => 'Failed to update sort order: ' . $e->getMessage(),
             ], 500);
         }
     }
