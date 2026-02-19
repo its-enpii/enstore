@@ -10,7 +10,7 @@ export default function PublicLayout({
   return (
     <>
       <Header />
-      <main className="h-full min-h-screen w-full pt-16 lg:pt-[88px]">
+      <main className="h-full bg-cloud-200 min-h-screen w-full pt-16 lg:pt-[88px]">
         {children}
       </main>
       <Footer />

@@ -32,7 +32,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-cloud-200 pt-24 pb-20">
+    <div className="min-h-screen bg-cloud-200 py-28">
       <div className="container mx-auto px-4 lg:px-0">
         {/* Hero Section */}
         <div className="mx-auto mb-20 max-w-4xl space-y-6 text-center">

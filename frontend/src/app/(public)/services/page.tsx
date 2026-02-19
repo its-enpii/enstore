@@ -241,7 +241,7 @@ export default function ServicesPage() {
               <h1 className="font-sans text-3xl font-bold tracking-tight text-brand-500/90 md:text-4xl lg:text-6xl lg:leading-[1.1]">
                 Top Up <span className="text-ocean-500">Anything</span>
               </h1>
-              <h2 className="mb-6 text-2xl font-bold text-brand-500/10 md:mb-10 md:text-3xl lg:text-5xl">
+              <h2 className="mb-6 text-2xl font-bold text-brand-500/10 md:mb-8 md:text-3xl lg:text-5xl">
                 Anywhere, Instantly.
               </h2>
               <p className="mb-8 max-w-xl text-sm text-brand-500/40 md:mb-12 md:text-base md:tracking-wide">

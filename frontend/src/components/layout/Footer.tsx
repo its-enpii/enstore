@@ -31,7 +31,7 @@ export function Footer() {
       links: [
         { href: "/terms", label: "Terms" },
         { href: "/privacy", label: "Privacy" },
-        { href: "#", label: "Security" },
+        { href: "/security", label: "Security" },
       ],
     },
   ];
