@@ -62,3 +62,15 @@
   ]
 }
 ```
+
+---
+
+## 6. Manajemen Banner
+
+**Path Dasar:** `/api/admin/banners`
+
+- **Daftar Banner:** `GET /` (Filter: `search`, `is_active`)
+- **Tambah Banner:** `POST /` (Multipart: `title`, `image`, `subtitle`, `link`, `description`)
+- **Update Banner:** `POST /{id}` (Multipart/Partial update)
+- **Hapus Banner:** `DELETE /{id}`
+- **Urutan Massal:** `POST /update-order` (Body: `orders: [{id, sort_order}]`)

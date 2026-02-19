@@ -11,9 +11,10 @@ class Banner extends Model
 
     protected $fillable = [
         'title',
+        'subtitle',
         'image',
         'link',
-        'type',
+        'description',
         'is_active',
         'sort_order',
         'start_date',
@@ -27,11 +28,6 @@ class Banner extends Model
         'end_date' => 'datetime',
     ];
 
-    // ==================== SCOPES ====================
-
-    /**
-     * Scope a query to only include active banners
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true)

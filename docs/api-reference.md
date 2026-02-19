@@ -60,6 +60,7 @@
 | GET      | `/reports/sales` | Buat laporan keuangan           |
 | GET/PUT  | `/vouchers`      | Kelola voucher diskon           |
 | GET/PUT  | `/withdrawals`   | Kelola penarikan saldo reseller |
+| GET/POST | `/banners`       | Kelola banner & konten visual   |
 
 ---
 

@@ -344,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         physics: const BouncingScrollPhysics(),
                         children: _banners.map((banner) => _buildPromoCard(
                           banner.title, 
-                          banner.type ?? 'Special Offer', 
+                          banner.subtitle ?? '', 
                           banner.image.startsWith('http') ? banner.image : '${ApiClient.baseUrl.replaceAll('/api','')}/storage/${banner.image}',
                           link: banner.link,
                         )).toList(),

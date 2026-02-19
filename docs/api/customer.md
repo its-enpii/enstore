@@ -64,3 +64,12 @@
 
 - **Body:** `product_item_id`, `customer_no`.
 - **Respon:** Mengembalikan `billing_name`, `amount`, `admin_fee`, `total`.
+
+---
+
+## 5. Banner & Promosi
+
+**Endpoint:** `GET /api/banners`
+
+- **Deskripsi:** Mengambil daftar banner aktif untuk ditampilkan di carousel/slider aplikasi.
+- **Respon:** Array objects berisi `title`, `subtitle` (deskripsi singkat), `image`, `link`, dan `description`.
