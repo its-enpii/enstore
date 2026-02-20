@@ -37,7 +37,7 @@ export default function ResellerPriceListPage() {
           getCategories(),
         ]);
 
-        if (prodRes.success) setProducts(prodRes.data.products);
+        if (prodRes.success) setProducts(prodRes.data.data);
         if (catRes.success) setCategories(catRes.data);
       } catch (error) {
         console.error("Failed to fetch price list:", error);

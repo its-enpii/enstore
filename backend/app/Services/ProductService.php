@@ -95,7 +95,7 @@ class ProductService
             $sortOrder = $filters['sort_order'] ?? 'asc';
             $query->orderBy($sortBy, $sortOrder);
 
-            return $query->get();
+            return $query->paginate($filters['per_page'] ?? 15);
         });
     }
 

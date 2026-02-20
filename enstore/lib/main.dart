@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/constants/api_endpoints.dart';
 import 'core/theme/app_colors.dart';
-import 'presentation/screens/splash_screen.dart';
+import 'presentation/screens/splash/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Set system UI overlay style for a cleaner look
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -21,7 +21,7 @@ void main() {
   debugPrint('--- APP STARTING ---');
   debugPrint('API URL: ${ApiEndpoints.baseUrl}');
   debugPrint('--------------------');
-  
+
   runApp(const MyApp());
 }
 

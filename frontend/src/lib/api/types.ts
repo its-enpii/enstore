@@ -105,6 +105,8 @@ export interface ProductFilters {
   sort_order?: "asc" | "desc";
 }
 
+export type ProductListResponse = LaravelPagination<Product>;
+
 /**
  * ============================================================
  * USER API TYPES

@@ -92,8 +92,8 @@ export default function ServicesPage() {
         const res = await getProducts(filters as any);
 
         if (res.success) {
-          const newProducts = res.data.products || [];
-          const pagination = res.data.pagination;
+          const newProducts = res.data.data || [];
+          const pagination = res.data;
 
           if (append) {
             // Append to existing list

@@ -53,7 +53,7 @@ function SearchBar({
         try {
           const res = await getProducts({ search: query, per_page: 5 });
           if (res.success) {
-            setResults(res.data.products);
+            setResults(res.data.data);
           } else {
             setResults([]);
           }

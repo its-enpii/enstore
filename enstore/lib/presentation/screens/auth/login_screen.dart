@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/network/api_client.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/network/api_client.dart';
 import 'register_screen.dart';
-import 'dashboard_screen.dart';
-import '../widgets/app_button.dart';
+import '../main/dashboard_screen.dart';
+import '../../widgets/app_button.dart';
+import '../../widgets/app_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final apiClient = ApiClient();
       final authService = AuthService(apiClient);
-      
+
       final response = await authService.login(
         _emailController.text.trim(),
         _passwordController.text,
@@ -45,7 +46,13 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.message.isEmpty ? 'Gagal masuk. Coba lagi.' : response.message)),
+            SnackBar(
+              content: Text(
+                response.message.isEmpty
+                    ? 'Gagal masuk. Coba lagi.'
+                    : response.message,
+              ),
+            ),
           );
         }
       }
@@ -95,10 +102,11 @@ class _LoginScreenState extends State<LoginScreen> {
               // Email Field
               _buildLabel('Alamat Email'),
               const SizedBox(height: 8),
-              _buildTextField(
+              AppTextField(
                 controller: _emailController,
                 hintText: 'nama@email.com',
-                prefixIcon: Icons.email_outlined,
+                prefixIcon: const Icon(Icons.email_outlined),
+                keyboardType: TextInputType.emailAddress,
               ),
 
               const SizedBox(height: 24),
@@ -106,18 +114,19 @@ class _LoginScreenState extends State<LoginScreen> {
               // Password Field
               _buildLabel('Password'),
               const SizedBox(height: 8),
-              _buildTextField(
+              AppTextField(
                 controller: _passwordController,
                 hintText: '••••••••',
-                prefixIcon: Icons.lock_outline_rounded,
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
                 obscureText: _obscurePassword,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                    color: AppColors.brand500.withOpacity(0.3),
-                    size: 20,
+                    _obscurePassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
 
@@ -153,7 +162,9 @@ class _LoginScreenState extends State<LoginScreen> {
               // Divider
               Row(
                 children: [
-                  Expanded(child: Divider(color: AppColors.brand500.withOpacity(0.05))),
+                  Expanded(
+                    child: Divider(color: AppColors.brand500.withOpacity(0.05)),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
@@ -165,7 +176,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  Expanded(child: Divider(color: AppColors.brand500.withOpacity(0.05))),
+                  Expanded(
+                    child: Divider(color: AppColors.brand500.withOpacity(0.05)),
+                  ),
                 ],
               ),
 
@@ -185,7 +198,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterScreen(),
+                        ),
                       );
                     },
                     child: const Text(
@@ -212,39 +227,6 @@ class _LoginScreenState extends State<LoginScreen> {
         fontSize: 14,
         fontWeight: FontWeight.bold,
         color: AppColors.brand500,
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData prefixIcon,
-    bool obscureText = false,
-    Widget? suffixIcon,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.smoke200,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.brand500.withOpacity(0.05)),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        style: const TextStyle(
-          fontSize: 16,
-          color: AppColors.brand500,
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: AppColors.brand500.withOpacity(0.2)),
-          prefixIcon: Icon(prefixIcon, color: AppColors.brand500.withOpacity(0.4), size: 22),
-          suffixIcon: suffixIcon,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        ),
       ),
     );
   }

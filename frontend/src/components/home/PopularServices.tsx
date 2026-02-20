@@ -22,8 +22,8 @@ export function PopularServices() {
           sort_by: "sort_order",
           sort_order: "asc",
         });
-        if (res.success && res.data.products) {
-          setProducts(res.data.products);
+        if (res.success && res.data.data) {
+          setProducts(res.data.data);
         }
       } catch (err) {
         console.error("Failed to fetch featured products:", err);

@@ -62,7 +62,7 @@ class ProductController extends Controller
 
             $products = $this->productService->getActiveProducts($filters, $customerType);
 
-            $products->each(function ($product) use ($customerType) {
+            $products->getCollection()->each(function ($product) use ($customerType) {
                 // Eager load items if they aren't there
                 if (! $product->relationLoaded('items')) {
                     $product->load(['items' => function ($q) {
@@ -84,13 +84,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'role' => $customerType,
-                'data' => [
-                    'products' => $products,
-                    'pagination' => [
-                        'current_page' => (int) $request->get('page', 1),
-                        'total' => $products->count(),
-                    ],
-                ],
+                'data' => $products,
             ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);

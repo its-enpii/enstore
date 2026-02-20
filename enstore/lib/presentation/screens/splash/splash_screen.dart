@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import 'main_screen.dart';
+import '../../../core/theme/app_colors.dart';
+import '../main/main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,9 +22,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (mounted) {
       // Navigate to dashboard/main screen regardless of login status
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
     }
   }
 

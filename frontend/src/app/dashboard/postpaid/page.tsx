@@ -49,7 +49,7 @@ export default function PostpaidPage() {
         is_active: true,
       });
       if (res.success) {
-        setProducts(res.data.products);
+        setProducts(res.data.data);
       }
     } catch (err) {
       console.error("Failed to fetch products:", err);

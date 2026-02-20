@@ -46,9 +46,13 @@ class PaginatedData<T> {
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
+    // When using Laravel's native paginate(), the paginator is the root object.
+    // The items are in 'data', and pagination metadata is at the root.
+    final List<dynamic> dataList = json['data'] ?? [];
+
     return PaginatedData(
       currentPage: json['current_page'] ?? 1,
-      data: (json['data'] as List?)?.map(fromJsonT).toList() ?? [],
+      data: dataList.map(fromJsonT).toList(),
       lastPage: json['last_page'] ?? 1,
       perPage: json['per_page'] ?? 15,
       total: json['total'] ?? 0,
