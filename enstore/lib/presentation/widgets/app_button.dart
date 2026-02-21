@@ -41,13 +41,17 @@ class AppButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
-          elevation: elevation,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          enabledMouseCursor: SystemMouseCursors.click,
+          disabledMouseCursor: SystemMouseCursors.forbidden,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             side: side ?? BorderSide.none,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24),
-        ),
+        ).copyWith(elevation: WidgetStateProperty.all(0)),
         child: isLoading
             ? SizedBox(
                 height: 20,

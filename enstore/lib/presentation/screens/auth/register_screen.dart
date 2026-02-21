@@ -3,7 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
 import '../../widgets/app_button.dart';
-import '../main/dashboard_screen.dart';
+import '../main/main_screen.dart';
 import '../../widgets/app_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -40,8 +40,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final authService = AuthService(apiClient);
 
       final response = await authService.register({
-        'first_name': _firstNameController.text.trim(),
-        'last_name': _lastNameController.text.trim(),
+        'name':
+            '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}'
+                .trim(),
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
         'password': _passwordController.text,
@@ -51,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (mounted) {
         if (response.success) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            MaterialPageRoute(builder: (_) => const MainScreen()),
             (route) => false,
           );
         } else {
@@ -87,7 +88,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: AppColors.smoke200,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.brand500),
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.brand500.withValues(alpha: 0.9),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -97,12 +101,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Buat Akun Baru',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.brand500,
+                  color: AppColors.brand500.withValues(alpha: 0.9),
                 ),
               ),
               const SizedBox(height: 8),
@@ -110,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 'Mulai perjalanan gaming Anda bersama EnStore hari ini.',
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.brand500.withOpacity(0.5),
+                  color: AppColors.brand500.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 32),
@@ -119,67 +123,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Nama Depan'),
-                        const SizedBox(height: 8),
-                        AppTextField(
-                          controller: _firstNameController,
-                          hintText: 'John',
-                          prefixIcon: const Icon(Icons.person_outline_rounded),
-                        ),
-                      ],
+                    child: AppTextField(
+                      label: 'Nama Depan',
+                      controller: _firstNameController,
+                      hintText: 'John',
+                      prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Nama Belakang'),
-                        const SizedBox(height: 8),
-                        AppTextField(
-                          controller: _lastNameController,
-                          hintText: 'Doe',
-                          prefixIcon: const Icon(Icons.person_outline_rounded),
-                        ),
-                      ],
+                    child: AppTextField(
+                      label: 'Nama Belakang',
+                      controller: _lastNameController,
+                      hintText: 'Doe',
+                      prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // Email Field
-              _buildLabel('Alamat Email'),
-              const SizedBox(height: 8),
               AppTextField(
+                label: 'Alamat Email',
                 controller: _emailController,
                 hintText: 'nama@email.com',
                 prefixIcon: const Icon(Icons.email_outlined),
                 keyboardType: TextInputType.emailAddress,
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // Phone Field
-              _buildLabel('Nomor WhatsApp'),
-              const SizedBox(height: 8),
               AppTextField(
+                label: 'Nomor WhatsApp',
                 controller: _phoneController,
                 hintText: '08123456789',
                 prefixIcon: const Icon(Icons.phone_android_rounded),
                 keyboardType: TextInputType.phone,
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // Password Field
-              _buildLabel('Buat Password'),
-              const SizedBox(height: 8),
               AppTextField(
+                label: 'Buat Password',
                 controller: _passwordController,
                 hintText: '••••••••',
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
@@ -214,7 +203,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   text: TextSpan(
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.brand500.withOpacity(0.5),
+                      color: AppColors.brand500.withValues(alpha: 0.5),
                       fontFamily: 'Inter',
                     ),
                     children: [
@@ -245,17 +234,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-        color: AppColors.brand500,
       ),
     );
   }

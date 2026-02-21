@@ -1,25 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/services/product_service.dart';
-import '../../../core/models/product.dart';
-import '../../widgets/app_text_field.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/services/product_service.dart';
+import '../../../../core/models/product.dart';
+import '../../../widgets/app_text_field.dart';
+import 'game_detail_screen.dart';
 
-class SelectGameScreen extends StatefulWidget {
-  const SelectGameScreen({super.key});
+class GameListScreen extends StatefulWidget {
+  const GameListScreen({super.key});
 
   @override
-  State<SelectGameScreen> createState() => _SelectGameScreenState();
+  State<GameListScreen> createState() => _GameListScreenState();
 }
 
-class _SelectGameScreenState extends State<SelectGameScreen> {
+class _GameListScreenState extends State<GameListScreen> {
   List<Product> _games = [];
   List<Product> _filteredGames = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
   int _currentPage = 1;
   bool _hasMoreData = true;
+  String _sortBy = 'sort_order';
+  String _sortOrder = 'asc';
 
   Timer? _debounce;
   final TextEditingController _searchController = TextEditingController();
@@ -71,6 +74,8 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
     final Map<String, dynamic> filters = {
       'category': 'games',
       'page': _currentPage,
+      'sort_by': _sortBy,
+      'sort_order': _sortOrder,
     };
     if (query.isNotEmpty) {
       filters['search'] = query;
@@ -129,6 +134,8 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
     final Map<String, dynamic> filters = {
       'category': 'games',
       'page': _currentPage,
+      'sort_by': _sortBy,
+      'sort_order': _sortOrder,
     };
     if (query.isNotEmpty) {
       filters['search'] = query;
@@ -155,7 +162,7 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
       if (mounted) {
         setState(() {
           _isLoadingMore = false;
-          _currentPage--; // Revert page increment on failure
+          _currentPage--;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Connection Error: $e'),
@@ -172,7 +179,8 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.smoke200,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: Padding(
@@ -183,21 +191,21 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                size: 18,
-                color: AppColors.brand500,
+                size: 20,
+                color: AppColors.brand500.withValues(alpha: 0.9),
               ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
         ),
-        leadingWidth: 72, // 24 padding + 48 circle
-        title: const Text(
+        leadingWidth: 72,
+        title: Text(
           'Select Game',
           style: TextStyle(
-            color: AppColors.brand500,
-            fontSize: 18,
+            color: AppColors.brand500.withValues(alpha: 0.9),
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -212,91 +220,97 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.tune_rounded,
                   size: 20,
-                  color: AppColors.brand500,
+                  color: AppColors.brand500.withValues(alpha: 0.9),
                 ),
-                onPressed: () {},
+                onPressed: _showFilterBottomSheet,
               ),
             ),
           ),
         ],
       ),
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // Search Bar
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-              child: AppTextField(
-                controller: _searchController,
-                hintText: 'Search Games...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                textInputAction: TextInputAction.search,
-              ),
+      body: Column(
+        children: [
+          Container(
+            color: AppColors.smoke200,
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+            child: AppTextField(
+              controller: _searchController,
+              hintText: 'Search games...',
+              prefixIcon: const Icon(Icons.search_rounded),
+              textInputAction: TextInputAction.search,
             ),
           ),
 
-          // Games Grid or Loading
-          if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.ocean500),
-              ),
-            )
-          else if (_filteredGames.isEmpty)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off_rounded,
-                      size: 64,
-                      color: AppColors.brand500.withValues(alpha: 0.2),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No games found',
-                      style: TextStyle(
-                        color: AppColors.brand500.withValues(alpha: 0.5),
-                        fontSize: 16,
+          Expanded(
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                if (_isLoading)
+                  const SliverFillRemaining(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.ocean500,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.72,
-                  crossAxisSpacing: 32,
-                  mainAxisSpacing: 32,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return _buildGameCard(_filteredGames[index]);
-                }, childCount: _filteredGames.length),
-              ),
-            ),
+                  )
+                else if (_filteredGames.isEmpty)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off_rounded,
+                            size: 64,
+                            color: AppColors.brand500.withValues(alpha: 0.2),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No games found',
+                            style: TextStyle(
+                              color: AppColors.brand500.withValues(alpha: 0.5),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 32,
+                            mainAxisSpacing: 32,
+                          ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return _buildGameCard(_filteredGames[index]);
+                      }, childCount: _filteredGames.length),
+                    ),
+                  ),
 
-          if (_isLoadingMore)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.ocean500),
-                ),
-              ),
-            )
-          else
-            const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                if (_isLoadingMore)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.ocean500,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -311,10 +325,13 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
 
     return GestureDetector(
       onTap: () {
-        // Navigate to topup details later
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => GameDetailScreen(product: game)),
+        );
       },
       child: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: AppColors.cloud200,
           borderRadius: BorderRadius.circular(24),
@@ -364,7 +381,7 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              game.provider ?? 'Game',
+              game.publisher ?? 'EnStore',
               style: TextStyle(
                 color: AppColors.brand500.withValues(alpha: 0.5),
                 fontSize: 14,
@@ -374,6 +391,102 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
               textAlign: TextAlign.center,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cloud200,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Sort Product',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.brand500.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildFilterOption(
+                    'Terpopuler',
+                    'sort_order',
+                    'asc',
+                    setSheetState,
+                  ),
+                  _buildFilterOption(
+                    'Terbaru',
+                    'created_at',
+                    'desc',
+                    setSheetState,
+                  ),
+                  _buildFilterOption('Nama A-Z', 'name', 'asc', setSheetState),
+                  _buildFilterOption('Nama Z-A', 'name', 'desc', setSheetState),
+                  _buildFilterOption(
+                    'Rating Tertinggi',
+                    'rating',
+                    'desc',
+                    setSheetState,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterOption(
+    String label,
+    String sortBy,
+    String sortOrder,
+    StateSetter setSheetState,
+  ) {
+    final isSelected = _sortBy == sortBy && _sortOrder == sortOrder;
+    return ListTile(
+      onTap: () {
+        Navigator.pop(context);
+        setState(() {
+          _sortBy = sortBy;
+          _sortOrder = sortOrder;
+        });
+        _fetchGames();
+      },
+      contentPadding: EdgeInsets.zero,
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.ocean500 : AppColors.smoke200,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isSelected ? Icons.check_rounded : Icons.sort_rounded,
+          size: 16,
+          color: isSelected
+              ? AppColors.smoke200
+              : AppColors.brand500.withValues(alpha: 0.9),
+        ),
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: AppColors.brand500.withValues(alpha: 0.9),
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
     );

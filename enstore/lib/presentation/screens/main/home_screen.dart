@@ -8,7 +8,7 @@ import '../../../core/constants/api_endpoints.dart';
 import '../../../core/models/banner.dart';
 import '../../widgets/app_button.dart';
 import '../auth/login_screen.dart';
-import '../games/select_game_screen.dart';
+import '../products/game/game_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isLoggedIn = false;
   String _userName = 'Guest';
+  String _balance = '0';
 
   // API Data
   List<BannerModel> _banners = [];
@@ -79,13 +80,33 @@ class _HomeScreenState extends State<HomeScreen> {
     final apiClient = ApiClient();
     final authService = AuthService(apiClient);
     final status = await authService.isLoggedIn();
-    // In a real app, you'd fetch the user profile here
-    setState(() {
-      _isLoggedIn = status;
-      if (status) {
-        _userName = 'Alex Johanson'; // Mock for now
+
+    if (status) {
+      final response = await authService.getMe();
+      if (mounted && response.success) {
+        setState(() {
+          _isLoggedIn = true;
+          _userName = response.data?.name ?? 'User';
+          _balance = response.data?.balance ?? '0';
+        });
       }
-    });
+    } else {
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = false;
+          _userName = 'Guest';
+          _balance = '0';
+        });
+      }
+    }
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 15) return 'Good Afternoon,';
+    if (hour < 18) return 'Good Evening,';
+    return 'Good Night,';
   }
 
   @override
@@ -133,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _isLoggedIn ? 'Good Morning,' : 'Welcome to,',
+                          _isLoggedIn ? _getGreeting() : 'Welcome to,',
                           style: TextStyle(
                             color: AppColors.brand500.withValues(alpha: 0.4),
                             fontSize: 14,
@@ -234,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             const SizedBox(height: 8),
                             Text(
-                              _isLoggedIn ? 'Rp. 1.500.000' : 'Rp. --.---',
+                              _isLoggedIn ? 'Rp. $_balance' : 'Rp. --.---',
                               style: TextStyle(
                                 color: AppColors.brand500.withValues(
                                   alpha: 0.9,
@@ -439,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (title == 'Games') {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const SelectGameScreen()),
+            MaterialPageRoute(builder: (_) => const GameListScreen()),
           );
         }
       },

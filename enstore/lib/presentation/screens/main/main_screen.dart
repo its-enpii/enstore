@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import 'home_screen.dart';
 import '../auth/login_screen.dart';
+import '../profile/profile_screen.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/network/api_client.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,13 +15,29 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  bool _isLoggedIn = false;
 
-  final List<Widget> _screens = [
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final apiClient = ApiClient();
+    final authService = AuthService(apiClient);
+    final status = await authService.isLoggedIn();
+    if (mounted) {
+      setState(() => _isLoggedIn = status);
+    }
+  }
+
+  List<Widget> get _screens => [
     const HomeScreen(),
     const Center(child: Text('Promo Screen')), // Placeholder
     const Center(child: Text('Favorites Screen')), // Placeholder
     const Center(child: Text('Orders Screen')), // Placeholder
-    const LoginScreen(), // Account placeholder
+    _isLoggedIn ? const ProfileScreen() : const LoginScreen(),
   ];
 
   void _onItemTapped(int index) {

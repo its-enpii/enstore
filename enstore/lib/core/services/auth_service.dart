@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/api_client.dart';
 import '../constants/api_endpoints.dart';
@@ -9,11 +10,11 @@ class AuthService {
 
   AuthService(this._apiClient);
 
-  Future<ApiResponse<User>> login(String email, String password) async {
+  Future<ApiResponse<User>> login(String identifier, String password) async {
     try {
       final response = await _apiClient.post(
         ApiEndpoints.login,
-        data: {'email': email, 'password': password},
+        data: {'identifier': identifier, 'password': password},
       );
 
       final apiResponse = ApiResponse.fromJson(
@@ -26,6 +27,9 @@ class AuthService {
         await _saveToken(token);
       }
       return apiResponse;
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? e.toString();
+      return ApiResponse(success: false, message: message);
     } catch (e) {
       return ApiResponse(success: false, message: e.toString());
     }
@@ -44,6 +48,9 @@ class AuthService {
         await _saveToken(token);
       }
       return apiResponse;
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? e.toString();
+      return ApiResponse(success: false, message: message);
     } catch (e) {
       return ApiResponse(success: false, message: e.toString());
     }

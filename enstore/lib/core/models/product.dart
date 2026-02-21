@@ -1,3 +1,5 @@
+import 'product_item.dart';
+
 class Product {
   final int id;
   final String name;
@@ -6,7 +8,10 @@ class Product {
   final int price;
   final String? image;
   final String? provider;
+  final String? publisher;
   final String? brand;
+  final List<ProductItem> items;
+  final List<Map<String, dynamic>>? inputFields;
 
   Product({
     required this.id,
@@ -16,7 +21,10 @@ class Product {
     required this.price,
     this.image,
     this.provider,
+    this.publisher,
     this.brand,
+    this.items = const [],
+    this.inputFields,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -30,7 +38,14 @@ class Product {
           : (json['price'] as num?)?.toInt() ?? 0,
       image: json['image'],
       provider: json['provider'],
+      publisher: json['publisher'],
       brand: json['brand'],
+      items: json['items'] != null
+          ? (json['items'] as List).map((e) => ProductItem.fromJson(e)).toList()
+          : [],
+      inputFields: json['input_fields'] != null
+          ? List<Map<String, dynamic>>.from(json['input_fields'])
+          : null,
     );
   }
 }

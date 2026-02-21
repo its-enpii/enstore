@@ -3,7 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
 import 'register_screen.dart';
-import '../main/dashboard_screen.dart';
+import '../main/main_screen.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 
@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         if (response.success) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            MaterialPageRoute(builder: (_) => const MainScreen()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -94,27 +94,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 'Masuk ke akun EnStore Anda untuk melanjutkan top-up favorit.',
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.brand500.withOpacity(0.5),
+                  color: AppColors.brand500.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 48),
 
               // Email Field
-              _buildLabel('Alamat Email'),
-              const SizedBox(height: 8),
               AppTextField(
+                label: 'Email atau No. HP',
                 controller: _emailController,
                 hintText: 'nama@email.com',
-                prefixIcon: const Icon(Icons.email_outlined),
+                prefixIcon: const Icon(Icons.person),
                 keyboardType: TextInputType.emailAddress,
               ),
 
               const SizedBox(height: 24),
 
               // Password Field
-              _buildLabel('Password'),
-              const SizedBox(height: 8),
               AppTextField(
+                label: 'Password',
                 controller: _passwordController,
                 hintText: '••••••••',
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
@@ -163,7 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: Divider(color: AppColors.brand500.withOpacity(0.05)),
+                    child: Divider(
+                      color: AppColors.brand500.withValues(alpha: 0.05),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -172,12 +172,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.brand500.withOpacity(0.2),
+                        color: AppColors.brand500.withValues(alpha: 0.2),
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Divider(color: AppColors.brand500.withOpacity(0.05)),
+                    child: Divider(
+                      color: AppColors.brand500.withValues(alpha: 0.05),
+                    ),
                   ),
                 ],
               ),
@@ -191,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'Belum punya akun?',
                     style: TextStyle(
-                      color: AppColors.brand500.withOpacity(0.5),
+                      color: AppColors.brand500.withValues(alpha: 0.5),
                     ),
                   ),
                   TextButton(
@@ -216,17 +218,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-        color: AppColors.brand500,
       ),
     );
   }
