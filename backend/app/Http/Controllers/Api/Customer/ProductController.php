@@ -45,7 +45,7 @@ class ProductController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            Log::error('[AUTH_DETECTION] Error: '.$e->getMessage());
+            Log::error('[AUTH_DETECTION] Error: ' . $e->getMessage());
         }
 
         return 'retail';
@@ -78,7 +78,7 @@ class ProductController extends Controller
                 });
 
                 $product->price_range = $product->getPriceRange($customerType);
-                $product->makeHidden(['provider', 'server_options']); // Hide sensitive/internal fields
+                $product->makeHidden(['provider', 'server_options', 'items']); // Hide sensitive/internal fields and avoid heavy items payload in list
             });
 
             return response()->json([

@@ -8,6 +8,8 @@ class AppButton extends StatelessWidget {
   final IconData? suffixIcon;
   final Color backgroundColor;
   final Color foregroundColor;
+  final Color disabledBackgroundColor;
+  final Color disabledForegroundColor;
   final double borderRadius;
   final double? width;
   final double height;
@@ -23,6 +25,8 @@ class AppButton extends StatelessWidget {
     this.suffixIcon,
     this.backgroundColor = AppColors.ocean500,
     this.foregroundColor = AppColors.smoke200,
+    this.disabledBackgroundColor = AppColors.ocean200,
+    this.disabledForegroundColor = AppColors.smoke200,
     this.borderRadius = 24.0,
     this.width,
     this.height = 56.0,
@@ -34,11 +38,13 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width ?? double.infinity,
+      width: width,
       height: height,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
+          disabledBackgroundColor: disabledBackgroundColor,
+          disabledForegroundColor: disabledForegroundColor,
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           elevation: 0,

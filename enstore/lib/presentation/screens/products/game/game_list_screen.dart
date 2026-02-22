@@ -23,6 +23,7 @@ class _GameListScreenState extends State<GameListScreen> {
   bool _hasMoreData = true;
   String _sortBy = 'sort_order';
   String _sortOrder = 'asc';
+  String _lastSearchQuery = '';
 
   Timer? _debounce;
   final TextEditingController _searchController = TextEditingController();
@@ -45,6 +46,9 @@ class _GameListScreenState extends State<GameListScreen> {
   }
 
   void _onSearchChanged() {
+    if (_searchController.text == _lastSearchQuery) return;
+    _lastSearchQuery = _searchController.text;
+
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       _fetchGames();

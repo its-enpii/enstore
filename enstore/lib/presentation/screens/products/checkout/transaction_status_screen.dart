@@ -1,0 +1,241 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../../../core/models/transaction.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../widgets/app_button.dart';
+import '../../../widgets/app_toast.dart';
+import '../../main/main_screen.dart';
+
+class TransactionStatusScreen extends StatelessWidget {
+  final TransactionStatusModel transaction;
+
+  const TransactionStatusScreen({super.key, required this.transaction});
+
+  @override
+  Widget build(BuildContext context) {
+    final isSuccess = transaction.status == 'success' || transaction.paymentStatus == 'paid';
+    
+    return Scaffold(
+      backgroundColor: AppColors.smoke200,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight + 32),
+        child: AppBar(
+          backgroundColor: AppColors.smoke200,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 24),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppColors.cloud200,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 20,
+                  color: AppColors.brand500.withValues(alpha: 0.9),
+                ),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MainScreen()),
+                    (route) => false,
+                  );
+                },
+              ),
+            ),
+          ),
+          leadingWidth: 72,
+          title: Text(
+            'Transaction Detail',
+            style: TextStyle(
+              color: AppColors.brand500.withValues(alpha: 0.9),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+              decoration: BoxDecoration(
+                color: AppColors.smoke200,
+                borderRadius: BorderRadius.circular(48),
+                border: Border.all(color: AppColors.brand500.withValues(alpha: 0.05)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.brand500.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: (isSuccess ? AppColors.ocean500 : Colors.red).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isSuccess ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                      color: isSuccess ? AppColors.ocean500 : Colors.red,
+                      size: 56,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    isSuccess ? 'Transaction Successful!' : 'Transaction Failed',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: isSuccess ? AppColors.ocean500 : Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isSuccess
+                        ? 'Your top-up has been processed and delivered.'
+                        : (transaction.status == 'expired' 
+                            ? 'The payment time limit has expired.' 
+                            : 'The transaction could not be processed.'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.brand500.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDetailItem(
+                    context,
+                    icon: Icons.receipt_long_rounded,
+                    label: 'Invoice ID',
+                    value: transaction.transactionCode,
+                    onCopy: () {
+                      Clipboard.setData(ClipboardData(text: transaction.transactionCode));
+                      AppToast.success(context, 'Invoice ID copied');
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailItem(
+                    context,
+                    icon: Icons.videogame_asset_rounded,
+                    label: 'Game',
+                    value: transaction.product['name'] ?? 'Game',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailItem(
+                    context,
+                    icon: Icons.diamond_rounded,
+                    label: isSuccess ? 'Item Delivered' : 'Item Ordered',
+                    value: transaction.product['item'] ?? '',
+                  ),
+                  const SizedBox(height: 24),
+                  if (isSuccess) ...[
+                    AppButton(
+                      width: double.infinity,
+                      label: 'Download E-Receipt',
+                      prefixIcon: Icons.file_download_outlined,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.brand500.withValues(alpha: 0.7),
+                      borderRadius: 999,
+                      side: BorderSide(color: AppColors.brand500.withValues(alpha: 0.1)),
+                      onPressed: () {
+                         // TODO: Implement receipt download
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  AppButton(
+                    width: double.infinity,
+                    label: 'Back to Home',
+                    prefixIcon: Icons.arrow_back_rounded,
+                    borderRadius: 999,
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainScreen()),
+                        (route) => false,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    VoidCallback? onCopy,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cloud200,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.smoke200,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: AppColors.ocean500, size: 24),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.brand500.withValues(alpha: 0.4),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.brand500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (onCopy != null)
+            IconButton(
+              icon: Icon(
+                Icons.content_copy_rounded,
+                size: 18,
+                color: AppColors.brand500.withValues(alpha: 0.3),
+              ),
+              onPressed: onCopy,
+            ),
+        ],
+      ),
+    );
+  }
+}

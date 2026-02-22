@@ -18,7 +18,7 @@
 ## 🛍️ API Publik & Produk
 
 **Path Dasar:** `/api/products`  
-[**→ Payload Permintaan/Respon**](api/customer.md)
+[**→ Payload Permintaan/Respon**](api/products.md)
 
 | Metode | Endpoint                      | Deskripsi                    |
 | ------ | ----------------------------- | ---------------------------- |
