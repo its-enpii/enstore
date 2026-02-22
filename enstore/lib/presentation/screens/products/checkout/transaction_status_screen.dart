@@ -59,11 +59,15 @@ class TransactionStatusScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.only(
+          left: 24,
+          right: 24,
+          bottom: 32,
+        ),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 color: AppColors.smoke200,
                 borderRadius: BorderRadius.circular(48),
