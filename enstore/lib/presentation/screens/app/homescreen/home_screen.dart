@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/services/auth_service.dart';
-import '../../../core/services/utility_service.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/constants/api_endpoints.dart';
-import '../../../core/models/banner.dart';
-import '../../widgets/app_button.dart';
-import '../auth/login_screen.dart';
-import '../products/game/game_list_screen.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/utility_service.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/models/banner.dart';
+import '../../../widgets/app_button.dart';
+import '../../auth/login_screen.dart';
+import 'product/game/game_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

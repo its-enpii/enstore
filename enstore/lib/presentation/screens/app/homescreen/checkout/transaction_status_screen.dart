@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/models/transaction.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../widgets/app_button.dart';
-import '../../../widgets/app_toast.dart';
-import '../../main/main_screen.dart';
+import '../../../../../core/models/transaction.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../widgets/app_button.dart';
+import '../../../../widgets/app_toast.dart';
+import '../../main_screen.dart';
 
 class TransactionStatusScreen extends StatelessWidget {
   final TransactionStatusModel transaction;
@@ -13,8 +13,9 @@ class TransactionStatusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSuccess = transaction.status == 'success' || transaction.paymentStatus == 'paid';
-    
+    final isSuccess =
+        transaction.status == 'success' || transaction.paymentStatus == 'paid';
+
     return Scaffold(
       backgroundColor: AppColors.smoke200,
       appBar: PreferredSize(
@@ -59,11 +60,7 @@ class TransactionStatusScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          left: 24,
-          right: 24,
-          bottom: 32,
-        ),
+        padding: const EdgeInsets.only(left: 24, right: 24, bottom: 32),
         child: Column(
           children: [
             Container(
@@ -71,7 +68,9 @@ class TransactionStatusScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.smoke200,
                 borderRadius: BorderRadius.circular(48),
-                border: Border.all(color: AppColors.brand500.withValues(alpha: 0.05)),
+                border: Border.all(
+                  color: AppColors.brand500.withValues(alpha: 0.05),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.brand500.withValues(alpha: 0.04),
@@ -86,18 +85,23 @@ class TransactionStatusScreen extends StatelessWidget {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: (isSuccess ? AppColors.ocean500 : Colors.red).withValues(alpha: 0.1),
+                      color: (isSuccess ? AppColors.ocean500 : Colors.red)
+                          .withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isSuccess ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                      isSuccess
+                          ? Icons.check_circle_rounded
+                          : Icons.cancel_rounded,
                       color: isSuccess ? AppColors.ocean500 : Colors.red,
                       size: 56,
                     ),
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    isSuccess ? 'Transaction Successful!' : 'Transaction Failed',
+                    isSuccess
+                        ? 'Transaction Successful!'
+                        : 'Transaction Failed',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -108,9 +112,9 @@ class TransactionStatusScreen extends StatelessWidget {
                   Text(
                     isSuccess
                         ? 'Your top-up has been processed and delivered.'
-                        : (transaction.status == 'expired' 
-                            ? 'The payment time limit has expired.' 
-                            : 'The transaction could not be processed.'),
+                        : (transaction.status == 'expired'
+                              ? 'The payment time limit has expired.'
+                              : 'The transaction could not be processed.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -124,7 +128,9 @@ class TransactionStatusScreen extends StatelessWidget {
                     label: 'Invoice ID',
                     value: transaction.transactionCode,
                     onCopy: () {
-                      Clipboard.setData(ClipboardData(text: transaction.transactionCode));
+                      Clipboard.setData(
+                        ClipboardData(text: transaction.transactionCode),
+                      );
                       AppToast.success(context, 'Invoice ID copied');
                     },
                   ),
@@ -149,11 +155,15 @@ class TransactionStatusScreen extends StatelessWidget {
                       label: 'Download E-Receipt',
                       prefixIcon: Icons.file_download_outlined,
                       backgroundColor: Colors.transparent,
-                      foregroundColor: AppColors.brand500.withValues(alpha: 0.7),
+                      foregroundColor: AppColors.brand500.withValues(
+                        alpha: 0.7,
+                      ),
                       borderRadius: 999,
-                      side: BorderSide(color: AppColors.brand500.withValues(alpha: 0.1)),
+                      side: BorderSide(
+                        color: AppColors.brand500.withValues(alpha: 0.1),
+                      ),
                       onPressed: () {
-                         // TODO: Implement receipt download
+                        // TODO: Implement receipt download
                       },
                     ),
                     const SizedBox(height: 16),
@@ -166,7 +176,9 @@ class TransactionStatusScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const MainScreen(),
+                        ),
                         (route) => false,
                       );
                     },

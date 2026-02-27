@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/network/api_client.dart';
-import '../../../../core/services/product_service.dart';
-import '../../../../core/models/product.dart';
-import '../../../widgets/app_text_field.dart';
+import '../../../../../../core/theme/app_colors.dart';
+import '../../../../../../core/network/api_client.dart';
+import '../../../../../../core/services/product_service.dart';
+import '../../../../../../core/models/product.dart';
+import '../../../../../widgets/app_text_field.dart';
 import 'game_detail_screen.dart';
 
 class GameListScreen extends StatefulWidget {

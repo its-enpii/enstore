@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import 'home_screen.dart';
+import 'homescreen/home_screen.dart';
 import '../auth/login_screen.dart';
-import '../profile/profile_screen.dart';
+import 'profile/profile_screen.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
 

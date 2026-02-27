@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/models/product.dart';
-import '../../../../core/models/product_item.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/network/api_client.dart';
-import '../../../../core/services/product_service.dart';
-import '../../../widgets/app_text_field.dart';
-import '../../../widgets/app_button.dart';
-import '../../../widgets/app_dropdown.dart';
-import '../checkout/checkout_screen.dart';
-import '../../../widgets/app_toast.dart';
+import '../../../../../../core/models/product.dart';
+import '../../../../../../core/models/product_item.dart';
+import '../../../../../../core/theme/app_colors.dart';
+import '../../../../../../core/network/api_client.dart';
+import '../../../../../../core/services/product_service.dart';
+import '../../../../../widgets/app_text_field.dart';
+import '../../../../../widgets/app_button.dart';
+import '../../../../../widgets/app_dropdown.dart';
+import '../../checkout/checkout_screen.dart';
+import '../../../../../widgets/app_toast.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Product product;
@@ -69,8 +69,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     return true;
   }
 
-
-
   Future<void> _fetchProductDetail() async {
     final apiClient = ApiClient();
     final productService = ProductService(apiClient);
@@ -94,7 +92,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       }
     }
   }
-
 
   @override
   void dispose() {
@@ -243,7 +240,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                     ),
                   ),
                 ),
-            
+
                 Positioned.fill(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -402,17 +399,12 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-
   Widget _buildNominalSelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(
-            top: 32,
-            left: 24,
-            right: 24,
-          ),
+          padding: const EdgeInsets.only(top: 32, left: 24, right: 24),
           child: Text(
             'Select Nominal',
             style: TextStyle(
@@ -446,63 +438,65 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
               final item = _detailedProduct!.items[index];
               final isSelected = _selectedItem?.id == item.id;
 
-            return GestureDetector(
-              onTap: () => setState(() => _selectedItem = item),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.ocean500.withValues(alpha: 0.05)
-                      : AppColors.cloud200,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: isSelected ? AppColors.ocean500 : Colors.transparent,
-                    width: isSelected ? 2 : 1,
+              return GestureDetector(
+                onTap: () => setState(() => _selectedItem = item),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.ocean500.withValues(alpha: 0.05)
+                        : AppColors.cloud200,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.ocean500
+                          : Colors.transparent,
+                      width: isSelected ? 2 : 1,
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.ocean500.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.ocean500.withValues(alpha: 0.2)
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.ocean500.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.ocean500.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.diamond_rounded,
+                          color: AppColors.ocean500,
+                          size: 24,
                         ),
                       ),
-                      child: Icon(
-                        Icons.diamond_rounded,
-                        color: AppColors.ocean500,
-                        size: 24,
+                      const SizedBox(height: 16),
+                      Text(
+                        item.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.brand500.withValues(alpha: 0.9),
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      item.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.brand500.withValues(alpha: 0.9),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formatPrice(item.price),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.brand500.withValues(alpha: 0.6),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _formatPrice(item.price),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.brand500.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -514,9 +508,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.cloud200,
-          border: Border.all(
-            color: AppColors.brand500.withValues(alpha: 0.05),
-          ),
+          border: Border.all(color: AppColors.brand500.withValues(alpha: 0.05)),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -566,7 +558,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 onPressed: _canProceed ? _handleBuyNow : null,
               ),
             ),
-
           ],
         ),
       ),
@@ -585,13 +576,14 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     if (widget.product.inputFields != null) {
       for (var field in widget.product.inputFields!) {
         final key = field['name'] ?? field['label'] ?? '';
-        if (field['required'] == true && (customerData[key] == null || customerData[key].toString().isEmpty)) {
+        if (field['required'] == true &&
+            (customerData[key] == null ||
+                customerData[key].toString().isEmpty)) {
           AppToast.warning(context, 'Please fill in ${field['label'] ?? key}');
           return;
         }
       }
     }
-
 
     Navigator.push(
       context,
@@ -605,4 +597,3 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 }
-

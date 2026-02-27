@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'payment_screen.dart';
-import '../../../../core/models/product.dart';
+import '../../../../../core/models/product.dart';
 
-import '../../../../core/models/product_item.dart';
-import '../../../../core/models/transaction.dart';
-import '../../../../core/network/api_client.dart';
-import '../../../../core/services/transaction_service.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../widgets/app_button.dart';
-import '../../../widgets/app_toast.dart';
-import '../../../widgets/app_dialog.dart';
+import '../../../../../core/models/product_item.dart';
+import '../../../../../core/models/transaction.dart';
+import '../../../../../core/network/api_client.dart';
+import '../../../../../core/services/transaction_service.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../widgets/app_button.dart';
+import '../../../../widgets/app_toast.dart';
+import '../../../../widgets/app_dialog.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Product product;
