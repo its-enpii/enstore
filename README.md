@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/logo-with-text.png" alt="Enstore Logo" width="600">
+  <img src="docs/assets/logo-with-text.png" alt="Enstore Logo" width="600" style="border-radius: 16px;">
 </p>
 
 # Enstore - Platform Toko Produk Digital
