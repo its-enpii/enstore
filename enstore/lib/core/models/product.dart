@@ -7,6 +7,7 @@ class Product {
   final String? description;
   final int price;
   final String? image;
+  final String? icon;
   final String? provider;
   final String? publisher;
   final String? brand;
@@ -20,6 +21,7 @@ class Product {
     this.description,
     required this.price,
     this.image,
+    this.icon,
     this.provider,
     this.publisher,
     this.brand,
@@ -37,6 +39,7 @@ class Product {
           ? json['price']
           : (json['price'] as num?)?.toInt() ?? 0,
       image: json['image'],
+      icon: json['icon'],
       provider: json['provider'],
       publisher: json['publisher'],
       brand: json['brand'],

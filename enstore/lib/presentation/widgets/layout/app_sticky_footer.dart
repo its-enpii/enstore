@@ -23,7 +23,7 @@ class AppStickyFooter extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.cloud200,
           border: Border.all(color: AppColors.brand500.withValues(alpha: 0.05)),
@@ -65,7 +65,7 @@ class AppStickyFooter extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 8),
             Expanded(
               child: AppButton(
                 label: buttonLabel,

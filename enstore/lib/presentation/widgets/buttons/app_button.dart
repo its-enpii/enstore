@@ -27,7 +27,7 @@ class AppButton extends StatelessWidget {
     this.foregroundColor = AppColors.smoke200,
     this.disabledBackgroundColor = AppColors.ocean200,
     this.disabledForegroundColor = AppColors.smoke200,
-    this.borderRadius = 24.0,
+    this.borderRadius = 9999,
     this.width,
     this.height = 56.0,
     this.isLoading = false,

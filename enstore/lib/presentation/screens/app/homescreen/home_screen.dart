@@ -10,6 +10,9 @@ import '../../../widgets/buttons/app_button.dart';
 import '../../auth/login_screen.dart';
 import 'product/game/game_list_screen.dart';
 import 'product/pulsa/pulsa_screen.dart';
+import 'product/data/data_screen.dart';
+import 'product/voucher/voucher_screen.dart';
+import '../../../widgets/cards/app_service_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -372,20 +375,70 @@ class _HomeScreenState extends State<HomeScreen> {
                 runSpacing: 24,
                 alignment: WrapAlignment.spaceBetween,
                 children: [
-                  _buildServiceItem('Games', Icons.sports_esports_rounded),
-                  _buildServiceItem('Pulsa', Icons.phone_android_rounded),
-                  _buildServiceItem('Data', Icons.language_rounded),
-                  _buildServiceItem(
-                    'Voucher',
-                    Icons.confirmation_number_rounded,
+                  AppServiceItem(
+                    title: 'Games',
+                    icon: Icons.sports_esports_rounded,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const GameListScreen(),
+                        ),
+                      );
+                    },
                   ),
-                  _buildServiceItem(
-                    'E-Wallet',
-                    Icons.account_balance_wallet_rounded,
+                  AppServiceItem(
+                    title: 'Pulsa',
+                    icon: Icons.phone_android_rounded,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PulsaScreen()),
+                      );
+                    },
                   ),
-                  _buildServiceItem('Internet', Icons.wifi_rounded),
-                  _buildServiceItem('Water', Icons.water_drop_rounded),
-                  _buildServiceItem('Electricity', Icons.bolt_rounded),
+                  AppServiceItem(
+                    title: 'Data',
+                    icon: Icons.language_rounded,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const DataScreen()),
+                      );
+                    },
+                  ),
+                  AppServiceItem(
+                    title: 'Voucher',
+                    icon: Icons.confirmation_number_rounded,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const VoucherScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  AppServiceItem(
+                    title: 'E-Wallet',
+                    icon: Icons.account_balance_wallet_rounded,
+                    onTap: () {},
+                  ),
+                  AppServiceItem(
+                    title: 'Internet',
+                    icon: Icons.wifi_rounded,
+                    onTap: () {},
+                  ),
+                  AppServiceItem(
+                    title: 'Water',
+                    icon: Icons.water_drop_rounded,
+                    onTap: () {},
+                  ),
+                  AppServiceItem(
+                    title: 'Electricity',
+                    icon: Icons.bolt_rounded,
+                    onTap: () {},
+                  ),
                 ],
               ),
             ),
@@ -455,52 +508,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildServiceItem(String title, IconData icon) {
-    return GestureDetector(
-      onTap: () {
-        if (title == 'Games') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const GameListScreen()),
-          );
-        } else if (title == 'Pulsa') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PulsaScreen()),
-          );
-        }
-      },
-      child: SizedBox(
-        width: (MediaQuery.of(context).size.width - 48) / 4,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.cloud200,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                icon,
-                color: AppColors.brand500.withValues(alpha: 0.8),
-                size: 24,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.brand500.withValues(alpha: 0.6),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildPromoCard(
     String title,

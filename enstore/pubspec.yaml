@@ -42,6 +42,7 @@ dependencies:
   permission_handler: ^12.0.1
   gal: ^2.3.2
   flutter_contacts: ^1.1.9
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:

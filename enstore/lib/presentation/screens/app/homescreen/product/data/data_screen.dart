@@ -17,34 +17,31 @@ import '../../../../../widgets/inputs/app_product_input_form.dart';
 import '../../../../../widgets/cards/app_product_item_card.dart';
 import '../../checkout/checkout_screen.dart';
 
-class PulsaScreen extends StatefulWidget {
-  const PulsaScreen({super.key});
+class DataScreen extends StatefulWidget {
+  const DataScreen({super.key});
 
   @override
-  State<PulsaScreen> createState() => _PulsaScreenState();
+  State<DataScreen> createState() => _DataScreenState();
 }
 
-class _PulsaScreenState extends State<PulsaScreen> {
+class _DataScreenState extends State<DataScreen> {
   final Map<String, TextEditingController> _controllers = {};
   Product? _detectedProduct;
   ProductItem? _selectedItem;
   bool _isLoadingProduct = false;
-  bool _isDetectingProvider = false;
   String? _providerName;
   String? _providerCode;
   Timer? _debounce;
 
-  // The primary field is usually 'phone'
   TextEditingController get _primaryController {
     if (_controllers.containsKey('phone')) return _controllers['phone']!;
     if (_controllers.isNotEmpty) return _controllers.values.first;
-    return TextEditingController(); // Fallback
+    return TextEditingController();
   }
 
   @override
   void initState() {
     super.initState();
-    // Pre-initialize phone controller for the basic UI
     _controllers['phone'] = TextEditingController();
   }
 
@@ -60,8 +57,6 @@ class _PulsaScreenState extends State<PulsaScreen> {
   void _handleFieldChanged(String key, String value) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
 
-    // Trigger provider lookup if this looks like a phone number field
-    // or if it's the only field available
     bool shouldLookup =
         key == 'phone' ||
         key == 'telepon' ||
@@ -69,7 +64,6 @@ class _PulsaScreenState extends State<PulsaScreen> {
         _controllers.length == 1;
 
     if (shouldLookup) {
-      // Instant local lookup for provider badge
       final provider = PhoneHelper.getProvider(value);
 
       if (provider != null) {
@@ -82,7 +76,6 @@ class _PulsaScreenState extends State<PulsaScreen> {
             _providerName = name;
           });
 
-          // Debounce only for fetching product nominals (API)
           _debounce = Timer(const Duration(milliseconds: 300), () {
             _fetchProductByProvider(name);
           });
@@ -113,16 +106,14 @@ class _PulsaScreenState extends State<PulsaScreen> {
     setState(() => _isLoadingProduct = true);
 
     try {
-      // 1. Search for product by brand and category
       final response = await productService.getProducts(
-        filters: {'brand': providerName, 'category': 'pulsa'},
+        filters: {'brand': providerName, 'category': 'data'},
       );
 
       if (mounted) {
         if (response.success &&
             response.data != null &&
             response.data!.data.isNotEmpty) {
-          // 2. Fetch full detail for the first matching product
           final firstProduct = response.data!.data.first;
           final detailResponse = await productService.getProductById(
             firstProduct.id,
@@ -150,7 +141,7 @@ class _PulsaScreenState extends State<PulsaScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AppToast.error(context, 'Failed to load nominals: $e');
+        AppToast.error(context, 'Failed to load packages: $e');
       }
     } finally {
       if (mounted) {
@@ -167,11 +158,11 @@ class _PulsaScreenState extends State<PulsaScreen> {
           RegExp(r'\D'),
           '',
         );
-        // Normalize 62 to 0
         if (phone.startsWith('62')) {
           phone = '0${phone.substring(2)}';
         }
         _primaryController.text = phone;
+        _handleFieldChanged('phone', phone);
       }
     } else {
       if (mounted) {
@@ -184,7 +175,6 @@ class _PulsaScreenState extends State<PulsaScreen> {
     if (_selectedItem == null) return false;
     if (_primaryController.text.isEmpty) return false;
 
-    // Check all dynamic fields
     if (_detectedProduct?.inputFields != null) {
       for (var field in _detectedProduct!.inputFields!) {
         final key = field['name'] ?? field['label'] ?? '';
@@ -210,10 +200,9 @@ class _PulsaScreenState extends State<PulsaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: const AppAppBar(title: 'Pulsa'),
+      appBar: const AppAppBar(title: 'Paket Data'),
       body: Stack(
         children: [
-          // Scrollable Content
           SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
@@ -222,14 +211,11 @@ class _PulsaScreenState extends State<PulsaScreen> {
               children: [
                 _buildDynamicInputs(),
                 if (_providerName != null) _buildProviderBadge(),
-
                 const SizedBox(height: 24),
                 _buildNominalSelection(),
               ],
             ),
           ),
-
-          // Sticky Footer
           Align(alignment: Alignment.bottomCenter, child: _buildStickyFooter()),
         ],
       ),
@@ -266,33 +252,22 @@ class _PulsaScreenState extends State<PulsaScreen> {
   }
 
   Widget _buildProviderBadge() {
-    if (_isDetectingProvider) {
-      return const SizedBox(
-        width: double.infinity,
-        height: 16,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.ocean500.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        _providerName!,
+        style: const TextStyle(
           color: AppColors.ocean500,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
-      );
-    } else {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.ocean500.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.all(Radius.circular(999)),
-        ),
-        child: Text(
-          _providerName!,
-          style: const TextStyle(
-            color: AppColors.ocean500,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   Widget _buildNominalSelection() {
@@ -311,14 +286,14 @@ class _PulsaScreenState extends State<PulsaScreen> {
           const SizedBox(height: 40),
           Center(
             child: Icon(
-              Icons.phone_android_rounded,
+              Icons.language_rounded,
               size: 64,
               color: AppColors.brand500.withValues(alpha: 0.1),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Enter phone number to see products',
+            'Enter phone number to see packages',
             style: TextStyle(color: AppColors.brand500.withValues(alpha: 0.4)),
           ),
         ],
@@ -337,16 +312,11 @@ class _PulsaScreenState extends State<PulsaScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        GridView.builder(
+        ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 1.2,
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 24,
-          ),
           itemCount: _detectedProduct!.items.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final item = _detectedProduct!.items[index];
             final isSelected = _selectedItem?.id == item.id;
@@ -354,43 +324,53 @@ class _PulsaScreenState extends State<PulsaScreen> {
             return AppProductItemCard(
               isSelected: isSelected,
               onTap: () => setState(() => _selectedItem = item),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              padding: const EdgeInsets.all(24),
+              child: Row(
                 children: [
-                  Text(
-                    'Pulsa',
-                    style: TextStyle(
-                      color: AppColors.brand500.withValues(alpha: 0.4),
-                      fontSize: 12,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.brand500.withValues(alpha: 0.9),
+                          ),
+                        ),
+                        if (item.description != null || item.group != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            item.description ?? item.group ?? '',
+                            style: TextStyle(
+                              color: AppColors.brand500.withValues(alpha: 0.4),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    NumberFormat.decimalPattern('id_ID').format(
-                      int.tryParse(item.name.replaceAll(RegExp(r'\D'), '')) ??
-                          0,
-                    ),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.brand500.withValues(alpha: 0.9),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
+                      horizontal: 16,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.ocean500.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      border: BoxBorder.all(
+                        color: AppColors.ocean500.withValues(alpha: 0.2),
+                      ),
+                      borderRadius: BorderRadius.circular(99),
                     ),
                     child: Text(
                       _formatPrice(item.price),
                       style: const TextStyle(
                         color: AppColors.ocean500,
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -429,7 +409,7 @@ class _PulsaScreenState extends State<PulsaScreen> {
           item: _selectedItem!,
           customerData: customerData,
           targetLabel: 'Nomor',
-          itemPrefix: 'Pulsa',
+          itemPrefix: null,
         ),
       ),
     );

@@ -128,8 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 12),
-
               // Forgot Password
               Align(
                 alignment: Alignment.centerRight,
@@ -145,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // Login Button
               AppButton(
@@ -153,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _handleLogin,
                 isLoading: _isLoading,
                 suffixIcon: Icons.arrow_forward_rounded,
+                width: double.infinity,
               ),
 
               const SizedBox(height: 32),
