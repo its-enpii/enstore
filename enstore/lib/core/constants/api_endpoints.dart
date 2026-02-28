@@ -45,12 +45,18 @@ class ApiEndpoints {
   static const String publicPurchase = '/transactions/purchase';
   static const String customerPurchase = '/customer/transactions/purchase';
   static const String customerBalancePurchase =
-      '/customer/transactions/balance-purchase';
+      '/customer/transactions/purchase-balance';
   static String publicTransactionStatus(String code) =>
       '/transactions/status/$code';
   static const String publicPaymentChannels = '/transactions/payment-channels';
   static String publicTransactionCancel(String code) =>
       '/transactions/$code/cancel';
+  static const String customerPaymentChannels =
+      '/customer/transactions/payment-channels';
+
+  // Postpaid (PPOB)
+  static const String postpaidInquiry = '/customer/postpaid/inquiry';
+  static const String postpaidPay = '/customer/postpaid/pay';
 
   // Admin
   static const String adminDashboard = '/admin/dashboard';

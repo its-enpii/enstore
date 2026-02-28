@@ -149,9 +149,11 @@ Riwayat pengajuan penarikan saldo untuk akun reseller.
 
 ---
 
-## 9. Inkuiri Pascabayar (PPOB)
+## 9. Pascabayar (PPOB) — Cek Tagihan
 
 **Endpoint:** `POST /api/customer/postpaid/inquiry`
+
+Melakukan pengecekan tagihan ke Digiflazz. Hasilnya disimpan di cache Redis selama **30 menit** menggunakan `inquiry_ref` sebagai kunci. `inquiry_ref` hanya bisa digunakan oleh user yang sama yang membuatnya.
 
 ### Body Permintaan:
 
@@ -162,18 +164,69 @@ Riwayat pengajuan penarikan saldo untuk akun reseller.
 }
 ```
 
-### Respon:
+### Respon Sukses (200):
 
 ```json
 {
   "success": true,
+  "message": "Berhasil cek tagihan",
   "data": {
-    "billing_name": "JOHN DOE",
+    "inquiry_ref": "INQ-20250101120000-1234",
+    "product_name": "PLN Postpaid - 10A",
+    "customer_no": "123456789",
+    "customer_name": "JOHN DOE",
     "period": "DES 2024",
-    "amount": 150000,
-    "admin_fee": 2500,
-    "total": 152500,
-    "inquiry_ref": "abc123xyz"
+    "tagihan": 150000,
+    "admin": 2500,
+    "total": 152500
+  }
+}
+```
+
+> [!NOTE]
+> Field `admin` sudah mencakup biaya admin Digiflazz + profit. Simpan `inquiry_ref`, karena diperlukan di step bayar.
+
+---
+
+## 10. Pascabayar (PPOB) — Bayar Tagihan
+
+**Endpoint:** `POST /api/customer/postpaid/pay`
+
+Mengambil data dari cache inquiry, membuat transaksi, dan membuat tagihan pembayaran via Tripay.
+
+> [!WARNING]
+> Cache `inquiry_ref` akan dihapus setelah berhasil. Jika gagal, user harus inquiry ulang.
+
+### Body Permintaan:
+
+```json
+{
+  "inquiry_ref": "INQ-20250101120000-1234",
+  "payment_method": "QRIS"
+}
+```
+
+### Respon Sukses (201):
+
+```json
+{
+  "success": true,
+  "message": "Transaksi berhasil dibuat",
+  "data": {
+    "transaction": {
+      "transaction_code": "TRX-XXXXXABC",
+      "product_name": "PLN Postpaid - 10A",
+      "product_price": 152500,
+      "admin_fee": 800,
+      "total_price": 153300,
+      "prepaid_postpaid_type": "postpaid"
+    },
+    "payment": {
+      "checkout_url": "https://tripay.co.id/...",
+      "qr_url": null,
+      "payment_code": null,
+      "status": "pending"
+    }
   }
 }
 ```
