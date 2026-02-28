@@ -1,49 +1,110 @@
-# Integrasi Mobile Enstore
+# Integrasi Mobile Flutter (Enstore)
 
-Dokumen ini menjelaskan endpoint khusus yang diperlukan untuk pengembangan aplikasi mobile (Flutter).
+Dokumen ini menjelaskan cara kerja aplikasi Flutter Enstore dalam berkomunikasi dengan backend Laravel.
 
-## 1. Konfigurasi Aplikasi (Public)
+---
 
-Endpoint ini digunakan saat aplikasi pertama kali dibuka (splash screen) untuk mengecek status sistem dan versi.
+## Konfigurasi Dasar
 
-**Endpoint:** `GET /api/app-config`
+| Kondisi            | Base URL                              |
+| ------------------ | ------------------------------------- |
+| Android Emulator   | `http://10.0.2.2:8000/api`            |
+| Device Fisik / LAN | `http://{ip-lokal}:8000/api`          |
+| Production         | Diset via `--dart-define=API_URL=...` |
 
-### Respon Sukses (200):
+Konfigurasi URL diatur melalui `dart-define` saat build, dan dibaca di `ApiEndpoints.baseUrl`.
+
+---
+
+## Autentikasi
+
+Aplikasi menggunakan **Laravel Sanctum (Bearer Token)**.
+
+1. Token diperoleh dari respons login (`POST /api/auth/login`)
+2. Token disimpan di `SharedPreferences` dengan key `auth_token`
+3. `ApiClient` secara **otomatis** menambahkan header `Authorization: Bearer {token}` pada **setiap request** jika token tersedia
+
+> [!IMPORTANT]
+> Karena `ApiClient` selalu menempelkan token, beberapa endpoint **publik** pun bisa menerima token dan merespons secara berbeda:
+>
+> - `GET /api/products/slug/{slug}` → jika token valid, `price` di setiap item akan berisi harga sesuai tipe akun (retail/reseller)
+> - `POST /api/transactions/purchase` → **tidak terpengaruh oleh token**, selalu menggunakan harga retail
+
+---
+
+## Alur Checkout (Sangat Penting!)
+
+Ini adalah bagian yang paling kritis dan penyebab utama bug harga jika salah implementasi.
+
+### Guest (Tidak Login)
+
+```
+PulsaScreen / GameDetailScreen
+  → CheckoutScreen (widget.item.price = retail_price)
+  → _startTransaction() → transactionService.guestPurchase()
+  → POST /api/transactions/purchase (publik, retail_price)
+  → PaymentScreen
+```
+
+### Customer / Reseller (Sudah Login)
+
+```
+PulsaScreen / GameDetailScreen
+  → CheckoutScreen (widget.item.price = reseller_price, karena ApiClient kirim token)
+  → _startTransaction() → cek AuthService.isLoggedIn()
+      → jika login: transactionService.customerPurchase()
+          → POST /api/customer/transactions/purchase (authenticated, reseller_price) ✅
+      → jika tidak login: transactionService.guestPurchase()
+          → POST /api/transactions/purchase (publik, retail_price) ✅
+```
+
+> [!WARNING]
+> **Jangan pernah hardcode `guestPurchase()`** untuk semua kondisi.
+> Ini menyebabkan harga yang ditampilkan di "Konfirmasi Pesanan" (menggunakan `widget.item.price` yang sudah benar sesuai tipe akun) **tidak sama** dengan harga yang diproses backend (yang selalu menggunakan retail).
+>
+> Akibatnya: user reseller melihat total Rp 11.323 di dialog, tapi Tripay memproses Rp 12.331.
+
+---
+
+## Struktur Layanan Utama
+
+| File                                     | Fungsi                                                         |
+| ---------------------------------------- | -------------------------------------------------------------- |
+| `core/network/api_client.dart`           | HTTP client (Dio), attach token otomatis                       |
+| `core/services/auth_service.dart`        | Login, logout, cek status auth (`isLoggedIn()`)                |
+| `core/services/transaction_service.dart` | `guestPurchase`, `customerPurchase`, `customerBalancePurchase` |
+| `core/constants/api_endpoints.dart`      | Semua URL endpoint terpusat                                    |
+| `core/models/product_item.dart`          | Model item produk, field `price` adalah harga yang sesuai akun |
+
+---
+
+## Konfigurasi Aplikasi (Splash Screen)
+
+**Endpoint:** `GET /api/app-config`  
+Digunakan saat pertama kali dibuka untuk mengecek status maintenance dan versi minimum.
+
+### Respon:
 
 ```json
 {
   "success": true,
   "data": {
     "app_name": "Enstore",
-    "version": {
-      "latest": "1.0.0",
-      "min_required": "1.0.0"
-    },
-    "features": {
-      "topup_balance": true,
-      "guest_checkout": true
-    },
-    "maintenance": {
-      "active": false,
-      "message": "..."
-    },
-    "links": {
-      "whatsapp_support": "..."
-    }
+    "version": { "latest": "1.0.0", "min_required": "1.0.0" },
+    "features": { "topup_balance": true, "guest_checkout": true },
+    "maintenance": { "active": false, "message": "" }
   }
 }
 ```
 
 ---
 
-## 2. Registrasi Device (Push Notification)
+## Registrasi Device (Push Notification)
 
-Digunakan untuk mendaftarkan token FCM ke sistem agar user bisa menerima notifikasi di HP.
-
-**Endpoint:** `POST /api/customer/devices/register`
+**Endpoint:** `POST /api/customer/devices/register`  
 **Header:** `Authorization: Bearer {token}`
 
-### Body Permintaan:
+### Body:
 
 ```json
 {
@@ -54,45 +115,15 @@ Digunakan untuk mendaftarkan token FCM ke sistem agar user bisa menerima notifik
 }
 ```
 
-_Platform yang didukung: `android`, `ios`, `web`, `other`_
+Platform yang didukung: `android`, `ios`, `web`, `other`
+
+**Hapus Device (saat logout):** `DELETE /api/customer/devices/{device_id}`  
+Panggil ini saat user logout agar tidak menerima notifikasi di device yang ditinggalkan.
 
 ---
 
-## 3. Menghapus Device (Logout)
+## Deteksi Provider Lokal
 
-Disarankan untuk memanggil endpoint ini saat user logout agar tidak menerima notifikasi di device tersebut jika orang lain login menggunakan device yang sama.
-
-**Endpoint:** `DELETE /api/customer/devices/{device_id}`
-**Header:** `Authorization: Bearer {token}`
-
-### 3. Utility - Lookup Provider
-
-Mendeteksi nama provider (operator) berdasarkan prefix nomor telepon (HLR). Berguna untuk otomatisasi pilihan produk pulsa/kuota.
-
-- **Endpoint**: `/api/utility/lookup-provider`
-- **Method**: `GET`
-- **Query Params**:
-  - `phone`: Nomor telepon (misal: `085812345678`)
-
-**Response Sukses**:
-
-```json
-{
-  "success": true,
-  "message": "Provider ditemukan",
-  "data": {
-    "phone": "085812345678",
-    "prefix": "0858",
-    "provider_name": "Indosat",
-    "provider_code": "indosat"
-  }
-}
-```
-
----
-
-## Tip Pengembangan Flutter:
-
-1. **Base URL:** Gunakan IP lokal mesin dev Anda jika menjalankan via emulator, contoh: `http://10.0.2.2:8000/api`.
-2. **Auth:** Mobile menggunakan Laravel Sanctum. Simpan token di `SecureStorage` setelah login berhasil.
-3. **Notifikasi:** Gunakan paket `firebase_messaging`. Panggil API register device setiap kali token FCM di-_refresh_ oleh Firebase.
+Deteksi operator (XL, Telkomsel, Indosat, dll.) dari nomor telepon **tidak lagi menggunakan API**.  
+Dilakukan secara lokal via `PhoneHelper` menggunakan pemetaan prefix nomor HP.  
+Ini memastikan deteksi provider berjalan **instan** tanpa delay network.

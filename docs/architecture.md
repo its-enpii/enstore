@@ -1,79 +1,124 @@
-# <img src="assets/logo.png" alt="Enstore Icon" width="32" vertical-align="middle"> Arsitektur Sistem & Struktur Database
+# Arsitektur Sistem & Struktur Database
 
-## 🏗️ Gambaran Umum Arsitektur
+## 🏗️ Gambaran Umum
 
-Sistem ini dibangun sebagai backend Laravel yang terintegrasi dengan Docker, dengan frontend Next.js/Flutter (berbasis profile).
+Sistem ini terdiri dari tiga aplikasi terpisah yang terintegrasi:
 
-### Detail Layanan
+| Aplikasi     | Teknologi        | Fungsi                                     |
+| ------------ | ---------------- | ------------------------------------------ |
+| **Backend**  | Laravel 12 + PHP | API REST, business logic, queue, scheduler |
+| **Frontend** | Next.js (React)  | Web app untuk customer & reseller          |
+| **Mobile**   | Flutter (Dart)   | Aplikasi mobile Android/iOS                |
 
-- **Backend (PHP-FPM)**: Berjalan pada port 9000 (Internal), ditangani oleh Nginx pada port 8000.
-- **Database (MySQL 8.0)**: Dapat diakses pada port 3307.
-- **Redis**: Digunakan untuk caching dan manajemen antrian (queue) pada port 6379.
-- **Queue Worker**: Menangani tugas latar belakang (misalnya, pemrosesan pesanan Digiflazz).
-- **Scheduler**: Mengelola tugas terjadwal seperti sinkronisasi produk.
+### Infrastruktur (Docker)
+
+| Layanan      | Port Internal | Port Eksternal | Keterangan                    |
+| ------------ | ------------- | -------------- | ----------------------------- |
+| Nginx        | 80            | 8000           | Reverse proxy ke PHP-FPM      |
+| PHP-FPM      | 9000          | -              | Runtime Laravel               |
+| MySQL 8.0    | 3306          | 3307           | Database utama                |
+| Redis        | 6379          | 6379           | Cache & antrian job           |
+| Queue Worker | -             | -              | Proses job latar belakang     |
+| Scheduler    | -             | -              | Cron jobs (sync produk, dll.) |
 
 ---
 
 ## 🗄️ Struktur Database
 
-### Entity Relationship Diagram (ERD) Utama
+### Entity Relationship Diagram (ERD)
 
 ```mermaid
 erDiagram
     USERS ||--o{ TRANSACTIONS : places
     USERS ||--|| BALANCES : has
-    USERS ||--o{ BALANCE_MUTATIONS : track
+    USERS ||--o{ BALANCE_MUTATIONS : tracks
     USERS ||--o{ NOTIFICATIONS : receives
     PRODUCT_CATEGORIES ||--o{ PRODUCTS : contains
-    PRODUCTS ||--o{ TRANSACTIONS : part_of
-    TRANSACTIONS ||--|| PAYMENTS : has
+    PRODUCTS ||--o{ PRODUCT_ITEMS : has
+    PRODUCT_ITEMS ||--o{ TRANSACTIONS : ordered_as
+    TRANSACTIONS ||--o| PAYMENTS : has
     TRANSACTIONS ||--o{ TRANSACTION_LOGS : logs
+    TRANSACTIONS ||--o| VOUCHERS : applies
     PAYMENTS ||--o{ PAYMENT_CALLBACKS : receives
     VOUCHERS ||--o{ VOUCHER_USAGES : used_in
+    USERS ||--o{ DEVICES : registers
 ```
 
-### Definisi Tabel
+### Definisi Tabel Utama
 
-#### 1. Users
+#### Users
 
-Mengelola akun Guest, Retail, Reseller, dan Admin.
+| Kolom           | Tipe    | Keterangan                       |
+| --------------- | ------- | -------------------------------- |
+| `role`          | enum    | `admin`, `customer`              |
+| `customer_type` | enum    | `retail`, `reseller`             |
+| `is_guest`      | boolean | TRUE jika checkout tanpa daftar  |
+| `referral_code` | string  | Kode unik untuk program referral |
 
-- `role`: admin, customer.
-- `customer_type`: retail, reseller.
-- `is_guest`: TRUE/FALSE.
+#### Products & Product Items
 
-#### 2. Products & Categories
+- `products`: Produk induk (Mobile Legends, XL Pulsa, dll.) dengan integrasi SKU Digiflazz, field input dinamis (`input_fields`), dan pengelompokan kategori.
+- `product_items`: Varian/denominasi dari sebuah produk. Menyimpan tiga level harga:
 
-- `products`: Terintegrasi dengan SKU Digiflazz. Mendukung harga bertingkat (retail vs reseller) dan field input dinamis.
-- `product_categories`: Pengelompokan berdasarkan tipe (game, pulsa, dll).
+| Kolom             | Keterangan                                      |
+| ----------------- | ----------------------------------------------- |
+| `base_price`      | Harga beli dari Digiflazz                       |
+| `retail_price`    | Harga jual ke customer retail                   |
+| `reseller_price`  | Harga jual ke reseller (lebih murah)            |
+| `retail_profit`   | Margin keuntungan retail (disimpan untuk audit) |
+| `reseller_profit` | Margin keuntungan reseller                      |
+| `price`           | Field virtual — diisi accessor, bukan kolom DB  |
 
-#### 3. Transactions & Payments
+> [!NOTE]
+> Field `price` **bukan kolom database**. Ia dibuat secara dinamis oleh `getPriceAttribute()` pada model `ProductItem` dan di-append ke JSON response via `$appends = ['price']`.
 
-- `transactions`: Log pusat untuk pembelian dan top-up.
-- `payments`: Melacak status dan metode pembayaran gateway (Tripay) (QRIS, VA, dll).
-- `balance_mutations`: Riwayat detail semua pergerakan saldo untuk reseller.
+#### Transactions
 
-#### 4. System Logs
-
-- `activity_logs`: Tindakan sistem secara umum.
-- `transaction_logs`: Transisi status spesifik untuk pesanan.
+| Kolom                 | Keterangan                                                   |
+| --------------------- | ------------------------------------------------------------ |
+| `transaction_code`    | Kode unik (format: `TRX-XXXXXXXX`)                           |
+| `customer_type`       | Snapshot tipe akun saat transaksi dibuat                     |
+| `product_price`       | Harga produk yang berlaku saat itu                           |
+| `admin_fee`           | Biaya gateway Tripay (diperbarui setelah API call)           |
+| `discount_amount`     | Nominal diskon dari voucher (0 jika tidak ada)               |
+| `total_price`         | Total final yang dibayarkan user                             |
+| `payment_method_type` | `gateway` (Tripay) atau `balance` (saldo)                    |
+| `status`              | Status pesanan: `pending`, `processing`, `success`, `failed` |
+| `payment_status`      | Status pembayaran: `pending`, `paid`, `expired`              |
 
 ---
 
 ## 🔄 Alur Data Utama
 
-### Alur Permintaan API
+### Alur Request API
 
-1. Permintaan Pengguna → Backend Nginx (8000)
-2. Nginx → PHP-FPM (Backend)
-3. Backend → MySQL/Redis
-4. Respon → Pengguna
+```
+Client (Browser/App)
+  → Nginx (port 8000)
+  → PHP-FPM (Laravel)
+  → MySQL / Redis
+  → Response
+```
 
-### Alur Pemrosesan Pesanan (Digiflazz)
+### Alur Pemrosesan Pesanan (Prepaid)
 
-1. Pembayaran PAID (melalui Callback Tripay)
-2. Memicu Job `ProcessDigiflazzOrder`
-3. Job dimasukkan ke Antrian Redis
-4. Queue Worker mengeksekusi job → Memanggil API Digiflazz
-5. SN (Serial Number) diterima → Selesaikan Transaksi
-6. Notifikasi ke Pengguna
+```
+1. User bayar → Tripay konfirmasi
+2. Tripay kirim callback ke POST /api/webhooks/tripay
+3. Backend validasi signature HMAC
+4. Status payment → paid
+5. Job ProcessDigiflazzOrder didispatch ke antrian Redis
+6. Queue Worker eksekusi job → panggil API Digiflazz
+7. Digiflazz kirim SN ke callback
+8. Transaksi selesai → notifikasi ke user
+```
+
+### Alur Sinkronisasi Produk
+
+```
+php artisan digiflazz:sync-products
+  → Ambil daftar produk dari Digiflazz API
+  → Hitung retail_price = base_price + (base_price × retail_margin%)
+  → Hitung reseller_price = base_price + (base_price × reseller_margin%)
+  → Update/Insert ke tabel product_items
+```

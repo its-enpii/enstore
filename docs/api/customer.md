@@ -1,75 +1,179 @@
 # Spesifikasi API Customer
 
-## 1. Pembelian Produk
+> [!IMPORTANT]
+> Semua endpoint di bagian ini memerlukan header `Authorization: Bearer {token}`.  
+> Token diperoleh dari respons `POST /api/auth/login` atau `POST /api/auth/register`.
 
-**Endpoint:** `POST /api/customer/transactions/purchase` (Gateway Pembayaran)
-**Endpoint:** `POST /api/customer/transactions/purchase-balance` (Saldo Dompet)
+---
 
-### Body Permintaan (Gateway):
+## 1. Pembelian Produk via Payment Gateway
+
+**Endpoint:** `POST /api/customer/transactions/purchase`
+
+Ini adalah endpoint **utama** untuk checkout pengguna yang sudah login.
+Berbeda dengan endpoint publik, endpoint ini menggunakan `customer_type` dari akun yang login untuk menentukan harga:
+
+- User `retail` → harga = `retail_price`
+- User `reseller` → harga = `reseller_price`
+
+### Body Permintaan:
 
 ```json
 {
-  "product_item_id": 123,
-  "payment_method": "QRIS", // pilihan dari API payment-channels
+  "product_item_id": 101,
+  "payment_method": "QRIS",
   "customer_data": {
-    "user_id": "123456789",
+    "user_id": "12345678",
     "zone_id": "1234"
+  },
+  "voucher_code": "DISKON10"
+}
+```
+
+### Respon Sukses (201):
+
+```json
+{
+  "success": true,
+  "data": {
+    "transaction": {
+      "transaction_code": "TRX-12345ABC",
+      "customer_type": "reseller",
+      "product_price": 10500,
+      "admin_fee": 823,
+      "discount_amount": 0,
+      "total_price": 11323
+    },
+    "payment": {
+      "payment_url": "https://tripay.co.id/...",
+      "qr_url": "https://...",
+      "payment_code": null,
+      "instructions": [{ "title": "...", "steps": ["..."] }]
+    }
   }
 }
 ```
 
-### Respon (dengan Data Tripay):
+---
+
+## 2. Pembelian via Saldo Dompet
+
+**Endpoint:** `POST /api/customer/transactions/balance-purchase`
+
+Memotong saldo dompet secara langsung. Tidak memerlukan payment gateway.  
+Tidak ada biaya admin (admin_fee = 0).
+
+### Body Permintaan:
 
 ```json
 {
-    "success": true,
-    "data": {
-        "transaction": { "transaction_code": "TRX-...", "total_price": 25000 },
-        "payment": {
-            "payment_url": "...",
-            "qr_code_url": "...",
-            "va_number": "...",
-            "instructions": [ { "title": "...", "steps": [...] } ]
-        }
-    }
+  "product_item_id": 101,
+  "customer_data": {
+    "user_id": "12345678",
+    "zone_id": "1234"
+  },
+  "voucher_code": "OPTIONAL"
 }
 ```
 
 ---
 
-## 2. Dompet & Mutasi
+## 3. Top Up Saldo
 
-- **Ambil Saldo:** `GET /api/customer/balance` → Mengembalikan `balance`, `hold_amount`.
-- **Topup:** `POST /api/customer/transactions/topup` (Body: `amount`, `payment_method`).
-- **Riwayat:** `GET /api/customer/balance/mutations` → Daftar pergerakan `credit`/`debit`.
+**Endpoint:** `POST /api/customer/transactions/topup`
+
+### Body Permintaan:
+
+```json
+{
+  "amount": 100000,
+  "payment_method": "QRIS"
+}
+```
 
 ---
 
-## 3. Riwayat Transaksi
+## 4. Dompet & Mutasi Saldo
+
+- **Cek Saldo:** `GET /api/customer/balance`  
+  Respons: `{ "balance": 150000, "hold_amount": 0 }`
+- **Riwayat Mutasi:** `GET /api/customer/balance/mutations`  
+  Filter: `type` (credit/debit), `start_date`, `end_date`, `per_page`
+
+---
+
+## 5. Riwayat Transaksi
 
 **Endpoint:** `GET /api/customer/transactions`
 
-### Filter:
+### Query Filter Tersedia:
 
-- `type`: purchase (pembelian), topup (isi saldo)
-- `status`: pending, success, failed
-- `start_date` / `end_date`: YYYY-MM-DD
-- `per_page` (default 20)
+| Parameter    | Nilai                                        |
+| ------------ | -------------------------------------------- |
+| `type`       | `purchase`, `topup`                          |
+| `status`     | `pending`, `processing`, `success`, `failed` |
+| `start_date` | `YYYY-MM-DD`                                 |
+| `end_date`   | `YYYY-MM-DD`                                 |
+| `search`     | Kode transaksi atau nama produk              |
+| `per_page`   | Jumlah item per halaman (default: 20)        |
+
+**Detail Transaksi:** `GET /api/customer/transactions/{code}`
 
 ---
 
-## 4. Inkuiri Pascabayar (PPOB)
+## 6. Penarikan Saldo (Reseller)
+
+**Endpoint:** `GET /api/customer/withdrawals`  
+Riwayat pengajuan penarikan saldo untuk akun reseller.
+
+---
+
+## 7. Notifikasi
+
+| Metode | Endpoint                   | Deskripsi                              |
+| ------ | -------------------------- | -------------------------------------- |
+| GET    | `/notifications`           | Daftar notifikasi (terbaru di atas)    |
+| GET    | `/notifications/count`     | Jumlah notifikasi belum dibaca         |
+| POST   | `/notifications/read/{id}` | Tandai satu notifikasi sebagai dibaca  |
+| POST   | `/notifications/read-all`  | Tandai semua notifikasi sebagai dibaca |
+
+---
+
+## 8. Profil
+
+| Metode | Endpoint                   | Deskripsi         |
+| ------ | -------------------------- | ----------------- |
+| GET    | `/profile`                 | Ambil data profil |
+| PUT    | `/profile`                 | Update profil     |
+| POST   | `/profile/change-password` | Ganti password    |
+
+---
+
+## 9. Inkuiri Pascabayar (PPOB)
 
 **Endpoint:** `POST /api/customer/postpaid/inquiry`
 
-- **Body:** `product_item_id`, `customer_no`.
-- **Respon:** Mengembalikan `billing_name`, `amount`, `admin_fee`, `total`.
+### Body Permintaan:
 
----
+```json
+{
+  "product_item_id": 201,
+  "customer_no": "123456789"
+}
+```
 
-## 5. Banner & Promosi
+### Respon:
 
-**Endpoint:** `GET /api/banners`
-
-- **Deskripsi:** Mengambil daftar banner aktif untuk ditampilkan di carousel/slider aplikasi.
-- **Respon:** Array objects berisi `title`, `subtitle` (deskripsi singkat), `image`, `link`, dan `description`.
+```json
+{
+  "success": true,
+  "data": {
+    "billing_name": "JOHN DOE",
+    "period": "DES 2024",
+    "amount": 150000,
+    "admin_fee": 2500,
+    "total": 152500,
+    "inquiry_ref": "abc123xyz"
+  }
+}
+```
