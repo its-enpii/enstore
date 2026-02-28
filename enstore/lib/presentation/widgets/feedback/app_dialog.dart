@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import 'app_button.dart';
+import '../../../core/theme/app_colors.dart';
+import '../buttons/app_button.dart';
 
 enum AppDialogType { danger, warning, info, question }
 
@@ -54,7 +54,9 @@ class AppDialog extends StatelessWidget {
               cancelLabel: cancelLabel,
               isLoading: localLoading,
               type: type,
-              onCancel: localLoading ? null : (onCancel ?? () => Navigator.pop(context)),
+              onCancel: localLoading
+                  ? null
+                  : (onCancel ?? () => Navigator.pop(context)),
               onConfirm: () async {
                 if (localLoading) return;
                 setState(() => localLoading = true);
@@ -72,8 +74,6 @@ class AppDialog extends StatelessWidget {
       },
     );
   }
-
-
 
   IconData _getIcon() {
     switch (type) {
@@ -124,14 +124,10 @@ class AppDialog extends StatelessWidget {
                 color: AppColors.cloud200,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                _getIcon(),
-                size: 48,
-                color: typeColor,
-              ),
+              child: Icon(_getIcon(), size: 48, color: typeColor),
             ),
             const SizedBox(height: 16),
-            
+
             // Title
             Text(
               title,
@@ -166,13 +162,17 @@ class AppDialog extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     foregroundColor: AppColors.brand500.withValues(alpha: 0.6),
                     disabledBackgroundColor: Colors.transparent,
-                    disabledForegroundColor: AppColors.brand500.withValues(alpha: 0.4),
+                    disabledForegroundColor: AppColors.brand500.withValues(
+                      alpha: 0.4,
+                    ),
                     borderRadius: 999,
                     side: BorderSide(
                       color: AppColors.brand500.withValues(alpha: 0.1),
                       width: 1,
                     ),
-                    onPressed: isLoading ? null : (onCancel ?? () => Navigator.pop(context)),
+                    onPressed: isLoading
+                        ? null
+                        : (onCancel ?? () => Navigator.pop(context)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -187,8 +187,6 @@ class AppDialog extends StatelessWidget {
                 ),
               ],
             ),
-
-
           ],
         ),
       ),

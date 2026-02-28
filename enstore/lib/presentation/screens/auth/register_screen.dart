@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
-import '../../widgets/app_button.dart';
+import '../../widgets/buttons/app_button.dart';
 import '../app/main_screen.dart';
-import '../../widgets/app_text_field.dart';
+import '../../widgets/inputs/app_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

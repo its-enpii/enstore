@@ -9,10 +9,12 @@ import '../../../../../core/models/product_item.dart';
 import '../../../../../core/models/transaction.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/services/transaction_service.dart';
+import '../../../../../core/services/auth_service.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../widgets/app_button.dart';
-import '../../../../widgets/app_toast.dart';
-import '../../../../widgets/app_dialog.dart';
+import '../../../../widgets/layout/app_sticky_footer.dart';
+import '../../../../widgets/layout/app_app_bar.dart';
+import '../../../../widgets/feedback/app_toast.dart';
+import '../../../../widgets/feedback/app_dialog.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Product product;
@@ -67,7 +69,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-
   String _formatPrice(int price) {
     return NumberFormat.currency(
       locale: 'id_ID',
@@ -86,51 +87,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return widget.item.price + _calculateFee(_selectedChannel!);
   }
 
-
   @override
   Widget build(BuildContext context) {
     String imageUrl = widget.product.image ?? '';
     if (imageUrl.isNotEmpty && !imageUrl.startsWith('http')) {
-      imageUrl = '${ApiClient.baseUrl.replaceAll('/api', '')}/storage/$imageUrl';
+      imageUrl =
+          '${ApiClient.baseUrl.replaceAll('/api', '')}/storage/$imageUrl';
     }
 
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 32),
-        child: AppBar(
-          backgroundColor: AppColors.smoke200,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 24),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.cloud200,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: AppColors.brand500.withValues(alpha: 0.9),
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ),
-          leadingWidth: 72,
-          title: Text(
-            'Checkout',
-            style: TextStyle(
-              color: AppColors.brand500.withValues(alpha: 0.9),
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      appBar: const AppAppBar(title: 'Checkout'),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -154,16 +121,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 const SizedBox(height: 16),
                 if (_isLoading)
-                  const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator(color: AppColors.ocean500)))
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(
+                        color: AppColors.ocean500,
+                      ),
+                    ),
+                  )
                 else
                   _buildPaymentMethodList(),
               ],
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: _buildStickyFooter(),
-          ),
+          Align(alignment: Alignment.bottomCenter, child: _buildStickyFooter()),
         ],
       ),
     );
@@ -187,13 +158,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 image: imageUrl.isNotEmpty
-                    ? DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover)
+                    ? DecorationImage(
+                        image: NetworkImage(imageUrl),
+                        fit: BoxFit.cover,
+                      )
                     : null,
                 color: AppColors.cloud200,
               ),
-              child: imageUrl.isEmpty ? Icon(Icons.image_not_supported_rounded, color: AppColors.brand500.withValues(alpha: 0.9)) : null,
+              child: imageUrl.isEmpty
+                  ? Icon(
+                      Icons.image_not_supported_rounded,
+                      color: AppColors.brand500.withValues(alpha: 0.9),
+                    )
+                  : null,
             ),
-            
+
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -204,25 +183,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.brand500.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w500
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     widget.item.name,
                     style: TextStyle(
-                      fontSize: 20, 
+                      fontSize: 20,
                       color: AppColors.brand500.withValues(alpha: 0.9),
-                      fontWeight: FontWeight.bold, 
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _formatPrice(widget.item.price),
                     style: TextStyle(
-                      fontSize: 16, 
-                      color: AppColors.ocean500, 
-                      fontWeight: FontWeight.w500
+                      fontSize: 16,
+                      color: AppColors.ocean500,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -260,7 +239,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Row(
                 children: [
                   Icon(
-                    groupName.toLowerCase().contains('wallet') ? Icons.account_balance_wallet_rounded : Icons.account_balance_rounded,
+                    groupName.toLowerCase().contains('wallet')
+                        ? Icons.account_balance_wallet_rounded
+                        : Icons.account_balance_rounded,
                     size: 16,
                     color: AppColors.brand500.withValues(alpha: 0.4),
                   ),
@@ -293,10 +274,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.ocean500.withValues(alpha: 0.05) : AppColors.smoke200,
+          color: isSelected
+              ? AppColors.ocean500.withValues(alpha: 0.05)
+              : AppColors.smoke200,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppColors.ocean500 : AppColors.brand500.withValues(alpha: 0.05),
+            color: isSelected
+                ? AppColors.ocean500
+                : AppColors.brand500.withValues(alpha: 0.05),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -328,7 +313,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     .replaceAll('Virtual Account', 'VA')
                     .replaceAll('(Customizable)', '')
                     .trim(),
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.brand500.withValues(alpha: 0.9)),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.brand500.withValues(alpha: 0.9),
+                ),
               ),
             ),
             Column(
@@ -336,15 +325,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 Text(
                   'Fee',
-                  style: TextStyle(fontSize: 10, color: AppColors.brand500.withValues(alpha: 0.4)),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppColors.brand500.withValues(alpha: 0.4),
+                  ),
                 ),
                 Text(
                   _formatPrice(_calculateFee(channel)),
-                  style: const TextStyle(fontSize: 14, color: AppColors.ocean500, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.ocean500,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
-
           ],
         ),
       ),
@@ -354,72 +349,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildStickyFooter() {
     int total = _calculateTotal();
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        decoration: BoxDecoration(
-          color: AppColors.cloud200,
-          border: Border.all(
-            color: AppColors.brand500.withValues(alpha: 0.05),
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.brand500.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'TOTAL',
-                    style: TextStyle(
-                      fontSize: 12,
-                      letterSpacing: 1.5,
-                      color: AppColors.brand500.withValues(alpha: 0.4),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatPrice(total),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.ocean500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: AppButton(
-                label: 'Pay Now',
-                borderRadius: 999,
-                suffixIcon: Icons.arrow_forward_rounded,
-                onPressed: _selectedChannel == null ? null : _processPayment,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return AppStickyFooter(
+      label: 'TOTAL',
+      value: _formatPrice(total),
+      buttonLabel: 'Pay Now',
+      onButtonPressed: _selectedChannel == null ? null : _processPayment,
     );
   }
-
 
   Future<void> _processPayment() async {
     final fee = _calculateFee(_selectedChannel!);
     final total = _calculateTotal();
-    
+
     // Get target info (like User ID) from customerData
     String target = '';
     if (widget.customerData.containsKey('user_id')) {
@@ -491,7 +432,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-
   Widget _buildConfirmationRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -521,7 +461,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-
   Future<bool> _startTransaction() async {
     setState(() => _isLoading = true);
 
@@ -537,40 +476,48 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       };
 
       // Add optional top-level fields only if they have values
-      final email = widget.customerData['email'] ?? widget.customerData['customer_email'];
+      final email =
+          widget.customerData['email'] ?? widget.customerData['customer_email'];
       if (email != null && email.toString().isNotEmpty) {
         purchaseData['customer_email'] = email.toString();
       }
 
-      final name = widget.customerData['name'] ?? widget.customerData['customer_name'];
+      final name =
+          widget.customerData['name'] ?? widget.customerData['customer_name'];
       if (name != null && name.toString().isNotEmpty) {
         purchaseData['customer_name'] = name.toString();
       }
 
-      final phone = widget.customerData['phone'] ?? widget.customerData['customer_phone'];
+      final phone =
+          widget.customerData['phone'] ?? widget.customerData['customer_phone'];
       if (phone != null && phone.toString().isNotEmpty) {
         purchaseData['customer_phone'] = phone.toString();
       }
 
+      final authService = AuthService(apiClient);
+      final isLoggedIn = await authService.isLoggedIn();
 
-
-      final response = await transactionService.guestPurchase(purchaseData);
+      final response = isLoggedIn
+          ? await transactionService.customerPurchase(purchaseData)
+          : await transactionService.guestPurchase(purchaseData);
 
       if (mounted) {
         setState(() => _isLoading = false);
         if (response.success && response.data != null) {
-          final transactionCode = response.data!.transaction['transaction_code'] ?? 
-                                 response.data!.transaction['reference'];
-          
+          final transactionCode =
+              response.data!.transaction['transaction_code'] ??
+              response.data!.transaction['reference'];
+
           if (mounted) {
             // First pop the confirmation dialog
             Navigator.pop(context);
-            
+
             // Then navigate to payment screen
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => PaymentScreen(transactionCode: transactionCode),
+                builder: (context) =>
+                    PaymentScreen(transactionCode: transactionCode),
               ),
             );
           }
@@ -585,7 +532,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         String errorMessage = e.toString();
-        
+
         if (e is DioException) {
           final data = e.response?.data;
           if (data is Map && data.containsKey('message')) {
@@ -594,13 +541,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             errorMessage = 'Connection timeout. Please check your internet.';
           }
         }
-        
+
         AppToast.error(context, errorMessage);
       }
       return false;
     }
   }
-
 }
-
-

@@ -43,6 +43,9 @@ class ApiEndpoints {
   static const String appConfig = '/app-config';
   static const String lookupProvider = '/utility/lookup-provider';
   static const String publicPurchase = '/transactions/purchase';
+  static const String customerPurchase = '/customer/transactions/purchase';
+  static const String customerBalancePurchase =
+      '/customer/transactions/balance-purchase';
   static String publicTransactionStatus(String code) =>
       '/transactions/status/$code';
   static const String publicPaymentChannels = '/transactions/payment-channels';

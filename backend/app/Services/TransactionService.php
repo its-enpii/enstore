@@ -65,12 +65,13 @@ class TransactionService
 
         // Validate provider mismatch for prepaid/PPOB
         $product = $productItem->product;
-        if ($product->provider && isset($customerData['phone'])) {
+        // Verify against brand instead of connection provider (e.g., 'digiflazz')
+        if ($product->brand && isset($customerData['phone'])) {
             $phoneNumber = $customerData['phone'];
             $phoneProvider = \App\Helpers\PhoneHelper::getProvider($phoneNumber);
 
-            if ($phoneProvider && strtolower($phoneProvider['code']) !== strtolower($product->provider)) {
-                throw new \Exception("Nomor HP ini terdeteksi sebagai {$phoneProvider['name']}, sedangkan produk yang Anda pilih adalah {$product->provider}. Silakan ganti nomor atau produk.");
+            if ($phoneProvider && strtolower($phoneProvider['name']) !== strtolower($product->brand)) {
+                throw new \Exception("Nomor HP ini terdeteksi sebagai {$phoneProvider['name']}, sedangkan produk yang Anda pilih adalah {$product->brand}. Silakan ganti nomor atau produk.");
             }
         }
 
@@ -160,12 +161,13 @@ class TransactionService
 
         // Validate provider mismatch for prepaid/PPOB
         $product = $productItem->product;
-        if ($product->provider && isset($customerData['phone'])) {
+        // Verify against brand instead of connection provider (e.g., 'digiflazz')
+        if ($product->brand && isset($customerData['phone'])) {
             $phoneNumber = $customerData['phone'];
             $phoneProvider = \App\Helpers\PhoneHelper::getProvider($phoneNumber);
 
-            if ($phoneProvider && strtolower($phoneProvider['code']) !== strtolower($product->provider)) {
-                throw new \Exception("Nomor HP ini terdeteksi sebagai {$phoneProvider['name']}, sedangkan produk yang Anda pilih adalah {$product->provider}. Silakan ganti nomor atau produk.");
+            if ($phoneProvider && strtolower($phoneProvider['name']) !== strtolower($product->brand)) {
+                throw new \Exception("Nomor HP ini terdeteksi sebagai {$phoneProvider['name']}, sedangkan produk yang Anda pilih adalah {$product->brand}. Silakan ganti nomor atau produk.");
             }
         }
 

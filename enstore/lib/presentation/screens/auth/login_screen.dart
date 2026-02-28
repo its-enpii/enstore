@@ -4,8 +4,8 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
 import 'register_screen.dart';
 import '../app/main_screen.dart';
-import '../../widgets/app_button.dart';
-import '../../widgets/app_text_field.dart';
+import '../../widgets/buttons/app_button.dart';
+import '../../widgets/inputs/app_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

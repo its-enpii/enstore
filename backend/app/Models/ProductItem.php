@@ -27,6 +27,13 @@ class ProductItem extends Model
         'last_synced_at',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['price'];
+
     protected $casts = [
         'base_price' => 'decimal:2',
         'retail_price' => 'decimal:2',
@@ -88,6 +95,16 @@ class ProductItem extends Model
         return floatval($customerType === 'reseller'
             ? $this->reseller_price
             : $this->retail_price);
+    }
+
+    /**
+     * Accessor to get dynamic price based on logged in user's role.
+     * This ensures JSON API responses automatically include 'price' field.
+     */
+    public function getPriceAttribute()
+    {
+        $customerType = auth()->check() ? auth()->user()->customer_type : 'retail';
+        return $this->getPriceForCustomer($customerType);
     }
 
     /**

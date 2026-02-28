@@ -4,7 +4,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/models/user.dart';
 import '../main_screen.dart';
-import '../../../widgets/app_button.dart';
+import '../../../widgets/buttons/app_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

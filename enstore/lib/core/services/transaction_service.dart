@@ -21,6 +21,32 @@ class TransactionService {
     );
   }
 
+  Future<ApiResponse<PurchaseResponse>> customerPurchase(
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.customerPurchase,
+      data: data,
+    );
+    return ApiResponse.fromJson(
+      response.data,
+      (data) => PurchaseResponse.fromJson(data),
+    );
+  }
+
+  Future<ApiResponse<PurchaseResponse>> customerBalancePurchase(
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.customerBalancePurchase,
+      data: data,
+    );
+    return ApiResponse.fromJson(
+      response.data,
+      (data) => PurchaseResponse.fromJson(data),
+    );
+  }
+
   Future<ApiResponse<TransactionStatusModel>> getTransactionStatus(
     String code,
   ) async {

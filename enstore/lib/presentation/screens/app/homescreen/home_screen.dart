@@ -6,9 +6,10 @@ import '../../../../core/services/utility_service.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/models/banner.dart';
-import '../../../widgets/app_button.dart';
+import '../../../widgets/buttons/app_button.dart';
 import '../../auth/login_screen.dart';
 import 'product/game/game_list_screen.dart';
+import 'product/pulsa/pulsa_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -461,6 +462,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const GameListScreen()),
+          );
+        } else if (title == 'Pulsa') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PulsaScreen()),
           );
         }
       },

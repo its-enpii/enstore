@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/models/transaction.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../widgets/app_button.dart';
-import '../../../../widgets/app_toast.dart';
+import '../../../../widgets/buttons/app_button.dart';
+import '../../../../widgets/layout/app_app_bar.dart';
+import '../../../../widgets/feedback/app_toast.dart';
 import '../../main_screen.dart';
 
 class TransactionStatusScreen extends StatelessWidget {
@@ -18,46 +19,15 @@ class TransactionStatusScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 32),
-        child: AppBar(
-          backgroundColor: AppColors.smoke200,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 24),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.cloud200,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: AppColors.brand500.withValues(alpha: 0.9),
-                ),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MainScreen()),
-                    (route) => false,
-                  );
-                },
-              ),
-            ),
-          ),
-          leadingWidth: 72,
-          title: Text(
-            'Transaction Detail',
-            style: TextStyle(
-              color: AppColors.brand500.withValues(alpha: 0.9),
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+      appBar: AppAppBar(
+        title: 'Transaction Detail',
+        onBackPressed: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+            (route) => false,
+          );
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(left: 24, right: 24, bottom: 32),

@@ -12,8 +12,9 @@ import '../../../../../core/models/transaction.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/services/transaction_service.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../widgets/app_button.dart';
-import '../../../../widgets/app_toast.dart';
+import '../../../../widgets/buttons/app_button.dart';
+import '../../../../widgets/layout/app_app_bar.dart';
+import '../../../../widgets/feedback/app_toast.dart';
 import 'transaction_status_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -62,17 +63,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (transaction == null) return false;
     final status = transaction.status.toLowerCase();
     final paymentStatus = transaction.paymentStatus.toLowerCase();
-    return status == 'success' || 
-           status == 'failed' || 
-           status == 'expired' || 
-           paymentStatus == 'paid';
+    return status == 'success' ||
+        status == 'failed' ||
+        status == 'expired' ||
+        paymentStatus == 'paid';
   }
 
   Future<void> _fetchStatus({bool isPolling = false}) async {
     if (!isPolling) setState(() => _isLoading = true);
-    
+
     try {
-      final response = await _transactionService.getTransactionStatus(widget.transactionCode);
+      final response = await _transactionService.getTransactionStatus(
+        widget.transactionCode,
+      );
       if (mounted) {
         if (response.success && response.data != null) {
           final TransactionStatusModel data = response.data!;
@@ -89,7 +92,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TransactionStatusScreen(transaction: data),
+                      builder: (context) =>
+                          TransactionStatusScreen(transaction: data),
                     ),
                   );
                 }
@@ -127,7 +131,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     ).format(value);
   }
 
-
   void _handleCopy(String text) {
     Clipboard.setData(ClipboardData(text: text));
     setState(() => _isCopied = true);
@@ -140,9 +143,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     try {
-      final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final success = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
       if (!success && mounted) {
-        AppToast.error(context, 'Could not launch browser. Please open manually.');
+        AppToast.error(
+          context,
+          'Could not launch browser. Please open manually.',
+        );
       }
     } catch (e) {
       if (mounted) AppToast.error(context, 'Error launching URL: $e');
@@ -166,7 +175,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         options: Options(responseType: ResponseType.bytes),
       );
 
-
       // 3. Save to Gallery
       await Gal.putImageBytes(
         Uint8List.fromList(response.data),
@@ -188,12 +196,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (mounted) setState(() => _isDownloading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _transaction == null) {
       return const Scaffold(
         backgroundColor: AppColors.smoke200,
-        body: Center(child: CircularProgressIndicator(color: AppColors.ocean500)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.ocean500),
+        ),
       );
     }
 
@@ -221,51 +232,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final transaction = _transaction!;
     final isExpired = transaction.status == 'expired';
     final isFailed = transaction.status == 'failed';
-    final isPaid = transaction.paymentStatus == 'paid' || transaction.status == 'success';
+    final isPaid =
+        transaction.paymentStatus == 'paid' || transaction.status == 'success';
 
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 32),
-        child: AppBar(
-          backgroundColor: AppColors.smoke200,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 24),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.cloud200,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: AppColors.brand500.withValues(alpha: 0.9),
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ),
-          leadingWidth: 72,
-          title: Text(
-            'Payment',
-            style: TextStyle(
-              color: AppColors.brand500.withValues(alpha: 0.9),
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      appBar: const AppAppBar(title: 'Payment'),
       body: SingleChildScrollView(
         child: Column(
           children: [
             _buildSummaryCard(transaction),
             const SizedBox(height: 32),
-            if (!isPaid && !isExpired && !isFailed) _buildExpiryBanner(transaction),
+            if (!isPaid && !isExpired && !isFailed)
+              _buildExpiryBanner(transaction),
             _buildPaymentDetailSection(transaction),
           ],
         ),
@@ -278,7 +257,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final pricing = transaction.pricing;
     String imageUrl = product['image'] ?? '';
     if (imageUrl.isNotEmpty && !imageUrl.startsWith('http')) {
-      imageUrl = '${ApiClient.baseUrl.replaceAll('/api', '')}/storage/$imageUrl';
+      imageUrl =
+          '${ApiClient.baseUrl.replaceAll('/api', '')}/storage/$imageUrl';
     }
 
     return Padding(
@@ -299,13 +279,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 borderRadius: BorderRadius.circular(24),
                 image: imageUrl.isNotEmpty
                     ? DecorationImage(
-                        image: NetworkImage(imageUrl), fit: BoxFit.cover)
+                        image: NetworkImage(imageUrl),
+                        fit: BoxFit.cover,
+                      )
                     : null,
                 color: AppColors.cloud200,
               ),
               child: imageUrl.isEmpty
-                  ? Icon(Icons.image_not_supported_rounded,
-                      color: AppColors.brand500.withValues(alpha: 0.9))
+                  ? Icon(
+                      Icons.image_not_supported_rounded,
+                      color: AppColors.brand500.withValues(alpha: 0.9),
+                    )
                   : null,
             ),
             const SizedBox(width: 16),
@@ -347,7 +331,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
   }
-
 
   Widget _buildExpiryBanner(TransactionStatusModel transaction) {
     final expiredAt = transaction.payment['expired_at'];
@@ -494,12 +477,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           prefixIcon: Icons.file_download_rounded,
           isLoading: _isDownloading,
           borderRadius: 999,
-          side: BorderSide(
-            color: AppColors.brand500.withValues(alpha: 0.05),
-          ),
+          side: BorderSide(color: AppColors.brand500.withValues(alpha: 0.05)),
           onPressed: () => _downloadQR(qrUrl),
         ),
-
       ],
     );
   }
@@ -543,8 +523,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   IconButton(
                     onPressed: () => _handleCopy(code),
                     icon: Icon(
-                      _isCopied ? Icons.check_circle_rounded : Icons.content_copy_rounded,
-                      color: _isCopied ? AppColors.ocean500 : AppColors.brand500.withValues(alpha: 0.9),
+                      _isCopied
+                          ? Icons.check_circle_rounded
+                          : Icons.content_copy_rounded,
+                      color: _isCopied
+                          ? AppColors.ocean500
+                          : AppColors.brand500.withValues(alpha: 0.9),
                       size: 16,
                     ),
                   ),
@@ -556,7 +540,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         const SizedBox(height: 32),
         Text(
           'How to pay:',
-          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand500.withValues(alpha: 0.9)),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.brand500.withValues(alpha: 0.9),
+          ),
         ),
         const SizedBox(height: 16),
         if (instructions is List)
@@ -568,7 +555,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _buildCheckoutUrlView(String url, dynamic instructions) {
-     return Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
@@ -577,27 +564,32 @@ class _PaymentScreenState extends State<PaymentScreen> {
           decoration: BoxDecoration(
             color: AppColors.smoke200,
             borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: AppColors.brand500.withValues(alpha: 0.05)),
+            border: Border.all(
+              color: AppColors.brand500.withValues(alpha: 0.05),
+            ),
           ),
           child: Column(
             children: [
-               Text(
+              Text(
                 'Click the button below to complete your payment.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: AppColors.brand500.withValues(alpha: 0.9)),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.brand500.withValues(alpha: 0.9),
+                ),
               ),
               const SizedBox(height: 20),
-              AppButton(
-                label: 'Pay Now',
-                onPressed: () => _launchUrl(url),
-              ),
+              AppButton(label: 'Pay Now', onPressed: () => _launchUrl(url)),
             ],
           ),
         ),
         const SizedBox(height: 32),
         Text(
           'How to pay:',
-          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand500.withValues(alpha: 0.9)),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.brand500.withValues(alpha: 0.9),
+          ),
         ),
         const SizedBox(height: 16),
         if (instructions is List)
@@ -618,7 +610,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: ExpansionTile(
         title: Text(
           section['title'] ?? 'Instruction',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.brand500.withValues(alpha: 0.9)),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.brand500.withValues(alpha: 0.9),
+          ),
         ),
         tilePadding: EdgeInsets.zero,
         expandedAlignment: Alignment.topLeft,
@@ -642,14 +638,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                         child: Text(
                           '${entry.key + 1}',
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.ocean500),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.ocean500,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          entry.value.toString().replaceAll(RegExp(r'<[^>]*>'), ''),
-                          style: TextStyle(fontSize: 13, color: AppColors.brand500.withValues(alpha: 0.7)),
+                          entry.value.toString().replaceAll(
+                            RegExp(r'<[^>]*>'),
+                            '',
+                          ),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.brand500.withValues(alpha: 0.7),
+                          ),
                         ),
                       ),
                     ],
@@ -668,7 +674,11 @@ class CountdownWidget extends StatefulWidget {
   final DateTime targetDate;
   final VoidCallback onExpire;
 
-  const CountdownWidget({super.key, required this.targetDate, required this.onExpire});
+  const CountdownWidget({
+    super.key,
+    required this.targetDate,
+    required this.onExpire,
+  });
 
   @override
   State<CountdownWidget> createState() => _CountdownWidgetState();
@@ -682,7 +692,10 @@ class _CountdownWidgetState extends State<CountdownWidget> {
   void initState() {
     super.initState();
     _calculateTime();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) => _calculateTime());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) => _calculateTime(),
+    );
   }
 
   @override

@@ -4,7 +4,8 @@ import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/network/api_client.dart';
 import '../../../../../../core/services/product_service.dart';
 import '../../../../../../core/models/product.dart';
-import '../../../../../widgets/app_text_field.dart';
+import '../../../../../widgets/inputs/app_text_field.dart';
+import '../../../../../widgets/layout/app_app_bar.dart';
 import 'game_detail_screen.dart';
 
 class GameListScreen extends StatefulWidget {
@@ -182,56 +183,12 @@ class _GameListScreenState extends State<GameListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: AppBar(
-        backgroundColor: AppColors.smoke200,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 24, top: 4, bottom: 4),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.cloud200,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 20,
-                color: AppColors.brand500.withValues(alpha: 0.9),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
-        leadingWidth: 72,
-        title: Text(
-          'Select Game',
-          style: TextStyle(
-            color: AppColors.brand500.withValues(alpha: 0.9),
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: AppAppBar(
+        title: 'Select Game',
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24, top: 4, bottom: 4),
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: const BoxDecoration(
-                color: AppColors.cloud200,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(
-                  Icons.tune_rounded,
-                  size: 20,
-                  color: AppColors.brand500.withValues(alpha: 0.9),
-                ),
-                onPressed: _showFilterBottomSheet,
-              ),
-            ),
+          AppAppBarButton(
+            icon: Icons.tune_rounded,
+            onPressed: _showFilterBottomSheet,
           ),
         ],
       ),
@@ -239,7 +196,7 @@ class _GameListScreenState extends State<GameListScreen> {
         children: [
           Container(
             color: AppColors.smoke200,
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+            padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
             child: AppTextField(
               controller: _searchController,
               hintText: 'Search games...',
