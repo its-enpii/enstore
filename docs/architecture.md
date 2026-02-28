@@ -21,6 +21,38 @@ Sistem ini terdiri dari tiga aplikasi terpisah yang terintegrasi:
 | Queue Worker | -             | -              | Proses job latar belakang     |
 | Scheduler    | -             | -              | Cron jobs (sync produk, dll.) |
 
+### Visualisasi Arsitektur
+
+```mermaid
+graph TD
+    subgraph Client_Side [Client Side]
+        NextJS["Next.js Web App"]
+        Flutter["Flutter Mobile App"]
+    end
+
+    subgraph Server_Side [Server Side]
+        Nginx["Nginx (Reverse Proxy)"]
+        Laravel["Laravel API (PHP 8.4)"]
+        Redis[("Redis (Cache & Queue)")]
+        MySQL[("MySQL 8.0 (Database)")]
+    end
+
+    subgraph External_APIs [External APIs]
+        Tripay["Tripay (Payment Gateway)"]
+        Digiflazz["Digiflazz (Product Provider)"]
+    end
+
+    NextJS <--> Nginx
+    Flutter <--> Nginx
+    Nginx <--> Laravel
+    Laravel <--> Redis
+    Laravel <--> MySQL
+    Laravel -- Request Payment --> Tripay
+    Tripay -- Webhook Callback --> Laravel
+    Laravel -- Request Order --> Digiflazz
+    Digiflazz -- Webhook Callback --> Laravel
+```
+
 ---
 
 ## 🗄️ Struktur Database
