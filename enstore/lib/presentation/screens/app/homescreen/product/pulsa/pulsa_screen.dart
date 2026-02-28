@@ -428,6 +428,8 @@ class _PulsaScreenState extends State<PulsaScreen> {
           product: _detectedProduct!,
           item: _selectedItem!,
           customerData: customerData,
+          targetLabel: 'Nomor',
+          itemPrefix: 'Pulsa',
         ),
       ),
     );

@@ -20,12 +20,16 @@ class CheckoutScreen extends StatefulWidget {
   final Product product;
   final ProductItem item;
   final Map<String, dynamic> customerData;
+  final String targetLabel;
+  final String? itemPrefix;
 
   const CheckoutScreen({
     super.key,
     required this.product,
     required this.item,
     required this.customerData,
+    this.targetLabel = 'Target / ID',
+    this.itemPrefix,
   });
 
   @override
@@ -75,6 +79,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       symbol: 'Rp. ',
       decimalDigits: 0,
     ).format(price);
+  }
+
+  /// Mengekstrak angka dari nama item dan memformatnya sebagai nominal.
+  /// Contoh: 'XL Axiata 50000' → '50.000'
+  String _formatNominal(String itemName) {
+    final digits = itemName.replaceAll(RegExp(r'\D'), '');
+    final number = int.tryParse(digits) ?? 0;
+    if (number == 0) return itemName;
+    return NumberFormat.decimalPattern('id_ID').format(number);
   }
 
   int _calculateFee(PaymentChannel channel) {
@@ -382,8 +395,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 32),
-          _buildConfirmationRow('Target / ID', target),
-          _buildConfirmationRow('Item', widget.item.name),
+          _buildConfirmationRow(widget.targetLabel, target),
+          _buildConfirmationRow(
+            'Item',
+            widget.itemPrefix != null
+                ? '${widget.itemPrefix} ${_formatNominal(widget.item.name)}'
+                : widget.item.name,
+          ),
           const SizedBox(height: 16),
           Divider(height: 1, color: AppColors.brand500.withValues(alpha: 0.05)),
           const SizedBox(height: 16),
