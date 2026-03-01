@@ -11,6 +11,7 @@ import '../../../../../widgets/inputs/app_product_input_form.dart';
 import '../../../../../widgets/cards/app_product_item_card.dart';
 import '../../checkout/checkout_screen.dart';
 import '../../../../../widgets/feedback/app_toast.dart';
+import '../../../../../widgets/feedback/app_skeleton.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Product product;
@@ -300,10 +301,37 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
         ),
         const SizedBox(height: 24),
         if (_isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.0),
-              child: CircularProgressIndicator(color: AppColors.ocean500),
+          AppShimmer(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.96,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: 4,
+              itemBuilder: (context, index) {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.cloud200,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const AppSkeletonCircle(size: 48),
+                      const SizedBox(height: 16),
+                      const AppSkeleton(height: 16, width: 80),
+                      const SizedBox(height: 4),
+                      const AppSkeleton(height: 14, width: 60),
+                    ],
+                  ),
+                );
+              },
             ),
           )
         else

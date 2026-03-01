@@ -15,6 +15,7 @@ import 'product/voucher/voucher_screen.dart';
 import 'product/e_wallet/e_wallet_screen.dart';
 import 'product/internet/internet_screen.dart';
 import '../../../widgets/cards/app_service_item.dart';
+import '../../../widgets/feedback/app_skeleton.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoggedIn = false;
   String _userName = 'Guest';
   String _balance = '0';
+  bool _isCheckingAuth = true;
 
   // API Data
   List<BannerModel> _banners = [];
@@ -88,13 +90,22 @@ class _HomeScreenState extends State<HomeScreen> {
     final status = await authService.isLoggedIn();
 
     if (status) {
-      final response = await authService.getMe();
-      if (mounted && response.success) {
-        setState(() {
-          _isLoggedIn = true;
-          _userName = response.data?.name ?? 'User';
-          _balance = response.data?.balance ?? '0';
-        });
+      try {
+        final response = await authService.getMe();
+        if (mounted) {
+          setState(() {
+            if (response.success) {
+              _isLoggedIn = true;
+              _userName = response.data?.name ?? 'User';
+              _balance = response.data?.balance ?? '0';
+            }
+            _isCheckingAuth = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isCheckingAuth = false);
+        }
       }
     } else {
       if (mounted) {
@@ -102,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoggedIn = false;
           _userName = 'Guest';
           _balance = '0';
+          _isCheckingAuth = false;
         });
       }
     }
@@ -167,14 +179,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
 
-                        Text(
-                          _isLoggedIn ? _userName : 'EnStore',
-                          style: TextStyle(
-                            color: AppColors.brand500.withValues(alpha: 0.9),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        _isCheckingAuth
+                            ? const AppShimmer(
+                                child: AppSkeleton(
+                                  width: 120,
+                                  height: 24,
+                                  borderRadius: 8,
+                                ),
+                              )
+                            : Text(
+                                _isLoggedIn ? _userName : 'EnStore',
+                                style: TextStyle(
+                                  color:
+                                      AppColors.brand500.withValues(alpha: 0.9),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ],
                     ),
                   ),
@@ -260,16 +281,26 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
 
                             const SizedBox(height: 8),
-                            Text(
-                              _isLoggedIn ? 'Rp. $_balance' : 'Rp. --.---',
-                              style: TextStyle(
-                                color: AppColors.brand500.withValues(
-                                  alpha: 0.9,
-                                ),
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            _isCheckingAuth
+                                ? const AppShimmer(
+                                    child: AppSkeleton(
+                                      width: 150,
+                                      height: 32,
+                                      borderRadius: 12,
+                                    ),
+                                  )
+                                : Text(
+                                    _isLoggedIn
+                                        ? 'Rp. $_balance'
+                                        : 'Rp. --.---',
+                                    style: TextStyle(
+                                      color: AppColors.brand500.withValues(
+                                        alpha: 0.9,
+                                      ),
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ],
                         ),
                         _isLoggedIn
@@ -494,8 +525,20 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SizedBox(
                 height: 180,
                 child: _isLoadingBanners
-                    ? const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                    ? AppShimmer(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: 3,
+                          itemBuilder: (context, index) => Container(
+                            width: 290,
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.cloud200,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                          ),
+                        ),
                       )
                     : ListView(
                         scrollDirection: Axis.horizontal,

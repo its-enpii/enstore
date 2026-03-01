@@ -14,6 +14,7 @@ import '../../../../../widgets/feedback/app_toast.dart';
 import '../../../../../widgets/inputs/app_product_input_form.dart';
 import '../../../../../widgets/inputs/app_contact_picker.dart';
 import '../../../../../widgets/cards/app_product_item_card.dart';
+import '../../../../../widgets/feedback/app_skeleton.dart';
 import '../../checkout/checkout_screen.dart';
 
 class PulsaScreen extends StatefulWidget {
@@ -252,12 +253,11 @@ class _PulsaScreenState extends State<PulsaScreen> {
 
   Widget _buildProviderBadge() {
     if (_isDetectingProvider) {
-      return const SizedBox(
-        width: double.infinity,
-        height: 16,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.ocean500,
+      return const AppShimmer(
+        child: AppSkeleton(
+          width: double.infinity,
+          height: 32,
+          borderRadius: 999,
         ),
       );
     } else {
@@ -282,10 +282,36 @@ class _PulsaScreenState extends State<PulsaScreen> {
 
   Widget _buildNominalSelection() {
     if (_isLoadingProduct) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: CircularProgressIndicator(),
+      return AppShimmer(
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.96,
+            crossAxisSpacing: 24,
+            mainAxisSpacing: 24,
+          ),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.cloud200,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppSkeleton(height: 12, width: 40),
+                  SizedBox(height: 8),
+                  AppSkeleton(height: 24, width: 100),
+                  SizedBox(height: 16),
+                  AppSkeleton(height: 24, width: 60, borderRadius: 12),
+                ],
+              ),
+            );
+          },
         ),
       );
     }

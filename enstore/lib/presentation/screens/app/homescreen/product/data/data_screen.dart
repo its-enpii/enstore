@@ -14,6 +14,7 @@ import '../../../../../widgets/feedback/app_toast.dart';
 import '../../../../../widgets/inputs/app_product_input_form.dart';
 import '../../../../../widgets/inputs/app_contact_picker.dart';
 import '../../../../../widgets/cards/app_product_item_card.dart';
+import '../../../../../widgets/feedback/app_skeleton.dart';
 import '../../checkout/checkout_screen.dart';
 
 class DataScreen extends StatefulWidget {
@@ -257,10 +258,37 @@ class _DataScreenState extends State<DataScreen> {
 
   Widget _buildNominalSelection() {
     if (_isLoadingProduct) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: CircularProgressIndicator(),
+      return AppShimmer(
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 3,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.cloud200,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppSkeleton(height: 20, width: 200),
+                        SizedBox(height: 8),
+                        AppSkeleton(height: 12, width: 100),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  AppSkeleton(height: 32, width: 80, borderRadius: 99),
+                ],
+              ),
+            );
+          },
         ),
       );
     }

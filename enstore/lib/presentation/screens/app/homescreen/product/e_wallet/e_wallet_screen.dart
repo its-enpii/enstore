@@ -6,6 +6,7 @@ import '../../../../../../core/services/product_service.dart';
 import '../../../../../../core/models/product.dart';
 import '../../../../../widgets/layout/app_app_bar.dart';
 import '../../../../../widgets/cards/app_service_item.dart';
+import '../../../../../widgets/feedback/app_skeleton.dart';
 import 'e_wallet_detail_screen.dart';
 
 class EWalletScreen extends StatefulWidget {
@@ -62,8 +63,36 @@ class _EWalletScreenState extends State<EWalletScreen> {
       backgroundColor: AppColors.smoke200,
       appBar: const AppAppBar(title: 'E-Wallet'),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.ocean500),
+          ? AppShimmer(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                child: Wrap(
+                  spacing: 0,
+                  runSpacing: 24,
+                  alignment: WrapAlignment.start,
+                  children: List.generate(
+                    8,
+                    (index) => SizedBox(
+                      width: (MediaQuery.of(context).size.width - 48) / 4,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: AppColors.cloud200,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const AppSkeleton(height: 12, width: 64),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             )
           : _eWallets.isEmpty
               ? Center(

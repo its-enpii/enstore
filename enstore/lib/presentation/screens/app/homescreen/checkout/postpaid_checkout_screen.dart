@@ -14,6 +14,7 @@ import '../../../../widgets/layout/app_sticky_footer.dart';
 import '../../../../widgets/layout/app_app_bar.dart';
 import '../../../../widgets/feedback/app_toast.dart';
 import '../../../../widgets/feedback/app_dialog.dart';
+import '../../../../widgets/feedback/app_skeleton.dart';
 
 class PostpaidCheckoutScreen extends StatefulWidget {
   final PostpaidInquiryResult inquiryResult;
@@ -109,12 +110,54 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
                 ),
                 const SizedBox(height: 16),
                 if (_isLoading)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32),
-                      child: CircularProgressIndicator(
-                        color: AppColors.ocean500,
-                      ),
+                  AppShimmer(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: 4,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                              child: Row(
+                                children: [
+                                  const AppSkeletonCircle(size: 16),
+                                  const SizedBox(width: 8),
+                                  const AppSkeleton(height: 12, width: 80),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.cloud200,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: const Row(
+                                children: [
+                                  AppSkeleton(height: 48, width: 48, borderRadius: 16),
+                                  SizedBox(width: 16),
+                                  Expanded(
+                                    child: AppSkeleton(height: 16, width: 120),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      AppSkeleton(height: 10, width: 30),
+                                      SizedBox(height: 4),
+                                      AppSkeleton(height: 14, width: 60),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   )
                 else

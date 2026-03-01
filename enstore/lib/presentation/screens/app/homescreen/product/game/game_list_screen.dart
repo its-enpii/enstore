@@ -6,6 +6,7 @@ import '../../../../../../core/services/product_service.dart';
 import '../../../../../../core/models/product.dart';
 import '../../../../../widgets/inputs/app_text_field.dart';
 import '../../../../../widgets/layout/app_app_bar.dart';
+import '../../../../../widgets/feedback/app_skeleton.dart';
 import 'game_detail_screen.dart';
 
 class GameListScreen extends StatefulWidget {
@@ -211,10 +212,47 @@ class _GameListScreenState extends State<GameListScreen> {
               physics: const BouncingScrollPhysics(),
               slivers: [
                 if (_isLoading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.ocean500,
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: AppShimmer(
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 32,
+                            mainAxisSpacing: 32,
+                          ),
+                          itemCount: 6,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.cloud200,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color: AppColors.cloud200,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const AppSkeleton(height: 16, width: 100),
+                                  const SizedBox(height: 4),
+                                  const AppSkeleton(height: 14, width: 60),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   )
@@ -259,12 +297,49 @@ class _GameListScreenState extends State<GameListScreen> {
                   ),
 
                 if (_isLoadingMore)
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.ocean500,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 24,
+                      ),
+                      child: AppShimmer(
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 32,
+                            mainAxisSpacing: 32,
+                          ),
+                          itemCount: 2,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.cloud200,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color: AppColors.cloud200,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const AppSkeleton(height: 16, width: 100),
+                                  const SizedBox(height: 4),
+                                  const AppSkeleton(height: 14, width: 60),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),

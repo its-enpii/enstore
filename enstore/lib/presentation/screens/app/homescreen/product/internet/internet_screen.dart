@@ -11,6 +11,7 @@ import '../../../../../widgets/inputs/app_text_field.dart';
 import '../../../../../widgets/inputs/app_dropdown.dart';
 import '../../../../../widgets/buttons/app_button.dart';
 import '../../../../../widgets/feedback/app_toast.dart';
+import '../../../../../widgets/feedback/app_skeleton.dart';
 import 'internet_bill_detail_screen.dart';
 
 class InternetScreen extends StatefulWidget {
@@ -123,26 +124,45 @@ class _InternetScreenState extends State<InternetScreen> {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
       appBar: const AppAppBar(title: 'Internet'),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.ocean500),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.smoke200,
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: AppColors.brand500.withValues(alpha: 0.05),
-                      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            if (_isLoading)
+              AppShimmer(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.smoke200,
+                    borderRadius: BorderRadius.circular(40),
+                    border: Border.all(
+                      color: AppColors.brand500.withValues(alpha: 0.05),
                     ),
-                    child: Column(
-                      children: [
+                  ),
+                  child: Column(
+                    children: [
+                      const AppSkeleton(height: 56, borderRadius: 24),
+                      const SizedBox(height: 20),
+                      const AppSkeleton(height: 56, borderRadius: 24),
+                      const SizedBox(height: 24),
+                      const AppSkeleton(height: 56, borderRadius: 56),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.smoke200,
+                  borderRadius: BorderRadius.circular(40),
+                  border: Border.all(
+                    color: AppColors.brand500.withValues(alpha: 0.05),
+                  ),
+                ),
+                child: Column(
+                  children: [
                         AppDropdown<String>(
                           hintText: 'Pilih Provider',
                           value: _selectedIspId,

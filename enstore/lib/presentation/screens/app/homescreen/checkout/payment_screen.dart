@@ -15,6 +15,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../widgets/buttons/app_button.dart';
 import '../../../../widgets/layout/app_app_bar.dart';
 import '../../../../widgets/feedback/app_toast.dart';
+import '../../../../widgets/feedback/app_skeleton.dart';
 import 'transaction_status_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -200,10 +201,83 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _transaction == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.smoke200,
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.ocean500),
+        appBar: const AppAppBar(title: 'Payment'),
+        body: AppShimmer(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Product Summary Skeleton
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.cloud200,
+                      borderRadius: BorderRadius.circular(48),
+                    ),
+                    child: Row(
+                      children: [
+                        const AppSkeleton(width: 72, height: 72, borderRadius: 24),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AppSkeleton(height: 12, width: 80),
+                              const SizedBox(height: 8),
+                              const AppSkeleton(height: 20, width: 140),
+                              const SizedBox(height: 12),
+                              const AppSkeleton(height: 14, width: 60),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                // Expiry Banner Skeleton
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.cloud200,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppSkeleton(height: 14, width: 120),
+                      AppSkeleton(height: 16, width: 80),
+                    ],
+                  ),
+                ),
+                // Payment Detail Card Skeleton
+                Container(
+                  margin: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: AppColors.cloud200,
+                    borderRadius: BorderRadius.circular(48),
+                  ),
+                  child: Column(
+                    children: [
+                      const AppSkeleton(height: 24, width: 150),
+                      const SizedBox(height: 12),
+                      const AppSkeleton(height: 14, width: double.infinity),
+                      const AppSkeleton(height: 14, width: 200),
+                      const SizedBox(height: 32),
+                      const AppSkeleton(height: 160, width: 160, borderRadius: 24),
+                      const SizedBox(height: 32),
+                      const AppSkeleton(height: 56, width: double.infinity, borderRadius: 999),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
