@@ -14,6 +14,8 @@ import 'product/data/data_screen.dart';
 import 'product/voucher/voucher_screen.dart';
 import 'product/e_wallet/e_wallet_screen.dart';
 import 'product/internet/internet_screen.dart';
+import 'product/pdam/pdam_screen.dart';
+import 'product/electricity/electricity_screen.dart';
 import '../../../widgets/cards/app_service_item.dart';
 import '../../../widgets/feedback/app_skeleton.dart';
 
@@ -477,14 +479,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   AppServiceItem(
-                    title: 'Water',
+                    title: 'PDAM',
                     icon: Icons.water_drop_rounded,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PdamScreen(),
+                        ),
+                      );
+                    },
                   ),
                   AppServiceItem(
                     title: 'Electricity',
                     icon: Icons.bolt_rounded,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ElectricityScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
