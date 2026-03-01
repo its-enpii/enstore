@@ -39,7 +39,7 @@ class DigiflazzService
             return null; // Digiflazz cannot reach localhost
         }
 
-        return rtrim($appUrl, '/').'/api/webhooks/digiflazz';
+        return rtrim($appUrl, '/') . '/api/webhooks/digiflazz';
     }
 
     /**
@@ -50,7 +50,7 @@ class DigiflazzService
      */
     private function generateSign($command)
     {
-        $string = $this->username.$this->apiKey.$command;
+        $string = $this->username . $this->apiKey . $command;
 
         return md5($string);
     }
@@ -80,7 +80,7 @@ class DigiflazzService
             );
 
             $response = Http::timeout(30)
-                ->post($this->baseUrl.'/cek-saldo', $payload);
+                ->post($this->baseUrl . '/cek-saldo', $payload);
 
             $result = $response->json();
 
@@ -100,9 +100,9 @@ class DigiflazzService
                 ];
             }
 
-            throw new \Exception('Failed to check balance: '.json_encode($result));
+            throw new \Exception('Failed to check balance: ' . json_encode($result));
         } catch (\Exception $e) {
-            Log::error('Digiflazz Check Balance Error: '.$e->getMessage());
+            Log::error('Digiflazz Check Balance Error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -127,7 +127,7 @@ class DigiflazzService
 
             return $this->fetchPriceList();
         } catch (\Exception $e) {
-            Log::error('Digiflazz Get Price List Error: '.$e->getMessage());
+            Log::error('Digiflazz Get Price List Error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -152,7 +152,7 @@ class DigiflazzService
 
             return $this->fetchPostpaidPriceList();
         } catch (\Exception $e) {
-            Log::error('Digiflazz Get Postpaid Price List Error: '.$e->getMessage());
+            Log::error('Digiflazz Get Postpaid Price List Error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -181,7 +181,7 @@ class DigiflazzService
         );
 
         $response = Http::timeout(60)
-            ->post($this->baseUrl.'/price-list', $payload);
+            ->post($this->baseUrl . '/price-list', $payload);
 
         $result = $response->json();
 
@@ -197,7 +197,7 @@ class DigiflazzService
             return $result['data'];
         }
 
-        throw new \Exception('Failed to get price list: '.json_encode($result));
+        throw new \Exception('Failed to get price list: ' . json_encode($result));
     }
 
     /**
@@ -224,7 +224,7 @@ class DigiflazzService
         );
 
         $response = Http::timeout(60)
-            ->post($this->baseUrl.'/price-list', $payload);
+            ->post($this->baseUrl . '/price-list', $payload);
 
         $result = $response->json();
 
@@ -240,7 +240,7 @@ class DigiflazzService
             return $result['data'];
         }
 
-        throw new \Exception('Failed to get postpaid price list: '.json_encode($result));
+        throw new \Exception('Failed to get postpaid price list: ' . json_encode($result));
     }
 
     /**
@@ -289,7 +289,7 @@ class DigiflazzService
             );
 
             $response = Http::timeout(60)
-                ->post($this->baseUrl.'/transaction', $payload);
+                ->post($this->baseUrl . '/transaction', $payload);
 
             $result = $response->json();
 
@@ -308,7 +308,7 @@ class DigiflazzService
                 ];
             }
 
-            throw new \Exception('Failed to create transaction: '.json_encode($result));
+            throw new \Exception('Failed to create transaction: ' . json_encode($result));
         } catch (\Exception $e) {
             Log::error('Digiflazz Create Transaction Error', [
                 'error' => $e->getMessage(),
@@ -358,7 +358,7 @@ class DigiflazzService
                 true
             );
 
-            $response = Http::timeout(60)->post($this->baseUrl.'/transaction', $payload);
+            $response = Http::timeout(60)->post($this->baseUrl . '/transaction', $payload);
             $result = $response->json();
 
             $this->logger->logExternalApi(
@@ -376,7 +376,7 @@ class DigiflazzService
                 ];
             }
 
-            throw new \Exception('Failed to inquiry postpaid: '.json_encode($result));
+            throw new \Exception('Failed to inquiry postpaid: ' . json_encode($result));
         } catch (\Exception $e) {
             Log::error('Digiflazz Inquiry Postpaid Error', [
                 'error' => $e->getMessage(),
@@ -422,7 +422,7 @@ class DigiflazzService
                 true
             );
 
-            $response = Http::timeout(60)->post($this->baseUrl.'/transaction', $payload);
+            $response = Http::timeout(60)->post($this->baseUrl . '/transaction', $payload);
             $result = $response->json();
 
             $this->logger->logExternalApi(
@@ -440,7 +440,7 @@ class DigiflazzService
                 ];
             }
 
-            throw new \Exception('Failed to pay postpaid: '.json_encode($result));
+            throw new \Exception('Failed to pay postpaid: ' . json_encode($result));
         } catch (\Exception $e) {
             Log::error('Digiflazz Pay Postpaid Error', [
                 'error' => $e->getMessage(),
@@ -492,7 +492,7 @@ class DigiflazzService
                 $userId = $customerData['user_id'] ?? '';
                 $zoneId = $customerData['zone_id'] ?? '';
 
-                return $userId.$zoneId;
+                return $userId . $zoneId;
 
             case 'pulsa':
             case 'data':
@@ -515,10 +515,10 @@ class DigiflazzService
             default:
                 // Default: try any available identifier
                 return $customerData['user_id']
-                  ?? $customerData['phone']
-                  ?? $customerData['customer_id']
-                  ?? $customerData['customer_no']
-                  ?? '';
+                    ?? $customerData['phone']
+                    ?? $customerData['customer_id']
+                    ?? $customerData['customer_no']
+                    ?? '';
         }
     }
 
@@ -556,7 +556,7 @@ class DigiflazzService
     {
         // 1. Check for standard Digiflazz MD5 signature in payload
         if (isset($data['sign'])) {
-            $expectedSign = md5($this->username.$this->apiKey.'cb');
+            $expectedSign = md5($this->username . $this->apiKey . 'cb');
 
             if (hash_equals($expectedSign, $data['sign'])) {
                 return true;
@@ -566,7 +566,7 @@ class DigiflazzService
         // 2. Check for optional Secret Key validation (Header based)
         $secret = config('services.digiflazz.webhook_secret');
         if ($secret && $headerSignature && $rawContent) {
-            $expectedHeaderSignature = 'sha1='.hash_hmac('sha1', $rawContent, $secret);
+            $expectedHeaderSignature = 'sha1=' . hash_hmac('sha1', $rawContent, $secret);
 
             return hash_equals($expectedHeaderSignature, $headerSignature);
         }

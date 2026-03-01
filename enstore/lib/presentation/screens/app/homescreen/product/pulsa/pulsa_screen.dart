@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../../../core/models/product.dart';
 import '../../../../../../core/models/product_item.dart';
@@ -14,6 +12,7 @@ import '../../../../../widgets/layout/app_sticky_footer.dart';
 import '../../../../../widgets/layout/app_app_bar.dart';
 import '../../../../../widgets/feedback/app_toast.dart';
 import '../../../../../widgets/inputs/app_product_input_form.dart';
+import '../../../../../widgets/inputs/app_contact_picker.dart';
 import '../../../../../widgets/cards/app_product_item_card.dart';
 import '../../checkout/checkout_screen.dart';
 
@@ -160,24 +159,10 @@ class _PulsaScreenState extends State<PulsaScreen> {
   }
 
   Future<void> _pickContact() async {
-    if (await Permission.contacts.request().isGranted) {
-      final contact = await FlutterContacts.openExternalPick();
-      if (contact != null && contact.phones.isNotEmpty) {
-        String phone = contact.phones.first.number.replaceAll(
-          RegExp(r'\D'),
-          '',
-        );
-        // Normalize 62 to 0
-        if (phone.startsWith('62')) {
-          phone = '0${phone.substring(2)}';
-        }
-        _primaryController.text = phone;
-      }
-    } else {
-      if (mounted) {
-        AppToast.warning(context, 'Permission to access contacts denied');
-      }
-    }
+    await AppContactPicker.show(context, (phone) {
+      _primaryController.text = phone;
+      _handleFieldChanged('phone', phone);
+    });
   }
 
   bool get _canProceed {
@@ -342,7 +327,7 @@ class _PulsaScreenState extends State<PulsaScreen> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 1.2,
+            childAspectRatio: 0.96,
             crossAxisSpacing: 24,
             mainAxisSpacing: 24,
           ),
@@ -371,12 +356,12 @@ class _PulsaScreenState extends State<PulsaScreen> {
                           0,
                     ),
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.brand500.withValues(alpha: 0.9),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,

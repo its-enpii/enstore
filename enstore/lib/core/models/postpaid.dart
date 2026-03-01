@@ -7,6 +7,7 @@ class PostpaidInquiryResult {
   final int tagihan;
   final int admin;
   final int total;
+  final List<PostpaidBillDetail> details;
 
   PostpaidInquiryResult({
     required this.inquiryRef,
@@ -17,6 +18,7 @@ class PostpaidInquiryResult {
     required this.tagihan,
     required this.admin,
     required this.total,
+    this.details = const [],
   });
 
   factory PostpaidInquiryResult.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,43 @@ class PostpaidInquiryResult {
       tagihan: (json['tagihan'] as num?)?.toInt() ?? 0,
       admin: (json['admin'] as num?)?.toInt() ?? 0,
       total: (json['total'] as num?)?.toInt() ?? 0,
+      details: json['details'] != null
+          ? (json['details'] as List)
+              .map((e) => PostpaidBillDetail.fromJson(e))
+              .toList()
+          : [],
+    );
+  }
+}
+
+class PostpaidBillDetail {
+  final String period;
+  final int nominal;
+  final int admin;
+  final int denda;
+  final String? meterAwal;
+  final String? meterAkhir;
+  final int biayaLain;
+
+  PostpaidBillDetail({
+    required this.period,
+    required this.nominal,
+    required this.admin,
+    this.denda = 0,
+    this.meterAwal,
+    this.meterAkhir,
+    this.biayaLain = 0,
+  });
+
+  factory PostpaidBillDetail.fromJson(Map<String, dynamic> json) {
+    return PostpaidBillDetail(
+      period: json['period'] ?? '',
+      nominal: (json['nominal'] as num?)?.toInt() ?? 0,
+      admin: (json['admin'] as num?)?.toInt() ?? 0,
+      denda: (json['denda'] as num?)?.toInt() ?? 0,
+      meterAwal: json['meter_awal']?.toString(),
+      meterAkhir: json['meter_akhir']?.toString(),
+      biayaLain: (json['biaya_lain'] as num?)?.toInt() ?? 0,
     );
   }
 }
@@ -40,8 +79,15 @@ class PostpaidPayResult {
   PostpaidPayResult({required this.transactionCode, required this.payment});
 
   factory PostpaidPayResult.fromJson(Map<String, dynamic> json) {
+    String trxCode = '';
+    if (json.containsKey('transaction') && json['transaction'] is Map) {
+      trxCode = json['transaction']['transaction_code'] ?? '';
+    } else {
+      trxCode = json['transaction_code'] ?? '';
+    }
+
     return PostpaidPayResult(
-      transactionCode: json['transaction_code'] ?? '',
+      transactionCode: trxCode,
       payment: Map<String, dynamic>.from(json['payment'] ?? {}),
     );
   }

@@ -258,7 +258,7 @@ export default function ProductDetailPage({
   const getChannelFee = (channel: PaymentChannel) => {
     let fee = channel.total_fee.flat;
     if (channel.total_fee.percent > 0) {
-      fee += (channel.total_fee.percent / 100) * (selectedItem?.price || 0);
+      fee += Math.ceil((channel.total_fee.percent / 100) * (selectedItem?.price || 0));
     }
     return fee;
   };

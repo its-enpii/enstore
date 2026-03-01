@@ -313,7 +313,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.88,
+              childAspectRatio: 0.96,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
@@ -353,6 +353,8 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                         color: AppColors.brand500.withValues(alpha: 0.9),
                       ),
                       textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(

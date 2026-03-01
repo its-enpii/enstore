@@ -12,6 +12,8 @@ import 'product/game/game_list_screen.dart';
 import 'product/pulsa/pulsa_screen.dart';
 import 'product/data/data_screen.dart';
 import 'product/voucher/voucher_screen.dart';
+import 'product/e_wallet/e_wallet_screen.dart';
+import 'product/internet/internet_screen.dart';
 import '../../../widgets/cards/app_service_item.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -422,12 +424,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   AppServiceItem(
                     title: 'E-Wallet',
                     icon: Icons.account_balance_wallet_rounded,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EWalletScreen(),
+                        ),
+                      );
+                    },
                   ),
                   AppServiceItem(
                     title: 'Internet',
                     icon: Icons.wifi_rounded,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const InternetScreen(),
+                        ),
+                      );
+                    },
                   ),
                   AppServiceItem(
                     title: 'Water',

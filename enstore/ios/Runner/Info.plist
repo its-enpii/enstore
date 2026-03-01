@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSContactsUsageDescription</key>
+	<string>Aplikasi memerlukan akses kontak untuk memudahkan Anda melakukan top up nomor kerabat atau teman.</string>
 </dict>
 </plist>

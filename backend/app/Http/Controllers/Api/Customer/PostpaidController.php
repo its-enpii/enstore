@@ -76,6 +76,12 @@ class PostpaidController extends Controller
             );
 
             if (! $result['success'] || ($result['data']['rc'] ?? '') !== '00') {
+                \Log::error('Digiflazz Inquiry Failed', [
+                    'result' => $result,
+                    'product_code' => $productItem->digiflazz_code,
+                    'customer_no' => $request->customer_no,
+                ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => $result['data']['message'] ?? 'Gagal cek tagihan. Periksa nomor pelanggan.',
@@ -83,6 +89,30 @@ class PostpaidController extends Controller
             }
 
             $data = $result['data'];
+
+            // Extract details from desc if available (Digiflazz structure)
+            $details = [];
+            $periodsFromDetails = [];
+            if (isset($data['desc']['detail']) && is_array($data['desc']['detail'])) {
+                foreach ($data['desc']['detail'] as $detail) {
+                    $details[] = [
+                        'period'      => ucwords(strtolower($detail['periode'])) ?? '',
+                        'nominal'     => (int) ($detail['nilai_tagihan'] ?? 0),
+                        'admin'       => (int) ($detail['admin'] ?? 0),
+                        'denda'       => (int) ($detail['denda'] ?? 0),
+                        'meter_awal'  => $detail['meter_awal'] ?? null,
+                        'meter_akhir' => $detail['meter_akhir'] ?? null,
+                        'biaya_lain'  => (int) ($detail['biaya_lain'] ?? 0),
+                    ];
+
+                    if (!empty($detail['periode'])) {
+                        $periodsFromDetails[] = $detail['periode'];
+                    }
+                }
+            }
+
+            // Get overall period from root data or construct it from details
+            $overallPeriod = $data['periode'] ?? $data['period'] ?? (!empty($periodsFromDetails) ? implode(', ', $periodsFromDetails) : '');
 
             // Hitung harga jual berdasarkan tipe customer
             $user         = auth()->user();
@@ -93,10 +123,10 @@ class PostpaidController extends Controller
 
             $realAdmin = $data['admin'] ?? 0;
 
-            // Harga supplier: pakai total_bayar jika ada, jika tidak hitung dari nominal + admin
+            // Harga supplier: pakai total_bayar jika ada, jika tidak hitung dari price + admin
             $supplierPrice = isset($data['total_bayar']) && $data['total_bayar'] > 0
                 ? $data['total_bayar']
-                : (($data['nominal'] ?? 0) + $realAdmin);
+                : (($data['price'] ?? 0) + $realAdmin);
 
             // Harga jual ke customer = harga supplier + profit kita
             $sellingPrice  = $supplierPrice + $profit;
@@ -111,14 +141,15 @@ class PostpaidController extends Controller
                 'product_name'    => $productItem->product->name . ' - ' . $productItem->name,
                 'customer_no'     => $request->customer_no,
                 'customer_name'   => $data['customer_name'] ?? '',
-                'period'          => $data['period'] ?? '',
-                'nominal'         => $data['nominal'] ?? 0,
+                'period'          => $overallPeriod,
+                'nominal'         => $data['price'] ?? 0,
                 'real_admin'      => $realAdmin,
                 'profit'          => $profit,
                 'display_admin'   => $displayAdmin,
                 'total'           => $sellingPrice,
                 'customer_type'   => $customerType,
                 'user_id'         => $user->id,
+                'details'         => $details,
             ];
 
             Cache::put($inquiryRef, $inquiryData, now()->addMinutes(30));
@@ -138,13 +169,13 @@ class PostpaidController extends Controller
                     'product_name' => $productItem->product->name . ' - ' . $productItem->name,
                     'customer_no'  => $request->customer_no,
                     'customer_name' => $data['customer_name'] ?? '',
-                    'period'       => $data['period'] ?? '',
-                    'tagihan'      => $data['nominal'] ?? 0,
+                    'period'       => $overallPeriod,
+                    'tagihan'      => $data['price'] ?? 0,
                     'admin'        => $displayAdmin,
                     'total'        => $sellingPrice,
+                    'details'      => $details,
                 ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Postpaid inquiry failed', [
                 'user_id'     => auth()->id(),
@@ -269,8 +300,8 @@ class PostpaidController extends Controller
                 'payment_instructions' => $tripayResponse['instructions'] ?? [],
                 'tripay_merchant_ref'  => $tripayResponse['merchant_ref'],
                 'tripay_customer_name' => $user->name,
-                'tripay_customer_email'=> $user->email,
-                'tripay_customer_phone'=> $user->phone ?? '',
+                'tripay_customer_email' => $user->email,
+                'tripay_customer_phone' => $user->phone ?? '',
             ]);
 
             // Update total_price di transaksi dengan biaya Tripay yang aktual
@@ -305,7 +336,6 @@ class PostpaidController extends Controller
                     'payment'     => $payment,
                 ],
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Postpaid payment failed', [
                 'user_id'      => auth()->id(),

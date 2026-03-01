@@ -56,7 +56,7 @@ class AppProductInputForm extends StatelessWidget {
   }
 
   Widget _buildField(Map<String, dynamic> field) {
-    final key = field['name'] ?? field['label'] ?? '';
+    final key = (field['name'] ?? field['label'] ?? '').toString();
     final type = (field['type'] ?? 'text').toString().toLowerCase();
     final label = field['label'] ?? key;
     final placeholder = field['placeholder'] ?? 'Enter $label';

@@ -5,6 +5,7 @@ import '../models/user.dart';
 import '../models/balance.dart';
 import '../models/transaction.dart';
 import '../models/notification.dart';
+import '../models/postpaid.dart';
 
 class CustomerService {
   final ApiClient _apiClient;
@@ -121,5 +122,40 @@ class CustomerService {
       ApiEndpoints.customerNotificationReadAll,
     );
     return ApiResponse.fromJson(response.data, (_) {});
+  }
+
+  // Postpaid (PPOB)
+  Future<ApiResponse<PostpaidInquiryResult>> postpaidInquiry({
+    required int productItemId,
+    required String customerNo,
+  }) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.postpaidInquiry,
+      data: {
+        'product_item_id': productItemId,
+        'customer_no': customerNo,
+      },
+    );
+    return ApiResponse.fromJson(
+      response.data,
+      (data) => PostpaidInquiryResult.fromJson(data),
+    );
+  }
+
+  Future<ApiResponse<PostpaidPayResult>> postpaidPay({
+    required String inquiryRef,
+    required String paymentMethod,
+  }) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.postpaidPay,
+      data: {
+        'inquiry_ref': inquiryRef,
+        'payment_method': paymentMethod,
+      },
+    );
+    return ApiResponse.fromJson(
+      response.data,
+      (data) => PostpaidPayResult.fromJson(data),
+    );
   }
 }

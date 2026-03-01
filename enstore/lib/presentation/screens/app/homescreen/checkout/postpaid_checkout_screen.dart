@@ -1,42 +1,33 @@
 import 'package:dio/dio.dart';
+import 'package:enstore/core/helpers/string_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'payment_screen.dart';
-import '../../../../../core/models/product.dart';
-
-import '../../../../../core/models/product_item.dart';
+import '../../../../../core/models/postpaid.dart';
 import '../../../../../core/models/transaction.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/services/transaction_service.dart';
-import '../../../../../core/services/auth_service.dart';
+import '../../../../../core/services/customer_service.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../widgets/layout/app_sticky_footer.dart';
 import '../../../../widgets/layout/app_app_bar.dart';
 import '../../../../widgets/feedback/app_toast.dart';
 import '../../../../widgets/feedback/app_dialog.dart';
 
-class CheckoutScreen extends StatefulWidget {
-  final Product product;
-  final ProductItem item;
-  final Map<String, dynamic> customerData;
-  final String targetLabel;
-  final String? itemPrefix;
+class PostpaidCheckoutScreen extends StatefulWidget {
+  final PostpaidInquiryResult inquiryResult;
 
-  const CheckoutScreen({
+  const PostpaidCheckoutScreen({
     super.key,
-    required this.product,
-    required this.item,
-    required this.customerData,
-    this.targetLabel = 'Target / ID',
-    this.itemPrefix,
+    required this.inquiryResult,
   });
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  State<PostpaidCheckoutScreen> createState() => _PostpaidCheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
   List<PaymentChannel> _paymentChannels = [];
   bool _isLoading = true;
   PaymentChannel? _selectedChannel;
@@ -57,7 +48,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         setState(() {
           if (response.success) {
             _paymentChannels = response.data ?? [];
-            // Auto select first channel if available
             if (_paymentChannels.isNotEmpty) {
               _selectedChannel = _paymentChannels.first;
             }
@@ -81,36 +71,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     ).format(price);
   }
 
-  /// Mengekstrak angka dari nama item dan memformatnya sebagai nominal.
-  /// Contoh: 'XL Axiata 50000' → '50.000'
-  String _formatNominal(String itemName) {
-    final digits = itemName.replaceAll(RegExp(r'\D'), '');
-    final number = int.tryParse(digits) ?? 0;
-    if (number == 0) return itemName;
-    return NumberFormat.decimalPattern('id_ID').format(number);
-  }
-
   int _calculateFee(PaymentChannel channel) {
-    double percentFee = widget.item.price * (channel.feePercent / 100);
+    double percentFee = widget.inquiryResult.total * (channel.feePercent / 100);
     return channel.feeFlat + percentFee.ceil();
   }
 
   int _calculateTotal() {
-    if (_selectedChannel == null) return widget.item.price;
-    return widget.item.price + _calculateFee(_selectedChannel!);
+    if (_selectedChannel == null) return widget.inquiryResult.total;
+    return widget.inquiryResult.total + _calculateFee(_selectedChannel!);
   }
 
   @override
   Widget build(BuildContext context) {
-    String imageUrl = widget.product.image ?? '';
-    if (imageUrl.isNotEmpty && !imageUrl.startsWith('http')) {
-      imageUrl =
-          '${ApiClient.baseUrl.replaceAll('/api', '')}/storage/$imageUrl';
-    }
-
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: const AppAppBar(title: 'Checkout'),
+      appBar: const AppAppBar(title: 'Checkout Pascabayar'),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -119,7 +94,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildProductSummaryCard(imageUrl),
+                _buildProductSummaryCard(),
                 const SizedBox(height: 32),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -153,7 +128,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildProductSummaryCard(String imageUrl) {
+  Widget _buildProductSummaryCard() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
@@ -170,29 +145,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               height: 72,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                image: imageUrl.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(imageUrl),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-                color: AppColors.cloud200,
+                color: AppColors.ocean500.withValues(alpha: 0.05),
               ),
-              child: imageUrl.isEmpty
-                  ? Icon(
-                      Icons.image_not_supported_rounded,
-                      color: AppColors.brand500.withValues(alpha: 0.9),
-                    )
-                  : null,
+              child: const Icon(
+                Icons.receipt_long_rounded,
+                color: AppColors.ocean500,
+              ),
             ),
-
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.product.name,
+                    widget.inquiryResult.productName.split('-')[1],
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.brand500.withValues(alpha: 0.6),
@@ -201,7 +167,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.item.name,
+                    widget.inquiryResult.period.capitalize(),
                     style: TextStyle(
                       fontSize: 20,
                       color: AppColors.brand500.withValues(alpha: 0.9),
@@ -210,8 +176,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _formatPrice(widget.item.price),
-                    style: TextStyle(
+                    _formatPrice(widget.inquiryResult.total),
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.ocean500,
                       fontWeight: FontWeight.w500,
@@ -227,7 +193,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildPaymentMethodList() {
-    // Group payment channels
     final Map<String, List<PaymentChannel>> groups = {};
     for (var channel in _paymentChannels) {
       if (!groups.containsKey(channel.group)) {
@@ -281,6 +246,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildPaymentChannelItem(PaymentChannel channel) {
     final isSelected = _selectedChannel?.code == channel.code;
+
     return GestureDetector(
       onTap: () => setState(() => _selectedChannel = channel),
       child: Container(
@@ -374,17 +340,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final fee = _calculateFee(_selectedChannel!);
     final total = _calculateTotal();
 
-    // Get target info (like User ID) from customerData
-    String target = '';
-    if (widget.customerData.containsKey('user_id')) {
-      target = widget.customerData['user_id'].toString();
-      if (widget.customerData.containsKey('zone_id')) {
-        target += ' (${widget.customerData['zone_id']})';
-      }
-    } else if (widget.customerData.isNotEmpty) {
-      target = widget.customerData.values.first.toString();
-    }
-
     AppDialog.show(
       context,
       type: AppDialogType.question,
@@ -395,17 +350,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 32),
-          _buildConfirmationRow(widget.targetLabel, target),
-          _buildConfirmationRow(
-            'Item',
-            widget.itemPrefix != null
-                ? '${widget.itemPrefix} ${_formatNominal(widget.item.name)}'
-                : widget.item.name,
-          ),
+          _buildConfirmationRow('ID Pelanggan', widget.inquiryResult.customerNo),
+          _buildConfirmationRow('Pelanggan', widget.inquiryResult.customerName),
+          _buildConfirmationRow('Periode', widget.inquiryResult.period),
           const SizedBox(height: 16),
           Divider(height: 1, color: AppColors.brand500.withValues(alpha: 0.05)),
           const SizedBox(height: 16),
-          _buildConfirmationRow('Subtotal', _formatPrice(widget.item.price)),
+          _buildConfirmationRow('Subtotal', _formatPrice(widget.inquiryResult.total)),
           _buildConfirmationRow('Biaya Admin', _formatPrice(fee)),
           const SizedBox(height: 16),
           Divider(height: 1, color: AppColors.brand500.withValues(alpha: 0.05)),
@@ -484,47 +435,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     try {
       final apiClient = ApiClient();
-      final transactionService = TransactionService(apiClient);
+      final customerService = CustomerService(apiClient);
 
-      // Construct purchase data matching ProductDetailClient.tsx
-      final Map<String, dynamic> purchaseData = {
-        'product_item_id': widget.item.id,
-        'payment_method': _selectedChannel!.code,
-        'customer_data': widget.customerData,
-      };
-
-      // Add optional top-level fields only if they have values
-      final email =
-          widget.customerData['email'] ?? widget.customerData['customer_email'];
-      if (email != null && email.toString().isNotEmpty) {
-        purchaseData['customer_email'] = email.toString();
-      }
-
-      final name =
-          widget.customerData['name'] ?? widget.customerData['customer_name'];
-      if (name != null && name.toString().isNotEmpty) {
-        purchaseData['customer_name'] = name.toString();
-      }
-
-      final phone =
-          widget.customerData['phone'] ?? widget.customerData['customer_phone'];
-      if (phone != null && phone.toString().isNotEmpty) {
-        purchaseData['customer_phone'] = phone.toString();
-      }
-
-      final authService = AuthService(apiClient);
-      final isLoggedIn = await authService.isLoggedIn();
-
-      final response = isLoggedIn
-          ? await transactionService.customerPurchase(purchaseData)
-          : await transactionService.guestPurchase(purchaseData);
+      final response = await customerService.postpaidPay(
+        inquiryRef: widget.inquiryResult.inquiryRef,
+        paymentMethod: _selectedChannel!.code,
+      );
 
       if (mounted) {
         setState(() => _isLoading = false);
         if (response.success && response.data != null) {
-          final transactionCode =
-              response.data!.transaction['transaction_code'] ??
-              response.data!.transaction['reference'];
+          final transactionCode = response.data!.transactionCode;
 
           if (mounted) {
             // First pop the confirmation dialog
