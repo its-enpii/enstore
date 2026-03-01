@@ -7,6 +7,7 @@ import '../../../../core/services/transaction_service.dart';
 import '../../../../core/models/transaction.dart';
 import '../../../widgets/feedback/app_toast.dart';
 import '../../../widgets/feedback/app_skeleton.dart';
+import '../../../widgets/inputs/app_text_field.dart';
 import '../home/checkout/transaction_status_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -141,35 +142,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: AppColors.cloud200,
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: _searchController,
-          onChanged: (val) => setState(() => _searchQuery = val),
-          decoration: InputDecoration(
-            icon: Icon(
-              Icons.search_rounded,
-              color: AppColors.brand500.withValues(alpha: 0.3),
-            ),
-            hintText: 'Search Transactions...',
-            hintStyle: TextStyle(
-              color: AppColors.brand500.withValues(alpha: 0.3),
-              fontSize: 16,
-            ),
-            border: InputBorder.none,
-          ),
-        ),
+      child: AppTextField(
+        controller: _searchController,
+        hintText: 'Search Transactions...',
+        prefixIcon: const Icon(Icons.search_rounded),
+        onChanged: (val) => setState(() => _searchQuery = val),
       ),
     );
   }

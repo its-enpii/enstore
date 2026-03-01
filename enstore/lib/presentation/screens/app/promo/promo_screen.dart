@@ -5,6 +5,7 @@ import '../../../../core/services/voucher_service.dart';
 import '../../../../core/models/voucher.dart';
 import '../../../widgets/feedback/app_toast.dart';
 import '../../../widgets/feedback/app_skeleton.dart';
+import '../../../widgets/inputs/app_text_field.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -20,12 +21,23 @@ class _PromoScreenState extends State<PromoScreen> {
   late final VoucherService _voucherService;
   List<VoucherModel> _vouchers = [];
   bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _voucherService = VoucherService(_apiClient);
     _fetchVouchers();
+    _searchController.addListener(() {
+      setState(() => _searchQuery = _searchController.text.toLowerCase());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchVouchers() async {
@@ -51,6 +63,15 @@ class _PromoScreenState extends State<PromoScreen> {
     }
   }
 
+  List<VoucherModel> get _displayedVouchers {
+    if (_searchQuery.isEmpty) return _vouchers;
+    return _vouchers
+        .where((v) =>
+            v.name.toLowerCase().contains(_searchQuery) ||
+            v.code.toLowerCase().contains(_searchQuery))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,26 +89,10 @@ class _PromoScreenState extends State<PromoScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Search Bar
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.cloud200,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.search_rounded,
-                        color: AppColors.brand500.withValues(alpha: 0.3),
-                      ),
-                      hintText: 'Search for promos',
-                      hintStyle: TextStyle(
-                        color: AppColors.brand500.withValues(alpha: 0.3),
-                        fontSize: 16,
-                      ),
-                      border: InputBorder.none,
-                    ),
-                  ),
+                AppTextField(
+                  controller: _searchController,
+                  hintText: 'Search for promos',
+                  prefixIcon: const Icon(Icons.search_rounded),
                 ),
                 const SizedBox(height: 24),
                 
@@ -104,10 +109,10 @@ class _PromoScreenState extends State<PromoScreen> {
                 
                 if (_isLoading)
                   _buildLoadingState()
-                else if (_vouchers.isEmpty)
+                else if (_displayedVouchers.isEmpty)
                   _buildEmptyState()
                 else
-                  ..._vouchers.map((voucher) => Column(
+                  ..._displayedVouchers.map((voucher) => Column(
                     children: [
                       _buildPromoCard(context, voucher),
                       const SizedBox(height: 16),

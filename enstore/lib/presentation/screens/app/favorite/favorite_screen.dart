@@ -3,6 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/models/product.dart';
 import '../../../../core/services/favorite_service.dart';
 import '../../../widgets/feedback/app_skeleton.dart';
+import '../../../widgets/inputs/app_text_field.dart';
 import '../home/product/game/game_detail_screen.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -61,37 +62,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Search Bar Area
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: AppColors.cloud200,
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    icon: Icon(
-                      Icons.search_rounded,
-                      color: AppColors.brand500.withValues(alpha: 0.3),
-                    ),
-                    hintText: 'Search Games...',
-                    hintStyle: TextStyle(
-                      color: AppColors.brand500.withValues(alpha: 0.3),
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                  ),
-                ),
+              child: AppTextField(
+                controller: _searchController,
+                hintText: 'Search Games...',
+                prefixIcon: const Icon(Icons.search_rounded),
               ),
             ),
 

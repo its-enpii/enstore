@@ -4,6 +4,8 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/models/user.dart';
 import '../../../widgets/feedback/app_toast.dart';
+import '../../../widgets/inputs/app_text_field.dart';
+import '../../../widgets/layout/app_app_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final User user;
@@ -84,27 +86,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: AppBar(
-        backgroundColor: AppColors.smoke200,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Account Details',
-          style: TextStyle(
-            color: AppColors.brand500.withValues(alpha: 0.9),
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppColors.brand500.withValues(alpha: 0.9),
-            size: 20,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: AppAppBar(title: 'Account Details'),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -112,32 +94,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFieldLabel('Full Name'),
-                const SizedBox(height: 8),
-                _buildTextField(
+                AppTextField(
+                  label: 'Full Name',
                   controller: _nameController,
-                  hint: 'Enter your full name',
-                  icon: Icons.person_outline_rounded,
+                  hintText: 'Enter your full name',
+                  prefixIcon: const Icon(Icons.person_outline_rounded),
                 ),
                 const SizedBox(height: 24),
 
-                _buildFieldLabel('Phone Number'),
-                const SizedBox(height: 8),
-                _buildTextField(
+                AppTextField(
+                  label: 'Phone Number',
                   controller: _phoneController,
-                  hint: 'Enter your phone number',
-                  icon: Icons.phone_outlined,
+                  hintText: 'Enter your phone number',
+                  prefixIcon: const Icon(Icons.phone_outlined),
                   keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 24),
 
-                _buildFieldLabel('Email Address (Readonly)'),
-                const SizedBox(height: 8),
-                _buildTextField(
+                AppTextField(
+                  label: 'Email Address',
                   controller: _emailController,
-                  hint: 'Email address',
-                  icon: Icons.email_outlined,
+                  hintText: 'Email address',
+                  prefixIcon: const Icon(Icons.email_outlined),
                   readOnly: true,
+                  helperText: 'Email address cannot be changed.',
                 ),
                 const SizedBox(height: 48),
 
@@ -146,10 +126,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   borderRadius: BorderRadius.circular(104),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     decoration: BoxDecoration(
                       color: AppColors.ocean500,
                       borderRadius: BorderRadius.circular(104),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.ocean500.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
                     alignment: Alignment.center,
                     child: _isLoading
@@ -162,10 +149,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           )
                         : const Text(
-                            'Save Changes',
+                            'SAVE CHANGES',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
                               color: AppColors.smoke200,
                             ),
                           ),
@@ -175,60 +163,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFieldLabel(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: AppColors.brand500.withValues(alpha: 0.6),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    bool readOnly = false,
-    TextInputType? keyboardType,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cloud200,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        keyboardType: keyboardType,
-        style: TextStyle(
-          color: AppColors.brand500.withValues(
-            alpha: readOnly ? 0.4 : 0.9,
-          ),
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            icon,
-            color: AppColors.brand500.withValues(alpha: 0.4),
-            size: 20,
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 16,
-          ),
-          hintText: hint,
-          hintStyle: TextStyle(
-            color: AppColors.brand500.withValues(alpha: 0.3),
-          ),
-        ),
       ),
     );
   }

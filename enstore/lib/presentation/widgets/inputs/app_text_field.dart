@@ -12,6 +12,8 @@ class AppTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final void Function(String)? onChanged;
   final String? Function(String?)? validator;
+  final bool readOnly;
+  final String? helperText;
 
   const AppTextField({
     super.key,
@@ -25,15 +27,20 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.onChanged,
     this.validator,
+    this.readOnly = false,
+    this.helperText,
   });
 
   @override
   Widget build(BuildContext context) {
     final textField = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: AppColors.cloud200,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.brand500.withValues(alpha: 0.05),
+          width: 1,
+        ),
       ),
       child: TextFormField(
         controller: controller,
@@ -42,68 +49,88 @@ class AppTextField extends StatelessWidget {
         textInputAction: textInputAction,
         onChanged: onChanged,
         validator: validator,
+        readOnly: readOnly,
         style: TextStyle(
-          color: AppColors.brand500.withValues(alpha: 0.9),
+          color: AppColors.brand500.withValues(
+            alpha: readOnly ? 0.4 : 0.9,
+          ),
           fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: AppColors.brand500.withValues(alpha: 0.3),
+            color: AppColors.brand500.withValues(alpha: 0.2),
             fontSize: 16,
           ),
           prefixIcon: prefixIcon != null
               ? IconTheme(
                   data: IconThemeData(
-                    color: AppColors.brand500.withValues(alpha: 0.4),
-                    size: 24,
+                    color: AppColors.brand500.withValues(alpha: 0.3),
+                    size: 20,
                   ),
-                  child: prefixIcon!,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: prefixIcon!,
+                  ),
                 )
               : null,
           prefixIconConstraints: const BoxConstraints(
-            minWidth: 32,
-            minHeight: 32,
+            minWidth: 48,
           ),
           suffixIcon: suffixIcon != null
               ? IconTheme(
                   data: IconThemeData(
-                    color: AppColors.brand500.withValues(alpha: 0.4),
-                    size: 24,
+                    color: AppColors.brand500.withValues(alpha: 0.3),
+                    size: 20,
                   ),
                   child: suffixIcon!,
                 )
               : null,
           suffixIconConstraints: const BoxConstraints(
-            minWidth: 32,
-            minHeight: 32,
+            minWidth: 48,
           ),
           border: InputBorder.none,
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 16,
+            vertical: 18,
+            horizontal: 20,
           ),
         ),
       ),
     );
 
-    if (label == null) return textField;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label!,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.brand500.withValues(alpha: 0.9),
+        if (label != null) ...[
+          Text(
+            label!.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: AppColors.brand500.withValues(alpha: 0.5),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 10),
+        ],
         textField,
+        if (helperText != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              helperText!,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: AppColors.brand500.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

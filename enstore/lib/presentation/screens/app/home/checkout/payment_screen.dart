@@ -285,7 +285,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (_error != null && _transaction == null) {
       return Scaffold(
         backgroundColor: AppColors.smoke200,
-        appBar: AppBar(backgroundColor: AppColors.smoke200, elevation: 0),
+        appBar: AppAppBar(title: 'Payment'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

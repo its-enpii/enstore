@@ -3,6 +3,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../widgets/feedback/app_toast.dart';
+import '../../../widgets/inputs/app_text_field.dart';
+import '../../../widgets/layout/app_app_bar.dart';
 
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
@@ -84,60 +86,60 @@ class _SecurityScreenState extends State<SecurityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
-      appBar: AppBar(
-        backgroundColor: AppColors.smoke200,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Security',
-          style: TextStyle(
-            color: AppColors.brand500.withValues(alpha: 0.9),
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppColors.brand500.withValues(alpha: 0.9),
-            size: 20,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: AppAppBar(title: 'Security'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildFieldLabel('Current Password'),
-            const SizedBox(height: 8),
-            _buildPasswordField(
+            AppTextField(
+              label: 'Current Password',
               controller: _currentPasswordController,
-              hint: 'Enter your current password',
+              hintText: 'Enter your current password',
               obscureText: _obscureCurrent,
-              onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscureCurrent
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () => setState(() => _obscureCurrent = !_obscureCurrent),
+              ),
             ),
             const SizedBox(height: 24),
 
-            _buildFieldLabel('New Password'),
-            const SizedBox(height: 8),
-            _buildPasswordField(
+            AppTextField(
+              label: 'New Password',
               controller: _newPasswordController,
-              hint: 'Min. 8 characters',
+              hintText: 'Min. 8 characters',
               obscureText: _obscureNew,
-              onToggle: () => setState(() => _obscureNew = !_obscureNew),
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscureNew
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () => setState(() => _obscureNew = !_obscureNew),
+              ),
             ),
             const SizedBox(height: 24),
 
-            _buildFieldLabel('Confirm New Password'),
-            const SizedBox(height: 8),
-            _buildPasswordField(
+            AppTextField(
+              label: 'Confirm New Password',
               controller: _confirmPasswordController,
-              hint: 'Retype your new password',
+              hintText: 'Retype your new password',
               obscureText: _obscureConfirm,
-              onToggle: () =>
-                  setState(() => _obscureConfirm = !_obscureConfirm),
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscureConfirm
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+              ),
             ),
             const SizedBox(height: 48),
 
@@ -146,10 +148,17 @@ class _SecurityScreenState extends State<SecurityScreen> {
               borderRadius: BorderRadius.circular(104),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 18),
                 decoration: BoxDecoration(
                   color: AppColors.ocean500,
                   borderRadius: BorderRadius.circular(104),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.ocean500.withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
                 alignment: Alignment.center,
                 child: _isLoading
@@ -159,79 +168,21 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         child: CircularProgressIndicator(
                           color: AppColors.smoke200,
                           strokeWidth: 2,
+                          strokeCap: StrokeCap.round,
                         ),
                       )
                     : const Text(
-                        'Update Password',
+                        'UPDATE PASSWORD',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
                           color: AppColors.smoke200,
                         ),
                       ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFieldLabel(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: AppColors.brand500.withValues(alpha: 0.6),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField({
-    required TextEditingController controller,
-    required String hint,
-    required bool obscureText,
-    required VoidCallback onToggle,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cloud200,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        style: TextStyle(
-          color: AppColors.brand500.withValues(alpha: 0.9),
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.lock_outline_rounded,
-            color: AppColors.brand500.withValues(alpha: 0.4),
-            size: 20,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(
-              obscureText
-                  ? Icons.visibility_off_outlined
-                  : Icons.visibility_outlined,
-              color: AppColors.brand500.withValues(alpha: 0.4),
-              size: 20,
-            ),
-            onPressed: onToggle,
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 16,
-          ),
-          hintText: hint,
-          hintStyle: TextStyle(
-            color: AppColors.brand500.withValues(alpha: 0.3),
-          ),
         ),
       ),
     );
