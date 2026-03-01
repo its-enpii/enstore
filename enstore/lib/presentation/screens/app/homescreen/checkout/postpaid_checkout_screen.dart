@@ -6,15 +6,18 @@ import 'package:intl/intl.dart';
 import 'payment_screen.dart';
 import '../../../../../core/models/postpaid.dart';
 import '../../../../../core/models/transaction.dart';
+import '../../../../../core/models/user.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/services/transaction_service.dart';
 import '../../../../../core/services/customer_service.dart';
+import '../../../../../core/services/auth_service.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../widgets/layout/app_sticky_footer.dart';
 import '../../../../widgets/layout/app_app_bar.dart';
 import '../../../../widgets/feedback/app_toast.dart';
 import '../../../../widgets/feedback/app_dialog.dart';
 import '../../../../widgets/feedback/app_skeleton.dart';
+import '../../../../widgets/inputs/app_text_field.dart';
 
 class PostpaidCheckoutScreen extends StatefulWidget {
   final PostpaidInquiryResult inquiryResult;
@@ -32,11 +35,40 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
   List<PaymentChannel> _paymentChannels = [];
   bool _isLoading = true;
   PaymentChannel? _selectedChannel;
+  bool _isLoggedIn = false;
+  User? _user;
+
+  final TextEditingController _voucherController = TextEditingController();
+
+  @override
+  void dispose() {
+    _voucherController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    _fetchPaymentChannels();
+    _checkAuthAndFetchChannels();
+  }
+
+  Future<void> _checkAuthAndFetchChannels() async {
+    final apiClient = ApiClient();
+    final authService = AuthService(apiClient);
+
+    final loggedIn = await authService.isLoggedIn();
+    if (mounted) {
+      setState(() => _isLoggedIn = loggedIn);
+    }
+
+    if (loggedIn) {
+      final userResponse = await authService.getMe();
+      if (mounted && userResponse.success) {
+        setState(() => _user = userResponse.data);
+      }
+    }
+
+    await _fetchPaymentChannels();
   }
 
   Future<void> _fetchPaymentChannels() async {
@@ -49,6 +81,21 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
         setState(() {
           if (response.success) {
             _paymentChannels = response.data ?? [];
+
+            // If logged in, add Saldo EnStore to the beginning of the list
+            if (_isLoggedIn) {
+              final balanceChannel = PaymentChannel(
+                code: 'ENS',
+                name: 'Saldo EnStore',
+                group: 'Internal',
+                feeFlat: 0,
+                feePercent: 0,
+                iconUrl: '',
+                active: true,
+              );
+              _paymentChannels.insert(0, balanceChannel);
+            }
+
             if (_paymentChannels.isNotEmpty) {
               _selectedChannel = _paymentChannels.first;
             }
@@ -97,6 +144,8 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
               children: [
                 _buildProductSummaryCard(),
                 const SizedBox(height: 32),
+                _buildVoucherSection(),
+                const SizedBox(height: 24),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
@@ -330,16 +379,35 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                channel.name
-                    .replaceAll('Virtual Account', 'VA')
-                    .replaceAll('(Customizable)', '')
-                    .trim(),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.brand500.withValues(alpha: 0.9),
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    channel.name
+                        .replaceAll('Virtual Account', 'VA')
+                        .replaceAll('(Customizable)', '')
+                        .trim(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.brand500.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  if (channel.code == 'ENS' && _user != null)
+                    Builder(builder: (context) {
+                      final balanceDouble = double.tryParse(_user?.balance ?? '0') ?? 0;
+                      return Text(
+                        'Sisa Saldo: ${_formatPrice(balanceDouble.toInt())}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: (balanceDouble < _calculateTotal())
+                              ? Colors.red
+                              : AppColors.brand500.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
+                    }),
+                ],
               ),
             ),
             Column(
@@ -368,6 +436,59 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
     );
   }
 
+  Widget _buildVoucherSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Voucher Code',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.brand500.withValues(alpha: 0.9),
+            ),
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            controller: _voucherController,
+            hintText: 'Enter voucher code',
+            prefixIcon: const Icon(Icons.confirmation_number_outlined),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.all(4),
+              child: GestureDetector(
+                onTap: () {
+                  if (_voucherController.text.isNotEmpty) {
+                    AppToast.success(context, 'Voucher code applied!');
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.ocean500,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Text(
+                    'Use',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStickyFooter() {
     int total = _calculateTotal();
 
@@ -382,6 +503,14 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
   Future<void> _processPayment() async {
     final fee = _calculateFee(_selectedChannel!);
     final total = _calculateTotal();
+
+    if (_selectedChannel!.code == 'ENS' && _user != null) {
+      final balanceDouble = double.tryParse(_user?.balance ?? '0') ?? 0;
+      if (balanceDouble < total) {
+        AppToast.error(context, 'Saldo tidak mencukupi. Silakan top up terlebih dahulu.');
+        return;
+      }
+    }
 
     AppDialog.show(
       context,
@@ -401,6 +530,8 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
           const SizedBox(height: 16),
           _buildConfirmationRow('Subtotal', _formatPrice(widget.inquiryResult.total)),
           _buildConfirmationRow('Biaya Admin', _formatPrice(fee)),
+          if (_voucherController.text.isNotEmpty)
+            _buildConfirmationRow('Voucher', _voucherController.text),
           const SizedBox(height: 16),
           Divider(height: 1, color: AppColors.brand500.withValues(alpha: 0.05)),
           const SizedBox(height: 16),
@@ -483,6 +614,7 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
       final response = await customerService.postpaidPay(
         inquiryRef: widget.inquiryResult.inquiryRef,
         paymentMethod: _selectedChannel!.code,
+        voucherCode: _voucherController.text.isNotEmpty ? _voucherController.text : null,
       );
 
       if (mounted) {

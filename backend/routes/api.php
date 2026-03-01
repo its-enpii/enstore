@@ -62,6 +62,7 @@ Route::prefix('auth')->group(function () {
 
 // Public Banner Routes
 Route::get('/banners', [App\Http\Controllers\Api\Public\BannerController::class, 'index']);
+Route::get('/vouchers', [App\Http\Controllers\Api\Public\VoucherController::class, 'index']);
 
 // Public Transaction Routes (Guest Checkout)
 Route::post('/transactions/purchase', [App\Http\Controllers\Api\Public\PublicTransactionController::class, 'createPurchase']);
@@ -252,6 +253,5 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/register', [App\Http\Controllers\Api\Customer\DeviceController::class, 'register']);
             Route::delete('/{deviceId}', [App\Http\Controllers\Api\Customer\DeviceController::class, 'destroy']);
         });
-
     });
 });

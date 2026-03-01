@@ -203,6 +203,7 @@ class PostpaidController extends Controller
         $validator = Validator::make($request->all(), [
             'inquiry_ref'    => 'required|string',
             'payment_method' => 'required|string',
+            'voucher_code'   => 'nullable|string|exists:vouchers,code',
         ]);
 
         if ($validator->fails()) {
@@ -250,6 +251,7 @@ class PostpaidController extends Controller
                     'customer_no' => $inquiryData['customer_no'],
                 ],
                 'inquiry_ref'  => $request->inquiry_ref,
+                'voucher_code' => $request->voucher_code,
                 'bill_data'    => [
                     'customer_name' => $inquiryData['customer_name'],
                     'period'        => $inquiryData['period'],

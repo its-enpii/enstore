@@ -8,6 +8,11 @@ use App\Models\ProductItem;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
 use App\Models\User;
+use App\Models\Voucher;
+use App\Models\VoucherUsage;
+use App\Services\DigiflazzService;
+use App\Services\TripayService;
+use App\Services\VoucherService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -38,7 +43,7 @@ class TransactionService
     public function generateTransactionCode()
     {
         do {
-            $code = 'ENS-'.date('Ymd').'-'.strtoupper(Str::random(6));
+            $code = 'ENS-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         } while (Transaction::where('transaction_code', $code)->exists());
 
         return $code;
@@ -104,7 +109,7 @@ class TransactionService
                 'customer_type' => $customerType,
                 'payment_method_type' => 'gateway',
                 'transaction_type' => 'purchase',
-                'product_name' => $productItem->product->name.' - '.$productItem->name,
+                'product_name' => $productItem->product->name . ' - ' . $productItem->name,
                 'product_code' => $productItem->digiflazz_code,
                 'product_price' => $price,
                 'admin_fee' => $adminFee,
@@ -203,7 +208,7 @@ class TransactionService
                 'customer_type' => $user->customer_type,
                 'payment_method_type' => 'balance',
                 'transaction_type' => 'purchase',
-                'product_name' => $productItem->product->name.' - '.$productItem->name,
+                'product_name' => $productItem->product->name . ' - ' . $productItem->name,
                 'product_code' => $productItem->digiflazz_code,
                 'product_price' => $price,
                 'admin_fee' => 0,
@@ -225,7 +230,7 @@ class TransactionService
             $this->balanceService->deductBalance(
                 $user,
                 $totalPrice,
-                'Purchase: '.$productItem->product->name.' - '.$productItem->name,
+                'Purchase: ' . $productItem->product->name . ' - ' . $productItem->name,
                 $transaction
             );
 
@@ -384,13 +389,13 @@ class TransactionService
 
         // Auto-refund for balance payments when order fails at provider
         if ($autoRefund && $transaction->payment_method_type === 'balance' && $transaction->user_id) {
-            $this->refundTransaction($transaction, 'Auto-refund: '.($reason ?? 'Transaction failed'));
+            $this->refundTransaction($transaction, 'Auto-refund: ' . ($reason ?? 'Transaction failed'));
         } elseif ($transaction->user_id) {
             // Create Notification for User (Failed)
             Notification::create([
                 'user_id' => $transaction->user_id,
                 'title' => 'Transaksi Gagal',
-                'message' => "Pembelian {$transaction->product_name} gagal. Alasan: ".($reason ?? 'Unknown error'),
+                'message' => "Pembelian {$transaction->product_name} gagal. Alasan: " . ($reason ?? 'Unknown error'),
                 'type' => 'error',
                 'data' => [
                     'transaction_code' => $transaction->transaction_code,
@@ -413,7 +418,7 @@ class TransactionService
     {
         // Validate: Can only refund failed or processing transactions
         if (! in_array($transaction->status, ['failed', 'processing', 'success'])) {
-            throw new \Exception('Transaction cannot be refunded in current status: '.$transaction->status);
+            throw new \Exception('Transaction cannot be refunded in current status: ' . $transaction->status);
         }
 
         // Validate: Cannot refund if already refunded
@@ -439,7 +444,7 @@ class TransactionService
             $this->balanceService->addBalance(
                 $user,
                 $refundAmount,
-                'Refund: '.$transaction->transaction_code.' - '.$reason,
+                'Refund: ' . $transaction->transaction_code . ' - ' . $reason,
                 $transaction
             );
 
@@ -450,7 +455,7 @@ class TransactionService
             ]);
 
             // Log the refund
-            $this->addLog($transaction, 'refunded', 'Transaction refunded: '.$reason, [
+            $this->addLog($transaction, 'refunded', 'Transaction refunded: ' . $reason, [
                 'refund_amount' => $refundAmount,
                 'refund_method' => 'balance',
                 'original_payment_method' => $transaction->payment_method_type,
@@ -461,7 +466,7 @@ class TransactionService
                 Notification::create([
                     'user_id' => $transaction->user_id,
                     'title' => 'Refund Berhasil',
-                    'message' => 'Dana sebesar Rp '.number_format($refundAmount, 0, ',', '.')." telah dikembalikan ke saldo Anda untuk transaksi {$transaction->transaction_code}.",
+                    'message' => 'Dana sebesar Rp ' . number_format($refundAmount, 0, ',', '.') . " telah dikembalikan ke saldo Anda untuk transaksi {$transaction->transaction_code}.",
                     'type' => 'success',
                     'data' => [
                         'transaction_code' => $transaction->transaction_code,
@@ -579,6 +584,20 @@ class TransactionService
                 throw new \Exception('Product is not a postpaid product');
             }
 
+            // Handle Voucher
+            $voucherCode = $data['voucher_code'] ?? null;
+            $voucher = null;
+            $discountAmount = 0;
+
+            if ($voucherCode) {
+                $voucherService = app(VoucherService::class);
+                $user = User::find($data['user_id'] ?? null);
+                $voucher = $voucherService->validateVoucher($voucherCode, $user, $productItem, $data['total_price']);
+                $discountAmount = $voucherService->calculateDiscount($voucher, $data['total_price']);
+            }
+
+            $finalPrice = $data['total_price'] - $discountAmount;
+
             // Create transaction
             $transaction = Transaction::create([
                 'transaction_code' => $this->generateTransactionCode(),
@@ -588,11 +607,13 @@ class TransactionService
                 'payment_method_type' => 'gateway',
                 'prepaid_postpaid_type' => 'postpaid',
                 'transaction_type' => 'purchase',
-                'product_name' => $productItem->product->name.' - '.$productItem->name,
+                'product_name' => $productItem->product->name . ' - ' . $productItem->name,
                 'product_code' => $productItem->digiflazz_code,
                 'product_price' => $data['total_price'],
+                'discount_amount' => $discountAmount,
+                'voucher_id' => $voucher ? $voucher->id : null,
                 'admin_fee' => 0,
-                'total_price' => $data['total_price'],
+                'total_price' => $finalPrice,
                 'customer_data' => $data['customer_data'],
                 'inquiry_ref' => $data['inquiry_ref'],
                 'bill_data' => $data['bill_data'],
@@ -601,6 +622,12 @@ class TransactionService
                 'payment_status' => 'pending',
                 'expired_at' => now()->addHours(2),
             ]);
+
+            // Record Voucher Usage
+            if ($voucher) {
+                $voucherService = app(VoucherService::class);
+                $voucherService->recordUsage($voucher, $transaction, $discountAmount);
+            }
 
             // Log transaction creation
             $this->addLog($transaction, 'created', 'Postpaid transaction created', [
@@ -613,7 +640,7 @@ class TransactionService
             return $transaction;
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Create Postpaid Transaction Error: '.$e->getMessage());
+            Log::error('Create Postpaid Transaction Error: ' . $e->getMessage());
             throw $e;
         }
     }

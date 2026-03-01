@@ -7,6 +7,7 @@ import '../../../../../core/models/product.dart';
 
 import '../../../../../core/models/product_item.dart';
 import '../../../../../core/models/transaction.dart';
+import '../../../../../core/models/user.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/services/transaction_service.dart';
 import '../../../../../core/services/auth_service.dart';
@@ -16,6 +17,7 @@ import '../../../../widgets/layout/app_app_bar.dart';
 import '../../../../widgets/feedback/app_toast.dart';
 import '../../../../widgets/feedback/app_dialog.dart';
 import '../../../../widgets/feedback/app_skeleton.dart';
+import '../../../../widgets/inputs/app_text_field.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Product product;
@@ -41,11 +43,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   List<PaymentChannel> _paymentChannels = [];
   bool _isLoading = true;
   PaymentChannel? _selectedChannel;
+  bool _isLoggedIn = false;
+  User? _user;
 
   @override
   void initState() {
     super.initState();
-    _fetchPaymentChannels();
+    _checkAuthAndFetchChannels();
+  }
+
+  Future<void> _checkAuthAndFetchChannels() async {
+    final apiClient = ApiClient();
+    final authService = AuthService(apiClient);
+
+    final loggedIn = await authService.isLoggedIn();
+    if (mounted) {
+      setState(() => _isLoggedIn = loggedIn);
+    }
+
+    if (loggedIn) {
+      final userResponse = await authService.getMe();
+      if (mounted && userResponse.success) {
+        setState(() => _user = userResponse.data);
+      }
+    }
+
+    await _fetchPaymentChannels();
+  }
+
+  final TextEditingController _voucherController = TextEditingController();
+
+  @override
+  void dispose() {
+    _voucherController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchPaymentChannels() async {
@@ -58,6 +89,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         setState(() {
           if (response.success) {
             _paymentChannels = response.data ?? [];
+
+            // If logged in, add Saldo EnStore to the beginning of the list
+            if (_isLoggedIn) {
+              final balanceChannel = PaymentChannel(
+                code: 'ENS',
+                name: 'Saldo EnStore',
+                group: 'Internal',
+                feeFlat: 0,
+                feePercent: 0,
+                iconUrl: '',
+                active: true,
+              );
+              _paymentChannels.insert(0, balanceChannel);
+            }
+
             // Auto select first channel if available
             if (_paymentChannels.isNotEmpty) {
               _selectedChannel = _paymentChannels.first;
@@ -122,6 +168,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 _buildProductSummaryCard(imageUrl),
                 const SizedBox(height: 32),
+                _buildVoucherSection(),
+                const SizedBox(height: 24),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
@@ -269,6 +317,59 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  Widget _buildVoucherSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Voucher Code',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.brand500.withValues(alpha: 0.9),
+            ),
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            controller: _voucherController,
+            hintText: 'Enter voucher code',
+            prefixIcon: const Icon(Icons.confirmation_number_outlined),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.all(4),
+              child: GestureDetector(
+                onTap: () {
+                  if (_voucherController.text.isNotEmpty) {
+                    AppToast.success(context, 'Voucher code applied!');
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.ocean500,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Text(
+                    'Use',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPaymentMethodList() {
     // Group payment channels
     final Map<String, List<PaymentChannel>> groups = {};
@@ -364,16 +465,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                channel.name
-                    .replaceAll('Virtual Account', 'VA')
-                    .replaceAll('(Customizable)', '')
-                    .trim(),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.brand500.withValues(alpha: 0.9),
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    channel.name
+                        .replaceAll('Virtual Account', 'VA')
+                        .replaceAll('(Customizable)', '')
+                        .trim(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.brand500.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  if (channel.code == 'balance' && _user != null)
+                    Builder(builder: (context) {
+                      final balanceDouble = double.tryParse(_user?.balance ?? '0') ?? 0;
+                      return Text(
+                        'Sisa Saldo: ${_formatPrice(balanceDouble.toInt())}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: (balanceDouble < widget.item.price)
+                              ? Colors.red
+                              : AppColors.brand500.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
+                    }),
+                ],
               ),
             ),
             Column(
@@ -417,6 +537,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final fee = _calculateFee(_selectedChannel!);
     final total = _calculateTotal();
 
+    if (_selectedChannel!.code == 'balance' && _user != null) {
+      final balanceDouble = double.tryParse(_user?.balance ?? '0') ?? 0;
+      if (balanceDouble < total) {
+        AppToast.error(context, 'Saldo tidak mencukupi. Silakan top up terlebih dahulu.');
+        return;
+      }
+    }
+
     // Get target info (like User ID) from customerData
     String target = '';
     if (widget.customerData.containsKey('user_id')) {
@@ -450,6 +578,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const SizedBox(height: 16),
           _buildConfirmationRow('Subtotal', _formatPrice(widget.item.price)),
           _buildConfirmationRow('Biaya Admin', _formatPrice(fee)),
+          if (_voucherController.text.isNotEmpty)
+            _buildConfirmationRow('Voucher', _voucherController.text),
           const SizedBox(height: 16),
           Divider(height: 1, color: AppColors.brand500.withValues(alpha: 0.05)),
           const SizedBox(height: 16),
@@ -529,12 +659,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final apiClient = ApiClient();
       final transactionService = TransactionService(apiClient);
 
-      // Construct purchase data matching ProductDetailClient.tsx
-      final Map<String, dynamic> purchaseData = {
+      final purchaseData = {
         'product_item_id': widget.item.id,
-        'payment_method': _selectedChannel!.code,
         'customer_data': widget.customerData,
+        'payment_method': _selectedChannel!.code,
       };
+
+      if (_voucherController.text.isNotEmpty) {
+        purchaseData['voucher_code'] = _voucherController.text;
+      }
 
       // Add optional top-level fields only if they have values
       final email =

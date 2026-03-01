@@ -6,6 +6,8 @@ import 'profile/profile_screen.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
 
+import 'homescreen/promo/promo_screen.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -34,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> get _screens => [
     const HomeScreen(),
-    const Center(child: Text('Promo Screen')), // Placeholder
+    const PromoScreen(),
     const Center(child: Text('Favorites Screen')), // Placeholder
     const Center(child: Text('Orders Screen')), // Placeholder
     _isLoggedIn ? const ProfileScreen() : const LoginScreen(),

@@ -145,12 +145,14 @@ class CustomerService {
   Future<ApiResponse<PostpaidPayResult>> postpaidPay({
     required String inquiryRef,
     required String paymentMethod,
+    String? voucherCode,
   }) async {
     final response = await _apiClient.post(
       ApiEndpoints.postpaidPay,
       data: {
         'inquiry_ref': inquiryRef,
         'payment_method': paymentMethod,
+        'voucher_code': voucherCode,
       },
     );
     return ApiResponse.fromJson(

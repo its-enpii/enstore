@@ -40,6 +40,7 @@ class ApiEndpoints {
 
   // Public
   static const String banners = '/banners';
+  static const String vouchers = '/vouchers';
   static const String appConfig = '/app-config';
   static const String lookupProvider = '/utility/lookup-provider';
   static const String publicPurchase = '/transactions/purchase';
