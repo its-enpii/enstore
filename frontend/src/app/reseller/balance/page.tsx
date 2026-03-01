@@ -71,7 +71,7 @@ export default function ResellerBalance() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Balance Card */}
           <BalanceCard
-            balance={balance?.available_balance ?? user?.balance ?? 0}
+            balance={balance?.available_balance ?? user?.balance?.balance ?? 0}
             userType={user?.customer_type}
           />
 

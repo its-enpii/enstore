@@ -5,28 +5,124 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../widgets/buttons/app_button.dart';
 import '../../../../widgets/layout/app_app_bar.dart';
 import '../../../../widgets/feedback/app_toast.dart';
+import '../../../../widgets/feedback/app_skeleton.dart';
 import '../../main_screen.dart';
 
-class TransactionStatusScreen extends StatelessWidget {
-  final TransactionStatusModel transaction;
+import '../../../../../core/network/api_client.dart';
+import '../../../../../core/services/transaction_service.dart';
 
-  const TransactionStatusScreen({super.key, required this.transaction});
+class TransactionStatusScreen extends StatefulWidget {
+  final TransactionStatusModel? transaction;
+  final String? transactionCode;
+
+  const TransactionStatusScreen({
+    super.key,
+    this.transaction,
+    this.transactionCode,
+  }) : assert(transaction != null || transactionCode != null);
+
+  @override
+  State<TransactionStatusScreen> createState() =>
+      _TransactionStatusScreenState();
+}
+
+class _TransactionStatusScreenState extends State<TransactionStatusScreen> {
+  late final TransactionService _transactionService;
+  TransactionStatusModel? _data;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _transactionService = TransactionService(ApiClient());
+    if (widget.transaction != null) {
+      _data = widget.transaction;
+      _isLoading = false;
+    } else {
+      _fetchStatus();
+    }
+  }
+
+  Future<void> _fetchStatus() async {
+    try {
+      final response = await _transactionService.getTransactionStatus(
+        widget.transactionCode!,
+      );
+      if (response.success && response.data != null && mounted) {
+        setState(() {
+          _data = response.data;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        AppToast.error(context, response.message);
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        AppToast.error(context, 'Failed to load transaction detail');
+        Navigator.pop(context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.smoke200,
+        appBar: const AppAppBar(title: 'Transaction Detail'),
+        body: _buildSkeleton(),
+      );
+    }
+
+    if (_data == null) {
+      return Scaffold(
+        backgroundColor: AppColors.smoke200,
+        appBar: const AppAppBar(title: 'Transaction Detail'),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                size: 64,
+                color: Colors.red.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Transaction not found',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              AppButton(
+                label: 'Go Back',
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final transaction = _data!;
     final isSuccess =
         transaction.status == 'success' || transaction.paymentStatus == 'paid';
-
     return Scaffold(
       backgroundColor: AppColors.smoke200,
       appBar: AppAppBar(
         title: 'Transaction Detail',
         onBackPressed: () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-            (route) => false,
-          );
+          // If we came from history, we can just pop.
+          // Navigation logic here depends on flow, normally pop is fine for detail
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+              (route) => false,
+            );
+          }
         },
       ),
       body: SingleChildScrollView(
@@ -158,6 +254,62 @@ class TransactionStatusScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSkeleton() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: AppColors.smoke200,
+              borderRadius: BorderRadius.circular(48),
+              border: Border.all(
+                color: AppColors.brand500.withValues(alpha: 0.05),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.brand500.withValues(alpha: 0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: AppShimmer(
+              child: Column(
+                children: [
+                  const AppSkeletonCircle(size: 80),
+                  const SizedBox(height: 24),
+                  const AppSkeleton(height: 24, width: 220, borderRadius: 8),
+                  const SizedBox(height: 12),
+                  const AppSkeleton(height: 14, width: 280, borderRadius: 4),
+                  const SizedBox(height: 32),
+                  ...List.generate(
+                    3,
+                    (index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: AppSkeleton(
+                        height: 72,
+                        width: double.infinity,
+                        borderRadius: 24,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const AppSkeleton(
+                    height: 56,
+                    width: double.infinity,
+                    borderRadius: 32,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

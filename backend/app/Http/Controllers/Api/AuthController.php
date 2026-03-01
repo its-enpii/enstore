@@ -211,7 +211,7 @@ class AuthController extends Controller
         try {
             $user = User::where('email', $request->email)->first();
             if (! $user) {
-                \Log::warning('User not found: '.$request->email);
+                \Log::warning('User not found: ' . $request->email);
             }
 
             $status = Password::sendResetLink(
@@ -230,7 +230,7 @@ class AuthController extends Controller
                 'status_code' => $status,
             ], 400);
         } catch (\Exception $e) {
-            \Log::error('Forgot password error: '.$e->getMessage());
+            \Log::error('Forgot password error: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
 
             return response()->json([
@@ -297,7 +297,10 @@ class AuthController extends Controller
                     'role' => $user->role,
                     'customer_type' => $user->customer_type,
                     'avatar' => $user->avatar,
-                    'balance' => $user->balance?->amount ?? 0,
+                    'balance' => $user->balance ? [
+                        'balance' => $user->balance->balance,
+                        'bonus_balance' => $user->balance->bonus_balance,
+                    ] : 0,
                     'referral_code' => $user->referral_code,
                     'status' => $user->status,
                     'email_verified_at' => $user->email_verified_at,

@@ -26,7 +26,7 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get profile: '.$e->getMessage(),
+                'message' => 'Failed to get profile: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -42,7 +42,9 @@ class ProfileController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
-            'avatar' => 'sometimes|url',
+            'phone' => 'sometimes|string|max:20|unique:users,phone,' . $user->id,
+            // Allow string (url or base64) or actual file (image)
+            'avatar' => 'sometimes',
         ]);
 
         if ($validator->fails()) {
@@ -54,8 +56,20 @@ class ProfileController extends Controller
         }
 
         try {
-            // Only update name and avatar, explicitly ignoring email and phone
-            $user->update($request->only(['name', 'avatar']));
+            $data = $request->only(['name', 'phone']);
+
+            $supabaseStorage = app(\App\Services\SupabaseStorageService::class);
+
+            // Handle Avatar Upload
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar) {
+                    $supabaseStorage->delete($user->avatar);
+                }
+                $data['avatar'] = $supabaseStorage->upload('avatars', $request->file('avatar'));
+            }
+
+            // Only update allowed fields
+            $user->update($data);
 
             return response()->json([
                 'success' => true,
@@ -65,7 +79,7 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update profile: '.$e->getMessage(),
+                'message' => 'Failed to update profile: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -113,7 +127,7 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to change password: '.$e->getMessage(),
+                'message' => 'Failed to change password: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -170,7 +184,7 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete account: '.$e->getMessage(),
+                'message' => 'Failed to delete account: ' . $e->getMessage(),
             ], 500);
         }
     }

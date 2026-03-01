@@ -11,13 +11,13 @@ class Balance extends Model
 
     protected $fillable = [
         'user_id',
-        'amount',
-        'hold_amount',
+        'balance',
+        'bonus_balance',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
-        'hold_amount' => 'decimal:2',
+        'balance' => 'decimal:2',
+        'bonus_balance' => 'decimal:2',
     ];
 
     // ==================== RELATIONSHIPS ====================

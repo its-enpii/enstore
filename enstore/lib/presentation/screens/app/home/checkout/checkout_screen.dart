@@ -356,7 +356,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: const Text(
                     'Use',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.smoke200,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),

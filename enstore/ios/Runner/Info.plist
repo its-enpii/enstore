@@ -47,5 +47,9 @@
 	<true/>
 	<key>NSContactsUsageDescription</key>
 	<string>Aplikasi memerlukan akses kontak untuk memudahkan Anda melakukan top up nomor kerabat atau teman.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Aplikasi memerlukan akses galeri foto untuk mengubah avatar profil Anda.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Aplikasi memerlukan akses kamera untuk mengambil foto profil langsung.</string>
 </dict>
 </plist>

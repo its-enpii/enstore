@@ -67,11 +67,43 @@ class TransactionService {
     );
   }
 
+  Future<ApiResponse<PurchaseResponse>> createTopup(
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.customerTopup,
+      data: data,
+    );
+    return ApiResponse.fromJson(
+      response.data,
+      (data) => PurchaseResponse.fromJson(data),
+    );
+  }
+
   Future<ApiResponse<void>> cancelTransaction(String code) async {
     final response = await _apiClient.post(
       ApiEndpoints.publicTransactionCancel(code),
       data: {},
     );
     return ApiResponse.fromJson(response.data, (_) {});
+  }
+
+  Future<ApiResponse<PaginatedData<Transaction>>> getTransactionHistory({
+    String? status,
+    String? type,
+    int page = 1,
+  }) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.customerTransactions,
+      queryParameters: {
+        if (status != null) 'status': status,
+        if (type != null) 'type': type,
+        'page': page,
+      },
+    );
+    return ApiResponse.fromJson(
+      response.data,
+      (data) => PaginatedData.fromJson(data, (e) => Transaction.fromJson(e)),
+    );
   }
 }

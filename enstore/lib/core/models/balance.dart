@@ -1,20 +1,27 @@
 class BalanceData {
   final int balance;
-  final int holdAmount;
+  final int bonusBalance;
   final int availableBalance;
 
   BalanceData({
     required this.balance,
-    required this.holdAmount,
+    required this.bonusBalance,
     required this.availableBalance,
   });
 
   factory BalanceData.fromJson(Map<String, dynamic> json) {
     return BalanceData(
-      balance: json['balance'] ?? 0,
-      holdAmount: json['hold_amount'] ?? 0,
-      availableBalance: json['available_balance'] ?? 0,
+      balance: _parseInt(json['balance']),
+      bonusBalance: _parseInt(json['bonus_balance']),
+      availableBalance: _parseInt(json['available_balance']),
     );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    return int.tryParse(value.toString()) ?? 0;
   }
 }
 
@@ -35,11 +42,11 @@ class BalanceMutation {
 
   factory BalanceMutation.fromJson(Map<String, dynamic> json) {
     return BalanceMutation(
-      id: json['id'],
-      type: json['type'],
-      amount: json['amount'],
-      description: json['description'],
-      createdAt: DateTime.parse(json['created_at']),
+      id: json['id'] ?? 0,
+      type: json['type'] ?? 'unknown',
+      amount: BalanceData._parseInt(json['amount']),
+      description: json['description'] ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
     );
   }
 }

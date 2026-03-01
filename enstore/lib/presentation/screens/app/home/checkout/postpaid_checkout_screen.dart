@@ -475,7 +475,7 @@ class _PostpaidCheckoutScreenState extends State<PostpaidCheckoutScreen> {
                   child: const Text(
                     'Use',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.smoke200,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),

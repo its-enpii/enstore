@@ -267,18 +267,31 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1 font-bold text-brand-500/90">
-                          <AccountBalanceWalletRounded
-                            style={{ fontSize: 14 }}
-                            className="text-brand-500/30"
-                          />
-                          <span>
-                            Rp{" "}
-                            {typeof user.balance === "number"
-                              ? user.balance.toLocaleString("id-ID")
-                              : user.balance?.balance.toLocaleString("id-ID") ||
-                                "0"}
-                          </span>
+                        <div className="flex flex-col items-end">
+                          <div className="flex items-center justify-end gap-1 font-bold text-brand-500/90">
+                            <AccountBalanceWalletRounded
+                              style={{ fontSize: 14 }}
+                              className="text-brand-500/30"
+                            />
+                            <span>
+                              Rp{" "}
+                              {typeof user.balance === "number"
+                                ? user.balance.toLocaleString("id-ID")
+                                : user.balance?.balance.toLocaleString(
+                                    "id-ID",
+                                  ) || "0"}
+                            </span>
+                          </div>
+                          {typeof user.balance !== "number" &&
+                            (user.balance?.bonus_balance ?? 0) > 0 && (
+                              <span className="text-[8px] font-bold tracking-tight text-emerald-500 uppercase">
+                                + Rp{" "}
+                                {user.balance?.bonus_balance.toLocaleString(
+                                  "id-ID",
+                                )}{" "}
+                                Bonus
+                              </span>
+                            )}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">

@@ -312,11 +312,11 @@ export default function TopUpPage() {
               </h3>
             </div>
             <p className="text-2xl font-bold text-brand-500/90 dark:text-smoke-200">
-              {formatCurrency(balance?.available_balance ?? user?.balance ?? 0)}
+              {formatCurrency(balance?.available_balance ?? user?.balance?.balance ?? 0)}
             </p>
-            {balance?.hold_amount ? (
+            {balance?.bonus_balance ? (
               <p className="mt-1 text-[10px] font-bold tracking-wider text-brand-500/30 uppercase">
-                Hold: {formatCurrency(balance.hold_amount)}
+                Bonus: {formatCurrency(balance.bonus_balance)}
               </p>
             ) : null}
           </div>
@@ -355,7 +355,7 @@ export default function TopUpPage() {
                   </span>
                   <span className="text-lg font-bold text-ocean-500">
                     {formatCurrency(
-                      (balance?.available_balance ?? user?.balance ?? 0) +
+                      (balance?.available_balance ?? user?.balance?.balance ?? 0) +
                         finalAmount,
                     )}
                   </span>

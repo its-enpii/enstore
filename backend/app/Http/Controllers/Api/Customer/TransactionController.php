@@ -59,7 +59,7 @@ class TransactionController extends Controller
             $orderItems = [
                 [
                     'sku' => $productItem->digiflazz_code,
-                    'name' => $productItem->product->name.' - '.$productItem->name,
+                    'name' => $productItem->product->name . ' - ' . $productItem->name,
                     'price' => $transaction->product_price,
                     'quantity' => 1,
                 ],
@@ -83,7 +83,7 @@ class TransactionController extends Controller
                 'customer_email' => $user->email,
                 'customer_phone' => $user->phone,
                 'order_items' => $orderItems,
-                'return_url' => config('app.frontend_url').'/transaction/'.$transaction->transaction_code,
+                'return_url' => config('app.frontend_url') . '/transaction/' . $transaction->transaction_code,
                 'expired_time' => now()->addHours(2)->timestamp,
             ];
 
@@ -109,7 +109,7 @@ class TransactionController extends Controller
             // UPDATE TRANSACTION WITH ACTUAL FEE FROM TRIPAY
             // This ensures the "Admin Fee" and "Total Price" in database match what user pays.
             $actualFee = $tripayResponse['total_fee'] ?? 0;
-            
+
             // Force calculation: Original Amount + Fee
             // We use the original transaction total_price (which is the product price) + actual fee
             $totalPrice = $transaction->total_price + $actualFee;
@@ -251,7 +251,7 @@ class TransactionController extends Controller
                 'customer_email' => $user->email,
                 'customer_phone' => $user->phone,
                 'order_items' => $orderItems,
-                'return_url' => config('app.frontend_url').'/transaction/'.$transaction->transaction_code,
+                'return_url' => config('app.frontend_url') . '/transaction/' . $transaction->transaction_code,
                 'expired_time' => now()->addHours(2)->timestamp,
             ];
 
@@ -268,7 +268,7 @@ class TransactionController extends Controller
                 'amount' => $tripayResponse['amount'],
                 'fee' => $tripayResponse['total_fee'] ?? 0,
                 'total_amount' => $tripayResponse['amount_received'],
-                'payment_url' => $tripayResponse['checkout_url'] ?? null,
+                'checkout_url' => $tripayResponse['checkout_url'] ?? null,
                 'qr_url' => $tripayResponse['qr_url'] ?? null,
                 'status' => 'pending',
                 'expired_at' => date('Y-m-d H:i:s', $tripayResponse['expired_time']),
@@ -277,7 +277,7 @@ class TransactionController extends Controller
 
             // UPDATE TRANSACTION WITH ACTUAL FEE FROM TRIPAY
             $actualFee = $tripayResponse['total_fee'] ?? 0;
-            
+
             // Force calculation: Original Amount + Fee
             $totalPrice = $transaction->total_price + $actualFee;
 
@@ -345,7 +345,7 @@ class TransactionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get transaction history: '.$e->getMessage(),
+                'message' => 'Failed to get transaction history: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -368,15 +368,29 @@ class TransactionController extends Controller
 
             // Structure to match PublicTransactionController for consistency
             $transactionData = $transaction->toArray();
-            $transactionData['product'] = [
-                'name' => $transaction->productItem->product->name,
-                'item' => $transaction->productItem->name,
-                'image' => $transaction->productItem->product->image,
-                'slug' => $transaction->productItem->product->slug,
-                'brand' => $transaction->productItem->product->brand,
-                'input_fields' => $transaction->productItem->product->input_fields,
-                'customer_data' => $transaction->customer_data,
-            ];
+
+            if ($transaction->productItem) {
+                $transactionData['product'] = [
+                    'name' => $transaction->productItem->product->name,
+                    'item' => $transaction->productItem->name,
+                    'image' => $transaction->productItem->product->image,
+                    'slug' => $transaction->productItem->product->slug,
+                    'brand' => $transaction->productItem->product->brand,
+                    'input_fields' => $transaction->productItem->product->input_fields,
+                    'customer_data' => $transaction->customer_data,
+                ];
+            } else {
+                // For Topup or other non-product transactions
+                $transactionData['product'] = [
+                    'name' => 'Top Up Balance',
+                    'item' => 'Saldo EnStore',
+                    'image' => null,
+                    'slug' => 'topup',
+                    'brand' => 'EnStore',
+                    'input_fields' => [],
+                    'customer_data' => $transaction->customer_data,
+                ];
+            }
 
             return response()->json([
                 'success' => true,
@@ -407,7 +421,7 @@ class TransactionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get payment channels: '.$e->getMessage(),
+                'message' => 'Failed to get payment channels: ' . $e->getMessage(),
             ], 500);
         }
     }

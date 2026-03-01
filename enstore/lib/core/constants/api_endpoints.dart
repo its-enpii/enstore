@@ -29,6 +29,7 @@ class ApiEndpoints {
   static const String customerTransactions = '/customer/transactions';
   static String customerTransactionDetail(String code) =>
       '/customer/transactions/$code';
+  static const String customerTopup = '/customer/transactions/topup';
   static const String customerBalance = '/customer/balance';
   static const String customerBalanceMutations = '/customer/balance/mutations';
   static const String customerWithdrawals = '/customer/withdrawals';

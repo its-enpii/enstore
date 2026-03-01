@@ -30,6 +30,7 @@ interface UserForm {
   role: string;
   phone_number: string;
   balance: string;
+  bonus_balance: string;
 }
 
 export default function EditUserPage() {
@@ -47,7 +48,8 @@ export default function EditUserPage() {
     password: "", // Optional for update
     role: "retail",
     phone_number: "",
-    balance: "0", // Treat balance as string in input to handle 0 well
+    balance: "0",
+    bonus_balance: "0",
   });
 
   const fetchData = useCallback(async () => {
@@ -70,6 +72,11 @@ export default function EditUserPage() {
             typeof user.balance === "number"
               ? user.balance
               : user.balance?.balance || 0,
+          ),
+          bonus_balance: String(
+            typeof user.balance === "number"
+              ? 0
+              : user.balance?.bonus_balance || 0,
           ),
         });
       }
@@ -104,6 +111,7 @@ export default function EditUserPage() {
       role: formData.role,
       phone_number: formData.phone_number,
       balance: parseInt(formData.balance) || 0,
+      bonus_balance: parseInt(formData.bonus_balance) || 0,
     };
 
     if (formData.password) {
@@ -255,6 +263,20 @@ export default function EditUserPage() {
                     value={formData.balance}
                     onChange={handleChange}
                     icon={<AccountBalanceWalletRounded />}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="mb-2 block text-xs font-bold tracking-widest text-brand-500/40 uppercase">
+                    Bonus Balance (IDR)
+                  </label>
+                  <Input
+                    fullWidth
+                    type="number"
+                    name="bonus_balance"
+                    value={formData.bonus_balance}
+                    onChange={handleChange}
+                    icon={<AccountBalanceWalletRounded className="text-emerald-500" />}
                     placeholder="0"
                   />
                 </div>

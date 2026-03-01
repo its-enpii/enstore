@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/network/api_client.dart';
-import '../../../../../core/services/voucher_service.dart';
-import '../../../../../core/models/voucher.dart';
-import '../../../../widgets/feedback/app_toast.dart';
-import '../../../../widgets/feedback/app_skeleton.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/services/voucher_service.dart';
+import '../../../../core/models/voucher.dart';
+import '../../../widgets/feedback/app_toast.dart';
+import '../../../widgets/feedback/app_skeleton.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -89,7 +89,7 @@ class _PromoScreenState extends State<PromoScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 
                 // Section Title
                 const Text(
@@ -302,7 +302,7 @@ class _PromoScreenState extends State<PromoScreen> {
                         child: const Text(
                           'Copy Code',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.smoke200,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),

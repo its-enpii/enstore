@@ -12,6 +12,7 @@ import '../../../../../widgets/cards/app_product_item_card.dart';
 import '../../checkout/checkout_screen.dart';
 import '../../../../../widgets/feedback/app_toast.dart';
 import '../../../../../widgets/feedback/app_skeleton.dart';
+import '../../../../../../core/services/favorite_service.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Product product;
@@ -45,6 +46,17 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       }
     }
     _fetchProductDetail();
+    _checkFavorite();
+  }
+
+  Future<void> _checkFavorite() async {
+    final status = await FavoriteService().isFavorite(widget.product.id);
+    if (mounted) setState(() => _isFavorite = status);
+  }
+
+  Future<void> _toggleFavorite() async {
+    await FavoriteService().toggleFavorite(_detailedProduct ?? widget.product);
+    await _checkFavorite();
   }
 
   bool get _canProceed {
@@ -129,7 +141,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 ? Icons.favorite_rounded
                 : Icons.favorite_border_rounded,
             iconColor: _isFavorite ? Colors.redAccent : null,
-            onPressed: () => setState(() => _isFavorite = !_isFavorite),
+            onPressed: _toggleFavorite,
           ),
         ],
       ),

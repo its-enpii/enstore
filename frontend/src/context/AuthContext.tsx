@@ -11,7 +11,10 @@ interface User {
   email: string;
   role: string;
   customer_type?: string;
-  balance?: number;
+  balance?: {
+    balance: number;
+    bonus_balance: number;
+  };
   avatar?: string;
 }
 

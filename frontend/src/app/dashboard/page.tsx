@@ -32,7 +32,7 @@ export default function CustomerDashboard() {
     },
     {
       title: "My Balance",
-      value: `Rp ${user?.balance?.toLocaleString("id-ID") || "0"}`,
+      value: `Rp ${user?.balance?.balance?.toLocaleString("id-ID") || "0"}`,
       icon: <AccountBalanceWalletRounded />,
       color: "brand" as const,
     },
@@ -108,7 +108,7 @@ export default function CustomerDashboard() {
         {/* Sidebar Modules */}
         <div className="flex flex-col space-y-6">
           <BalanceCard
-            balance={user?.balance ?? 0}
+            balance={user?.balance?.balance ?? 0}
             userType="Retail"
             topUpHref="/dashboard/topup"
             historyHref="/dashboard/balance/history"

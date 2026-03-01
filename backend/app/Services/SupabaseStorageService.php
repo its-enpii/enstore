@@ -32,8 +32,8 @@ class SupabaseStorageService
     {
         // Generate unique filename
         $extension = $file->getClientOriginalExtension();
-        $filename = Str::uuid().'.'.$extension;
-        $filePath = trim($folder, '/').'/'.$filename;
+        $filename = Str::uuid() . '.' . $extension;
+        $filePath = trim($folder, '/') . '/' . $filename;
 
         // Upload via Laravel's Storage facade (S3 driver)
         Storage::disk($this->disk)->put($filePath, file_get_contents($file->getRealPath()), [
@@ -43,6 +43,7 @@ class SupabaseStorageService
 
         return $this->getPublicUrl($filePath);
     }
+
 
     /**
      * Delete a file from Supabase Storage

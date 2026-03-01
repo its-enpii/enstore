@@ -77,7 +77,7 @@ class UserController extends Controller
 
                 $query->where(function ($q) use ($search, $searchableFields) {
                     foreach ($searchableFields as $field) {
-                        $q->orWhere($field, 'like', '%'.$search.'%');
+                        $q->orWhere($field, 'like', '%' . $search . '%');
                     }
                 });
             }
@@ -86,7 +86,7 @@ class UserController extends Controller
             $sortBy = $request->get('sort_by', 'created_at');
             $sortOrder = $request->get('sort_order', 'desc');
             $query->orderBy($sortBy, $sortOrder);
-            
+
             // Secondary sort for stability (CRITICAL for pagination)
             if ($sortBy !== 'id') {
                 $query->orderBy('id', 'desc');
@@ -107,7 +107,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get users: '.$e->getMessage(),
+                'message' => 'Failed to get users: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -180,7 +180,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create user: '.$e->getMessage(),
+                'message' => 'Failed to create user: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -195,12 +195,14 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,'.$id,
-            'phone' => 'sometimes|string|unique:users,phone,'.$id,
+            'email' => 'sometimes|email|unique:users,email,' . $id,
+            'phone' => 'sometimes|string|unique:users,phone,' . $id,
             'password' => 'sometimes|string|min:8',
             'role' => 'sometimes|in:admin,customer',
             'customer_type' => 'sometimes|in:retail,reseller',
             'status' => 'sometimes|in:active,inactive,suspended',
+            'balance' => 'sometimes|numeric|min:0',
+            'bonus_balance' => 'sometimes|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -219,7 +221,21 @@ class UserController extends Controller
                 $data['password'] = Hash::make($data['password']);
             }
 
+            // Remove balance fields from user update data as they are in relation
+            $balance = $data['balance'] ?? null;
+            $bonusBalance = $data['bonus_balance'] ?? null;
+            unset($data['balance'], $data['bonus_balance']);
+
             $user->update($data);
+
+            // Update balance relationship if provided
+            if ($balance !== null || $bonusBalance !== null) {
+                $balanceData = [];
+                if ($balance !== null) $balanceData['balance'] = $balance;
+                if ($bonusBalance !== null) $balanceData['bonus_balance'] = $bonusBalance;
+
+                $user->balance()->update($balanceData);
+            }
 
             return response()->json([
                 'success' => true,
@@ -229,7 +245,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update user: '.$e->getMessage(),
+                'message' => 'Failed to update user: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -262,7 +278,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete user: '.$e->getMessage(),
+                'message' => 'Failed to delete user: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -310,7 +326,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to adjust balance: '.$e->getMessage(),
+                'message' => 'Failed to adjust balance: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -345,7 +361,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get statistics: '.$e->getMessage(),
+                'message' => 'Failed to get statistics: ' . $e->getMessage(),
             ], 500);
         }
     }

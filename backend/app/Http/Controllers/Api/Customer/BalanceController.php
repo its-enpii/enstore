@@ -30,15 +30,15 @@ class BalanceController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'balance' => $balance->amount,
-                    'hold_amount' => $balance->hold_amount,
+                    'balance' => $balance->balance,
+                    'bonus_balance' => $balance->bonus_balance,
                     'available_balance' => $availableBalance,
                 ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get balance: '.$e->getMessage(),
+                'message' => 'Failed to get balance: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -63,7 +63,7 @@ class BalanceController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get balance mutations: '.$e->getMessage(),
+                'message' => 'Failed to get balance mutations: ' . $e->getMessage(),
             ], 500);
         }
     }

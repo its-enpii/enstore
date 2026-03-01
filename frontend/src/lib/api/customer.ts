@@ -15,7 +15,7 @@ import { ENDPOINTS } from "./config";
 
 export interface BalanceData {
   balance: number;
-  hold_amount: number;
+  bonus_balance: number;
   available_balance: number;
 }
 
@@ -146,8 +146,8 @@ export interface CustomerProfile {
   avatar?: string;
   created_at: string;
   balance?: {
-    amount: number;
-    hold_amount: number;
+    balance: number;
+    bonus_balance: number;
   };
 }
 

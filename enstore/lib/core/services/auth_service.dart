@@ -76,6 +76,46 @@ class AuthService {
     }
   }
 
+  Future<ApiResponse<User>> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final response = await _apiClient.put(
+        ApiEndpoints.customerUpdateProfile,
+        data: data,
+      );
+      return ApiResponse.fromJson(
+        response.data,
+        (data) => User.fromJson(data),
+      );
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? e.toString();
+      return ApiResponse(success: false, message: message);
+    } catch (e) {
+      return ApiResponse(success: false, message: e.toString());
+    }
+  }
+
+  Future<ApiResponse<User>> updateProfileWithAvatar(FormData data) async {
+    try {
+      // In Laravel, PUT requests don't parse multipart form data directly.
+      // So we send as POST, but we handle the '_method' field as 'PUT' in the formData.
+      data.fields.add(const MapEntry('_method', 'PUT'));
+      
+      final response = await _apiClient.post(
+        ApiEndpoints.customerUpdateProfile,
+        data: data,
+      );
+      return ApiResponse.fromJson(
+        response.data,
+        (data) => User.fromJson(data),
+      );
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? e.toString();
+      return ApiResponse(success: false, message: message);
+    } catch (e) {
+      return ApiResponse(success: false, message: e.toString());
+    }
+  }
+
   Future<ApiResponse<void>> forgotPassword(String email) async {
     try {
       final response = await _apiClient.post(
@@ -95,6 +135,21 @@ class AuthService {
         data: data,
       );
       return ApiResponse.fromJson(response.data, (_) {});
+    } catch (e) {
+      return ApiResponse(success: false, message: e.toString());
+    }
+  }
+
+  Future<ApiResponse<void>> changePassword(Map<String, dynamic> data) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.customerChangePassword,
+        data: data,
+      );
+      return ApiResponse.fromJson(response.data, (_) {});
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? e.toString();
+      return ApiResponse(success: false, message: message);
     } catch (e) {
       return ApiResponse(success: false, message: e.toString());
     }

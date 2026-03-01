@@ -66,7 +66,7 @@ class PublicTransactionController extends Controller
                     [
                         [
                             'sku' => $productItem->digiflazz_code,
-                            'name' => $productItem->product->name.' - '.$productItem->name,
+                            'name' => $productItem->product->name . ' - ' . $productItem->name,
                             'price' => (int) $transaction->product_price,
                             'quantity' => 1,
                         ],
@@ -80,7 +80,7 @@ class PublicTransactionController extends Controller
                         ],
                     ] : []
                 ),
-                'return_url' => config('app.frontend_url').'/transaction/'.$transaction->transaction_code,
+                'return_url' => config('app.frontend_url') . '/transaction/' . $transaction->transaction_code,
                 'expired_time' => now()->addHours(2)->timestamp,
             ];
 
@@ -166,13 +166,21 @@ class PublicTransactionController extends Controller
                     'product_name' => $transaction->product_name,
                     'total_price' => $transaction->total_price,
                     'created_at' => $transaction->created_at,
-                    'product' => [
+                    'product' => $transaction->productItem ? [
                         'name' => $transaction->productItem->product->name,
                         'item' => $transaction->productItem->name,
                         'image' => $transaction->productItem->product->image,
                         'slug' => $transaction->productItem->product->slug,
                         'brand' => $transaction->productItem->product->brand,
                         'input_fields' => $transaction->productItem->product->input_fields,
+                        'customer_data' => $transaction->customer_data,
+                    ] : [
+                        'name' => 'Top Up Balance',
+                        'item' => 'Saldo EnStore',
+                        'image' => null,
+                        'slug' => 'topup',
+                        'brand' => 'EnStore',
+                        'input_fields' => [],
                         'customer_data' => $transaction->customer_data,
                     ],
                     'pricing' => [
@@ -251,7 +259,7 @@ class PublicTransactionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get payment channels: '.$e->getMessage(),
+                'message' => 'Failed to get payment channels: ' . $e->getMessage(),
             ], 500);
         }
     }

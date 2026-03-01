@@ -137,9 +137,9 @@ export default function WalletPage() {
                       style={{ fontSize: 14 }}
                       className="text-amber-300"
                     />
-                    Hold:{" "}
+                    Bonus:{" "}
                     <span className="font-bold">
-                      {formatCurrency(balance?.hold_amount || 0)}
+                      {formatCurrency(balance?.bonus_balance || 0)}
                     </span>
                   </span>
                 </div>

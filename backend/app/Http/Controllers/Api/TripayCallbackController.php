@@ -152,10 +152,6 @@ class TripayCallbackController extends Controller
         $payment->update([
             'status' => 'paid',
             'paid_at' => now(),
-            'meta_data' => array_merge($payment->meta_data ?? [], [
-                'tripay_reference' => $callbackData['reference'] ?? null,
-                'paid_amount' => $callbackData['amount_received'] ?? null,
-            ]),
         ]);
 
         // Update transaction payment status
@@ -178,7 +174,7 @@ class TripayCallbackController extends Controller
             Notification::create([
                 'user_id' => $transaction->user_id,
                 'title' => 'Pembayaran Berhasil',
-                'message' => 'Pembayaran untuk '.$transaction->product_name.' telah berhasil.',
+                'message' => 'Pembayaran untuk ' . $transaction->product_name . ' telah berhasil.',
                 'type' => 'success',
                 'data' => [
                     'transaction_code' => $transaction->transaction_code,
@@ -217,7 +213,7 @@ class TripayCallbackController extends Controller
             Notification::create([
                 'user_id' => $transaction->user_id,
                 'title' => $status === 'expired' ? 'Pembayaran Kadaluarsa' : 'Pembayaran Gagal',
-                'message' => 'Pembayaran untuk '.$transaction->product_name.' '.($status === 'expired' ? 'telah kadaluarsa' : 'gagal').'.',
+                'message' => 'Pembayaran untuk ' . $transaction->product_name . ' ' . ($status === 'expired' ? 'telah kadaluarsa' : 'gagal') . '.',
                 'type' => $status === 'expired' ? 'warning' : 'error',
                 'data' => [
                     'transaction_code' => $transaction->transaction_code,
@@ -262,7 +258,7 @@ class TripayCallbackController extends Controller
             'amount' => $topupAmount,
             'balance_before' => $balanceBefore,
             'balance_after' => $balanceAfter,
-            'description' => 'Top up saldo via '.$transaction->payment_method,
+            'description' => 'Top up saldo via ' . $transaction->payment_method,
         ]);
 
         // Update transaction status

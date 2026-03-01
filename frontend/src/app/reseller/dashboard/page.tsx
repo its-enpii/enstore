@@ -62,13 +62,13 @@ export default function ResellerDashboard() {
   const stats = [
     {
       title: "Available Balance",
-      value: `Rp ${(balance?.available_balance ?? user?.balance ?? 0).toLocaleString("id-ID")}`,
+      value: `Rp ${(balance?.available_balance ?? user?.balance?.balance ?? 0).toLocaleString("id-ID")}`,
       icon: <AccountBalanceWalletRounded />,
       color: "ocean" as const,
     },
     {
-      title: "Hold Amount",
-      value: `Rp ${(balance?.hold_amount ?? 0).toLocaleString("id-ID")}`,
+      title: "Bonus Balance",
+      value: `Rp ${(balance?.bonus_balance ?? user?.balance?.bonus_balance ?? 0).toLocaleString("id-ID")}`,
       icon: <AssessmentRounded />,
       color: "brand" as const,
     },
@@ -204,7 +204,7 @@ export default function ResellerDashboard() {
         {/* Sidebar: Balance + Mutations */}
         <div className="flex flex-col space-y-6">
           <BalanceCard
-            balance={balance?.available_balance ?? user?.balance ?? 0}
+            balance={balance?.available_balance ?? user?.balance?.balance ?? 0}
             userType={user?.customer_type}
           />
 

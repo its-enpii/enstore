@@ -122,7 +122,7 @@ export interface User {
   role: string;
   customer_type?: string;
   status?: string;
-  balance: number | { balance: number };
+  balance: number | { balance: number; bonus_balance: number };
   is_active?: boolean | number;
   created_at: string;
   email_verified_at?: string;

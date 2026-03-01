@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import 'homescreen/home_screen.dart';
+import 'home/home_screen.dart';
 import '../auth/login_screen.dart';
 import 'profile/profile_screen.dart';
+import 'promo/promo_screen.dart';
+import 'favorite/favorite_screen.dart';
+import 'history/history_screen.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
-
-import 'homescreen/promo/promo_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -37,8 +38,8 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> get _screens => [
     const HomeScreen(),
     const PromoScreen(),
-    const Center(child: Text('Favorites Screen')), // Placeholder
-    const Center(child: Text('Orders Screen')), // Placeholder
+    const FavoriteScreen(),
+    const HistoryScreen(),
     _isLoggedIn ? const ProfileScreen() : const LoginScreen(),
   ];
 
@@ -95,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
               _buildNavItem(0, Icons.home_rounded),
               _buildNavItem(1, Icons.discount_outlined),
               _buildNavItem(2, Icons.favorite_outline_rounded),
-              _buildNavItem(3, Icons.receipt_long_outlined),
+              _buildNavItem(3, Icons.receipt_long_rounded),
               _buildNavItem(4, Icons.person_outline_rounded),
             ],
           ),

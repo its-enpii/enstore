@@ -3,8 +3,10 @@ class Transaction {
   final String transactionCode;
   final String status;
   final String paymentStatus;
-  final int totalAmount;
+  final int totalPrice;
   final String paymentMethod;
+  final String productName;
+  final String? productImage;
   final DateTime createdAt;
 
   Transaction({
@@ -12,20 +14,38 @@ class Transaction {
     required this.transactionCode,
     required this.status,
     required this.paymentStatus,
-    required this.totalAmount,
+    required this.totalPrice,
     required this.paymentMethod,
+    required this.productName,
+    this.productImage,
     required this.createdAt,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
-    final amount = json['total_amount'] ?? json['total_price'] ?? 0;
+    final amount = json['total_price'] ?? json['total_amount'] ?? 0;
+    
+    // Extract product info from nested relations if available
+    String name = json['product_name'] ?? 'Unknown Product';
+    String? image;
+    
+    if (json['product_item'] != null && json['product_item']['product'] != null) {
+      final product = json['product_item']['product'];
+      // If product_name isn't in root, maybe it's the product name + item name
+      if (json['product_name'] == null) {
+        name = "${product['name']} - ${json['product_item']['name']}";
+      }
+      image = product['image'];
+    }
+
     return Transaction(
       id: json['id'],
-      transactionCode: json['transaction_code'] ?? json['reference'] ?? '',
-      status: json['status'],
+      transactionCode: json['transaction_code'] ?? '',
+      status: json['status'] ?? 'pending',
       paymentStatus: json['payment_status'] ?? 'pending',
-      totalAmount: amount is num ? amount.toInt() : (double.tryParse(amount.toString())?.toInt() ?? 0),
+      totalPrice: amount is num ? amount.toInt() : (double.tryParse(amount.toString())?.toInt() ?? 0),
       paymentMethod: json['payment_method'] ?? 'unknown',
+      productName: name,
+      productImage: image,
       createdAt: DateTime.parse(json['created_at']),
     );
   }
