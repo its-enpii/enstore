@@ -23,7 +23,20 @@ import '../../../widgets/feedback/app_toast.dart';
 import 'topup_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool preloadedIsLoggedIn;
+  final String preloadedUserName;
+  final String? preloadedAvatar;
+  final String preloadedBalance;
+  final List<BannerModel> preloadedBanners;
+
+  const HomeScreen({
+    super.key,
+    this.preloadedIsLoggedIn = false,
+    this.preloadedUserName = 'Guest',
+    this.preloadedAvatar,
+    this.preloadedBalance = '0',
+    this.preloadedBanners = const [],
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -43,8 +56,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-    _fetchData();
+    // If preloaded data is available, use it directly
+    if (widget.preloadedBanners.isNotEmpty || widget.preloadedIsLoggedIn) {
+      _isLoggedIn = widget.preloadedIsLoggedIn;
+      _userName = widget.preloadedUserName;
+      _avatar = widget.preloadedAvatar;
+      _balance = widget.preloadedBalance;
+      _banners = widget.preloadedBanners;
+      _isCheckingAuth = false;
+      _isLoadingBanners = false;
+    } else {
+      _checkLoginStatus();
+      _fetchData();
+    }
   }
 
   Future<void> _fetchData() async {
@@ -299,11 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     )
                                   : Text(
                                       _isLoggedIn
-                                          ? 'Rp. ${NumberFormat.currency(
-                                              locale: 'id_ID',
-                                              symbol: '',
-                                              decimalDigits: 0,
-                                            ).format(double.tryParse(_balance) ?? 0)}'
+                                          ? 'Rp. ${NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0).format(double.tryParse(_balance) ?? 0)}'
                                           : 'Rp. --.---',
                                       style: TextStyle(
                                         color: AppColors.brand500.withValues(

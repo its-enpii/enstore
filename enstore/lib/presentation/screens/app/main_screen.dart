@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/models/banner.dart';
 import 'home/home_screen.dart';
 import '../auth/login_screen.dart';
 import 'profile/profile_screen.dart';
@@ -10,7 +11,20 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/network/api_client.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final bool preloadedIsLoggedIn;
+  final String preloadedUserName;
+  final String? preloadedAvatar;
+  final String preloadedBalance;
+  final List<BannerModel> preloadedBanners;
+
+  const MainScreen({
+    super.key,
+    this.preloadedIsLoggedIn = false,
+    this.preloadedUserName = 'Guest',
+    this.preloadedAvatar,
+    this.preloadedBalance = '0',
+    this.preloadedBanners = const [],
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -36,7 +50,13 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> get _screens => [
-    const HomeScreen(),
+    HomeScreen(
+      preloadedIsLoggedIn: widget.preloadedIsLoggedIn,
+      preloadedUserName: widget.preloadedUserName,
+      preloadedAvatar: widget.preloadedAvatar,
+      preloadedBalance: widget.preloadedBalance,
+      preloadedBanners: widget.preloadedBanners,
+    ),
     const PromoScreen(),
     const FavoriteScreen(),
     const HistoryScreen(),
