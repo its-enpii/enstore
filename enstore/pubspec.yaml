@@ -44,6 +44,11 @@ dependencies:
   flutter_contacts: ^1.1.9
   flutter_svg: ^2.0.17
   image_picker: ^1.2.1
+  google_sign_in: ^6.2.2
+  flutter_facebook_auth: ^7.1.1
+  change_app_package_name: ^1.5.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -67,9 +72,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - .env
+    - assets/images/
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -96,3 +102,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android_21: true # Baru untuk flutter_launcher_icons
+  adaptive_icon_background: "#F1F5F9" # Warna background logo Anda agar terlihat "full"
+  adaptive_icon_foreground: "assets/images/logo.png"

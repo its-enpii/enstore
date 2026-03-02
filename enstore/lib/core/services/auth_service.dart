@@ -82,10 +82,7 @@ class AuthService {
         ApiEndpoints.customerUpdateProfile,
         data: data,
       );
-      return ApiResponse.fromJson(
-        response.data,
-        (data) => User.fromJson(data),
-      );
+      return ApiResponse.fromJson(response.data, (data) => User.fromJson(data));
     } on DioException catch (e) {
       final message = e.response?.data['message'] ?? e.message ?? e.toString();
       return ApiResponse(success: false, message: message);
@@ -99,15 +96,12 @@ class AuthService {
       // In Laravel, PUT requests don't parse multipart form data directly.
       // So we send as POST, but we handle the '_method' field as 'PUT' in the formData.
       data.fields.add(const MapEntry('_method', 'PUT'));
-      
+
       final response = await _apiClient.post(
         ApiEndpoints.customerUpdateProfile,
         data: data,
       );
-      return ApiResponse.fromJson(
-        response.data,
-        (data) => User.fromJson(data),
-      );
+      return ApiResponse.fromJson(response.data, (data) => User.fromJson(data));
     } on DioException catch (e) {
       final message = e.response?.data['message'] ?? e.message ?? e.toString();
       return ApiResponse(success: false, message: message);
@@ -147,6 +141,34 @@ class AuthService {
         data: data,
       );
       return ApiResponse.fromJson(response.data, (_) {});
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? e.message ?? e.toString();
+      return ApiResponse(success: false, message: message);
+    } catch (e) {
+      return ApiResponse(success: false, message: e.toString());
+    }
+  }
+
+  Future<ApiResponse<User>> socialLogin(
+    String provider,
+    String accessToken,
+  ) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.socialToken(provider),
+        data: {'access_token': accessToken},
+      );
+
+      final apiResponse = ApiResponse.fromJson(
+        response.data,
+        (data) => User.fromJson(data['user']),
+      );
+
+      if (apiResponse.success && response.data['data'] != null) {
+        final token = response.data['data']['access_token'];
+        await _saveToken(token);
+      }
+      return apiResponse;
     } on DioException catch (e) {
       final message = e.response?.data['message'] ?? e.message ?? e.toString();
       return ApiResponse(success: false, message: message);

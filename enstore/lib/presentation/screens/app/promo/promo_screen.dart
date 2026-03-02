@@ -40,7 +40,7 @@ class _PromoScreenState extends State<PromoScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchVouchers() async {
+  Future<void> _fetchVouchers({bool isRefresh = false}) async {
     setState(() => _isLoading = true);
     try {
       final response = await _voucherService.getVouchers();
@@ -51,13 +51,13 @@ class _PromoScreenState extends State<PromoScreen> {
         });
       } else {
         setState(() => _isLoading = false);
-        if (mounted) {
+        if (mounted && isRefresh) {
           AppToast.error(context, response.message);
         }
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      if (mounted) {
+      if (mounted && isRefresh) {
         AppToast.error(context, 'Failed to fetch promos');
       }
     }
@@ -66,9 +66,11 @@ class _PromoScreenState extends State<PromoScreen> {
   List<VoucherModel> get _displayedVouchers {
     if (_searchQuery.isEmpty) return _vouchers;
     return _vouchers
-        .where((v) =>
-            v.name.toLowerCase().contains(_searchQuery) ||
-            v.code.toLowerCase().contains(_searchQuery))
+        .where(
+          (v) =>
+              v.name.toLowerCase().contains(_searchQuery) ||
+              v.code.toLowerCase().contains(_searchQuery),
+        )
         .toList();
   }
 
@@ -78,7 +80,7 @@ class _PromoScreenState extends State<PromoScreen> {
       backgroundColor: AppColors.smoke200,
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: _fetchVouchers,
+          onRefresh: () => _fetchVouchers(isRefresh: true),
           color: AppColors.ocean500,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
@@ -95,7 +97,7 @@ class _PromoScreenState extends State<PromoScreen> {
                   prefixIcon: const Icon(Icons.search_rounded),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Section Title
                 const Text(
                   'Available Promos',
@@ -106,18 +108,22 @@ class _PromoScreenState extends State<PromoScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 if (_isLoading)
                   _buildLoadingState()
                 else if (_displayedVouchers.isEmpty)
                   _buildEmptyState()
                 else
-                  ..._displayedVouchers.map((voucher) => Column(
-                    children: [
-                      _buildPromoCard(context, voucher),
-                      const SizedBox(height: 16),
-                    ],
-                  )).toList(),
+                  ..._displayedVouchers
+                      .map(
+                        (voucher) => Column(
+                          children: [
+                            _buildPromoCard(context, voucher),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      )
+                      .toList(),
               ],
             ),
           ),
@@ -128,14 +134,17 @@ class _PromoScreenState extends State<PromoScreen> {
 
   Widget _buildLoadingState() {
     return Column(
-      children: List.generate(3, (index) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: AppSkeleton(
-          height: 160,
-          width: double.infinity,
-          borderRadius: 24,
+      children: List.generate(
+        3,
+        (index) => Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: AppSkeleton(
+            height: 160,
+            width: double.infinity,
+            borderRadius: 24,
+          ),
         ),
-      )),
+      ),
     );
   }
 
@@ -164,7 +173,7 @@ class _PromoScreenState extends State<PromoScreen> {
 
   Widget _buildPromoCard(BuildContext context, VoucherModel voucher) {
     // Generate simple placeholder image based on voucher code if needed
-    final String validUntil = voucher.endDate != null 
+    final String validUntil = voucher.endDate != null
         ? 'Valid until ${DateFormat('dd MMM yyyy').format(voucher.endDate!)}'
         : 'Limited time offer';
 
@@ -175,9 +184,7 @@ class _PromoScreenState extends State<PromoScreen> {
         decoration: BoxDecoration(
           color: AppColors.cloud200,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: AppColors.brand500.withValues(alpha: 0.05),
-          ),
+          border: Border.all(color: AppColors.brand500.withValues(alpha: 0.05)),
         ),
         child: Column(
           children: [
@@ -219,13 +226,18 @@ class _PromoScreenState extends State<PromoScreen> {
                               validUntil,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.brand500.withValues(alpha: 0.4),
+                                color: AppColors.brand500.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                             if (!voucher.isAvailable) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.red.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(4),
@@ -239,7 +251,7 @@ class _PromoScreenState extends State<PromoScreen> {
                                   ),
                                 ),
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ],
@@ -248,7 +260,7 @@ class _PromoScreenState extends State<PromoScreen> {
                 ],
               ),
             ),
-            
+
             // Divider
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -257,7 +269,7 @@ class _PromoScreenState extends State<PromoScreen> {
                 color: AppColors.brand500.withValues(alpha: 0.05),
               ),
             ),
-            
+
             // Bottom Section: Code + Copy Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -268,8 +280,8 @@ class _PromoScreenState extends State<PromoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        voucher.isAvailable 
-                            ? 'PROMO CODE (${voucher.userRemaining} left)' 
+                        voucher.isAvailable
+                            ? 'PROMO CODE (${voucher.userRemaining} left)'
                             : 'PROMO CODE',
                         style: TextStyle(
                           fontSize: 10,

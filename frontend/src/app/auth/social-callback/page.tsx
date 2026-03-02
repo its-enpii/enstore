@@ -19,11 +19,33 @@ export default function SocialCallbackPage() {
       const role = searchParams.get("role");
       const customerType = searchParams.get("customer_type");
 
+      // Handle popup flow - check opener and name as backup
+      const isPopup =
+        (window.opener && window.opener !== window) ||
+        window.name === "Social Login";
+
+      console.log("Social Auth Callback:", {
+        isPopup,
+        windowName: window.name,
+        hasToken: !!token,
+      });
+
       if (error) {
+        if (isPopup) {
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: "AUTH_ERROR", message: error },
+              window.location.origin,
+            );
+          }
+          window.close();
+          // Fallback if window.close() is blocked or slow
+          setTimeout(() => setStatus("error"), 1000);
+          return;
+        }
         setStatus("error");
         setErrorMessage(error);
         toast.error(error);
-        // Redirect to login after a delay
         setTimeout(() => {
           router.push("/login");
         }, 3000);
@@ -31,15 +53,24 @@ export default function SocialCallbackPage() {
       }
 
       if (token) {
-        // Store the token
+        if (isPopup) {
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: "AUTH_SUCCESS", token, role, customerType },
+              window.location.origin,
+            );
+          }
+          window.close();
+          // Fallback if window.close() is blocked or slow
+          setTimeout(() => router.push("/dashboard"), 1000);
+          return;
+        }
+
+        // Store the token (fallback for non-popup)
         localStorage.setItem("auth_token", token);
-
-        // Refresh user context
         await refreshUser();
-
         toast.success("Login berhasil!");
 
-        // Determine where to redirect
         if (role === "admin") {
           router.push("/admin/dashboard");
         } else if (role === "customer" && customerType === "reseller") {
@@ -48,6 +79,16 @@ export default function SocialCallbackPage() {
           router.push("/dashboard");
         }
       } else {
+        if (isPopup) {
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: "AUTH_ERROR", message: "Tidak ada token yang diterima" },
+              window.location.origin,
+            );
+          }
+          window.close();
+          return;
+        }
         setStatus("error");
         setErrorMessage("Tidak ada token yang diterima dari server.");
         toast.error("Login gagal - token tidak ditemukan");
@@ -62,17 +103,16 @@ export default function SocialCallbackPage() {
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-cloud-200">
-      <div className="w-full max-w-md rounded-[48px] bg-smoke-200 p-10 shadow-enstore text-center">
+      <div className="w-full max-w-md rounded-[48px] bg-smoke-200 p-10 text-center shadow-enstore">
         {status === "loading" ? (
           <>
-            {/* Loading Spinner */}
-            <div className="flex justify-center mb-6">
+            <div className="mb-6 flex justify-center">
               <div className="relative">
-                <div className="w-16 h-16 border-4 border-ocean-500/20 rounded-full"></div>
-                <div className="w-16 h-16 border-4 border-ocean-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+                <div className="h-16 w-16 rounded-full border-4 border-ocean-500/20"></div>
+                <div className="absolute top-0 left-0 h-16 w-16 animate-spin rounded-full border-4 border-ocean-500 border-t-transparent"></div>
               </div>
             </div>
-            <h2 className="text-xl font-bold text-brand-500/90 mb-2">
+            <h2 className="mb-2 text-xl font-bold text-brand-500/90">
               Sedang Memproses...
             </h2>
             <p className="text-brand-500/40">
@@ -81,11 +121,10 @@ export default function SocialCallbackPage() {
           </>
         ) : (
           <>
-            {/* Error State */}
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                 <svg
-                  className="w-8 h-8 text-red-500"
+                  className="h-8 w-8 text-red-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -99,12 +138,8 @@ export default function SocialCallbackPage() {
                 </svg>
               </div>
             </div>
-            <h2 className="text-xl font-bold text-red-500 mb-2">
-              Login Gagal
-            </h2>
-            <p className="text-brand-500/40 mb-6">
-              {errorMessage}
-            </p>
+            <h2 className="mb-2 text-xl font-bold text-red-500">Login Gagal</h2>
+            <p className="mb-6 text-brand-500/40">{errorMessage}</p>
             <p className="text-sm text-brand-500/30">
               Mengalihkan ke halaman login...
             </p>

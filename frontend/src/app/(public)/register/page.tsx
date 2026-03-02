@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -42,9 +42,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const authProcessed = useRef(false);
 
   const handleSocialLogin = async (provider: "google" | "facebook") => {
     setSocialLoading(provider);
+    authProcessed.current = false; // Reset for new attempt
     try {
       await socialLogin(provider);
     } catch (err: any) {
@@ -52,6 +54,39 @@ export default function RegisterPage() {
       setSocialLoading(null);
     }
   };
+
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      // Only trust messages from our own origin
+      if (event.origin !== window.location.origin) return;
+      if (authProcessed.current) return;
+
+      const { type, token, role, customerType, message } = event.data;
+
+      if (type === "AUTH_SUCCESS") {
+        authProcessed.current = true;
+        localStorage.setItem("auth_token", token);
+        await refreshUser();
+        toast.success("Login berhasil!");
+
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+        } else if (role === "customer" && customerType === "reseller") {
+          router.push("/reseller/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
+        setSocialLoading(null);
+      } else if (type === "AUTH_ERROR") {
+        authProcessed.current = true;
+        toast.error(message || "Login gagal");
+        setSocialLoading(null);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [router, refreshUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

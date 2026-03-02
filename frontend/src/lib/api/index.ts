@@ -79,6 +79,8 @@ export type {
   PurchaseBalanceRequest,
   CustomerProfile,
   PostpaidInquiryRequest,
+  PostpaidInquiryData,
+  PostpaidBillDetail,
   PostpaidInquiryResponse,
   PostpaidPayRequest,
 } from "./customer";

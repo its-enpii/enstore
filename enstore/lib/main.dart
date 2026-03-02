@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/constants/api_endpoints.dart';
 import 'core/theme/app_colors.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'presentation/screens/splash/splash_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   // Set system UI overlay style for a cleaner look
   SystemChrome.setSystemUIOverlayStyle(

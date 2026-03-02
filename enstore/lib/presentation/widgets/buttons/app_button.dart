@@ -5,6 +5,7 @@ class AppButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? prefixIcon;
+  final Widget? prefixWidget;
   final IconData? suffixIcon;
   final Color backgroundColor;
   final Color foregroundColor;
@@ -22,6 +23,7 @@ class AppButton extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.prefixIcon,
+    this.prefixWidget,
     this.suffixIcon,
     this.backgroundColor = AppColors.ocean500,
     this.foregroundColor = AppColors.smoke200,
@@ -71,7 +73,10 @@ class AppButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (prefixIcon != null) ...[
+                  if (prefixWidget != null) ...[
+                    prefixWidget!,
+                    const SizedBox(width: 8),
+                  ] else if (prefixIcon != null) ...[
                     Icon(prefixIcon, size: 20),
                     const SizedBox(width: 8),
                   ],

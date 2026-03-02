@@ -29,20 +29,32 @@ export const resetPassword = async (data: any) => {
  * Initiate social login by fetching the OAuth redirect URL from backend
  * and redirecting the browser to the provider's authorization page
  */
-export const socialLogin = async (provider: 'google' | 'facebook') => {
+export const socialLogin = async (provider: "google" | "facebook") => {
   const endpoint = (ENDPOINTS.auth as any).socialRedirect(provider);
   const res = await api.get(endpoint);
   if (res.success && (res.data as any).redirect_url) {
-    window.location.href = (res.data as any).redirect_url;
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    window.open(
+      (res.data as any).redirect_url,
+      "Social Login",
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes,toolbar=no,menubar=no,scrollbars=yes`,
+    );
   } else {
-    throw new Error('Gagal mendapatkan URL login ' + provider);
+    throw new Error("Gagal mendapatkan URL login " + provider);
   }
 };
 
 /**
  * Exchange a social provider access token for an auth token (alternative flow)
  */
-export const socialTokenExchange = async (provider: 'google' | 'facebook', accessToken: string) => {
+export const socialTokenExchange = async (
+  provider: "google" | "facebook",
+  accessToken: string,
+) => {
   const endpoint = (ENDPOINTS.auth as any).socialToken(provider);
   return api.post(endpoint, { access_token: accessToken });
 };

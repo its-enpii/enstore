@@ -1,4 +1,4 @@
-package com.example.enstore
+package com.enpiistudio.enstore
 
 import android.provider.ContactsContract
 import io.flutter.embedding.android.FlutterActivity

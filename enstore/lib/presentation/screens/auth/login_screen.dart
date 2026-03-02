@@ -6,6 +6,10 @@ import 'register_screen.dart';
 import '../app/main_screen.dart';
 import '../../widgets/buttons/app_button.dart';
 import '../../widgets/inputs/app_text_field.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -60,6 +64,99 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Terjadi kesalahan: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final googleSignIn = GoogleSignIn(
+        serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
+      );
+      await googleSignIn.signOut(); // Force account picker
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+
+      if (accessToken == null) {
+        throw Exception('Gagal mendapatkan access token dari Google');
+      }
+
+      final apiClient = ApiClient();
+      final authService = AuthService(apiClient);
+      final response = await authService.socialLogin('google', accessToken);
+
+      if (mounted) {
+        if (response.success) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(response.message)));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Google Login Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _handleFacebookLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await FacebookAuth.instance.login();
+      if (result.status != LoginStatus.success) {
+        setState(() => _isLoading = false);
+        if (result.status == LoginStatus.failed) {
+          throw Exception(result.message);
+        }
+        return;
+      }
+
+      final accessToken = result.accessToken?.tokenString;
+      if (accessToken == null) {
+        throw Exception('Gagal mendapatkan access token dari Facebook');
+      }
+
+      final apiClient = ApiClient();
+      final authService = AuthService(apiClient);
+      final response = await authService.socialLogin('facebook', accessToken);
+
+      if (mounted) {
+        if (response.success) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(response.message)));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook Login Error: ${e.toString()}')),
         );
       }
     } finally {
@@ -178,6 +275,57 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(
                     child: Divider(
                       color: AppColors.brand500.withValues(alpha: 0.05),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+
+              // Social Login Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      label: 'Google',
+                      onPressed: _handleGoogleLogin,
+                      isLoading: _isLoading,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.brand500,
+                      disabledBackgroundColor: Colors.transparent,
+                      disabledForegroundColor: AppColors.brand500.withValues(
+                        alpha: 0.5,
+                      ),
+                      side: BorderSide(
+                        color: AppColors.brand500.withValues(alpha: 0.1),
+                      ),
+                      prefixWidget: SvgPicture.asset(
+                        'assets/icons/google.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Facebook',
+                      onPressed: _handleFacebookLogin,
+                      isLoading: _isLoading,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.brand500,
+                      disabledBackgroundColor: Colors.transparent,
+                      disabledForegroundColor: AppColors.brand500.withValues(
+                        alpha: 0.5,
+                      ),
+                      side: BorderSide(
+                        color: AppColors.brand500.withValues(alpha: 0.1),
+                      ),
+                      prefixWidget: SvgPicture.asset(
+                        'assets/icons/facebook.svg',
+                        width: 20,
+                        height: 20,
+                      ),
                     ),
                   ),
                 ],

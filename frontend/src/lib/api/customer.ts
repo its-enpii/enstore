@@ -156,31 +156,39 @@ export interface CustomerProfile {
 // ----------------------------------------------------------
 
 export interface PostpaidInquiryRequest {
-  sku: string;
+  product_item_id: number;
   customer_no: string;
 }
 
+export interface PostpaidBillDetail {
+  period: string;
+  nominal: number;
+  admin: number;
+  denda: number;
+  meter_awal?: string | null;
+  meter_akhir?: string | null;
+  biaya_lain?: number;
+}
+
+export interface PostpaidInquiryData {
+  inquiry_ref: string;
+  product_name: string;
+  customer_no: string;
+  customer_name: string;
+  period: string;
+  tagihan: number;
+  admin: number;
+  total: number;
+  details: PostpaidBillDetail[];
+}
+
 export interface PostpaidInquiryResponse {
-  status: string;
-  message: string;
-  data: {
-    ref_id: string;
-    customer_no: string;
-    customer_name: string;
-    buyer_sku_code: string;
-    admin: number;
-    selling_price: number;
-    price: number;
-    desc: {
-      tagihan?: string;
-      item_name?: string;
-      [key: string]: any;
-    };
-  };
+  data: PostpaidInquiryData;
 }
 
 export interface PostpaidPayRequest {
-  ref_id: string; // From inquiry
+  inquiry_ref: string;
+  payment_method: string;
 }
 
 // ----------------------------------------------------------
@@ -262,8 +270,8 @@ export async function getCustomerPaymentChannels(): Promise<
 
 export async function postpaidInquiry(
   data: PostpaidInquiryRequest,
-): Promise<ApiResponse<PostpaidInquiryResponse>> {
-  return api.post<PostpaidInquiryResponse>(
+): Promise<ApiResponse<PostpaidInquiryData>> {
+  return api.post<PostpaidInquiryData>(
     ENDPOINTS.customer.postpaidInquiry,
     data,
     true,

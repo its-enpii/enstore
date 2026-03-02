@@ -43,6 +43,7 @@ export const ENDPOINTS = {
     /** GET - Get available payment channels */
     paymentChannels: "/transactions/payment-channels",
     banners: "/banners",
+    vouchers: "/vouchers",
   },
 
   // ----------------------------------------------------------

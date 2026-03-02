@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'security_screen.dart';
+import 'withdrawal_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -117,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _user = response.data;
             _isLoading = false;
           });
-          
+
           AppToast.success(context, 'Foto profil berhasil diperbarui');
         } else {
           setState(() => _isLoading = false);
@@ -425,6 +426,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Icons.shield_outlined,
                     onTap: _navigateToSecurity,
                   ),
+                  const SizedBox(height: 8),
+                  _buildActionCard(
+                    'Withdraw Balance',
+                    Icons.account_balance_wallet_outlined,
+                    onTap: _navigateToWithdrawal,
+                  ),
 
                   const SizedBox(height: 32),
 
@@ -492,9 +499,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _navigateToSecurity() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const SecurityScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const SecurityScreen()));
+  }
+
+  void _navigateToWithdrawal() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const WithdrawalScreen()));
   }
 
   Future<void> _openHelpCenter() async {

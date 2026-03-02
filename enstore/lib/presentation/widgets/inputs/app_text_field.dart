@@ -36,7 +36,7 @@ class AppTextField extends StatelessWidget {
     final textField = Container(
       decoration: BoxDecoration(
         color: AppColors.cloud200,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(99),
         border: Border.all(
           color: AppColors.brand500.withValues(alpha: 0.05),
           width: 1,
@@ -51,9 +51,7 @@ class AppTextField extends StatelessWidget {
         validator: validator,
         readOnly: readOnly,
         style: TextStyle(
-          color: AppColors.brand500.withValues(
-            alpha: readOnly ? 0.4 : 0.9,
-          ),
+          color: AppColors.brand500.withValues(alpha: readOnly ? 0.4 : 0.9),
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -75,9 +73,7 @@ class AppTextField extends StatelessWidget {
                   ),
                 )
               : null,
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 48,
-          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 48),
           suffixIcon: suffixIcon != null
               ? IconTheme(
                   data: IconThemeData(
@@ -87,9 +83,7 @@ class AppTextField extends StatelessWidget {
                   child: suffixIcon!,
                 )
               : null,
-          suffixIconConstraints: const BoxConstraints(
-            minWidth: 48,
-          ),
+          suffixIconConstraints: const BoxConstraints(minWidth: 48),
           border: InputBorder.none,
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(

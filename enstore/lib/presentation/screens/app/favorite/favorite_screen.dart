@@ -76,10 +76,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               child: _isLoading
                   ? _buildLoadingGrid()
                   : _favorites.isEmpty
-                      ? _buildEmptyState()
-                      : _filteredFavorites.isEmpty
-                          ? _buildNoResultsState()
-                          : _buildFavoriteGrid(),
+                  ? _buildEmptyState()
+                  : _filteredFavorites.isEmpty
+                  ? _buildNoResultsState()
+                  : _buildFavoriteGrid(),
             ),
           ],
         ),
@@ -101,11 +101,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: AppSkeleton(
-                borderRadius: 24,
-                width: double.infinity,
-              ),
+            Flexible(
+              child: AppSkeleton(borderRadius: 24, width: double.infinity),
             ),
             const SizedBox(height: 12),
             AppSkeleton(height: 16, width: 100),
@@ -120,6 +117,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   Widget _buildEmptyState() {
     return Center(
       child: Column(
+        mainAxisSize: MainAxisSize.min, // Fix unbounded column height crash
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
@@ -139,9 +137,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           const SizedBox(height: 8),
           Text(
             'Games you favorite will appear here',
-            style: TextStyle(
-              color: AppColors.brand500.withValues(alpha: 0.4),
-            ),
+            style: TextStyle(color: AppColors.brand500.withValues(alpha: 0.4)),
           ),
         ],
       ),
@@ -151,6 +147,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   Widget _buildNoResultsState() {
     return Center(
       child: Column(
+        mainAxisSize: MainAxisSize.min, // Fix unbounded column height crash
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
@@ -203,7 +200,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cover Image
-          Expanded(
+          Flexible(
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -221,7 +218,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     ? Image.network(
                         product.image!,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildImagePlaceholder(),
                       )
                     : _buildImagePlaceholder(),
               ),

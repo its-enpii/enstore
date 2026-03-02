@@ -5,6 +5,10 @@ import '../../../core/network/api_client.dart';
 import '../../widgets/buttons/app_button.dart';
 import '../app/main_screen.dart';
 import '../../widgets/inputs/app_text_field.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -80,12 +84,108 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final googleSignIn = GoogleSignIn(
+        serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
+      );
+      await googleSignIn.signOut(); // Force account picker
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+
+      if (accessToken == null) {
+        throw Exception('Gagal mendapatkan access token dari Google');
+      }
+
+      final apiClient = ApiClient();
+      final authService = AuthService(apiClient);
+      final response = await authService.socialLogin('google', accessToken);
+
+      if (mounted) {
+        if (response.success) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(response.message)));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Google Login Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _handleFacebookLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await FacebookAuth.instance.login();
+      if (result.status != LoginStatus.success) {
+        setState(() => _isLoading = false);
+        if (result.status == LoginStatus.failed) {
+          throw Exception(result.message);
+        }
+        return;
+      }
+
+      final accessToken = result.accessToken?.tokenString;
+      if (accessToken == null) {
+        throw Exception('Gagal mendapatkan access token dari Facebook');
+      }
+
+      final apiClient = ApiClient();
+      final authService = AuthService(apiClient);
+      final response = await authService.socialLogin('facebook', accessToken);
+
+      if (mounted) {
+        if (response.success) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(response.message)));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook Login Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.smoke200,
       appBar: AppBar(
         backgroundColor: AppColors.smoke200,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
@@ -192,6 +292,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onPressed: _handleRegister,
                 isLoading: _isLoading,
                 suffixIcon: Icons.how_to_reg_rounded,
+                width: double.infinity,
+              ),
+
+              const SizedBox(height: 24),
+
+              // Divider
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      color: AppColors.brand500.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'ATAU',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.brand500.withValues(alpha: 0.2),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      color: AppColors.brand500.withValues(alpha: 0.05),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // Social Login Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      label: 'Google',
+                      onPressed: _handleGoogleLogin,
+                      isLoading: _isLoading,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.brand500,
+                      disabledBackgroundColor: Colors.transparent,
+                      disabledForegroundColor: AppColors.brand500.withValues(
+                        alpha: 0.5,
+                      ),
+                      side: BorderSide(
+                        color: AppColors.brand500.withValues(alpha: 0.1),
+                      ),
+                      prefixWidget: SvgPicture.asset(
+                        'assets/icons/google.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Facebook',
+                      onPressed: _handleFacebookLogin,
+                      isLoading: _isLoading,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.brand500,
+                      disabledBackgroundColor: Colors.transparent,
+                      disabledForegroundColor: AppColors.brand500.withValues(
+                        alpha: 0.5,
+                      ),
+                      side: BorderSide(
+                        color: AppColors.brand500.withValues(alpha: 0.1),
+                      ),
+                      prefixWidget: SvgPicture.asset(
+                        'assets/icons/facebook.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 24),
