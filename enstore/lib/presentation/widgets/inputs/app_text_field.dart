@@ -75,12 +75,18 @@ class AppTextField extends StatelessWidget {
               : null,
           prefixIconConstraints: const BoxConstraints(minWidth: 48),
           suffixIcon: suffixIcon != null
-              ? IconTheme(
-                  data: IconThemeData(
-                    color: AppColors.brand500.withValues(alpha: 0.3),
-                    size: 20,
+              ? Theme(
+                  data: Theme.of(context).copyWith(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
                   ),
-                  child: suffixIcon!,
+                  child: IconTheme(
+                    data: IconThemeData(
+                      color: AppColors.brand500.withValues(alpha: 0.3),
+                      size: 20,
+                    ),
+                    child: suffixIcon!,
+                  ),
                 )
               : null,
           suffixIconConstraints: const BoxConstraints(minWidth: 48),

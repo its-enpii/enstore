@@ -214,14 +214,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: '••••••••',
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
                 obscureText: _obscurePassword,
-                suffixIcon: IconButton(
-                  icon: Icon(
+                suffixIcon: GestureDetector(
+                  onTap: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                  child: Icon(
                     _obscurePassword
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
                   ),
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
 
